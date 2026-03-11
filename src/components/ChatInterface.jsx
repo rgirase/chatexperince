@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical } from 'lucide-react';
 import { generateResponse, generateSuggestion, summarizeMemory } from '../services/llm';
 
 const generateSelfie = async (prompt, persona, aiMessageId, setMessages) => {
@@ -69,6 +70,7 @@ const ChatInterface = ({ persona, allPersonas, onBack }) => {
         return saved ? JSON.parse(saved) : null;
     });
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const messagesEndRef = useRef(null);
 
     const getIntensityPrompt = (level) => {
@@ -263,9 +265,39 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
         }
     };
 
+    // Deterministic pseudo-random color based on persona name
+    const getStringHash = (str) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        return hash;
+    };
+    const hue1 = Math.abs(getStringHash(persona.name)) % 360;
+    const hue2 = (hue1 + 45) % 360;
+
     return (
-        <div className="chat-container fade-in">
-            <div className="chat-header">
+        <div className="chat-container fade-in" onClick={() => isMobileMenuOpen && setIsMobileMenuOpen(false)} style={{ position: 'relative', overflow: 'hidden' }}>
+
+            {/* Ambient Animated Live Backgrounds */}
+            <motion.div
+                style={{
+                    position: 'absolute', top: '-10%', left: '-10%', width: '60vw', height: '60vw',
+                    background: `radial-gradient(circle, hsla(${hue1}, 80%, 40%, 0.15) 0%, transparent 70%)`,
+                    filter: 'blur(60px)', zIndex: 0, borderRadius: '50%', pointerEvents: 'none'
+                }}
+                animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
+                transition={{ duration: 15, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
+            />
+            <motion.div
+                style={{
+                    position: 'absolute', bottom: '-20%', right: '-10%', width: '70vw', height: '70vw',
+                    background: `radial-gradient(circle, hsla(${hue2}, 80%, 30%, 0.15) 0%, transparent 70%)`,
+                    filter: 'blur(80px)', zIndex: 0, borderRadius: '50%', pointerEvents: 'none'
+                }}
+                animate={{ x: [0, -40, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
+                transition={{ duration: 20, repeat: Infinity, repeatType: "reverse", ease: "easeInOut", delay: 2 }}
+            />
+
+            <div className="chat-header" style={{ position: 'relative', zIndex: 10 }}>
                 <button className="back-btn" onClick={onBack}>
                     <ArrowLeft size={20} />
                     Back
@@ -300,7 +332,7 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                         <span style={{ fontSize: '0.8rem', color: '#ef4444', fontWeight: 'bold' }}>{relationshipScore}%</span>
                     </div>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div className="desktop-actions">
                     <button
                         className="back-btn"
                         onClick={() => setIsInviteModalOpen(true)}
@@ -326,9 +358,43 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                         <Trash2 size={18} />
                     </button>
                 </div>
+                <button
+                    className="mobile-menu-btn"
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                >
+                    <MoreVertical size={22} />
+                </button>
             </div>
 
-            <div className="chat-header-extended" style={{ padding: '0.5rem 1rem', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {isMobileMenuOpen && (
+                <div className="mobile-dropdown" onClick={(e) => e.stopPropagation()}>
+                    <button onClick={() => { setIsInviteModalOpen(true); setIsMobileMenuOpen(false); }}>
+                        <Users size={16} color="#38bdf8" /> Invite Character
+                    </button>
+                    <button onClick={() => { handleSceneChange(); setIsMobileMenuOpen(false); }}>
+                        <MapPin size={16} color="#c084fc" /> Change Scene
+                    </button>
+                    <button onClick={() => { handleClearChat(); setIsMobileMenuOpen(false); }}>
+                        <Trash2 size={16} color="#ef4444" /> Clear Chat History
+                    </button>
+                    <div style={{ padding: '0.75rem 0.5rem 0', marginTop: '0.25rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <span style={{ fontSize: '0.85rem', color: '#a1a1aa', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                            <Flame size={14} style={{ marginRight: '4px', color: intensity > 3 ? '#ef4444' : '#a1a1aa' }} /> Heat Level: {intensity}
+                        </span>
+                        <input
+                            type="range"
+                            min="1"
+                            max="5"
+                            value={intensity}
+                            onChange={(e) => setIntensity(parseInt(e.target.value))}
+                            className="intensity-slider"
+                            style={{ width: '100%' }}
+                        />
+                    </div>
+                </div>
+            )}
+
+            <div className="chat-header-extended desktop-only" style={{ padding: '0.5rem 1rem', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <span style={{ fontSize: '0.8rem', color: '#a1a1aa', display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
                     <Flame size={14} style={{ marginRight: '4px', color: intensity > 3 ? '#ef4444' : '#a1a1aa' }} /> Heat
                 </span>
@@ -440,29 +506,66 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                 ))}
 
                 {isTyping && (
-                    <div className="message-wrapper ai fade-in">
-                        {persona.image ? (
-                            <img
-                                src={persona.image}
-                                alt="Typing"
-                                style={{
-                                    width: '32px', height: '32px', borderRadius: '50%', marginRight: '8px', alignSelf: 'flex-end', objectFit: 'cover',
-                                    filter: relationshipScore >= 80 ? 'contrast(1.1) saturate(1.3) sepia(0.3) hue-rotate(-15deg) brightness(0.95)' : 'none'
-                                }}
-                            />
-                        ) : (
-                            <div style={{
-                                width: '32px', height: '32px', borderRadius: '50%', marginRight: '8px', alignSelf: 'flex-end',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px',
-                                background: 'linear-gradient(135deg, #8b5cf6, #ec4899)'
-                            }}>
-                                {persona.name.charAt(0)}
-                            </div>
-                        )}
-                        <div className="message-bubble typing-indicator">
-                            <span className="typing-dot"></span>
-                            <span className="typing-dot"></span>
-                            <span className="typing-dot"></span>
+                    <div className="message-wrapper ai fade-in" style={{ alignItems: 'flex-end' }}>
+                        <div style={{ position: 'relative', width: '32px', height: '32px', marginRight: '8px' }}>
+                            {/* Animated SVG Ring */}
+                            <motion.svg
+                                width="40"
+                                height="40"
+                                viewBox="0 0 40 40"
+                                style={{ position: 'absolute', top: '-4px', left: '-4px', zIndex: 0 }}
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                            >
+                                <motion.circle
+                                    cx="20"
+                                    cy="20"
+                                    r="18"
+                                    stroke="url(#gradient)"
+                                    strokeWidth="2"
+                                    fill="none"
+                                    strokeLinecap="round"
+                                    initial={{ strokeDasharray: "0 100" }}
+                                    animate={{ strokeDasharray: ["0 100", "50 100", "0 100"] }}
+                                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                                />
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stopColor="#8b5cf6" />
+                                        <stop offset="100%" stopColor="#ec4899" />
+                                    </linearGradient>
+                                </defs>
+                            </motion.svg>
+
+                            {/* Avatar (Over SVG Ring) */}
+                            {persona.image ? (
+                                <img
+                                    src={persona.image}
+                                    alt="Typing"
+                                    style={{
+                                        position: 'relative', zIndex: 1,
+                                        width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover',
+                                        filter: relationshipScore >= 80 ? 'contrast(1.1) saturate(1.3) sepia(0.3) hue-rotate(-15deg) brightness(0.95)' : 'none'
+                                    }}
+                                />
+                            ) : (
+                                <div style={{
+                                    position: 'relative', zIndex: 1,
+                                    width: '32px', height: '32px', borderRadius: '50%',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px',
+                                    background: 'linear-gradient(135deg, #8b5cf6, #ec4899)'
+                                }}>
+                                    {persona.name.charAt(0)}
+                                </div>
+                            )}
+                        </div>
+                        <div className="message-bubble" style={{ background: 'transparent', border: 'none', padding: '0 8px', color: '#ec4899', fontStyle: 'italic', fontSize: '0.85rem' }}>
+                            <motion.span
+                                animate={{ opacity: [0.3, 1, 0.3] }}
+                                transition={{ duration: 1.5, repeat: Infinity }}
+                            >
+                                {persona.name} is thinking...
+                            </motion.span>
                         </div>
                     </div>
                 )}

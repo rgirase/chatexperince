@@ -134,30 +134,6 @@ body {
   box-shadow: 0 12px 40px rgba(139, 92, 246, 0.3);
 }
 
-.persona-img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-}
-
-.persona-card:hover .persona-img {
-  transform: scale(1.05);
-}
-
-.persona-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
-  z-index: 1;
-}
-
 .persona-info {
   position: relative;
   z-index: 2;
@@ -209,6 +185,9 @@ body {
   border-bottom: 1px solid var(--panel-border);
   background: rgba(22, 22, 30, 0.8);
   backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .chat-avatar {
@@ -318,16 +297,23 @@ body {
 .input-container {
   display: flex;
   align-items: center;
-  background: var(--input-bg);
-  border: 1px solid var(--panel-border);
+  background: rgba(10, 10, 10, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 24px;
   padding: 0.5rem;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: inset 4px 4px 10px rgba(0, 0, 0, 0.5), inset -4px -4px 10px rgba(255, 255, 255, 0.02);
 }
 
 .input-container:focus-within {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+  border-color: rgba(236, 72, 153, 0.5);
+  /* Pink accent */
+  box-shadow:
+    inset 4px 4px 10px rgba(0, 0, 0, 0.5),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.02),
+    0 0 15px rgba(236, 72, 153, 0.3),
+    0 0 5px rgba(139, 92, 246, 0.5);
+  transform: translateY(-2px);
 }
 
 .message-input {
@@ -352,7 +338,7 @@ body {
 }
 
 .send-btn {
-  background: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
   color: white;
   border: none;
   width: 40px;
@@ -362,13 +348,14 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition: all 0.2s ease;
   margin-right: 0.5rem;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3), -3px -3px 10px rgba(255, 255, 255, 0.05);
 }
 
 .send-btn:hover:not(:disabled) {
-  background: var(--primary-hover);
-  transform: scale(1.05);
+  transform: scale(1.1) translateY(-1px);
+  box-shadow: 0 0 15px var(--accent-color);
 }
 
 .send-btn:disabled {
@@ -452,6 +439,29 @@ body {
   cursor: grabbing;
 }
 
+/* Header Responsive Utilities */
+.desktop-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #a1a1aa;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.mobile-dropdown {
+  display: none;
+}
+
+.desktop-only {
+  display: flex;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .header {
@@ -520,5 +530,57 @@ body {
 
   .chat-container {
     height: calc(100vh - 65px);
+  }
+
+  /* Chat Header Mobile Overrides */
+  .desktop-actions {
+    display: none !important;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .chat-header-info span {
+    display: none;
+    /* Hide the "%" text on mobile to save space */
+  }
+
+  .mobile-dropdown {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 65px;
+    right: 10px;
+    background: rgba(24, 24, 27, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid #3f3f46;
+    border-radius: 12px;
+    padding: 1rem;
+    z-index: 1000;
+    min-width: 200px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .mobile-dropdown button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+    border: none;
+    color: #f3f4f6;
+    padding: 0.75rem 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .mobile-dropdown button:active {
+    background: rgba(255, 255, 255, 0.05);
   }
 }

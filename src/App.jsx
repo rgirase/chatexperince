@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Settings as SettingsIcon, Image as ImageIcon } from 'lucide-react';
+import { Settings as SettingsIcon, Image as ImageIcon, MessageCircle } from 'lucide-react';
 import PersonaList from './components/PersonaList';
 import ChatInterface from './components/ChatInterface';
 import Settings from './components/Settings';
@@ -12,6 +12,7 @@ function App() {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [customPersonas, setCustomPersonas] = useState([]);
   const [panicMode, setPanicMode] = useState(false);
+  const [lastPersonaId, setLastPersonaId] = useState(localStorage.getItem('lastPersonaId') || null);
 
   useEffect(() => {
     const stored = localStorage.getItem('customPersonas');
@@ -77,6 +78,8 @@ function App() {
   const handleSelectPersona = (persona) => {
     window.history.pushState({ view: 'chat', id: persona.id }, '', `#chat-${persona.id}`);
     setSelectedPersona(persona);
+    localStorage.setItem('lastPersonaId', persona.id);
+    setLastPersonaId(persona.id);
   };
 
   const handleOpenSettings = () => {
