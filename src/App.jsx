@@ -16,8 +16,32 @@ function App() {
 
   useEffect(() => {
     const stored = localStorage.getItem('customPersonas');
+    let loadedPersonas = [...defaultPersonas];
     if (stored) {
-      setCustomPersonas(JSON.parse(stored));
+      const parsed = JSON.parse(stored);
+      setCustomPersonas(parsed);
+      loadedPersonas = [...loadedPersonas, ...parsed];
+    }
+
+    // Restore from hash if present, else from last active persona
+    const hash = window.location.hash;
+    let targetId = null;
+    if (hash && hash.startsWith('#chat-')) {
+      targetId = hash.replace('#chat-', '');
+    } else if (!hash) {
+      targetId = localStorage.getItem('lastPersonaId');
+    }
+
+    if (targetId) {
+      const found = loadedPersonas.find(p => p.id === targetId);
+      if (found) {
+        setSelectedPersona(found);
+        window.history.replaceState({ view: 'chat', id: found.id }, '', `#chat-${found.id}`);
+      }
+    } else if (hash === '#settings') {
+      setIsSettingsOpen(true);
+    } else if (hash === '#gallery') {
+      setIsGalleryOpen(true);
     }
 
     const handlePopState = () => {
@@ -62,9 +86,7 @@ function App() {
       window.addEventListener('devicemotion', handleMotion);
     }
 
-    if (window.location.hash) {
-      window.history.replaceState(null, '', window.location.pathname);
-    }
+    // Removed old hash wiping logic
 
     return () => {
       window.removeEventListener('popstate', handlePopState);

@@ -219,7 +219,6 @@ const ChatInterface = ({ persona, allPersonas, onBack }) => {
             systemPrompt: `${mergedBasePrompt}
             
 ${getIntensityPrompt(intensity)}
-[CRITICAL INSTRUCTION]: You must ALWAYS begin your response with your inner thoughts enclosed in brackets like this: [Thinking: <your secret thoughts here>]. Afterward, provide your spoken dialogue and actions.
 [CRITICAL INSTRUCTION]: You must secretly append [SCORE: +1] or [SCORE: -1] at the VERY END of your response based on whether the User's message was charming/good (+1) or rude/bad (-1) for your relationship. If you want to send a selfie of what you are doing right now, also append [PHOTO: highly detailed Stable Diffusion prompt of your appearance] at the very end.
 ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
         };
@@ -478,14 +477,8 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                                                     <img src={msg.url} alt="Selfie" style={{ maxWidth: '100%', borderRadius: '8px', display: 'block' }} />
                                                 </div>
                                             )}
-                                            {msg.content && msg.content.match(/\[Thinking:\s*(.*?)\]/i) && (
-                                                <div style={{ fontSize: '0.8rem', fontStyle: 'italic', color: '#a1a1aa', background: 'rgba(0,0,0,0.3)', padding: '6px 10px', borderRadius: '4px', marginBottom: '8px', borderLeft: '2px solid #52525b' }}>
-                                                    {msg.content.match(/\[Thinking:\s*(.*?)\]/i)[1]}
-                                                </div>
-                                            )}
-
                                             {/* Parse asterisks for italics in a very basic way for roleplay descriptions */}
-                                            {msg.content && msg.content.replace(/\[Thinking:\s*.*?\]/i, '').split(/(\*[^*\n]+\*)/g).map((part, i) => {
+                                            {msg.content && msg.content.split(/(\*[^*\n]+\*)/g).map((part, i) => {
                                                 if (part.startsWith('*') && part.endsWith('*')) {
                                                     return <em key={i} style={{ color: '#c084fc' }}>{part}</em>;
                                                 }
