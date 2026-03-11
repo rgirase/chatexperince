@@ -11,8 +11,8 @@ const PersonaList = ({ onSelectPersona, customPersonas = [] }) => {
         const ids = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            if (key && key.startsWith('chatHistory_')) {
-                ids.push(key.replace('chatHistory_', ''));
+            if (key && key.startsWith('chat_')) {
+                ids.push(key.replace('chat_', ''));
             }
         }
         setActiveChatIds(ids);
