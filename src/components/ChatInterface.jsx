@@ -130,7 +130,7 @@ const ChatInterface = ({ persona, allPersonas, onBack }) => {
     });
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const messagesEndRef = useRef(null);
+    const messagesAreaRef = useRef(null);
 
     const getIntensityPrompt = (level) => {
         switch (level) {
@@ -144,7 +144,9 @@ const ChatInterface = ({ persona, allPersonas, onBack }) => {
     };
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (messagesAreaRef.current) {
+            messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
+        }
     };
 
     useEffect(() => {
@@ -473,7 +475,7 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                 <span style={{ fontSize: '0.8rem', color: intensity > 3 ? '#ef4444' : '#a1a1aa', fontWeight: 'bold' }}>Lv {intensity}</span>
             </div>
 
-            <div className="messages-area">
+            <div className="messages-area" ref={messagesAreaRef}>
                 {error && (
                     <div className="error-banner" style={{ color: '#ef4444', textAlign: 'center', background: 'rgba(239, 68, 68, 0.1)', padding: '0.5rem', borderRadius: '8px' }}>
                         {error}
@@ -627,8 +629,6 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                         </div>
                     </div>
                 )}
-
-                <div ref={messagesEndRef} />
             </div>
 
             <div className="input-area glass-panel">
