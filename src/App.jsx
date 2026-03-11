@@ -12,7 +12,10 @@ function App() {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [customPersonas, setCustomPersonas] = useState([]);
   const [panicMode, setPanicMode] = useState(false);
-  const [lastPersonaId, setLastPersonaId] = useState(localStorage.getItem('lastPersonaId') || null);
+
+  // Universal View State Management
+  const [activeView, setActiveView] = useState(() => localStorage.getItem('activeView') || 'home');
+  const [lastPersonaId, setLastPersonaId] = useState(() => localStorage.getItem('lastPersonaId') || null);
 
   useEffect(() => {
     const stored = localStorage.getItem('customPersonas');
@@ -23,31 +26,32 @@ function App() {
       loadedPersonas = [...loadedPersonas, ...parsed];
     }
 
-    // Restore from hash if present, else from last active persona
-    const hash = window.location.hash;
-    let targetId = null;
-    if (hash && hash.startsWith('#chat-')) {
-      targetId = hash.replace('#chat-', '');
-    } else if (!hash) {
-      targetId = localStorage.getItem('lastPersonaId');
-    }
-
-    if (targetId) {
-      const found = loadedPersonas.find(p => p.id === targetId);
-      if (found) {
-        setSelectedPersona(found);
-        window.history.replaceState({ view: 'chat', id: found.id }, '', `#chat-${found.id}`);
-      }
-    } else if (hash === '#settings') {
+    // Restore exact view state
+    const savedView = localStorage.getItem('activeView');
+    if (savedView === 'settings') {
       setIsSettingsOpen(true);
-    } else if (hash === '#gallery') {
+    } else if (savedView === 'gallery') {
       setIsGalleryOpen(true);
+    } else if (savedView === 'chat') {
+      const targetId = localStorage.getItem('lastPersonaId');
+      if (targetId) {
+        const found = loadedPersonas.find(p => p.id === targetId);
+        if (found) {
+          setSelectedPersona(found);
+        } else {
+          // Failsafe if persona deleted
+          setActiveView('home');
+          localStorage.setItem('activeView', 'home');
+        }
+      }
     }
 
     const handlePopState = () => {
       setSelectedPersona(null);
       setIsSettingsOpen(false);
       setIsGalleryOpen(false);
+      setActiveView('home');
+      localStorage.setItem('activeView', 'home');
     };
 
     let lastEscape = 0;
@@ -98,30 +102,31 @@ function App() {
   }, []);
 
   const handleSelectPersona = (persona) => {
-    window.history.pushState({ view: 'chat', id: persona.id }, '', `#chat-${persona.id}`);
     setSelectedPersona(persona);
+    setActiveView('chat');
+    localStorage.setItem('activeView', 'chat');
     localStorage.setItem('lastPersonaId', persona.id);
     setLastPersonaId(persona.id);
   };
 
   const handleOpenSettings = () => {
-    window.history.pushState({ view: 'settings' }, '', '#settings');
     setIsSettingsOpen(true);
+    setActiveView('settings');
+    localStorage.setItem('activeView', 'settings');
   };
 
   const handleOpenGallery = () => {
-    window.history.pushState({ view: 'gallery' }, '', '#gallery');
     setIsGalleryOpen(true);
+    setActiveView('gallery');
+    localStorage.setItem('activeView', 'gallery');
   };
 
   const handleBack = () => {
-    if (window.history.state) {
-      window.history.back();
-    } else {
-      setSelectedPersona(null);
-      setIsSettingsOpen(false);
-      setIsGalleryOpen(false);
-    }
+    setSelectedPersona(null);
+    setIsSettingsOpen(false);
+    setIsGalleryOpen(false);
+    setActiveView('home');
+    localStorage.setItem('activeView', 'home');
   };
 
   const longPressTimerRef = useRef(null);
