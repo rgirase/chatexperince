@@ -1,0 +1,177 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Settings as SettingsIcon, Image as ImageIcon } from 'lucide-react';
+import PersonaList from './components/PersonaList';
+import ChatInterface from './components/ChatInterface';
+import Settings from './components/Settings';
+import Gallery from './components/Gallery';
+import { personas as defaultPersonas } from './data/personas';
+
+function App() {
+  const [selectedPersona, setSelectedPersona] = useState(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [customPersonas, setCustomPersonas] = useState([]);
+  const [panicMode, setPanicMode] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('customPersonas');
+    if (stored) {
+      setCustomPersonas(JSON.parse(stored));
+    }
+
+    const handlePopState = () => {
+      setSelectedPersona(null);
+      setIsSettingsOpen(false);
+      setIsGalleryOpen(false);
+    };
+
+    let lastEscape = 0;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        const now = Date.now();
+        if (now - lastEscape < 500) {
+          setPanicMode(true);
+        }
+        lastEscape = now;
+      }
+    };
+
+    let lastShake = 0;
+    const SHAKE_THRESHOLD = 20; // m/s^2
+    const handleMotion = (e) => {
+      if (e.accelerationIncludingGravity) {
+        const { x, y, z } = e.accelerationIncludingGravity;
+        if (x !== null && y !== null && z !== null) {
+          const acceleration = Math.sqrt(x * x + y * y + z * z);
+          // Earth gravity is ~9.8. Anything over 20 implies a strong shake.
+          if (acceleration > SHAKE_THRESHOLD) {
+            const now = Date.now();
+            if (now - lastShake > 1000) { // Debounce 1 second
+              setPanicMode(true);
+              lastShake = now;
+            }
+          }
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('keydown', handleKeyDown);
+    if (typeof DeviceMotionEvent !== 'undefined') {
+      window.addEventListener('devicemotion', handleMotion);
+    }
+
+    if (window.location.hash) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('keydown', handleKeyDown);
+      if (typeof DeviceMotionEvent !== 'undefined') {
+        window.removeEventListener('devicemotion', handleMotion);
+      }
+    };
+  }, []);
+
+  const handleSelectPersona = (persona) => {
+    window.history.pushState({ view: 'chat', id: persona.id }, '', `#chat-${persona.id}`);
+    setSelectedPersona(persona);
+  };
+
+  const handleOpenSettings = () => {
+    window.history.pushState({ view: 'settings' }, '', '#settings');
+    setIsSettingsOpen(true);
+  };
+
+  const handleOpenGallery = () => {
+    window.history.pushState({ view: 'gallery' }, '', '#gallery');
+    setIsGalleryOpen(true);
+  };
+
+  const handleBack = () => {
+    if (window.history.state) {
+      window.history.back();
+    } else {
+      setSelectedPersona(null);
+      setIsSettingsOpen(false);
+      setIsGalleryOpen(false);
+    }
+  };
+
+  const longPressTimerRef = useRef(null);
+  const handleTouchStart = () => {
+    longPressTimerRef.current = setTimeout(() => {
+      setPanicMode(true);
+    }, 1500); // 1.5 second long press
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+  };
+
+  if (panicMode) {
+    return (
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'white', zIndex: 9999 }}>
+        <iframe src="https://en.wikipedia.org/wiki/Financial_modeling" style={{ width: '100%', height: '100%', border: 'none' }} title="Emergency Screen" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="app-container">
+      {!selectedPersona && !isSettingsOpen && !isGalleryOpen && (
+        <header className="header fade-in">
+          <div
+            className="header-title"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+          >
+            <span role="img" aria-label="sparkles">✨</span>
+            Aura Roleplay
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              onClick={handleOpenGallery}
+              style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', padding: '0.5rem' }}
+              title="Progression Gallery"
+            >
+              <ImageIcon size={24} />
+            </button>
+            <button
+              onClick={handleOpenSettings}
+              style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', padding: '0.5rem' }}
+              title="Settings"
+            >
+              <SettingsIcon size={24} />
+            </button>
+          </div>
+        </header>
+      )}
+
+      {isSettingsOpen ? (
+        <Settings
+          onBack={handleBack}
+          customPersonas={customPersonas}
+          setCustomPersonas={setCustomPersonas}
+        />
+      ) : isGalleryOpen ? (
+        <Gallery
+          onBack={handleBack}
+          customPersonas={customPersonas}
+        />
+      ) : selectedPersona ? (
+        <ChatInterface
+          persona={selectedPersona}
+          allPersonas={[...defaultPersonas, ...customPersonas]}
+          onBack={handleBack}
+        />
+      ) : (
+        <PersonaList onSelectPersona={handleSelectPersona} customPersonas={customPersonas} />
+      )}
+    </div>
+  );
+}
+
+export default App;
