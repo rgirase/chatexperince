@@ -199,6 +199,12 @@ const ChatInterface = ({ persona, allPersonas, onBack }) => {
         setIsTyping(true);
         setError(null);
 
+        // Reset textarea height to original size after sending
+        const textareas = document.getElementsByClassName('message-input');
+        if (textareas.length > 0) {
+            textareas[0].style.height = 'auto';
+        }
+
         // Placeholder for AI streaming message
         const aiMessageId = (Date.now() + 1).toString();
         setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
@@ -588,10 +594,13 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                         className="message-input"
                         placeholder={`Message ${persona.name}...`}
                         value={input}
-                        onChange={(e) => setInput(e.target.value)}
+                        onChange={(e) => {
+                            setInput(e.target.value);
+                            e.target.style.height = 'auto';
+                            e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+                        }}
                         onKeyDown={handleKeyDown}
                         rows={1}
-                        style={{ flex: 1 }}
                     />
                     <button
                         className="send-btn"

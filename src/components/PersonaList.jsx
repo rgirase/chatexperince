@@ -1,9 +1,29 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { personas } from '../data/personas';
 
 const PersonaList = ({ onSelectPersona, customPersonas = [] }) => {
     const allPersonas = [...personas, ...customPersonas];
+    const [activeTab, setActiveTab] = useState('all');
+    const [activeChatIds, setActiveChatIds] = useState([]);
+
+    useEffect(() => {
+        const ids = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('chatHistory_')) {
+                ids.push(key.replace('chatHistory_', ''));
+            }
+        }
+        setActiveChatIds(ids);
+        if (ids.length > 0) {
+            setActiveTab('active');
+        }
+    }, []);
+
+    const displayedPersonas = activeTab === 'all'
+        ? allPersonas
+        : allPersonas.filter(p => activeChatIds.includes(p.id));
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -40,13 +60,31 @@ const PersonaList = ({ onSelectPersona, customPersonas = [] }) => {
                 <p>Select a persona to start your intimate journey.</p>
             </motion.div>
 
+            <div className="tabs-container fade-in">
+                <button
+                    className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('all')}
+                >
+                    All Characters
+                </button>
+                {activeChatIds.length > 0 && (
+                    <button
+                        className={`tab-btn ${activeTab === 'active' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('active')}
+                    >
+                        Active Chats ({activeChatIds.length})
+                    </button>
+                )}
+            </div>
+
             <motion.div
                 className="persona-grid"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
+                key={activeTab} // Force re-render animation on tab switch
             >
-                {allPersonas.map((persona) => (
+                {displayedPersonas.map((persona) => (
                     <motion.div
                         key={persona.id}
                         className="persona-card full-bleed"
@@ -82,7 +120,7 @@ const PersonaList = ({ onSelectPersona, customPersonas = [] }) => {
                     </motion.div>
                 ))}
             </motion.div>
-        </div>
+        </div >
     );
 };
 
