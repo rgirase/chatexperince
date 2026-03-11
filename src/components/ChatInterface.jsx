@@ -5,36 +5,95 @@ import { generateResponse, generateSuggestion, summarizeMemory } from '../servic
 
 const generateSelfie = async (prompt, persona, aiMessageId, setMessages) => {
     const sdUrl = localStorage.getItem('sdUrl');
+    const imageEngine = localStorage.getItem('imageEngine') || 'a1111';
+
     if (!sdUrl) return;
 
     const photoMsgId = aiMessageId + "_photo";
     setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: '*Sends a photo*', url: null }]);
 
-    try {
-        const response = await fetch(`${sdUrl.replace(/\/$/, '')}/sdapi/v1/txt2img`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                prompt: `masterpiece, best quality, highly detailed, photorealistic, ${persona.name}, 1girl, ${prompt}`,
-                negative_prompt: "lowres, bad quality, anime, cartoon, sketch, ugly",
-                steps: 20,
-                width: 512,
-                height: 768
-            })
-        });
+    const fullPrompt = `masterpiece, best quality, highly detailed, photorealistic, ${persona.name}, 1girl, ${prompt}`;
+    const negativePrompt = "lowres, bad quality, anime, cartoon, sketch, ugly";
 
-        if (response.ok) {
-            const data = await response.json();
-            const base64Image = `data:image/png;base64,${data.images[0]}`;
-            setMessages(prev => prev.map(msg =>
-                msg.id === photoMsgId ? { ...msg, url: base64Image } : msg
-            ));
-        } else {
-            console.error("SD API non-okay response.");
-            setMessages(prev => prev.filter(msg => msg.id !== photoMsgId));
+    try {
+        if (imageEngine === 'a1111') {
+            const response = await fetch(`${sdUrl.replace(/\/$/, '')}/sdapi/v1/txt2img`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: fullPrompt,
+                    negative_prompt: negativePrompt,
+                    steps: 20,
+                    width: 512,
+                    height: 768
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const base64Image = `data:image/png;base64,${data.images[0]}`;
+                setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
+            } else {
+                throw new Error("A1111 API error.");
+            }
+        } else if (imageEngine === 'comfyui') {
+            const comfyWorkflow = localStorage.getItem('comfyWorkflow');
+            if (!comfyWorkflow || !comfyWorkflow.includes('__PROMPT__')) {
+                throw new Error("Invalid or missing ComfyUI workflow JSON.");
+            }
+
+            // Replace __PROMPT__ string safely
+            let workflowStr = comfyWorkflow.replace(/__PROMPT__/g, fullPrompt);
+            const workflowObj = JSON.parse(workflowStr);
+
+            // Queue prompt
+            const queueRes = await fetch(`${sdUrl.replace(/\/$/, '')}/prompt`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: workflowObj })
+            });
+            const queueData = await queueRes.json();
+            const promptId = queueData.prompt_id;
+
+            // Poll history
+            let isComplete = false;
+            let attempts = 0;
+            while (!isComplete && attempts < 60) { // Max 2 mins wait
+                await new Promise(r => setTimeout(r, 2000));
+                attempts++;
+
+                const histRes = await fetch(`${sdUrl.replace(/\/$/, '')}/history/${promptId}`);
+                const histData = await histRes.json();
+
+                if (histData[promptId]) {
+                    const outputs = histData[promptId].outputs;
+                    let foundImage = false;
+                    for (const nodeId in outputs) {
+                        if (outputs[nodeId].images && outputs[nodeId].images.length > 0) {
+                            const imgParams = outputs[nodeId].images[0];
+                            const paramsObj = new URLSearchParams(imgParams);
+                            const viewRes = await fetch(`${sdUrl.replace(/\/$/, '')}/view?${paramsObj.toString()}`);
+                            const blob = await viewRes.blob();
+
+                            const base64Image = await new Promise((resolve) => {
+                                const reader = new FileReader();
+                                reader.onloadend = () => resolve(reader.result);
+                                reader.readAsDataURL(blob);
+                            });
+
+                            setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
+                            foundImage = true;
+                            break;
+                        }
+                    }
+                    if (!foundImage) throw new Error("No image output found in ComfyUI history.");
+                    isComplete = true;
+                }
+            }
+            if (!isComplete) throw new Error("ComfyUI generation timed out.");
         }
     } catch (e) {
-        console.error('SD Error:', e);
+        console.error('Image Generation Error:', e);
         setMessages(prev => prev.filter(msg => msg.id !== photoMsgId));
     }
 };

@@ -4,17 +4,23 @@ import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
 const Settings = ({ onBack, setCustomPersonas, customPersonas }) => {
     const [lmStudioUrl, setLmStudioUrl] = useState('');
     const [sdUrl, setSdUrl] = useState('');
+    const [imageEngine, setImageEngine] = useState('a1111');
+    const [comfyWorkflow, setComfyWorkflow] = useState('');
     const [newPersona, setNewPersona] = useState({ name: '', tagline: '', systemPrompt: '', initialMessage: '' });
 
     useEffect(() => {
         // Load existing settings
         setLmStudioUrl(localStorage.getItem('lmStudioUrl') || 'http://127.0.0.1:1234/v1');
         setSdUrl(localStorage.getItem('sdUrl') || 'http://127.0.0.1:7860');
+        setImageEngine(localStorage.getItem('imageEngine') || 'a1111');
+        setComfyWorkflow(localStorage.getItem('comfyWorkflow') || '');
     }, []);
 
     const handleSaveUrls = () => {
         localStorage.setItem('lmStudioUrl', lmStudioUrl);
         localStorage.setItem('sdUrl', sdUrl);
+        localStorage.setItem('imageEngine', imageEngine);
+        localStorage.setItem('comfyWorkflow', comfyWorkflow);
         alert('URLs saved successfully!');
     };
 
@@ -75,7 +81,19 @@ const Settings = ({ onBack, setCustomPersonas, customPersonas }) => {
                 </div>
 
                 <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#a1a1aa' }}>Stable Diffusion API URL (Optional)</label>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#a1a1aa' }}>Stable Diffusion Engine</label>
+                    <select
+                        value={imageEngine}
+                        onChange={(e) => setImageEngine(e.target.value)}
+                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
+                    >
+                        <option value="a1111">Automatic1111</option>
+                        <option value="comfyui">ComfyUI</option>
+                    </select>
+                </div>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#a1a1aa' }}>Image API URL</label>
                     <input
                         type="text"
                         value={sdUrl}
@@ -83,8 +101,22 @@ const Settings = ({ onBack, setCustomPersonas, customPersonas }) => {
                         placeholder="http://127.0.0.1:7860"
                         style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
                     />
-                    <small style={{ color: '#71717a', display: 'block', marginTop: '0.5rem' }}>Used for the Dynamic Selfies feature.</small>
+                    <small style={{ color: '#71717a', display: 'block', marginTop: '0.5rem' }}>A1111 default: 7860 | ComfyUI default: 8188</small>
                 </div>
+
+                {imageEngine === 'comfyui' && (
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', color: '#a1a1aa' }}>ComfyUI Workflow JSON (API Format)</label>
+                        <textarea
+                            value={comfyWorkflow}
+                            onChange={(e) => setComfyWorkflow(e.target.value)}
+                            placeholder='Paste your ComfyUI API JSON here. Within the text node you use for prompts, put exactly: __PROMPT__'
+                            rows={8}
+                            style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white', fontFamily: 'monospace', fontSize: '0.8rem', resize: 'vertical' }}
+                        />
+                        <small style={{ color: '#71717a', display: 'block', marginTop: '0.5rem' }}>Enable "Enable Dev mode Options" in ComfyUI settings, click "Save (API Format)", and paste here. Replace your text prompt with <strong>__PROMPT__</strong>.</small>
+                    </div>
+                )}
 
                 <button
                     onClick={handleSaveUrls}
