@@ -339,7 +339,7 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
     const hue2 = (hue1 + 45) % 360;
 
     return (
-        <div className="chat-container fade-in" onClick={() => isMobileMenuOpen && setIsMobileMenuOpen(false)} style={{ position: 'relative', overflow: 'hidden' }}>
+        <div className="chat-container fade-in" onClick={() => isMobileMenuOpen && setIsMobileMenuOpen(false)} style={{ overflow: 'hidden' }}>
 
             {/* Ambient Animated Live Backgrounds */}
             <motion.div
