@@ -479,13 +479,11 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
             />
 
             <div className="chat-header" style={{ position: 'relative', zIndex: 10 }}>
-                <button className="back-btn" onClick={onBack}>
+                <button className="back-btn" onClick={onBack} title="Back">
                     <ArrowLeft size={20} />
-                    Back
                 </button>
                 <button className="back-btn" onClick={onGoHome} title="Go Home">
                     <Home size={20} />
-                    Home
                 </button>
                 {persona.image ? (
                     <img
