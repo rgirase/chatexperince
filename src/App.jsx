@@ -6,6 +6,8 @@ import Settings from './components/Settings';
 import Gallery from './components/Gallery';
 import { personas as defaultPersonas } from './data/personas';
 
+let hasPushedHistory = false;
+
 function App() {
   const [selectedPersona, setSelectedPersona] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -27,7 +29,11 @@ function App() {
     }
 
     // Restore exact view state
-    const savedView = localStorage.getItem('activeView');
+    const savedView = localStorage.getItem('activeView') || 'home';
+    if (!window.history.state) {
+      window.history.replaceState({ view: savedView }, '');
+    }
+
     if (savedView === 'settings') {
       setIsSettingsOpen(true);
     } else if (savedView === 'gallery') {
@@ -46,12 +52,19 @@ function App() {
       }
     }
 
-    const handlePopState = () => {
-      setSelectedPersona(null);
-      setIsSettingsOpen(false);
-      setIsGalleryOpen(false);
-      setActiveView('home');
-      localStorage.setItem('activeView', 'home');
+    const handlePopState = (e) => {
+      const stateView = e.state?.view || 'home';
+      if (stateView === 'home') {
+        if (localStorage.getItem('activeView') === 'chat') {
+          localStorage.setItem('lastPersonaTab', 'active');
+        }
+        setSelectedPersona(null);
+        setIsSettingsOpen(false);
+        setIsGalleryOpen(false);
+        setActiveView('home');
+        localStorage.setItem('activeView', 'home');
+        hasPushedHistory = false;
+      }
     };
 
     let lastEscape = 0;
@@ -102,6 +115,8 @@ function App() {
   }, []);
 
   const handleSelectPersona = (persona) => {
+    window.history.pushState({ view: 'chat' }, '');
+    hasPushedHistory = true;
     setSelectedPersona(persona);
     setActiveView('chat');
     localStorage.setItem('activeView', 'chat');
@@ -110,23 +125,42 @@ function App() {
   };
 
   const handleOpenSettings = () => {
+    window.history.pushState({ view: 'settings' }, '');
+    hasPushedHistory = true;
     setIsSettingsOpen(true);
     setActiveView('settings');
     localStorage.setItem('activeView', 'settings');
   };
 
   const handleOpenGallery = () => {
+    window.history.pushState({ view: 'gallery' }, '');
+    hasPushedHistory = true;
     setIsGalleryOpen(true);
     setActiveView('gallery');
     localStorage.setItem('activeView', 'gallery');
   };
 
   const handleBack = () => {
+    if (activeView === 'chat') {
+      localStorage.setItem('lastPersonaTab', 'active');
+    }
+
+    if (hasPushedHistory || window.history.state?.view !== 'home') {
+      window.history.back();
+      hasPushedHistory = false;
+    } else {
+      handleGoHome();
+    }
+  };
+
+  const handleGoHome = () => {
+    window.history.replaceState({ view: 'home' }, '');
     setSelectedPersona(null);
     setIsSettingsOpen(false);
     setIsGalleryOpen(false);
     setActiveView('home');
     localStorage.setItem('activeView', 'home');
+    hasPushedHistory = false;
   };
 
   const longPressTimerRef = useRef(null);
@@ -196,6 +230,7 @@ function App() {
           persona={selectedPersona}
           allPersonas={[...defaultPersonas, ...customPersonas]}
           onBack={handleBack}
+          onGoHome={handleGoHome}
         />
       ) : (
         <PersonaList onSelectPersona={handleSelectPersona} customPersonas={customPersonas} />

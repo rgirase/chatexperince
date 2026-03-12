@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical } from 'lucide-react';
+import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home } from 'lucide-react';
 import { generateResponse, generateSuggestion, summarizeMemory } from '../services/llm';
 
 const generateSelfie = async (prompt, persona, aiMessageId, setMessages) => {
@@ -91,6 +91,26 @@ const generateSelfie = async (prompt, persona, aiMessageId, setMessages) => {
                 }
             }
             if (!isComplete) throw new Error("ComfyUI generation timed out.");
+        } else if (imageEngine === 'diffusionbee') {
+            const response = await fetch(`${sdUrl.replace(/\/$/, '')}/generate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: fullPrompt,
+                    negative_prompt: negativePrompt,
+                    width: 512,
+                    height: 768
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // Diffusion Bee often returns result in "image" or "base64" field
+                const base64Image = data.image.startsWith('data:') ? data.image : `data:image/png;base64,${data.image}`;
+                setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
+            } else {
+                throw new Error("Diffusion Bee API error.");
+            }
         }
     } catch (e) {
         console.error('Image Generation Error:', e);
@@ -98,7 +118,7 @@ const generateSelfie = async (prompt, persona, aiMessageId, setMessages) => {
     }
 };
 
-const ChatInterface = ({ persona, allPersonas, onBack }) => {
+const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
     // Initialize messages from localStorage if available
     const [messages, setMessages] = useState(() => {
         const saved = localStorage.getItem(`chat_${persona.id}`);
@@ -131,6 +151,7 @@ const ChatInterface = ({ persona, allPersonas, onBack }) => {
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const messagesAreaRef = useRef(null);
+    const abortControllerRef = useRef(null);
 
     const getIntensityPrompt = (level) => {
         switch (level) {
@@ -237,6 +258,97 @@ const ChatInterface = ({ persona, allPersonas, onBack }) => {
         setEditingMessageId(null);
     };
 
+    const handleDeleteMessage = (id) => {
+        if (window.confirm("Delete this message?")) {
+            setMessages(prev => prev.filter(msg => msg.id !== id));
+        }
+    };
+
+    const handleStopGeneration = () => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            setIsTyping(false);
+        }
+    };
+
+    const handleContinue = async (targetMsg) => {
+        if (isTyping || isSuggesting) return;
+        
+        // Find the index of the message we want to continue from
+        const msgIndex = messages.findIndex(m => m.id === targetMsg.id);
+        if (msgIndex === -1) return;
+
+        // Take all messages up to and including the target message
+        const historyUpToTarget = messages.slice(0, msgIndex + 1);
+        
+        // Create an explicit user prompt asking the AI to continue its thought
+        const continuePrompt = { 
+            id: Date.now().toString(), 
+            role: 'user', 
+            content: "[SYSTEM DIRECTIVE]: Continue the scene seamlessly from your last message. You must advance the story, actions, and dialogue forward. CRITICAL: DO NOT summarize or repeat any part of your previous message. Start writing the immediate next sentence of the roleplay." 
+        };
+        
+        setIsTyping(true);
+        setError(null);
+
+        // Create a completely new placeholder for the AI's continued thought
+        const aiMessageId = (Date.now() + 1).toString();
+        
+        // We branch the chat from this point forwards, discarding later messages if any
+        setMessages([...historyUpToTarget, { id: aiMessageId, role: 'ai', content: '' }]);
+
+        abortControllerRef.current = new AbortController();
+
+        const personaWithMemory = {
+            ...persona,
+            systemPrompt: `${persona.systemPrompt}
+            
+${getIntensityPrompt(intensity)}
+[CRITICAL INSTRUCTION]: You must secretly append [SCORE: +1] or [SCORE: -1] at the VERY END of your response based on whether the User's message was charming/good (+1) or rude/bad (-1) for your relationship. If you want to send a selfie of what you are doing right now, also append [PHOTO: highly detailed Stable Diffusion prompt of your appearance] at the very end.
+${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
+        };
+
+        await generateResponse(
+            personaWithMemory,
+            [...historyUpToTarget, continuePrompt],
+            (chunkText) => {
+                setIsTyping(false);
+                let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '');
+                setMessages(prev => prev.map(msg =>
+                    msg.id === aiMessageId ? { ...msg, content: cleanText } : msg
+                ));
+            },
+            (fullText) => {
+                let scoreDelta = 0;
+                let photoPrompt = null;
+
+                const scoreMatch = fullText.match(/\[SCORE:\s*([+-]\d+)\]/i);
+                if (scoreMatch) {
+                    scoreDelta = parseInt(scoreMatch[1]);
+                }
+
+                const photoMatch = fullText.match(/\[PHOTO:\s*(.*?)\]/i);
+                if (photoMatch) {
+                    photoPrompt = photoMatch[1];
+                }
+
+                if (scoreDelta !== 0) {
+                    setRelationshipScore(prev => Math.max(0, Math.min(100, prev + (scoreDelta * 5))));
+                }
+
+                if (photoPrompt) {
+                    generateSelfie(photoPrompt, persona, aiMessageId, setMessages);
+                }
+            },
+            (errMessage) => {
+                setIsTyping(false);
+                setError("Could not connect to LM Studio for continuation. Ensure it is running locally.");
+                setMessages(prev => prev.filter(msg => msg.id !== aiMessageId));
+            },
+            abortControllerRef.current.signal
+        );
+    };
+
     const handleSuggest = async () => {
         if (isTyping || isSuggesting) return;
         setIsSuggesting(true);
@@ -274,6 +386,8 @@ const ChatInterface = ({ persona, allPersonas, onBack }) => {
         const mergedBasePrompt = invitedPersona
             ? `${persona.systemPrompt}\n\n[CRITICAL EVENT: The character ${invitedPersona.name} has entered the scene. You are now roleplaying as BOTH ${persona.name} AND ${invitedPersona.name}. Prefix each line of dialogue or action with their name (e.g., "${persona.name}: ..." or "${invitedPersona.name}: ...") to distinguish who is speaking. Here is ${invitedPersona.name}'s personality context: ${invitedPersona.systemPrompt}]`
             : persona.systemPrompt;
+
+        abortControllerRef.current = new AbortController();
 
         const personaWithMemory = {
             ...persona,
@@ -320,7 +434,8 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                 setIsTyping(false);
                 setError("Could not connect to LM Studio. Ensure it is running locally on port 1234 with CORS enabled.");
                 setMessages(prev => prev.filter(msg => msg.id !== aiMessageId));
-            }
+            },
+            abortControllerRef.current.signal
         );
     };
 
@@ -367,6 +482,10 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                 <button className="back-btn" onClick={onBack}>
                     <ArrowLeft size={20} />
                     Back
+                </button>
+                <button className="back-btn" onClick={onGoHome} title="Go Home">
+                    <Home size={20} />
+                    Home
                 </button>
                 {persona.image ? (
                     <img
@@ -434,6 +553,9 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
 
             {isMobileMenuOpen && (
                 <div className="mobile-dropdown" onClick={(e) => e.stopPropagation()}>
+                    <button onClick={() => { onGoHome(); setIsMobileMenuOpen(false); }}>
+                        <Home size={16} color="#a1a1aa" /> Home
+                    </button>
                     <button onClick={() => { setIsInviteModalOpen(true); setIsMobileMenuOpen(false); }}>
                         <Users size={16} color="#38bdf8" /> Invite Character
                     </button>
@@ -546,17 +668,39 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                                                 return <span key={i}>{part}</span>;
                                             })}
 
-                                            {msg.role === 'ai' && (
+                                            <div style={{ display: 'flex', gap: '8px', justifyContent: msg.role === 'ai' ? 'flex-end' : 'flex-start', marginTop: '8px', opacity: 0.6 }} className="message-actions">
+                                                {msg.role === 'ai' && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleEditStart(msg)}
+                                                            style={{ background: 'transparent', border: 'none', color: '#d4d4d8', cursor: 'pointer', display: 'flex', alignItems: 'center', fontSize: '0.7rem' }}
+                                                            title="Override Response"
+                                                            onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+                                                            onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
+                                                        >
+                                                            <Edit2 size={10} style={{ marginRight: '4px' }} /> Override
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleContinue(msg)}
+                                                            style={{ background: 'transparent', border: 'none', color: '#60a5fa', cursor: 'pointer', display: 'flex', alignItems: 'center', fontSize: '0.7rem' }}
+                                                            title="Continue Generating"
+                                                            onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+                                                            onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
+                                                        >
+                                                            <FastForward size={10} style={{ marginRight: '4px' }} /> Continue
+                                                        </button>
+                                                    </>
+                                                )}
                                                 <button
-                                                    onClick={() => handleEditStart(msg)}
-                                                    style={{ background: 'transparent', border: 'none', color: '#d4d4d8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginTop: '8px', fontSize: '0.7rem', width: '100%', opacity: 0.6 }}
-                                                    title="Override Response"
-                                                    onMouseOver={(e) => e.currentTarget.style.opacity = 1}
-                                                    onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
-                                                >
-                                                    <Edit2 size={10} style={{ marginRight: '4px' }} /> Override
+                                                        onClick={() => handleDeleteMessage(msg.id)}
+                                                        style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', fontSize: '0.7rem' }}
+                                                        title="Delete Message"
+                                                        onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+                                                        onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
+                                                    >
+                                                        <Trash2 size={10} style={{ marginRight: '4px' }} /> Delete
                                                 </button>
-                                            )}
+                                            </div>
                                         </>
                                     )}
                                 </div>
@@ -633,15 +777,26 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
 
             <div className="input-area glass-panel">
                 <div className="input-container">
-                    <button
-                        className="send-btn"
-                        onClick={handleSuggest}
-                        disabled={isTyping || isSuggesting}
-                        title="Suggest Response"
-                        style={{ marginRight: '8px', background: 'rgba(192, 132, 252, 0.2)', color: '#c084fc' }}
-                    >
-                        <Wand2 size={18} className={isSuggesting ? "spin-animation" : ""} />
-                    </button>
+                    {isTyping ? (
+                        <button
+                            className="send-btn"
+                            onClick={handleStopGeneration}
+                            title="Stop Generating"
+                            style={{ marginRight: '8px', background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}
+                        >
+                            <StopCircle size={18} />
+                        </button>
+                    ) : (
+                        <button
+                            className="send-btn"
+                            onClick={handleSuggest}
+                            disabled={isTyping || isSuggesting}
+                            title="Suggest Response"
+                            style={{ marginRight: '8px', background: 'rgba(192, 132, 252, 0.2)', color: '#c084fc' }}
+                        >
+                            <Wand2 size={18} className={isSuggesting ? "spin-animation" : ""} />
+                        </button>
+                    )}
                     <textarea
                         className="message-input"
                         placeholder={`Message ${persona.name}...`}

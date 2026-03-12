@@ -9,10 +9,19 @@ const getLmStudioUrl = () => {
     return '/api/chat/completions'; // Fallback to proxy
 };
 
-export const generateResponse = async (persona, messages, onChunk, onComplete, onError) => {
+export const generateResponse = async (persona, messages, onChunk, onComplete, onError, signal) => {
+    let finalSystemPrompt = persona.systemPrompt;
+    
+    // Check for preferred Indian language
+    const preferredLanguage = localStorage.getItem('preferredIndianLanguage');
+    if (preferredLanguage && preferredLanguage !== 'english' && finalSystemPrompt.toLowerCase().includes('indian')) {
+        const langName = preferredLanguage.charAt(0).toUpperCase() + preferredLanguage.slice(1);
+        finalSystemPrompt += `\n\nCRITICAL RULE: You are fully fluent in ${langName}. You MUST respond to the user ENTIRELY in ${langName} language.`;
+    }
+
     const systemMessage = {
         role: "system",
-        content: persona.systemPrompt
+        content: finalSystemPrompt
     };
 
     let apiMessages = messages.map(msg => ({
@@ -44,6 +53,7 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
                 max_tokens: -1,
                 stream: true,
             }),
+            signal: signal,
         });
 
         if (!response.ok) {
@@ -84,6 +94,10 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
         }
 
     } catch (error) {
+        if (error.name === 'AbortError') {
+            console.log("LM Studio API request was manually aborted by the user.");
+            return; // We don't trigger onError since it was intentional
+        }
         console.error("Error calling LM Studio API:", error);
         if (onError) {
             onError(error.message);

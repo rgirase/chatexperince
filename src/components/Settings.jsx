@@ -1,27 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
 
+const DEFAULT_LM_STUDIO = 'http://192.168.1.233:1234/v1';
+const DEFAULT_SD_URL = 'http://127.0.0.1:7860';
+
 const Settings = ({ onBack, setCustomPersonas, customPersonas }) => {
     const [lmStudioUrl, setLmStudioUrl] = useState('');
     const [sdUrl, setSdUrl] = useState('');
     const [imageEngine, setImageEngine] = useState('a1111');
     const [comfyWorkflow, setComfyWorkflow] = useState('');
+    const [preferredLanguage, setPreferredLanguage] = useState('english');
     const [newPersona, setNewPersona] = useState({ name: '', tagline: '', systemPrompt: '', initialMessage: '' });
 
     useEffect(() => {
         // Load existing settings
-        setLmStudioUrl(localStorage.getItem('lmStudioUrl') || 'http://127.0.0.1:1234/v1');
-        setSdUrl(localStorage.getItem('sdUrl') || 'http://127.0.0.1:7860');
+        setLmStudioUrl(localStorage.getItem('lmStudioUrl') || DEFAULT_LM_STUDIO);
+        setSdUrl(localStorage.getItem('sdUrl') || DEFAULT_SD_URL);
         setImageEngine(localStorage.getItem('imageEngine') || 'a1111');
         setComfyWorkflow(localStorage.getItem('comfyWorkflow') || '');
+        setPreferredLanguage(localStorage.getItem('preferredIndianLanguage') || 'english');
     }, []);
 
     const handleSaveUrls = () => {
-        localStorage.setItem('lmStudioUrl', lmStudioUrl);
-        localStorage.setItem('sdUrl', sdUrl);
+        localStorage.setItem('lmStudioUrl', lmStudioUrl || DEFAULT_LM_STUDIO);
+        localStorage.setItem('sdUrl', sdUrl || DEFAULT_SD_URL);
         localStorage.setItem('imageEngine', imageEngine);
         localStorage.setItem('comfyWorkflow', comfyWorkflow);
-        alert('URLs saved successfully!');
+        localStorage.setItem('preferredIndianLanguage', preferredLanguage);
+        alert('Settings saved successfully!');
     };
 
     const handleAddPersona = () => {
@@ -74,7 +80,7 @@ const Settings = ({ onBack, setCustomPersonas, customPersonas }) => {
                         type="text"
                         value={lmStudioUrl}
                         onChange={(e) => setLmStudioUrl(e.target.value)}
-                        placeholder="http://127.0.0.1:1234/v1"
+                        placeholder="http://192.168.1.233:1234/v1"
                         style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
                     />
                     <small style={{ color: '#71717a', display: 'block', marginTop: '0.5rem' }}>The base URL for local LLM inference.</small>
@@ -89,6 +95,7 @@ const Settings = ({ onBack, setCustomPersonas, customPersonas }) => {
                     >
                         <option value="a1111">Automatic1111</option>
                         <option value="comfyui">ComfyUI</option>
+                        <option value="diffusionbee">Diffusion Bee (Mac)</option>
                     </select>
                 </div>
 
@@ -101,7 +108,21 @@ const Settings = ({ onBack, setCustomPersonas, customPersonas }) => {
                         placeholder="http://127.0.0.1:7860"
                         style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
                     />
-                    <small style={{ color: '#71717a', display: 'block', marginTop: '0.5rem' }}>A1111 default: 7860 | ComfyUI default: 8188</small>
+                    <small style={{ color: '#71717a', display: 'block', marginTop: '0.5rem' }}>A1111: 7860 | ComfyUI: 8188 | Diffusion Bee: 1111</small>
+                </div>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#a1a1aa' }}>Preferred Indian Language</label>
+                    <select
+                        value={preferredLanguage}
+                        onChange={(e) => setPreferredLanguage(e.target.value)}
+                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
+                    >
+                        <option value="english">English (Default)</option>
+                        <option value="hindi">Hindi</option>
+                        <option value="marathi">Marathi</option>
+                    </select>
+                    <small style={{ color: '#71717a', display: 'block', marginTop: '0.5rem' }}>Forces Indian characters to respond in the selected language.</small>
                 </div>
 
                 {imageEngine === 'comfyui' && (

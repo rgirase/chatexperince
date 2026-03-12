@@ -4,22 +4,35 @@ import { personas } from '../data/personas';
 
 const PersonaList = ({ onSelectPersona, customPersonas = [] }) => {
     const allPersonas = [...personas, ...customPersonas];
-    const [activeTab, setActiveTab] = useState('all');
-    const [activeChatIds, setActiveChatIds] = useState([]);
 
-    useEffect(() => {
+    const getInitialActiveChats = () => {
         const ids = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             if (key && key.startsWith('chat_')) {
-                ids.push(key.replace('chat_', ''));
+                const id = key.replace('chat_', '');
+                // Verify the persona exists before adding to active chats
+                if (allPersonas.find(p => p.id === id)) {
+                    ids.push(id);
+                }
             }
         }
-        setActiveChatIds(ids);
-        if (ids.length > 0) {
-            setActiveTab('active');
+        return ids;
+    };
+
+    const [activeChatIds, setActiveChatIds] = useState(getInitialActiveChats);
+    
+    const [activeTab, setActiveTab] = useState(() => {
+        const savedTab = localStorage.getItem('lastPersonaTab');
+        if (savedTab === 'all' || savedTab === 'active') {
+            return savedTab;
         }
-    }, []);
+        return getInitialActiveChats().length > 0 ? 'active' : 'all';
+    });
+
+    useEffect(() => {
+        localStorage.setItem('lastPersonaTab', activeTab);
+    }, [activeTab]);
 
     const displayedPersonas = activeTab === 'all'
         ? allPersonas
