@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home } from 'lucide-react';
+import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard } from 'lucide-react';
 import { generateResponse, generateSuggestion, summarizeMemory } from '../services/llm';
 
 const generateSelfie = async (prompt, persona, aiMessageId, setMessages) => {
@@ -200,6 +200,16 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
             localStorage.removeItem(`invited_${persona.id}`);
         }
     }, [invitedPersona, persona.id]);
+
+    const handleCopyChat = () => {
+        const log = messages.map(m => `[${m.role.toUpperCase()}]: ${m.content}`).join('\n\n');
+        navigator.clipboard.writeText(log).then(() => {
+            alert("Chat history copied to clipboard! You can now paste it for analysis.");
+        }).catch(err => {
+            console.error('Failed to copy chat: ', err);
+            alert("Failed to copy chat. Please try again.");
+        });
+    };
 
     // Background memory engine
     useEffect(() => {
@@ -530,6 +540,14 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                     </button>
                     <button
                         className="back-btn"
+                        onClick={handleCopyChat}
+                        title="Copy Chat to Clipboard"
+                        style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e' }}
+                    >
+                        <Clipboard size={18} />
+                    </button>
+                    <button
+                        className="back-btn"
                         onClick={handleClearChat}
                         title="Clear Chat History"
                         style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}
@@ -555,6 +573,9 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                     </button>
                     <button onClick={() => { handleSceneChange(); setIsMobileMenuOpen(false); }}>
                         <MapPin size={16} color="#c084fc" /> Change Scene
+                    </button>
+                    <button onClick={() => { handleCopyChat(); setIsMobileMenuOpen(false); }}>
+                        <Clipboard size={16} color="#22c55e" /> Copy Chat for Analysis
                     </button>
                     <button onClick={() => { handleClearChat(); setIsMobileMenuOpen(false); }}>
                         <Trash2 size={16} color="#ef4444" /> Clear Chat History
