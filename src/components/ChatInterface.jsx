@@ -283,6 +283,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
             setIsTyping(false);
+            setIsSuggesting(false);
         }
     };
 
@@ -369,13 +370,24 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
         setIsSuggesting(true);
         setError(null);
 
-        const suggestion = await generateSuggestion(persona, messages);
-        if (suggestion) {
-            setInput(suggestion);
-        } else {
-            setError("Could not generate a suggestion. Check LM Studio connection.");
+        abortControllerRef.current = new AbortController();
+
+        try {
+            const suggestion = await generateSuggestion(persona, messages, abortControllerRef.current.signal);
+            if (suggestion) {
+                setInput(suggestion);
+            } else {
+                setError("Could not generate a suggestion. Check LM Studio connection.");
+            }
+        } catch (err) {
+            if (err.name === 'AbortError') {
+                console.log("Suggestion cancelled");
+            } else {
+                setError("Error generating suggestion.");
+            }
+        } finally {
+            setIsSuggesting(false);
         }
-        setIsSuggesting(false);
     };
 
     const handleSend = async () => {
@@ -793,11 +805,25 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                         </div>
                     </div>
                 )}
+
+                {isSuggesting && (
+                    <div className="message-wrapper user fade-in" style={{ justifyContent: 'flex-start', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ padding: '8px 16px', background: 'rgba(192, 132, 252, 0.1)', border: '1px solid rgba(192, 132, 252, 0.2)', borderRadius: '16px', color: '#c084fc', fontSize: '0.85rem', display: 'flex', alignItems: 'center' }}>
+                            <Wand2 size={14} className="spin-animation" style={{ marginRight: '8px' }} />
+                            <motion.span
+                                animate={{ opacity: [0.4, 1, 0.4] }}
+                                transition={{ duration: 1.5, repeat: Infinity }}
+                            >
+                                Consulting the muse for a suggestion...
+                            </motion.span>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="input-area glass-panel">
                 <div className="input-container">
-                    {isTyping ? (
+                    {(isTyping || isSuggesting) ? (
                         <button
                             className="send-btn"
                             onClick={handleStopGeneration}
@@ -814,7 +840,7 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                             title="Suggest Response"
                             style={{ marginRight: '8px', background: 'rgba(192, 132, 252, 0.2)', color: '#c084fc' }}
                         >
-                            <Wand2 size={18} className={isSuggesting ? "spin-animation" : ""} />
+                            <Wand2 size={18} />
                         </button>
                     )}
                     <textarea

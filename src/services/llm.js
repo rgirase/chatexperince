@@ -109,12 +109,12 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
     }
 };
 
-export const generateSuggestion = async (persona, messages) => {
+export const generateSuggestion = async (persona, messages, signal) => {
     // Format the conversation history into a single string for better context understanding
     const contextStr = messages.map(msg => {
         const roleName = msg.role === 'user' ? 'User' : persona.name;
         return `${roleName}: ${msg.content}`;
-    }).join('\n\n');
+    }).slice(-15).join('\n\n'); // Focus on last 15 messages for context
 
     const systemMessage = {
         role: "system",
@@ -124,8 +124,12 @@ The character's premise is: ${persona.tagline}.
 Here is the conversation history so far:
 ${contextStr}
 
-Based on this history, generate exactly ONE short, highly engaging sentence or action (using asterisks for actions) that the User could send back to ${persona.name} to continue the scene naturally. 
-Do not include any quotes, prefixes like "User:", or any other commentary. Just give the raw suggested response.`
+TASK: Generate exactly ONE short, highly engaging sentence or action (using asterisks for actions) that the User could send back to ${persona.name} to continue the scene naturally.
+RULES:
+1. Drive the story forward. DO NOT repeat what has already been said.
+2. Be creative and visceral. Use the current environment and relationship dynamic.
+3. Do not include any quotes, prefixes like "User:", or any other commentary. Just give the raw suggested response.
+4. Keep it under 30 words.`
     };
 
     try {
@@ -139,12 +143,15 @@ Do not include any quotes, prefixes like "User:", or any other commentary. Just 
                 model: "local-model",
                 messages: [
                     systemMessage,
-                    { role: "user", content: "What should the User say next? Generate exactly one suggested response without any prefixes." }
+                    { role: "user", content: "What should the User say next? Generate exactly one creative suggestion to continue the story." }
                 ],
-                temperature: 0.8,
-                max_tokens: 150,
+                temperature: 0.9,
+                max_tokens: 100,
                 stream: false,
+                frequency_penalty: 1.0,
+                presence_penalty: 1.0,
             }),
+            signal: signal,
         });
 
         if (!response.ok) {
