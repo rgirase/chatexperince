@@ -62,7 +62,7 @@ const PersonaList = ({ onSelectPersona, customPersonas = [] }) => {
     };
 
     return (
-        <div className="persona-container">
+        <div className="persona-container" style={{ paddingBottom: '4rem' }}>
             <motion.div
                 className="persona-header"
                 initial={{ opacity: 0, y: -20 }}
