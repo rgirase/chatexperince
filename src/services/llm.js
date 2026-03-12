@@ -19,6 +19,8 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
         finalSystemPrompt += `\n\nCRITICAL RULE: You are fully fluent in ${langName}. You MUST respond to the user ENTIRELY in ${langName} language.`;
     }
 
+    finalSystemPrompt += `\n\nCRITICAL BEHAVIORAL RULES:\n1. DO NOT repeat phrases, structure, or actions from your previous responses or the user's responses.\n2. Drive the story forward proactively. Describe your actions, thoughts, and environment in detail.\n3. DO NOT end every response with a question; take action and let the user react.`;
+
     const systemMessage = {
         role: "system",
         content: finalSystemPrompt
@@ -52,6 +54,8 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
                 temperature: 0.8,
                 max_tokens: -1,
                 stream: true,
+                frequency_penalty: 0.5,
+                presence_penalty: 0.5,
             }),
             signal: signal,
         });
