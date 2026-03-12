@@ -202,9 +202,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
     }, [invitedPersona, persona.id]);
 
     const handleCopyChat = () => {
-        const log = messages.map(m => `[${m.role.toUpperCase()}]: ${m.content}`).join('\n\n');
+        let log = "";
+        if (memory) {
+            log += `[SUMMARY/MEMORY]: ${memory}\n\n`;
+        }
+        log += messages.map(m => `[${m.role.toUpperCase()}]: ${m.content}`).join('\n\n');
+        
         navigator.clipboard.writeText(log).then(() => {
-            alert("Chat history copied to clipboard! You can now paste it for analysis.");
+            alert("Chat history (including memory) copied to clipboard!");
         }).catch(err => {
             console.error('Failed to copy chat: ', err);
             alert("Failed to copy chat. Please try again.");
