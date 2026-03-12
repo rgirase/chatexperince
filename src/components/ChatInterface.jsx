@@ -510,10 +510,6 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                         <h3>{persona.name} {invitedPersona && `& ${invitedPersona.name}`}</h3>
                         <p>Online</p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(239, 68, 68, 0.1)', padding: '4px 8px', borderRadius: '12px' }}>
-                        <Heart size={14} color="#ef4444" fill={relationshipScore > 80 ? "#ef4444" : "none"} />
-                        <span style={{ fontSize: '0.8rem', color: '#ef4444', fontWeight: 'bold' }}>{relationshipScore}%</span>
-                    </div>
                 </div>
                 <div className="desktop-actions">
                     <button
