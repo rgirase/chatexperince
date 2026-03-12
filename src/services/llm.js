@@ -49,6 +49,17 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
         ...apiMessages
     ];
 
+    // INJECT LOUD DIRECTIVE: Local models follow the last instruction best.
+    // We add a final "user" direction to force the model to break loops.
+    formattedMessages.push({
+        role: "user",
+        content: `[FINAL CRITICAL DIRECTIVE]: 
+1. DO NOT repeat your previous phrases or actions. 
+2. If the user just answered a question (e.g., "no one is home"), acknowledge it as FACT and move the story forward. 
+3. Take a NEW physical action or start a NEW dialogue topic. 
+4. DO NOT loop back to old concerns.`
+    });
+
     try {
         const url = getLmStudioUrl();
         const response = await fetch(url, {
@@ -59,11 +70,11 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
             body: JSON.stringify({
                 model: "local-model",
                 messages: formattedMessages,
-                temperature: 0.9,
+                temperature: 1.1,
                 max_tokens: -1,
                 stream: true,
-                frequency_penalty: 1.0,
-                presence_penalty: 1.0,
+                frequency_penalty: 0.8,
+                presence_penalty: 0.8,
             }),
             signal: signal,
         });
