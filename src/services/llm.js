@@ -19,7 +19,7 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
         finalSystemPrompt += `\n\nCRITICAL RULE: You are fully fluent in ${langName}. You MUST respond to the user ENTIRELY in ${langName} language.`;
     }
 
-    finalSystemPrompt += `\n\nCRITICAL BEHAVIORAL RULES:\n1. DO NOT repeat phrases, structure, or actions from your previous responses or the user's responses.\n2. Drive the story forward proactively. Describe your actions, thoughts, and environment in detail.\n3. DO NOT end every response with a question; take action and let the user react.`;
+    finalSystemPrompt += `\n\nCRITICAL BEHAVIORAL RULES:\n1. NEVER repeat specific phrases, physical actions, or sentence structures from your previous messages. (e.g., if you already described 'tracing patterns with a finger', DO NOT do it again).\n2. Be creative with your actions. Describe the environment, the temperature, the sounds, and your internal visceral sensations.\n3. Drive the story forward proactively. Take bold steps and physical actions. Do not wait for the user.\n4. DO NOT end every response with a question.`;
 
     const systemMessage = {
         role: "system",
@@ -49,13 +49,13 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: "local-model", // LM Studio ignores this, but it's required by the API
+                model: "local-model",
                 messages: formattedMessages,
-                temperature: 0.8,
+                temperature: 0.9,
                 max_tokens: -1,
                 stream: true,
-                frequency_penalty: 0.5,
-                presence_penalty: 0.5,
+                frequency_penalty: 1.0,
+                presence_penalty: 1.0,
             }),
             signal: signal,
         });
