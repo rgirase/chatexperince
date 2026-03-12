@@ -297,11 +297,19 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
         // Take all messages up to and including the target message
         const historyUpToTarget = messages.slice(0, msgIndex + 1);
         
+        const continuationPrompts = [
+            "[SYSTEM DIRECTIVE]: Continue the scene. Advance the story. DO NOT repeat your last message. Use new actions.",
+            "[SYSTEM DIRECTIVE]: What happens in the very next second? Describe it. DO NOT repeat your previous sentences.",
+            "[SYSTEM DIRECTIVE]: The story moves forward now. Take a new physical action. Avoid phrases you just used.",
+            "[SYSTEM DIRECTIVE]: Break the loop. Change the pacing. Describe a new sensation or a bold move."
+        ];
+        const randomContinuePrompt = continuationPrompts[Math.floor(Math.random() * continuationPrompts.length)];
+
         // Create an explicit user prompt asking the AI to continue its thought
         const continuePrompt = { 
             id: Date.now().toString(), 
             role: 'user', 
-            content: "[SYSTEM DIRECTIVE]: Continue the scene seamlessly from your last message. You must advance the story, actions, and dialogue forward. CRITICAL: DO NOT summarize or repeat any part of your previous message. Start writing the immediate next sentence of the roleplay." 
+            content: randomContinuePrompt
         };
         
         setIsTyping(true);
@@ -361,7 +369,8 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                 setError("Could not connect to LM Studio for continuation. Ensure it is running locally.");
                 setMessages(prev => prev.filter(msg => msg.id !== aiMessageId));
             },
-            abortControllerRef.current.signal
+            abortControllerRef.current.signal,
+            { isContinuation: true }
         );
     };
 

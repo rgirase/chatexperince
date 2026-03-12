@@ -9,9 +9,17 @@ const getLmStudioUrl = () => {
     return '/api/chat/completions'; // Fallback to proxy
 };
 
-export const generateResponse = async (persona, messages, onChunk, onComplete, onError, signal) => {
+export const generateResponse = async (persona, messages, onChunk, onComplete, onError, signal, options = {}) => {
     let finalSystemPrompt = persona.systemPrompt;
     
+    // Strengthen rules if this is a continuation of a thought
+    if (options.isContinuation) {
+        finalSystemPrompt += `\n\nCRITICAL CONTINUATION RULES:
+1. You are continuing your PREVIOUS message. DO NOT repeat the same actions, emotions, or sentences.
+2. Advance the plot. Move the characters to a new position, start a new action, or change the subject.
+3. ABSOLUTELY NO: "heart flutters", "drawn in", "bodies touching", or "heart races" if you just used them. Use synonyms or entirely different descriptions.`;
+    }
+
     // Check for preferred Indian language
     const preferredLanguage = localStorage.getItem('preferredIndianLanguage');
     if (preferredLanguage && preferredLanguage !== 'english' && finalSystemPrompt.toLowerCase().includes('indian')) {
