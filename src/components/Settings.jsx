@@ -95,6 +95,7 @@ const Settings = ({ onBack, setCustomPersonas, customPersonas }) => {
                     >
                         <option value="a1111">Automatic1111</option>
                         <option value="comfyui">ComfyUI</option>
+                        <option value="drawthings">Draw Things (Mac)</option>
                         <option value="diffusionbee">Diffusion Bee (Mac)</option>
                     </select>
                 </div>

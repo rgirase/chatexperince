@@ -16,7 +16,7 @@ const generateSelfie = async (prompt, persona, aiMessageId, setMessages) => {
     const negativePrompt = "lowres, bad quality, anime, cartoon, sketch, ugly";
 
     try {
-        if (imageEngine === 'a1111') {
+        if (imageEngine === 'a1111' || imageEngine === 'drawthings') {
             const response = await fetch(`${sdUrl.replace(/\/$/, '')}/sdapi/v1/txt2img`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -34,7 +34,7 @@ const generateSelfie = async (prompt, persona, aiMessageId, setMessages) => {
                 const base64Image = `data:image/png;base64,${data.images[0]}`;
                 setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
             } else {
-                throw new Error("A1111 API error.");
+                throw new Error(`${imageEngine === 'drawthings' ? 'Draw Things' : 'A1111'} API error.`);
             }
         } else if (imageEngine === 'comfyui') {
             const comfyWorkflow = localStorage.getItem('comfyWorkflow');
