@@ -132,18 +132,22 @@ export const generateSuggestion = async (persona, messages, signal) => {
 
     const systemMessage = {
         role: "system",
-        content: `You are an expert creative writing assistant. Your job is to help the User roleplay with a character named ${persona.name}.
+        content: `You are an expert creative writing assistant for a high-intensity roleplay app. Your job is to help the User respond to an AI character named ${persona.name}.
 The character's premise is: ${persona.tagline}.
 
 Here is the conversation history so far:
 ${contextStr}
 
-TASK: Generate exactly ONE short, highly engaging sentence or action (using asterisks for actions) that the User could send back to ${persona.name} to continue the scene naturally.
+TASK: Generate a single, highly immersive, and contextually aware response that the User could send back to ${persona.name}. 
+The suggestion should follow the current vibe and physical proximity of the scene.
+
 RULES:
-1. Drive the story forward. DO NOT repeat what has already been said.
-2. Be creative and visceral. Use the current environment and relationship dynamic.
-3. Do not include any quotes, prefixes like "User:", or any other commentary. Just give the raw suggested response.
-4. Keep it under 30 words.`
+1. DRIVE THE STORY FORWARD. Provide a suggestion that moves the scene into a new action, a deeper emotional beat, or a provocative physical movement.
+2. BLEND DIALOGUE AND ACTION. Use asterisks for physical actions (e.g. *I pull you closer, my breath warm against your neck*) and combine it with a line of dialogue that fits the relationship.
+3. BE VISCERAL. Focus on the senses—touch, sound, temperature, and tension.
+4. DO NOT repeat what has already been said.
+5. NO COMMENTARY. Return only the raw text of the suggested response.
+6. LENGTH: Make it substantial enough to feel like a real contribution to the story (approx. 40-70 words).`
     };
 
     try {
