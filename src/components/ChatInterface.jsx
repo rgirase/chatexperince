@@ -259,6 +259,53 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
         }
     };
 
+    const handleScenarioShuffle = async () => {
+        if (isTyping || isSuggesting) return;
+        
+        setIsTyping(true);
+        setError(null);
+        
+        const aiMessageId = (Date.now() + 1).toString();
+        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
+
+        const shufflePrompt = {
+            id: Date.now().toString(),
+            role: 'user',
+            content: "[SYSTEM DIRECTIVE: SCENARIO SHIFT. Randomly and creatively transition the story to a completely NEW location and situation. Describe the new environment vividly using sensory details. Stay in character, but take a bold leap into a new phase of our interaction — something unexpected and exciting. DO NOT ask for permission, just change the scene.]"
+        };
+
+        abortControllerRef.current = new AbortController();
+
+        const personaWithMemory = {
+            ...persona,
+            systemPrompt: `${persona.systemPrompt}\n\n${getIntensityPrompt(intensity)}\n${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
+        };
+
+        await generateResponse(
+            personaWithMemory,
+            [...messages, shufflePrompt],
+            (chunkText) => {
+                setIsTyping(false);
+                let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '').replace(/\[VOICE:\s*moan\]/gi, '').replace(/\[PHYSICAL ACTION:\]/gi, '').replace(/\[WHISPER\]/gi, '').replace(/\[\w[\w\s]*:\]/gi, '');
+                setMessages(prev => prev.map(msg =>
+                    msg.id === aiMessageId ? { ...msg, content: cleanText } : msg
+                ));
+            },
+            (fullText) => {
+                const photoMatch = fullText.match(/\[PHOTO:\s*(.*?)\]/i);
+                if (photoMatch) {
+                    generateSelfie(photoMatch[1], persona, aiMessageId, setMessages);
+                }
+            },
+            (errMessage) => {
+                setIsTyping(false);
+                setError("Scenario shuffle failed. Check LM Studio connection.");
+                setMessages(prev => prev.filter(msg => msg.id !== aiMessageId));
+            },
+            abortControllerRef.current.signal
+        );
+    };
+
     const handleEditStart = (msg) => {
         setEditingMessageId(msg.id);
         setEditContent(msg.content);
@@ -562,8 +609,16 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                     </button>
                     <button
                         className="back-btn"
+                        onClick={handleScenarioShuffle}
+                        title="Shuffle Scenario (Auto-change location)"
+                        style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(234, 179, 8, 0.1)', color: '#eab308' }}
+                    >
+                        <Wand2 size={18} />
+                    </button>
+                    <button
+                        className="back-btn"
                         onClick={handleSceneChange}
-                        title="Change Scene"
+                        title="Change Scene (Manual)"
                         style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(192, 132, 252, 0.1)', color: '#c084fc' }}
                     >
                         <MapPin size={18} />
@@ -600,6 +655,9 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                     </button>
                     <button onClick={() => { setIsInviteModalOpen(true); setIsMobileMenuOpen(false); }}>
                         <Users size={16} color="#38bdf8" /> Invite Character
+                    </button>
+                    <button onClick={() => { handleScenarioShuffle(); setIsMobileMenuOpen(false); }}>
+                        <Wand2 size={16} color="#eab308" /> Shuffle Scenario
                     </button>
                     <button onClick={() => { handleSceneChange(); setIsMobileMenuOpen(false); }}>
                         <MapPin size={16} color="#c084fc" /> Change Scene
