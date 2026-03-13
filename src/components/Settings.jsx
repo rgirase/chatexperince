@@ -11,6 +11,11 @@ const Settings = ({ onBack, setCustomPersonas, customPersonas }) => {
     const [comfyWorkflow, setComfyWorkflow] = useState('');
     const [preferredLanguage, setPreferredLanguage] = useState('english');
     const [newPersona, setNewPersona] = useState({ name: '', tagline: '', systemPrompt: '', initialMessage: '' });
+    
+    // User Profile Profile States
+    const [userName, setUserName] = useState('');
+    const [userAppearance, setUserAppearance] = useState('');
+    const [userBackground, setUserBackground] = useState('');
 
     useEffect(() => {
         // Load existing settings
@@ -19,15 +24,26 @@ const Settings = ({ onBack, setCustomPersonas, customPersonas }) => {
         setImageEngine(localStorage.getItem('imageEngine') || 'a1111');
         setComfyWorkflow(localStorage.getItem('comfyWorkflow') || '');
         setPreferredLanguage(localStorage.getItem('preferredIndianLanguage') || 'english');
+        
+        // Load user profile
+        setUserName(localStorage.getItem('userName') || '');
+        setUserAppearance(localStorage.getItem('userAppearance') || '');
+        setUserBackground(localStorage.getItem('userBackground') || '');
     }, []);
 
-    const handleSaveUrls = () => {
+    const handleSaveSettings = () => {
         localStorage.setItem('lmStudioUrl', lmStudioUrl || DEFAULT_LM_STUDIO);
         localStorage.setItem('sdUrl', sdUrl || DEFAULT_SD_URL);
         localStorage.setItem('imageEngine', imageEngine);
         localStorage.setItem('comfyWorkflow', comfyWorkflow);
         localStorage.setItem('preferredIndianLanguage', preferredLanguage);
-        alert('Settings saved successfully!');
+        
+        // Save user profile
+        localStorage.setItem('userName', userName);
+        localStorage.setItem('userAppearance', userAppearance);
+        localStorage.setItem('userBackground', userBackground);
+        
+        alert('Settings and User Profile saved successfully!');
     };
 
     const handleAddPersona = () => {
@@ -141,11 +157,52 @@ const Settings = ({ onBack, setCustomPersonas, customPersonas }) => {
                 )}
 
                 <button
-                    onClick={handleSaveUrls}
+                    onClick={handleSaveSettings}
                     style={{ background: 'rgba(192, 132, 252, 0.2)', color: '#c084fc', border: '1px solid #c084fc', padding: '0.75rem 1.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', cursor: 'pointer', marginBottom: '1.5rem' }}
                 >
                     <Save size={18} style={{ marginRight: '8px' }} />
                     Save All Settings
+                </button>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
+                <h2 style={{ marginBottom: '1.5rem', color: '#c084fc' }}>User Profile (Who are you?)</h2>
+                <div style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#a1a1aa' }}>Your Name</label>
+                    <input
+                        type="text"
+                        value={userName}
+                        onChange={(e) => setUserName(e.target.value)}
+                        placeholder="e.g., Rahul"
+                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
+                    />
+                </div>
+                <div style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#a1a1aa' }}>Your Appearance</label>
+                    <textarea
+                        value={userAppearance}
+                        onChange={(e) => setUserAppearance(e.target.value)}
+                        placeholder="Describe your height, build, hair style, etc."
+                        rows={2}
+                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white', resize: 'vertical' }}
+                    />
+                </div>
+                <div style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#a1a1aa' }}>Your Role / Background</label>
+                    <textarea
+                        value={userBackground}
+                        onChange={(e) => setUserBackground(e.target.value)}
+                        placeholder="What do you do? What is your status? (e.g. A wealthy businessman, a fitness enthusiast, his favorite student)"
+                        rows={2}
+                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white', resize: 'vertical' }}
+                    />
+                </div>
+                <button
+                    onClick={handleSaveSettings}
+                    style={{ background: 'rgba(192, 132, 252, 0.2)', color: '#c084fc', border: '1px solid #c084fc', padding: '0.75rem 1.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                >
+                    <Save size={18} style={{ marginRight: '8px' }} />
+                    Save Profile
                 </button>
             </div>
 
