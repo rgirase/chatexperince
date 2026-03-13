@@ -20,14 +20,7 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
 3. ABSOLUTELY NO: "heart flutters", "drawn in", "bodies touching", or "heart races" if you just used them. Use synonyms or entirely different descriptions.`;
     }
 
-    // Check for preferred Indian language
-    const preferredLanguage = localStorage.getItem('preferredIndianLanguage');
-    if (preferredLanguage && preferredLanguage !== 'english' && finalSystemPrompt.toLowerCase().includes('indian')) {
-        const langName = preferredLanguage.charAt(0).toUpperCase() + preferredLanguage.slice(1);
-        finalSystemPrompt += `\n\nCRITICAL RULE: You are fully fluent in ${langName}. You MUST respond to the user ENTIRELY in ${langName} language.`;
-    }
-
-    finalSystemPrompt += `\n\nCRITICAL BEHAVIORAL RULES:\n1. NEVER repeat specific phrases, physical actions, or sentence structures from your previous messages. (e.g., if you already described 'tracing patterns with a finger', DO NOT do it again).\n2. Be creative with your actions. Describe the environment, the temperature, the sounds, and your internal visceral sensations.\n3. Drive the story forward proactively. Take bold steps and physical actions. Do not wait for the user.\n4. DO NOT end every response with a question.`;
+    finalSystemPrompt += `\n\nCRITICAL BEHAVIORAL RULES:\n1. NEVER repeat specific phrases, physical actions, or sentence structures from your previous messages. (e.g., if you already described 'tracing patterns with a finger', DO NOT do it again).\n2. Be creative with your actions. Describe the environment, the temperature, the sounds, and your internal visceral sensations.\n3. Drive the story forward proactively. Take bold steps and physical actions. Do not wait for the user.\n4. DO NOT end every response with a question.\n5. During high-intensity or intimate moments, you MUST occasionally append [VOICE: moan] at the very end of your response to express your pleasure or arousal.`;
 
     const systemMessage = {
         role: "system",

@@ -142,10 +142,10 @@ const Settings = ({ onBack, setCustomPersonas, customPersonas }) => {
 
                 <button
                     onClick={handleSaveUrls}
-                    style={{ background: 'rgba(192, 132, 252, 0.2)', color: '#c084fc', border: '1px solid #c084fc', padding: '0.75rem 1.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                    style={{ background: 'rgba(192, 132, 252, 0.2)', color: '#c084fc', border: '1px solid #c084fc', padding: '0.75rem 1.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', cursor: 'pointer', marginBottom: '1.5rem' }}
                 >
                     <Save size={18} style={{ marginRight: '8px' }} />
-                    Save URLs
+                    Save All Settings
                 </button>
             </div>
 

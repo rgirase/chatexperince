@@ -337,7 +337,7 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
             [...historyUpToTarget, continuePrompt],
             (chunkText) => {
                 setIsTyping(false);
-                let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '');
+                let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '').replace(/\[VOICE:\s*moan\]/gi, '');
                 setMessages(prev => prev.map(msg =>
                     msg.id === aiMessageId ? { ...msg, content: cleanText } : msg
                 ));
@@ -362,6 +362,10 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
 
                 if (photoPrompt) {
                     generateSelfie(photoPrompt, persona, aiMessageId, setMessages);
+                }
+
+                if (fullText.toLowerCase().includes('[voice: moan]')) {
+                    playMoan(intensity);
                 }
             },
             (errMessage) => {
@@ -439,7 +443,7 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
             [...messages, userMessage],
             (chunkText) => {
                 setIsTyping(false);
-                let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '');
+                let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '').replace(/\[VOICE:\s*moan\]/gi, '');
                 setMessages(prev => prev.map(msg =>
                     msg.id === aiMessageId ? { ...msg, content: cleanText } : msg
                 ));
