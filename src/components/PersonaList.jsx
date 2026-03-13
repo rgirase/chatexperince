@@ -11,16 +11,9 @@ const PersonaList = ({ onSelectPersona, customPersonas = [] }) => {
             const key = localStorage.key(i);
             if (key && key.startsWith('chat_')) {
                 const id = key.replace('chat_', '');
-                // Verify the persona exists and has more than 2 messages
+                // Verify the persona exists before adding to active chats
                 if (allPersonas.find(p => p.id === id)) {
-                    try {
-                        const chatData = JSON.parse(localStorage.getItem(key));
-                        if (Array.isArray(chatData) && chatData.length > 2) {
-                            ids.push(id);
-                        }
-                    } catch (e) {
-                        console.error("Error parsing chat data for active filter", e);
-                    }
+                    ids.push(id);
                 }
             }
         }
@@ -28,7 +21,7 @@ const PersonaList = ({ onSelectPersona, customPersonas = [] }) => {
     };
 
     const [activeChatIds, setActiveChatIds] = useState(getInitialActiveChats);
-    
+
     const [activeTab, setActiveTab] = useState(() => {
         const savedTab = localStorage.getItem('lastPersonaTab');
         if (savedTab === 'all' || savedTab === 'active') {
