@@ -123,11 +123,19 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
     const [messages, setMessages] = useState(() => {
         const saved = localStorage.getItem(`chat_${persona.id}`);
         if (saved) {
-            return JSON.parse(saved);
+            const parsed = JSON.parse(saved);
+            // SMART SYNC: If the chat history only contains the initial message, 
+            // and that message is different from the current persona config, update it.
+            if (Array.isArray(parsed) && parsed.length === 1 && parsed[0].role === 'ai' && parsed[0].content !== persona.initialMessage) {
+                const updatedMessage = [{ ...parsed[0], content: persona.initialMessage || parsed[0].content }];
+                localStorage.setItem(`chat_${persona.id}`, JSON.stringify(updatedMessage));
+                return updatedMessage;
+            }
+            return parsed;
         }
         return [
             {
-                id: '1',
+                id: Date.now().toString(),
                 role: 'ai',
                 content: persona.initialMessage || `*I look at you with a soft smile* Hello there... I'm glad you're here.`
             }
