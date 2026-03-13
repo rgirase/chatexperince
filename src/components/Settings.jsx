@@ -6,6 +6,8 @@ const DEFAULT_SD_URL = 'http://127.0.0.1:7860';
 
 const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
     const [lmStudioUrl, setLmStudioUrl] = useState('');
+    const [savedServers, setSavedServers] = useState([]);
+    const [newServerName, setNewServerName] = useState('');
     const [sdUrl, setSdUrl] = useState('');
     const [imageEngine, setImageEngine] = useState('a1111');
     const [comfyWorkflow, setComfyWorkflow] = useState('');
@@ -29,6 +31,10 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
         setUserName(localStorage.getItem('userName') || '');
         setUserAppearance(localStorage.getItem('userAppearance') || '');
         setUserBackground(localStorage.getItem('userBackground') || '');
+
+        // Load saved servers
+        const servers = JSON.parse(localStorage.getItem('savedServers') || '[]');
+        setSavedServers(servers);
     }, []);
 
     const handleSaveSettings = () => {
@@ -43,7 +49,35 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
         localStorage.setItem('userAppearance', userAppearance);
         localStorage.setItem('userBackground', userBackground);
         
+        // Save servers
+        localStorage.setItem('savedServers', JSON.stringify(savedServers));
+        
         alert('Settings and User Profile saved successfully!');
+    };
+
+    const handleAddServer = () => {
+        if (!newServerName || !lmStudioUrl) {
+            alert("Name and URL are required to save a server profile.");
+            return;
+        }
+        const newServer = { id: Date.now(), name: newServerName, url: lmStudioUrl };
+        const updated = [...savedServers, newServer];
+        setSavedServers(updated);
+        localStorage.setItem('savedServers', JSON.stringify(updated));
+        setNewServerName('');
+        alert(`Server "${newServerName}" saved!`);
+    };
+
+    const handleConnectServer = (url) => {
+        setLmStudioUrl(url);
+        localStorage.setItem('lmStudioUrl', url);
+        alert("Connected to server!");
+    };
+
+    const handleDeleteServer = (id) => {
+        const updated = savedServers.filter(s => s.id !== id);
+        setSavedServers(updated);
+        localStorage.setItem('savedServers', JSON.stringify(updated));
     };
 
     const handleAddPersona = () => {
@@ -100,14 +134,59 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
 
                 <div style={{ marginBottom: '1.5rem' }}>
                     <label style={{ display: 'block', marginBottom: '0.5rem', color: '#a1a1aa' }}>LM Studio API URL</label>
-                    <input
-                        type="text"
-                        value={lmStudioUrl}
-                        onChange={(e) => setLmStudioUrl(e.target.value)}
-                        placeholder="http://192.168.1.233:1234/v1"
-                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
-                    />
-                    <small style={{ color: '#71717a', display: 'block', marginTop: '0.5rem' }}>The base URL for local LLM inference.</small>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <input
+                            type="text"
+                            value={lmStudioUrl}
+                            onChange={(e) => setLmStudioUrl(e.target.value)}
+                            placeholder="http://192.168.1.233:1234/v1"
+                            style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
+                        />
+                    </div>
+                    <small style={{ color: '#71717a', display: 'block', marginTop: '0.5rem' }}>The active server URL used for chat.</small>
+                    
+                    <div style={{ marginTop: '1rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid #27272a' }}>
+                        <h4 style={{ fontSize: '0.9rem', marginBottom: '0.75rem', color: '#c084fc' }}>Quick Save Current Server</h4>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input
+                                type="text"
+                                value={newServerName}
+                                onChange={(e) => setNewServerName(e.target.value)}
+                                placeholder="Nickname (e.g., Office Mac)"
+                                style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white', fontSize: '0.9rem' }}
+                            />
+                            <button onClick={handleAddServer} style={{ padding: '0.5rem 1rem', borderRadius: '6px', background: 'rgba(192, 132, 252, 0.2)', color: '#c084fc', border: '1px solid #c084fc', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                Save Profile
+                            </button>
+                        </div>
+                    </div>
+
+                    {savedServers.length > 0 && (
+                        <div style={{ marginTop: '1rem' }}>
+                            <h4 style={{ fontSize: '0.9rem', marginBottom: '0.75rem', color: '#a1a1aa' }}>Saved Server Profiles</h4>
+                            <div style={{ display: 'grid', gap: '0.5rem' }}>
+                                {savedServers.map(server => (
+                                    <div key={server.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', border: '1px solid #3f3f46' }}>
+                                        <div style={{ overflow: 'hidden' }}>
+                                            <div style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>{server.name}</div>
+                                            <div style={{ fontSize: '0.75rem', color: '#71717a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{server.url}</div>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <button 
+                                                onClick={() => handleConnectServer(server.url)}
+                                                style={{ padding: '0.35rem 0.75rem', borderRadius: '4px', background: lmStudioUrl === server.url ? '#c084fc' : 'rgba(192, 132, 252, 0.1)', color: lmStudioUrl === server.url ? 'black' : '#c084fc', border: '1px solid #c084fc', cursor: 'pointer', fontSize: '0.75rem' }}
+                                            >
+                                                {lmStudioUrl === server.url ? 'Active' : 'Connect'}
+                                            </button>
+                                            <button onClick={() => handleDeleteServer(server.id)} style={{ padding: '0.35rem', color: '#ef4444', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <div style={{ marginBottom: '1.5rem' }}>

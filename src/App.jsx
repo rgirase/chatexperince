@@ -14,6 +14,8 @@ function App() {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [customPersonas, setCustomPersonas] = useState([]);
   const [panicMode, setPanicMode] = useState(false);
+  const [activeServerUrl, setActiveServerUrl] = useState('');
+  const [savedServers, setSavedServers] = useState([]);
 
   // Universal View State Management
   const [activeView, setActiveView] = useState(() => localStorage.getItem('activeView') || 'home');
@@ -27,6 +29,11 @@ function App() {
       setCustomPersonas(parsed);
       loadedPersonas = [...loadedPersonas, ...parsed];
     }
+
+    // Load server info
+    const servers = JSON.parse(localStorage.getItem('savedServers') || '[]');
+    setSavedServers(servers);
+    setActiveServerUrl(localStorage.getItem('lmStudioUrl') || '');
 
     // Restore exact view state
     const savedView = localStorage.getItem('activeView') || 'home';
@@ -163,6 +170,20 @@ function App() {
     hasPushedHistory = false;
   };
 
+  const handleSwitchServer = (url) => {
+    setActiveServerUrl(url);
+    localStorage.setItem('lmStudioUrl', url);
+  };
+
+  // Re-sync server list when entering/leaving settings or on refresh
+  useEffect(() => {
+    if (!isSettingsOpen) {
+      const servers = JSON.parse(localStorage.getItem('savedServers') || '[]');
+      setSavedServers(servers);
+      setActiveServerUrl(localStorage.getItem('lmStudioUrl') || '');
+    }
+  }, [isSettingsOpen]);
+
   const longPressTimerRef = useRef(null);
   const handleTouchStart = () => {
     longPressTimerRef.current = setTimeout(() => {
@@ -195,7 +216,24 @@ function App() {
             <span role="img" aria-label="sparkles">✨</span>
             Aura Roleplay
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            {/* Server Quick Switcher */}
+            {savedServers.length > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', padding: '2px 8px', border: '1px solid #3f3f46', marginRight: '4px' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#c084fc', marginRight: '6px' }}></div>
+                <select 
+                  value={activeServerUrl} 
+                  onChange={(e) => handleSwitchServer(e.target.value)}
+                  style={{ background: 'transparent', border: 'none', color: '#d4d4d8', fontSize: '0.75rem', outline: 'none', cursor: 'pointer', maxWidth: '100px' }}
+                >
+                  <option value="" disabled>Select Server</option>
+                  {savedServers.map(s => (
+                    <option key={s.id} value={s.url}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <button
               onClick={handleOpenGallery}
               style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', padding: '0.5rem' }}
