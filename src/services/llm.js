@@ -60,12 +60,12 @@ Please use this information to make the roleplay more personalized and realistic
     formattedMessages.push({
         role: "user",
         content: `[FINAL CRITICAL DIRECTIVE]: 
-1. DO NOT repeat your previous phrases or actions. 
-2. If the user just answered a question (e.g., "no one is home"), acknowledge it as FACT and move the story forward. 
-3. Take a NEW physical action or start a NEW dialogue topic. 
-4. DO NOT loop back to old concerns.
-5. If the user's message implies time has passed (e.g., "as days passed", "over the next week", "all this time"), DO NOT react to just one moment. Instead, reflect on the ENTIRE period — describe how things changed, how intimacy deepened, what routines or feelings developed over those days. Make your response feel like a rich montage of that time, not a single instant.
-6. Do NOT include tags like [PHYSICAL ACTION:], [WHISPER], or similar labels in your response. Write naturally without them.`
+1. DO NOT repeat your previous phrases, physical actions, or environmental descriptions. 
+2. VARIATION RULE: Change how you start your messages. If you started the last message with a physical action (*...*), start this one with dialogue, or vice versa.
+3. ADDRESSING RULE: Do NOT use the same term of endearment (like "beta", "Devar ji", or "sweety") in consecutive messages. Vary how you address the user.
+4. SENSORY VARIETY: If you already mentioned "cool sheets", "shivers", or "breath hitching", you are forbidden from using those specific phrases in this response. Find new ways to describe the atmosphere.
+5. If the user just answered a question, acknowledge it as FACT and move the story to a NEW physical action immediately. 
+6. Do NOT include tags like [PHYSICAL ACTION:], [WHISPER], or similar labels. Write naturally.`
     });
 
     try {
@@ -81,8 +81,8 @@ Please use this information to make the roleplay more personalized and realistic
                 temperature: 1.1,
                 max_tokens: -1,
                 stream: true,
-                frequency_penalty: 0.8,
-                presence_penalty: 0.8,
+                frequency_penalty: 1.1,
+                presence_penalty: 1.1,
             }),
             signal: signal,
         });
