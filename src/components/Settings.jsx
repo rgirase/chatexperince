@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, Home } from 'lucide-react';
 
 const DEFAULT_LM_STUDIO = 'http://192.168.1.233:1234/v1';
 const DEFAULT_SD_URL = 'http://127.0.0.1:7860';
 
-const Settings = ({ onBack, setCustomPersonas, customPersonas }) => {
+const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
     const [lmStudioUrl, setLmStudioUrl] = useState('');
     const [sdUrl, setSdUrl] = useState('');
     const [imageEngine, setImageEngine] = useState('a1111');
@@ -85,6 +85,14 @@ const Settings = ({ onBack, setCustomPersonas, customPersonas }) => {
                     Back
                 </button>
                 <h1 style={{ margin: 0 }}>Settings</h1>
+                <button 
+                  className="back-btn" 
+                  onClick={onGoHome} 
+                  style={{ marginLeft: 'auto', background: 'rgba(161, 161, 170, 0.1)', color: '#a1a1aa', border: 'none' }}
+                  title="Go to Home"
+                >
+                    <Home size={20} />
+                </button>
             </div>
 
             <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>

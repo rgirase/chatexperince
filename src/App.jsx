@@ -217,6 +217,7 @@ function App() {
       {isSettingsOpen ? (
         <Settings
           onBack={handleBack}
+          onGoHome={handleGoHome}
           customPersonas={customPersonas}
           setCustomPersonas={setCustomPersonas}
         />
