@@ -12,8 +12,17 @@ const PersonaList = ({ onSelectPersona, customPersonas = [] }) => {
             if (key && key.startsWith('chat_')) {
                 const id = key.replace('chat_', '');
                 // Verify the persona exists before adding to active chats
-                if (allPersonas.find(p => p.id === id)) {
-                    ids.push(id);
+                const personaExists = allPersonas.find(p => p.id === id);
+                if (personaExists) {
+                    try {
+                        const chatData = JSON.parse(localStorage.getItem(key));
+                        // Only count as active if there's more than just the initial message
+                        if (Array.isArray(chatData) && chatData.length > 2) {
+                            ids.push(id);
+                        }
+                    } catch (e) {
+                        // If invalid JSON, treat as inactive
+                    }
                 }
             }
         }
@@ -21,13 +30,15 @@ const PersonaList = ({ onSelectPersona, customPersonas = [] }) => {
     };
 
     const [activeChatIds, setActiveChatIds] = useState(getInitialActiveChats);
-
+    
     const [activeTab, setActiveTab] = useState(() => {
         const savedTab = localStorage.getItem('lastPersonaTab');
-        if (savedTab === 'all' || savedTab === 'active') {
-            return savedTab;
+        const initialActive = getInitialActiveChats();
+        
+        if (savedTab === 'active' && initialActive.length > 0) {
+            return 'active';
         }
-        return getInitialActiveChats().length > 0 ? 'active' : 'all';
+        return 'all';
     });
 
     useEffect(() => {
