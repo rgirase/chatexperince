@@ -11,13 +11,26 @@ const getLmStudioUrl = () => {
 
 export const generateResponse = async (persona, messages, onChunk, onComplete, onError, signal, options = {}) => {
     let finalSystemPrompt = persona.systemPrompt;
-    
     // Strengthen rules if this is a continuation of a thought
     if (options.isContinuation) {
         finalSystemPrompt += `\n\nCRITICAL CONTINUATION RULES:
 1. You are continuing your PREVIOUS message. DO NOT repeat the same actions, emotions, or sentences.
 2. Advance the plot. Move the characters to a new position, start a new action, or change the subject.
 3. ABSOLUTELY NO: "heart flutters", "drawn in", "bodies touching", or "heart races" if you just used them. Use synonyms or entirely different descriptions.`;
+    }
+
+    // Inject User Persona if defined
+    const userName = localStorage.getItem('userName');
+    const userAppearance = localStorage.getItem('userAppearance');
+    const userBackground = localStorage.getItem('userBackground');
+    
+    if (userName || userAppearance || userBackground) {
+        finalSystemPrompt += `\n\n[USER INFORMATION]:
+The person you are roleplaying with has the following profile:
+${userName ? `- Name: ${userName}` : ''}
+${userAppearance ? `- Appearance: ${userAppearance}` : ''}
+${userBackground ? `- Role/Background: ${userBackground}` : ''}
+Please use this information to make the roleplay more personalized and realistic. Acknowledge these traits in your descriptions and dialogue where appropriate.`;
     }
 
     finalSystemPrompt += `\n\nCRITICAL BEHAVIORAL RULES:\n1. NEVER repeat specific phrases, physical actions, or sentence structures from your previous messages. (e.g., if you already described 'tracing patterns with a finger', DO NOT do it again).\n2. Be creative with your actions. Describe the environment, the temperature, the sounds, and your internal visceral sensations.\n3. Drive the story forward proactively. Take bold steps and physical actions. Do not wait for the user.\n4. DO NOT end every response with a question.\n5. TIME-SKIP RULE: If the user's message implies that time has passed (e.g., "as days passed", "over the next week", "after all that time"), you MUST reflect on the CUMULATIVE experience of everything that happened during that period. Describe how the relationship evolved, how habits formed, emotional changes, and specific memorable moments from that stretch of time — NOT just a single instance. Write as if summarizing a rich, ongoing chapter of the story.`;
