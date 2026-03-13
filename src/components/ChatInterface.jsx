@@ -337,7 +337,7 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
             [...historyUpToTarget, continuePrompt],
             (chunkText) => {
                 setIsTyping(false);
-                let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '').replace(/\[VOICE:\s*moan\]/gi, '');
+                let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '').replace(/\[VOICE:\s*moan\]/gi, '').replace(/\[PHYSICAL ACTION:\]/gi, '').replace(/\[WHISPER\]/gi, '').replace(/\[\w[\w\s]*:\]/gi, '');
                 setMessages(prev => prev.map(msg =>
                     msg.id === aiMessageId ? { ...msg, content: cleanText } : msg
                 ));
@@ -443,7 +443,7 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
             [...messages, userMessage],
             (chunkText) => {
                 setIsTyping(false);
-                let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '').replace(/\[VOICE:\s*moan\]/gi, '');
+                let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '').replace(/\[VOICE:\s*moan\]/gi, '').replace(/\[PHYSICAL ACTION:\]/gi, '').replace(/\[WHISPER\]/gi, '').replace(/\[\w[\w\s]*:\]/gi, '');
                 setMessages(prev => prev.map(msg =>
                     msg.id === aiMessageId ? { ...msg, content: cleanText } : msg
                 ));

@@ -20,7 +20,7 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
 3. ABSOLUTELY NO: "heart flutters", "drawn in", "bodies touching", or "heart races" if you just used them. Use synonyms or entirely different descriptions.`;
     }
 
-    finalSystemPrompt += `\n\nCRITICAL BEHAVIORAL RULES:\n1. NEVER repeat specific phrases, physical actions, or sentence structures from your previous messages. (e.g., if you already described 'tracing patterns with a finger', DO NOT do it again).\n2. Be creative with your actions. Describe the environment, the temperature, the sounds, and your internal visceral sensations.\n3. Drive the story forward proactively. Take bold steps and physical actions. Do not wait for the user.\n4. DO NOT end every response with a question.\n5. During high-intensity or intimate moments, you MUST occasionally append [VOICE: moan] at the very end of your response to express your pleasure or arousal.`;
+    finalSystemPrompt += `\n\nCRITICAL BEHAVIORAL RULES:\n1. NEVER repeat specific phrases, physical actions, or sentence structures from your previous messages. (e.g., if you already described 'tracing patterns with a finger', DO NOT do it again).\n2. Be creative with your actions. Describe the environment, the temperature, the sounds, and your internal visceral sensations.\n3. Drive the story forward proactively. Take bold steps and physical actions. Do not wait for the user.\n4. DO NOT end every response with a question.\n5. TIME-SKIP RULE: If the user's message implies that time has passed (e.g., "as days passed", "over the next week", "after all that time"), you MUST reflect on the CUMULATIVE experience of everything that happened during that period. Describe how the relationship evolved, how habits formed, emotional changes, and specific memorable moments from that stretch of time — NOT just a single instance. Write as if summarizing a rich, ongoing chapter of the story.`;
 
     const systemMessage = {
         role: "system",
@@ -50,7 +50,9 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
 1. DO NOT repeat your previous phrases or actions. 
 2. If the user just answered a question (e.g., "no one is home"), acknowledge it as FACT and move the story forward. 
 3. Take a NEW physical action or start a NEW dialogue topic. 
-4. DO NOT loop back to old concerns.`
+4. DO NOT loop back to old concerns.
+5. If the user's message implies time has passed (e.g., "as days passed", "over the next week", "all this time"), DO NOT react to just one moment. Instead, reflect on the ENTIRE period — describe how things changed, how intimacy deepened, what routines or feelings developed over those days. Make your response feel like a rich montage of that time, not a single instant.
+6. Do NOT include tags like [PHYSICAL ACTION:], [WHISPER], or similar labels in your response. Write naturally without them.`
     });
 
     try {
