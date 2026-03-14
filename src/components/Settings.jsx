@@ -293,6 +293,20 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
                 </button>
             </div>
 
+            <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
+                <h2 style={{ marginBottom: '1.5rem', color: '#c084fc' }}>Android / Mobile Connectivity</h2>
+                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '8px', border: '1px solid #27272a' }}>
+                    <p style={{ color: '#f3f4f6', marginBottom: '1rem' }}>To use this app on your Android device:</p>
+                    <ol style={{ color: '#a1a1aa', paddingLeft: '1.2rem', lineHeight: '1.6' }}>
+                        <li>Ensure your PC and Android are on the <strong>same Wi-Fi network</strong>.</li>
+                        <li>Find your PC's IP address (e.g., <code>192.168.1.XX</code>).</li>
+                        <li>Open Chrome on Android and visit <code>http://[YOUR-IP]:5173</code>.</li>
+                        <li><strong>CORS Note:</strong> In LM Studio, go to Server settings and set <strong>CORS: On</strong> to allow the connection.</li>
+                        <li><strong>Install as App:</strong> Tap the Chrome menu (⋮) and select "Install app" for a native Android look!</li>
+                    </ol>
+                </div>
+            </div>
+
             <div className="glass-panel" style={{ padding: '2rem' }}>
                 <h2 style={{ marginBottom: '1.5rem', color: '#c084fc' }}>Custom Personas</h2>
 

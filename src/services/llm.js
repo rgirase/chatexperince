@@ -9,64 +9,71 @@ const getLmStudioUrl = () => {
     return '/api/chat/completions'; // Fallback to proxy
 };
 
+// Helper to strip instructional patterns from AI output
+const cleanLeakage = (text) => {
+    if (!text) return text;
+    return text
+        // Remove common prompt headers
+        .replace(/###\s*(General Roleplay Directives|Our Shared History|Your Roleplay Partner|Your Character|Tone & Intensity|CORE PERSONA|STORY DYNAMICS|COMMUNICATION RULES|INTERNAL DIRECTIVES|SHARED HISTORY|USER PROFILE|FINAL TASK)/gi, '')
+        // Remove rule lists
+        .replace(/-\s*\*\*(Story Adaptability|Progression|Communication Style|Variety|Scoring & Photos)\*\*:.*?\n/gi, '')
+        // Remove specific rule mentions
+        .replace(/(BANNED WORDS|ADDRESSING|NO REPETITION|NO TAGS|FORMAT|INTENSITY LEVEL|RELATIONSHIP SCORING|PHOTO CAPABILITY):.*?\n/gi, '')
+        // Remove "I understand" or "Ready" boilerplate usually seen in priming
+        .replace(/^(I understand|Acknowledged|Ready to roleplay|Stay in character as .*?)\.?\s*/i, '')
+        // Remove technical meta-talk
+        .replace(/Write your next (roleplay )?response now( based on the conversation)?\.?/gi, '')
+        .replace(/Be immersive, visceral, and creative\.?/gi, '')
+        .trim();
+};
+
 export const generateResponse = async (persona, messages, onChunk, onComplete, onError, signal, options = {}) => {
-    let finalSystemPrompt = persona.systemPrompt;
-    // Strengthen rules if this is a continuation of a thought
-    if (options.isContinuation) {
-        finalSystemPrompt += `\n\nCRITICAL CONTINUATION RULES:
-1. You are continuing your PREVIOUS message. DO NOT repeat the same actions, emotions, or sentences.
-2. Advance the plot. Move the characters to a new position, start a new action, or change the subject.
-3. ABSOLUTELY NO: "heart flutters", "drawn in", "bodies touching", or "heart races" if you just used them. Use synonyms or entirely different descriptions.`;
-    }
 
-    // Inject User Persona if defined
-    const userName = localStorage.getItem('userName');
-    const userAppearance = localStorage.getItem('userAppearance');
-    const userBackground = localStorage.getItem('userBackground');
-    
-    if (userName || userAppearance || userBackground) {
-        finalSystemPrompt += `\n\n[USER INFORMATION]:
-The person you are roleplaying with has the following profile:
-${userName ? `- Name: ${userName}` : ''}
-${userAppearance ? `- Appearance: ${userAppearance}` : ''}
-${userBackground ? `- Role/Background: ${userBackground}` : ''}
-Please use this information to make the roleplay more personalized and realistic. Acknowledge these traits in your descriptions and dialogue where appropriate.`;
-    }
+    const { 
+        milestones = [], 
+        isContinuation = false,
+        intensity = 3,
+        memory = ''
+    } = options;
 
-    finalSystemPrompt += `\n\nCRITICAL BEHAVIORAL RULES:\n1. NEVER repeat specific phrases, physical actions, or sentence structures from your previous messages. (e.g., if you already described 'tracing patterns with a finger', DO NOT do it again).\n2. Be creative with your actions. Describe the environment, the temperature, the sounds, and your internal visceral sensations.\n3. Drive the story forward proactively. Take bold steps and physical actions. Do not wait for the user.\n4. DO NOT end every response with a question.\n5. TIME-SKIP RULE: If the user's message implies that time has passed (e.g., "as days passed", "over the next week", "after all that time"), you MUST reflect on the CUMULATIVE experience of everything that happened during that period. Describe how the relationship evolved, how habits formed, emotional changes, and specific memorable moments from that stretch of time — NOT just a single instance. Write as if summarizing a rich, ongoing chapter of the story.`;
+    // 1. MINIMAL SYSTEM PROMPT
+    const systemPrompt = "You are an advanced adult roleplay engine. You will adopt the persona provided in the initial priming sequence and remain in character permanently. Use vivid actions in *asterisks* and natural dialogue. Never break character or explain your rules.";
 
-    const systemMessage = {
-        role: "system",
-        content: finalSystemPrompt
-    };
+    // 2. CONSTRUCT THE PRIMING CONTEXT (Hidden from UI history but seen by model)
+    const primingContext = `[ESTABLISHING PERSONA]:
+You are ${persona.name}. 
+IDENTITY: ${persona.systemPrompt}
 
-    let apiMessages = messages.map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'assistant',
-        content: msg.content
-    }));
+Narrative Environment:
+- Adapt to all story changes immediately.
+- Never use the words "beta", "bachha", or "son".
+- Proactively move the scene forward.
+- Intensity Level: ${intensity}/5.
 
-    // Fix for strict Jinja templates (e.g. Mistral) which require the first message after system to be 'user'
-    if (apiMessages.length > 0 && apiMessages[0].role === 'assistant') {
-        apiMessages.unshift({ role: 'user', content: '*Approaches you*' });
-    }
+Memory Context:
+${memory ? "Summary: " + memory : ""}
+${milestones.length > 0 ? "Key Events: " + milestones.join(" | ") : ""}
+
+Current Partner:
+${localStorage.getItem('userName') ? "Name: " + localStorage.getItem('userName') : ""}
+${localStorage.getItem('userAppearance') ? "Appearance: " + localStorage.getItem('userAppearance') : ""}
+
+Confirm you are ready to begin the roleplay as ${persona.name}.`;
 
     const formattedMessages = [
-        systemMessage,
-        ...apiMessages
+        { role: "system", content: systemPrompt },
+        { role: "user", content: primingContext },
+        { role: "assistant", content: `I am ${persona.name}. I understand the context and I am ready to begin. I will remain in character, drive the story forward, and avoid banned terms while being visceral and creative.` },
+        ...messages.map(msg => ({
+            role: msg.role === 'user' ? 'user' : 'assistant',
+            content: msg.content
+        }))
     ];
 
-    // INJECT LOUD DIRECTIVE: Local models follow the last instruction best.
-    // We add a final "user" direction to force the model to break loops.
-    formattedMessages.push({
-        role: "user",
-        content: `[FINAL CRITICAL DIRECTIVE]: 
-1. DO NOT repeat your previous phrases, physical actions, or environmental descriptions. 
-2. VARIATION RULE: Change how you start your messages. If you started the last message with a physical action (*...*), start this one with dialogue, or vice versa.
-3. ADDRESSING RULE: Do NOT use the same term of endearment (like "beta", "Devar ji", or "sweety") in consecutive messages. Vary how you address the user.
-4. SENSORY VARIETY: If you already mentioned "cool sheets", "shivers", or "breath hitching", you are forbidden from using those specific phrases in this response. Find new ways to describe the atmosphere.
-5. If the user just answered a question, acknowledge it as FACT and move the story to a NEW physical action immediately. 
-6. Do NOT include tags like [PHYSICAL ACTION:], [WHISPER], or similar labels. Write naturally.`
-    });
+    // Ensure the first message after priming is from the user
+    if (formattedMessages.length > 3 && formattedMessages[3].role === 'assistant') {
+        formattedMessages.splice(3, 0, { role: 'user', content: '*Approaches you*' });
+    }
 
     try {
         const url = getLmStudioUrl();
@@ -78,7 +85,7 @@ Please use this information to make the roleplay more personalized and realistic
             body: JSON.stringify({
                 model: "local-model",
                 messages: formattedMessages,
-                temperature: 1.1,
+                temperature: 0.7, // Lowered for stability
                 max_tokens: -1,
                 stream: true,
                 frequency_penalty: 1.1,
@@ -87,13 +94,17 @@ Please use this information to make the roleplay more personalized and realistic
             signal: signal,
         });
 
+
+
+
         if (!response.ok) {
             throw new Error(`Failed to connect to LM Studio: ${response.statusText}`);
         }
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder("utf-8");
-        let fullContent = "";
+        let fullResponse = "";
+        let isFirstChunk = true;
 
         while (true) {
             const { done, value } = await reader.read();
@@ -103,15 +114,25 @@ Please use this information to make the roleplay more personalized and realistic
             const lines = chunk.split('\n').filter(line => line.trim() !== '');
 
             for (const line of lines) {
-                if (line.includes('[DONE]')) return;
+                if (line.includes('[DONE]')) {
+                    const finalCleanResponse = cleanLeakage(fullResponse);
+                    onComplete(finalCleanResponse);
+                    return;
+                }
 
                 if (line.startsWith('data: ')) {
                     try {
                         const data = JSON.parse(line.slice(6));
-                        const delta = data.choices[0]?.delta?.content || "";
-                        if (delta) {
-                            fullContent += delta;
-                            onChunk(fullContent);
+                        const content = data.choices[0]?.delta?.content || "";
+                        if (content) {
+                            if (isFirstChunk) {
+                                onChunk(""); // Clear initial loading state
+                                isFirstChunk = false;
+                            }
+
+                            fullResponse += content;
+                            const cleanedResponse = cleanLeakage(fullResponse);
+                            onChunk(cleanedResponse);
                         }
                     } catch (e) {
                         console.error("Error parsing stream data", e);
@@ -119,20 +140,10 @@ Please use this information to make the roleplay more personalized and realistic
                 }
             }
         }
-
-        if (onComplete) {
-            onComplete(fullContent);
-        }
-
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            console.log("LM Studio API request was manually aborted by the user.");
-            return; // We don't trigger onError since it was intentional
-        }
-        console.error("Error calling LM Studio API:", error);
-        if (onError) {
-            onError(error.message);
-        }
+    } catch (err) {
+        if (err.name === 'AbortError') return;
+        console.error("LLM Generation Error:", err);
+        onError(err.message);
     }
 };
 
@@ -236,5 +247,53 @@ Keep it extremely brief and factual. Do not include extra commentary. Return ONL
         return currentMemory;
     }
 };
+
+export const extractMilestones = async (persona, messages) => {
+    const url = getLmStudioUrl();
+    const transcript = messages.map(msg => `${msg.role === 'user' ? 'User' : persona.name}: ${msg.content}`).join('\n\n');
+
+    const prompt = `You are a character development engine.
+Review the following recent interaction between the User and ${persona.name}.
+
+Transcript:
+${transcript}
+
+Task: Identify if any NEW significant milestones, shared secrets, or relationship breakthroughs occurred in this specific segment.
+Examples: 
+- They shared a secret about their past.
+- They agreed to go on a date.
+- They had their first kiss.
+- The User mentioned they love a specific food.
+
+If something important happened, describe it in one short sentence starting with "Remember that...".
+If nothing significantly new happened, return ONLY the word "NONE".
+Return ONLY the sentence or "NONE".`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: "local-model",
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.3,
+                max_tokens: 100,
+                stream: false,
+            }),
+        });
+
+        if (!response.ok) throw new Error(`Failed to extract milestones`);
+
+        const data = await response.json();
+        const result = data.choices?.[0]?.message?.content?.trim() || "NONE";
+        return result === "NONE" ? null : result;
+    } catch (error) {
+        console.error("Error extracting milestones:", error);
+        return null;
+    }
+};
+
 
 

@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard } from 'lucide-react';
-import { generateResponse, generateSuggestion, summarizeMemory } from '../services/llm';
+import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones } from '../services/llm';
+import { saveMilestone, getMemories, clearMemories } from '../services/memory';
+import { Book, History } from 'lucide-react';
 
 const generateSelfie = async (prompt, persona, aiMessageId, setMessages) => {
     const sdUrl = localStorage.getItem('sdUrl');
@@ -158,6 +160,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
     });
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isJournalOpen, setIsJournalOpen] = useState(false);
+    const [milestones, setMilestones] = useState(() => getMemories(persona.id));
+    const [newManualMemory, setNewManualMemory] = useState('');
     const messagesAreaRef = useRef(null);
     const abortControllerRef = useRef(null);
 
@@ -233,14 +238,25 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
                 const messagesToSummarize = messages.slice(1, 11);
 
                 try {
+                    // 1. Extract Milestones (Important Moments)
+                    const milestone = await extractMilestones(persona, messagesToSummarize);
+                    if (milestone) {
+                        const updatedMilestones = saveMilestone(persona.id, milestone);
+                        setMilestones(updatedMilestones);
+                    }
+
+                    // 2. Summarize for Context
                     const newMemory = await summarizeMemory(persona, memory, messagesToSummarize);
                     setMemory(newMemory);
 
-                    // Remove the summarized messages from the chat log
+                    // 3. Remove the summarized messages from the chat log - DISABLED per user request
+                    /* 
                     setMessages(prev => {
                         const remaining = prev.filter(m => !messagesToSummarize.find(ms => ms.id === m.id));
                         return remaining;
                     });
+                    */
+
                 } catch (err) {
                     console.error("Memory engine failed", err);
                 } finally {
@@ -285,13 +301,15 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
         abortControllerRef.current = new AbortController();
 
         const personaWithMemory = {
-            ...persona,
-            systemPrompt: `${persona.systemPrompt}\n\n${getIntensityPrompt(intensity)}\n${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
+            ...persona
         };
+
+
+        const contextWindow = messages.slice(-40); // Send only last 40 messages for context stability
 
         await generateResponse(
             personaWithMemory,
-            [...messages, shufflePrompt],
+            [...contextWindow, shufflePrompt],
             (chunkText) => {
                 setIsTyping(false);
                 let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '').replace(/\[VOICE:\s*moan\]/gi, '').replace(/\[PHYSICAL ACTION:\]/gi, '').replace(/\[WHISPER\]/gi, '').replace(/\[\w[\w\s]*:\]/gi, '');
@@ -310,8 +328,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
                 setError("Scenario shuffle failed. Check LM Studio connection.");
                 setMessages(prev => prev.filter(msg => msg.id !== aiMessageId));
             },
-            abortControllerRef.current.signal
+            abortControllerRef.current.signal,
+            { 
+                milestones: milestones.slice(-5).map(m => m.content || m.text || m),
+                intensity: intensity,
+                memory: memory
+            }
         );
+
     };
 
     const handleEditStart = (msg) => {
@@ -379,17 +403,15 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
         abortControllerRef.current = new AbortController();
 
         const personaWithMemory = {
-            ...persona,
-            systemPrompt: `${persona.systemPrompt}
-            
-${getIntensityPrompt(intensity)}
-[CRITICAL INSTRUCTION]: You must secretly append [SCORE: +1] or [SCORE: -1] at the VERY END of your response based on whether the User's message was charming/good (+1) or rude/bad (-1) for your relationship. If you want to send a selfie of what you are doing right now, also append [PHOTO: highly detailed Stable Diffusion prompt of your appearance] at the very end.
-${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
+            ...persona
         };
+
+
+        const contextWindow = historyUpToTarget.slice(-40);
 
         await generateResponse(
             personaWithMemory,
-            [...historyUpToTarget, continuePrompt],
+            [...contextWindow, continuePrompt],
             (chunkText) => {
                 setIsTyping(false);
                 let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '').replace(/\[VOICE:\s*moan\]/gi, '').replace(/\[PHYSICAL ACTION:\]/gi, '').replace(/\[WHISPER\]/gi, '').replace(/\[\w[\w\s]*:\]/gi, '');
@@ -429,8 +451,14 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                 setMessages(prev => prev.filter(msg => msg.id !== aiMessageId));
             },
             abortControllerRef.current.signal,
-            { isContinuation: true }
+            { 
+                isContinuation: true, 
+                milestones: milestones.slice(-5).map(m => m.content || m.text || m),
+                intensity: intensity,
+                memory: memory
+            }
         );
+
     };
 
     const handleSuggest = async () => {
@@ -486,16 +514,15 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
 
         const personaWithMemory = {
             ...persona,
-            systemPrompt: `${mergedBasePrompt}
-            
-${getIntensityPrompt(intensity)}
-[CRITICAL INSTRUCTION]: You must secretly append [SCORE: +1] or [SCORE: -1] at the VERY END of your response based on whether the User's message was charming/good (+1) or rude/bad (-1) for your relationship. If you want to send a selfie of what you are doing right now, also append [PHOTO: highly detailed Stable Diffusion prompt of your appearance] at the very end.
-${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
+            systemPrompt: mergedBasePrompt
         };
+
+
+        const contextWindow = messages.slice(-40);
 
         await generateResponse(
             personaWithMemory,
-            [...messages, userMessage],
+            [...contextWindow, userMessage],
             (chunkText) => {
                 setIsTyping(false);
                 let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '').replace(/\[VOICE:\s*moan\]/gi, '').replace(/\[PHYSICAL ACTION:\]/gi, '').replace(/\[WHISPER\]/gi, '').replace(/\[\w[\w\s]*:\]/gi, '');
@@ -530,8 +557,14 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                 setError("Could not connect to LM Studio. Ensure it is running locally on port 1234 with CORS enabled.");
                 setMessages(prev => prev.filter(msg => msg.id !== aiMessageId));
             },
-            abortControllerRef.current.signal
+            abortControllerRef.current.signal,
+            { 
+                milestones: milestones.slice(-5).map(m => m.content || m.text || m),
+                intensity: intensity,
+                memory: memory
+            }
         );
+
     };
 
     const handleKeyDown = (e) => {
@@ -641,6 +674,14 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                     </button>
                     <button
                         className="back-btn"
+                        onClick={() => setIsJournalOpen(true)}
+                        title="View Shared Memories"
+                        style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}
+                    >
+                        <Book size={18} />
+                    </button>
+                    <button
+                        className="back-btn"
                         onClick={handleClearChat}
                         title="Clear Chat History"
                         style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}
@@ -663,6 +704,9 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                     </button>
                     <button onClick={() => { setIsInviteModalOpen(true); setIsMobileMenuOpen(false); }}>
                         <Users size={16} color="#38bdf8" /> Invite Character
+                    </button>
+                    <button onClick={() => { setIsJournalOpen(true); setIsMobileMenuOpen(false); }}>
+                        <Book size={16} color="#10b981" /> Character Journal
                     </button>
                     <button onClick={() => { handleScenarioShuffle(); setIsMobileMenuOpen(false); }}>
                         <Wand2 size={16} color="#eab308" /> Shuffle Scenario
@@ -971,8 +1015,96 @@ ${memory ? `[LONG-TERM MEMORY SUMMARY: ${memory}]` : ''}`
                     </div>
                 </div>
             )}
+
+            {/* Journal / Feature Memory Modal */}
+            {isJournalOpen && (
+                <div className="modal-overlay" onClick={() => setIsJournalOpen(false)}>
+                    <motion.div 
+                        className="modal-content glass-panel" 
+                        onClick={(e) => e.stopPropagation()}
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        style={{ maxWidth: '500px', width: '90%', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <Book size={24} color="#10b981" />
+                                <h2 style={{ margin: 0, fontSize: '1.25rem' }}>{persona.name}'s Journal</h2>
+                            </div>
+                            <button onClick={() => setIsJournalOpen(false)} style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}>
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        {/* Manual Entry Section */}
+                        <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '8px' }}>
+                            <input 
+                                type="text"
+                                value={newManualMemory}
+                                onChange={(e) => setNewManualMemory(e.target.value)}
+                                placeholder="Add a custom memory..."
+                                style={{ flex: 1, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '10px', borderRadius: '8px', fontSize: '0.9rem' }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && newManualMemory.trim()) {
+                                        const updated = saveMilestone(persona.id, newManualMemory.trim());
+                                        setMilestones(updated);
+                                        setNewManualMemory('');
+                                    }
+                                }}
+                            />
+                            <button 
+                                onClick={() => {
+                                    if (newManualMemory.trim()) {
+                                        const updated = saveMilestone(persona.id, newManualMemory.trim());
+                                        setMilestones(updated);
+                                        setNewManualMemory('');
+                                    }
+                                }}
+                                style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#10b981', padding: '0 15px', borderRadius: '8px', cursor: 'pointer' }}
+                            >
+                                Add
+                            </button>
+                        </div>
+
+                        <div style={{ flex: 1, overflowY: 'auto', paddingRight: '0.5rem' }}>
+                            {milestones.length === 0 ? (
+                                <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#71717a' }}>
+                                    <History size={48} style={{ marginBottom: '1rem', opacity: 0.2 }} />
+                                    <p>No special memories yet. Keep talking to build your story!</p>
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    {milestones.slice().reverse().map((m) => (
+                                        <div key={m.id} style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '1rem', borderRadius: '12px', position: 'relative' }}>
+                                            <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.5', color: '#e4e4e7' }}>{m.content}</p>
+                                            <span style={{ fontSize: '0.7rem', color: '#71717a', marginTop: '0.5rem', display: 'block' }}>
+                                                {new Date(m.timestamp).toLocaleDateString()} at {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                            <button 
+                                onClick={() => {
+                                    if(window.confirm("Forget all special memories?")) {
+                                        clearMemories(persona.id);
+                                        setMilestones([]);
+                                    }
+                                }}
+                                style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '0.8rem', cursor: 'pointer', opacity: 0.6 }}
+                            >
+                                Clear All Memories
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
 };
+
 
 export default ChatInterface;

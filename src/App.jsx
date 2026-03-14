@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Settings as SettingsIcon, Image as ImageIcon, MessageCircle } from 'lucide-react';
+import { Settings as SettingsIcon, Image as ImageIcon, MessageCircle, Home, Book } from 'lucide-react';
 import PersonaList from './components/PersonaList';
 import ChatInterface from './components/ChatInterface';
 import Settings from './components/Settings';
@@ -252,7 +252,14 @@ function App() {
         </header>
       )}
 
-      {isSettingsOpen ? (
+      {selectedPersona ? (
+        <ChatInterface
+          persona={selectedPersona}
+          allPersonas={[...defaultPersonas, ...customPersonas]}
+          onBack={handleBack}
+          onGoHome={handleGoHome}
+        />
+      ) : isSettingsOpen ? (
         <Settings
           onBack={handleBack}
           onGoHome={handleGoHome}
@@ -264,16 +271,34 @@ function App() {
           onBack={handleBack}
           customPersonas={customPersonas}
         />
-      ) : selectedPersona ? (
-        <ChatInterface
-          persona={selectedPersona}
-          allPersonas={[...defaultPersonas, ...customPersonas]}
-          onBack={handleBack}
-          onGoHome={handleGoHome}
-        />
       ) : (
         <PersonaList onSelectPersona={handleSelectPersona} customPersonas={customPersonas} />
       )}
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="bottom-nav">
+        <button 
+          className={`nav-item ${activeView === 'home' ? 'active' : ''}`}
+          onClick={handleGoHome}
+        >
+          <Home size={24} />
+          <span>Home</span>
+        </button>
+        <button 
+          className={`nav-item ${activeView === 'gallery' ? 'active' : ''}`}
+          onClick={handleOpenGallery}
+        >
+          <ImageIcon size={24} />
+          <span>Gallery</span>
+        </button>
+        <button 
+          className={`nav-item ${activeView === 'settings' ? 'active' : ''}`}
+          onClick={handleOpenSettings}
+        >
+          <SettingsIcon size={24} />
+          <span>Settings</span>
+        </button>
+      </nav>
     </div>
   );
 }
