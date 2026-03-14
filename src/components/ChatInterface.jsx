@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard } from 'lucide-react';
+import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, RotateCcw } from 'lucide-react';
 import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones } from '../services/llm';
 import { saveMilestone, getMemories, clearMemories } from '../services/memory';
 import { Book, History } from 'lucide-react';
@@ -461,6 +461,76 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
 
     };
 
+    const handleRegenerate = async (msg) => {
+        if (isTyping || isSuggesting) return;
+
+        // Find the index of the message to regenerate
+        const historyIndex = messages.findIndex(m => m.id === msg.id);
+        if (historyIndex === -1) return;
+
+        // History is everything BEFORE this message
+        const historyUpToTarget = messages.slice(0, historyIndex);
+        const aiMessageId = Date.now().toString();
+
+        // Branch from here
+        setMessages([...historyUpToTarget, { id: aiMessageId, role: 'ai', content: '' }]);
+        setIsTyping(true);
+        setError(null);
+
+        abortControllerRef.current = new AbortController();
+
+        const contextWindow = historyUpToTarget.slice(-40);
+
+        await generateResponse(
+            persona,
+            contextWindow,
+            (chunkText) => {
+                setIsTyping(false);
+                let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '').replace(/\[VOICE:\s*moan\]/gi, '').replace(/\[PHYSICAL ACTION:\]/gi, '').replace(/\[WHISPER\]/gi, '').replace(/\[\w[\w\s]*:\]/gi, '');
+                setMessages(prev => prev.map(m =>
+                    m.id === aiMessageId ? { ...m, content: cleanText } : m
+                ));
+            },
+            (fullText) => {
+                let scoreDelta = 0;
+                let photoPrompt = null;
+
+                const scoreMatch = fullText.match(/\[SCORE:\s*([+-]\d+)\]/i);
+                if (scoreMatch) {
+                    scoreDelta = parseInt(scoreMatch[1]);
+                }
+
+                const photoMatch = fullText.match(/\[PHOTO:\s*(.*?)\]/i);
+                if (photoMatch) {
+                    photoPrompt = photoMatch[1];
+                }
+
+                if (scoreDelta !== 0) {
+                    setRelationshipScore(prev => Math.max(0, Math.min(100, prev + (scoreDelta * 5))));
+                }
+
+                if (photoPrompt) {
+                    generateSelfie(photoPrompt, persona, aiMessageId, setMessages);
+                }
+
+                if (fullText.toLowerCase().includes('[voice: moan]')) {
+                    playMoan(intensity);
+                }
+            },
+            (errMessage) => {
+                setIsTyping(false);
+                setError("Could not connect to LM Studio. Ensure it is running locally.");
+                setMessages(prev => prev.filter(m => m.id !== aiMessageId));
+            },
+            abortControllerRef.current.signal,
+            { 
+                milestones: milestones.slice(-5).map(m => m.content || m.text || m),
+                intensity: intensity,
+                memory: memory
+            }
+        );
+    };
+
     const handleSuggest = async () => {
         if (isTyping || isSuggesting) return;
         setIsSuggesting(true);
@@ -834,6 +904,15 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
                                                             onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
                                                         >
                                                             <Edit2 size={10} style={{ marginRight: '4px' }} /> Override
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleRegenerate(msg)}
+                                                            style={{ background: 'transparent', border: 'none', color: '#10b981', cursor: 'pointer', display: 'flex', alignItems: 'center', fontSize: '0.7rem' }}
+                                                            title="Regenerate Response"
+                                                            onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+                                                            onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
+                                                        >
+                                                            <RotateCcw size={10} style={{ marginRight: '4px' }} /> Regenerate
                                                         </button>
                                                         <button
                                                             onClick={() => handleContinue(msg)}
