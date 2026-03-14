@@ -305,7 +305,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
         };
 
 
-        const contextWindow = messages.slice(-40); // Send only last 40 messages for context stability
+        const contextWindow = messages.slice(-20); // Balanced context window for stability
 
         await generateResponse(
             personaWithMemory,
@@ -407,7 +407,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
         };
 
 
-        const contextWindow = historyUpToTarget.slice(-40);
+        const contextWindow = historyUpToTarget.slice(-20);
 
         await generateResponse(
             personaWithMemory,
@@ -518,7 +518,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
         };
 
 
-        const contextWindow = messages.slice(-40);
+        const contextWindow = messages.slice(-20);
 
         await generateResponse(
             personaWithMemory,

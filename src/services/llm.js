@@ -66,7 +66,7 @@ Confirm you are ready to begin the roleplay as ${persona.name}.`;
         { role: "assistant", content: `I am ${persona.name}. I understand the context and I am ready to begin. I will remain in character, drive the story forward, and avoid banned terms while being visceral and creative.` },
         ...messages.map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
-            content: msg.content
+            content: msg.content.length > 500 ? msg.content.substring(0, 500) + "..." : msg.content
         }))
     ];
 
@@ -74,6 +74,10 @@ Confirm you are ready to begin the roleplay as ${persona.name}.`;
     if (formattedMessages.length > 3 && formattedMessages[3].role === 'assistant') {
         formattedMessages.splice(3, 0, { role: 'user', content: '*Approaches you*' });
     }
+
+    const fetchTimeout = 20000; // 20s initial timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), fetchTimeout);
 
     try {
         const url = getLmStudioUrl();
@@ -85,17 +89,16 @@ Confirm you are ready to begin the roleplay as ${persona.name}.`;
             body: JSON.stringify({
                 model: "local-model",
                 messages: formattedMessages,
-                temperature: 0.7, // Lowered for stability
-                max_tokens: -1,
+                temperature: 0.7,
+                max_tokens: 1000, 
                 stream: true,
                 frequency_penalty: 1.1,
                 presence_penalty: 1.1,
             }),
-            signal: signal,
+            signal: signal || controller.signal,
         });
 
-
-
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             throw new Error(`Failed to connect to LM Studio: ${response.statusText}`);
@@ -111,39 +114,55 @@ Confirm you are ready to begin the roleplay as ${persona.name}.`;
             if (done) break;
 
             const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n').filter(line => line.trim() !== '');
+            const lines = chunk.split('\n');
 
             for (const line of lines) {
-                if (line.includes('[DONE]')) {
+                const trimmedLine = line.trim();
+                if (!trimmedLine) continue;
+                
+                if (trimmedLine.includes('[DONE]')) {
                     const finalCleanResponse = cleanLeakage(fullResponse);
                     onComplete(finalCleanResponse);
                     return;
                 }
 
-                if (line.startsWith('data: ')) {
+                if (trimmedLine.startsWith('data: ')) {
                     try {
-                        const data = JSON.parse(line.slice(6));
-                        const content = data.choices[0]?.delta?.content || "";
+                        const jsonStr = trimmedLine.slice(6);
+                        const data = JSON.parse(jsonStr);
+                        const content = data.choices?.[0]?.delta?.content || "";
                         if (content) {
                             if (isFirstChunk) {
-                                onChunk(""); // Clear initial loading state
+                                onChunk(""); // Clear loading state
                                 isFirstChunk = false;
                             }
-
                             fullResponse += content;
-                            const cleanedResponse = cleanLeakage(fullResponse);
-                            onChunk(cleanedResponse);
+                            onChunk(cleanLeakage(fullResponse));
                         }
                     } catch (e) {
-                        console.error("Error parsing stream data", e);
+                        // Incomplete JSON chunk, skip and wait for next
                     }
                 }
             }
         }
+
+        // Fallback for completion if loop ends without [DONE]
+        const finalCleanResponse = cleanLeakage(fullResponse);
+        if (finalCleanResponse) {
+            onComplete(finalCleanResponse);
+        } else {
+            throw new Error("Empty response from LM Studio.");
+        }
+
     } catch (err) {
-        if (err.name === 'AbortError') return;
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+            if (!isFirstChunk) return; // User aborted or stream cut but we had data
+            onError("Connection timed out. Check if LM Studio is reachable.");
+            return;
+        }
         console.error("LLM Generation Error:", err);
-        onError(err.message);
+        onError(err.message || "Failed to generate response.");
     }
 };
 
