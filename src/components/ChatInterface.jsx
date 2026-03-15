@@ -5,122 +5,131 @@ import { generateResponse, generateSuggestion, summarizeMemory, extractMilestone
 import { saveMilestone, getMemories, clearMemories } from '../services/memory';
 import { Book, History } from 'lucide-react';
 
-const generateSelfie = async (prompt, persona, aiMessageId, setMessages) => {
-    const sdUrl = localStorage.getItem('sdUrl');
-    const imageEngine = localStorage.getItem('imageEngine') || 'a1111';
+const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }) => {
+    // Toast State
+    const [toasts, setToasts] = useState([]);
 
-    if (!sdUrl) return;
+    const showToast = (message, type = 'error') => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { id, message, type }]);
+        setTimeout(() => {
+            setToasts(prev => prev.filter(t => t.id !== id));
+        }, 2000); // 2 seconds as requested
+    };
 
-    const photoMsgId = aiMessageId + "_photo";
-    setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: '*Sends a photo*', url: null }]);
+    const generateSelfie = async (prompt, persona, aiMessageId) => {
+        const sdUrl = localStorage.getItem('sdUrl');
+        const imageEngine = localStorage.getItem('imageEngine') || 'a1111';
 
-    const fullPrompt = `masterpiece, best quality, highly detailed, photorealistic, ${persona.name}, 1girl, ${prompt}`;
-    const negativePrompt = "lowres, bad quality, anime, cartoon, sketch, ugly";
+        if (!sdUrl) {
+            showToast("Stable Diffusion URL not set in Settings!");
+            return;
+        }
 
-    try {
-        if (imageEngine === 'a1111' || imageEngine === 'drawthings') {
-            const response = await fetch(`${sdUrl.replace(/\/$/, '')}/sdapi/v1/txt2img`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    prompt: fullPrompt,
-                    negative_prompt: negativePrompt,
-                    steps: 20,
-                    width: 512,
-                    height: 768
-                })
-            });
+        const photoMsgId = aiMessageId + "_photo";
+        setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: '*Sends a photo*', url: null }]);
 
-            if (response.ok) {
-                const data = await response.json();
-                const base64Image = `data:image/png;base64,${data.images[0]}`;
-                setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
-            } else {
-                throw new Error(`${imageEngine === 'drawthings' ? 'Draw Things' : 'A1111'} API error.`);
-            }
-        } else if (imageEngine === 'comfyui') {
-            const comfyWorkflow = localStorage.getItem('comfyWorkflow');
-            if (!comfyWorkflow || !comfyWorkflow.includes('__PROMPT__')) {
-                throw new Error("Invalid or missing ComfyUI workflow JSON.");
-            }
+        const fullPrompt = `masterpiece, best quality, highly detailed, photorealistic, ${persona.name}, 1girl, ${prompt}`;
+        const negativePrompt = "lowres, bad quality, anime, cartoon, sketch, ugly";
 
-            // Replace __PROMPT__ string safely
-            let workflowStr = comfyWorkflow.replace(/__PROMPT__/g, fullPrompt);
-            const workflowObj = JSON.parse(workflowStr);
+        try {
+            if (imageEngine === 'a1111' || imageEngine === 'drawthings') {
+                const response = await fetch(`${sdUrl.replace(/\/$/, '')}/sdapi/v1/txt2img`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: fullPrompt,
+                        negative_prompt: negativePrompt,
+                        steps: 20,
+                        width: 512,
+                        height: 768
+                    })
+                });
 
-            // Queue prompt
-            const queueRes = await fetch(`${sdUrl.replace(/\/$/, '')}/prompt`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: workflowObj })
-            });
-            const queueData = await queueRes.json();
-            const promptId = queueData.prompt_id;
+                if (response.ok) {
+                    const data = await response.json();
+                    const base64Image = `data:image/png;base64,${data.images[0]}`;
+                    setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
+                    showToast("Selfie received!", "success");
+                } else {
+                    throw new Error(`${imageEngine === 'drawthings' ? 'Draw Things' : 'A1111'} API error.`);
+                }
+            } else if (imageEngine === 'comfyui') {
+                const comfyWorkflow = localStorage.getItem('comfyWorkflow');
+                if (!comfyWorkflow || !comfyWorkflow.includes('__PROMPT__')) {
+                    throw new Error("Invalid or missing ComfyUI workflow JSON.");
+                }
 
-            // Poll history
-            let isComplete = false;
-            let attempts = 0;
-            while (!isComplete && attempts < 60) { // Max 2 mins wait
-                await new Promise(r => setTimeout(r, 2000));
-                attempts++;
+                let workflowStr = comfyWorkflow.replace(/__PROMPT__/g, fullPrompt);
+                const workflowObj = JSON.parse(workflowStr);
 
-                const histRes = await fetch(`${sdUrl.replace(/\/$/, '')}/history/${promptId}`);
-                const histData = await histRes.json();
+                const queueRes = await fetch(`${sdUrl.replace(/\/$/, '')}/prompt`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: workflowObj })
+                });
+                const queueData = await queueRes.json();
+                const promptId = queueData.prompt_id;
 
-                if (histData[promptId]) {
-                    const outputs = histData[promptId].outputs;
-                    let foundImage = false;
-                    for (const nodeId in outputs) {
-                        if (outputs[nodeId].images && outputs[nodeId].images.length > 0) {
-                            const imgParams = outputs[nodeId].images[0];
-                            const paramsObj = new URLSearchParams(imgParams);
-                            const viewRes = await fetch(`${sdUrl.replace(/\/$/, '')}/view?${paramsObj.toString()}`);
-                            const blob = await viewRes.blob();
-
-                            const base64Image = await new Promise((resolve) => {
-                                const reader = new FileReader();
-                                reader.onloadend = () => resolve(reader.result);
-                                reader.readAsDataURL(blob);
-                            });
-
-                            setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
-                            foundImage = true;
-                            break;
+                let isComplete = false;
+                let attempts = 0;
+                while (!isComplete && attempts < 60) {
+                    await new Promise(r => setTimeout(r, 2000));
+                    attempts++;
+                    const histRes = await fetch(`${sdUrl.replace(/\/$/, '')}/history/${promptId}`);
+                    const histData = await histRes.json();
+                    if (histData[promptId]) {
+                        const outputs = histData[promptId].outputs;
+                        let foundImage = false;
+                        for (const nodeId in outputs) {
+                            if (outputs[nodeId].images && outputs[nodeId].images.length > 0) {
+                                const imgParams = outputs[nodeId].images[0];
+                                const paramsObj = new URLSearchParams(imgParams);
+                                const viewRes = await fetch(`${sdUrl.replace(/\/$/, '')}/view?${paramsObj.toString()}`);
+                                const blob = await viewRes.blob();
+                                const base64Image = await new Promise((resolve) => {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => resolve(reader.result);
+                                    reader.readAsDataURL(blob);
+                                });
+                                setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
+                                showToast("Selfie received!", "success");
+                                foundImage = true;
+                                break;
+                            }
                         }
+                        if (!foundImage) throw new Error("No image output found in ComfyUI history.");
+                        isComplete = true;
                     }
-                    if (!foundImage) throw new Error("No image output found in ComfyUI history.");
-                    isComplete = true;
+                }
+                if (!isComplete) throw new Error("ComfyUI generation timed out.");
+            } else if (imageEngine === 'diffusionbee') {
+                const response = await fetch(`${sdUrl.replace(/\/$/, '')}/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: fullPrompt,
+                        negative_prompt: negativePrompt,
+                        width: 512,
+                        height: 768
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const base64Image = data.image.startsWith('data:') ? data.image : `data:image/png;base64,${data.image}`;
+                    setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
+                    showToast("Selfie received!", "success");
+                } else {
+                    throw new Error("Diffusion Bee API error.");
                 }
             }
-            if (!isComplete) throw new Error("ComfyUI generation timed out.");
-        } else if (imageEngine === 'diffusionbee') {
-            const response = await fetch(`${sdUrl.replace(/\/$/, '')}/generate`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    prompt: fullPrompt,
-                    negative_prompt: negativePrompt,
-                    width: 512,
-                    height: 768
-                })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                // Diffusion Bee often returns result in "image" or "base64" field
-                const base64Image = data.image.startsWith('data:') ? data.image : `data:image/png;base64,${data.image}`;
-                setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
-            } else {
-                throw new Error("Diffusion Bee API error.");
-            }
+        } catch (e) {
+            console.error('Image Generation Error:', e);
+            showToast(e.message);
+            setMessages(prev => prev.filter(msg => msg.id !== photoMsgId));
         }
-    } catch (e) {
-        console.error('Image Generation Error:', e);
-        setMessages(prev => prev.filter(msg => msg.id !== photoMsgId));
-    }
-};
-
-const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }) => {
+    };
     // Initialize messages from localStorage if available
     const [messages, setMessages] = useState(() => {
         const saved = localStorage.getItem(`chat_${persona.id}`);
@@ -147,7 +156,6 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [isSuggesting, setIsSuggesting] = useState(false);
-    const [error, setError] = useState(null);
     const [memory, setMemory] = useState(() => localStorage.getItem(`memory_${persona.id}`) || '');
     const [isSummarizing, setIsSummarizing] = useState(false);
     const [relationshipScore, setRelationshipScore] = useState(() => parseInt(localStorage.getItem(`score_${persona.id}`)) || 50);
@@ -294,7 +302,6 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         if (isTyping || isSuggesting) return;
         
         setIsTyping(true);
-        setError(null);
         
         const aiMessageId = (Date.now() + 1).toString();
         setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
@@ -332,7 +339,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             },
             (errMessage) => {
                 setIsTyping(false);
-                setError("Scenario shuffle failed. Check LM Studio connection.");
+                showToast("Scenario shuffle failed. Check LM Studio connection.");
                 setMessages(prev => prev.filter(msg => msg.id !== aiMessageId));
             },
             abortControllerRef.current.signal,
@@ -399,8 +406,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         };
         
         setIsTyping(true);
-        setError(null);
-
+        
         // Create a completely new placeholder for the AI's continued thought
         const aiMessageId = (Date.now() + 1).toString();
         
@@ -466,7 +472,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             },
             (errMessage) => {
                 setIsTyping(false);
-                setError("Could not connect to LM Studio for continuation. Ensure it is running locally.");
+                showToast("Could not connect to LM Studio for continuation. Ensure it is running locally.");
                 setMessages(prev => prev.filter(msg => msg.id !== aiMessageId));
             },
             abortControllerRef.current.signal,
@@ -483,7 +489,6 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const handleSuggest = async () => {
         if (isTyping || isSuggesting) return;
         setIsSuggesting(true);
-        setError(null);
 
         abortControllerRef.current = new AbortController();
 
@@ -492,13 +497,13 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             if (suggestion) {
                 setInput(suggestion);
             } else {
-                setError("Could not generate a suggestion. Check LM Studio connection.");
+                showToast("Could not generate a suggestion. Check LM Studio connection.");
             }
         } catch (err) {
             if (err.name === 'AbortError') {
                 console.log("Suggestion cancelled");
             } else {
-                setError("Error generating suggestion.");
+                showToast("Error generating suggestion.");
             }
         } finally {
             setIsSuggesting(false);
@@ -512,7 +517,6 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         setMessages(prev => [...prev, userMessage]);
         setInput('');
         setIsTyping(true);
-        setError(null);
 
         // Reset textarea height to original size after sending
         const textareas = document.getElementsByClassName('message-input');
@@ -585,7 +589,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             },
             (errMessage) => {
                 setIsTyping(false);
-                setError("Could not connect to LM Studio. Ensure it is running locally on port 1234 with CORS enabled.");
+                showToast("Could not connect to LM Studio. Ensure it is running locally on port 1234 with CORS enabled.");
                 setMessages(prev => prev.filter(msg => msg.id !== aiMessageId));
             },
             abortControllerRef.current.signal,
@@ -605,7 +609,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         const appearanceMatch = persona.systemPrompt.match(/APPEARANCE:\s*([^\n.]*)/i);
         const appearanceStr = appearanceMatch ? appearanceMatch[1] : "";
         const sexyPrompt = `${appearanceStr}, wearing a very sexy and revealing outfit, highly provocative pose, seductive gaze, bedroom setting, cinematic lighting`;
-        generateSelfie(sexyPrompt, persona, aiMessageId, setMessages);
+        
+        generateSelfie(sexyPrompt, persona, aiMessageId);
     };
 
     const handleKeyDown = (e) => {
@@ -819,12 +824,6 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             </div>
 
             <div className="messages-area" ref={messagesAreaRef}>
-                {error && (
-                    <div className="error-banner" style={{ color: '#ef4444', textAlign: 'center', background: 'rgba(239, 68, 68, 0.1)', padding: '0.5rem', borderRadius: '8px' }}>
-                        {error}
-                    </div>
-                )}
-
                 {messages.map((msg) => (
                     <div key={msg.id} className={`message-wrapper ${msg.role} fade-in`} style={msg.role === 'system' ? { justifyContent: 'center', width: '100%' } : {}}>
                         {msg.role === 'system' ? (
@@ -1250,6 +1249,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     </motion.div>
                 </div>
             )}
+            {/* Toast Notifications */}
+            <div className="toast-container">
+                {toasts.map(toast => (
+                    <div key={toast.id} className={`toast ${toast.type}`}>
+                        {toast.type === 'error' ? '❌' : '✅'} {toast.message}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
