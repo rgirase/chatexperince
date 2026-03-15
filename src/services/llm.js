@@ -110,9 +110,10 @@ Confirm you are ready to begin the roleplay as ${persona.name}.`;
             body: JSON.stringify({
                 model: "local-model",
                 messages: formattedMessages,
-                temperature: 0.7,
-                max_tokens: 1000, 
+                max_tokens: 2048, 
                 stream: true,
+                temperature: 0.7,
+                top_p: 0.9,
                 frequency_penalty: 1.1,
                 presence_penalty: 1.1,
             }),

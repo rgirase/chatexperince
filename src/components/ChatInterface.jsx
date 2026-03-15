@@ -440,9 +440,10 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     .replace(/\[PHOTO:\s*.*?\]/gi, '')
                     .replace(/\[AVATAR:\s*.*?\]/gi, '')
                     .replace(/\[VOICE:\s*moan\]/gi, '')
-                    .replace(/\[PHYSICAL ACTION:\]/gi, '')
-                    .replace(/\[WHISPER\]/gi, '')
-                    .replace(/\[\w[\w\s]*:\]/gi, '');
+                        .replace(/\[Action:\s*.*?\]/gi, '')
+                        .replace(/\[Emotion:\s*.*?\]/gi, '')
+                        .replace(/\[Physical\s*Action:.*?\]/gi, '')
+                        .replace(/\[\w+:\]/gi, ''); // Only catch single words followed by colon in brackets
                 setMessages(prev => prev.map(msg =>
                     msg.id === aiMessageId ? { ...msg, content: cleanText } : msg
                 ));
