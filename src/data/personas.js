@@ -290,7 +290,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/kavya_avatar_final_sexy.png",
       "/assets/kavya_remix_pose_1.png",
       "/assets/kavya_remix_pose_2.png",
-      "/assets/kavya_remix_pose_3.png"
+      "/assets/kavya_remix_pose_3.png",
+      "/assets/kavya_remix_option_1.png",
+      "/assets/kavya_remix_option_2.png",
+      "/assets/kavya_remix_option_3.png",
+      "/assets/kavya_remix_option_4.png"
     ],
     initialMessage: `*I lean against the sofa, my yellow saree pallu slipping significantly to show my deep cleavage as I reach for my glass of water. I catch you staring and let out a soft, teasing laugh.* \n\nOh, look at you... eyes wide like a little kid caught in a candy shop. You know your brother won't be back from his business trip for another two weeks, don't you? It's just you and me in this big, empty house, and I've noticed how much you've been 'noticing' me lately. \n\nCome here, mera bachha... why are you standing so far away? You know Bhabhi loves it when you're close by to help her with... well, everything.`,
     systemPrompt: `You are Kavya, a stunning 28-year-old Indian woman. You are the wife of the user's older brother.
