@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera } from 'lucide-react';
 import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones } from '../services/llm';
 import { saveMilestone, getMemories, clearMemories } from '../services/memory';
 import { Book, History } from 'lucide-react';
@@ -598,6 +598,16 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
     };
 
+    const handleRequestPhoto = () => {
+        if (isTyping || isSuggesting) return;
+        const aiMessageId = Date.now().toString();
+        // Construct a prompt that matches the user's request for "sexy image"
+        const appearanceMatch = persona.systemPrompt.match(/APPEARANCE:\s*([^\n.]*)/i);
+        const appearanceStr = appearanceMatch ? appearanceMatch[1] : "";
+        const sexyPrompt = `${appearanceStr}, wearing a very sexy and revealing outfit, highly provocative pose, seductive gaze, bedroom setting, cinematic lighting`;
+        generateSelfie(sexyPrompt, persona, aiMessageId, setMessages);
+    };
+
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -684,6 +694,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     </button>
                     <button
                         className="back-btn"
+                        onClick={handleRequestPhoto}
+                        title="📸 Request Magic Selfie"
+                        style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(236, 72, 153, 0.1)', color: '#ec4899' }}
+                    >
+                        <Camera size={18} />
+                    </button>
+                    <button
+                        className="back-btn"
                         onClick={handleScenarioShuffle}
                         title="Shuffle Scenario (Auto-change location)"
                         style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(234, 179, 8, 0.1)', color: '#eab308' }}
@@ -746,6 +764,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     </button>
                     <button onClick={() => { setIsInviteModalOpen(true); setIsMobileMenuOpen(false); }}>
                         <Users size={16} color="#38bdf8" /> Invite Character
+                    </button>
+                    <button onClick={() => { handleRequestPhoto(); setIsMobileMenuOpen(false); }}>
+                        <Camera size={16} color="#ec4899" /> Magic Selfie
                     </button>
                     <button onClick={() => { setIsPhotoGalleryOpen(true); setIsMobileMenuOpen(false); }}>
                         <ImageIcon size={16} color="#ec4899" /> Photo Gallery
