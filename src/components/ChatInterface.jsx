@@ -862,7 +862,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             </div>
 
             <div className="messages-area" ref={messagesAreaRef}>
-                {messages.map((msg) => (
+                {messages.map((msg, i) => (
                     <div key={msg.id} className={`message-wrapper ${msg.role} fade-in`} style={msg.role === 'system' ? { justifyContent: 'center', width: '100%' } : {}}>
                         {msg.role === 'system' ? (
                             <div style={{ color: '#a1a1aa', fontSize: '0.8rem', fontStyle: 'italic', padding: '0.5rem', textAlign: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', margin: '1rem 0' }}>
