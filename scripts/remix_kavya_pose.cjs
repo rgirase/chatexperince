@@ -25,17 +25,17 @@ async function generatePose(index, targetPose) {
     // Appearance from personas.js for "forbidden_bhabhi"
     const appearance = "breathtakingly beautiful Indian woman with a voluptuous figure (38C-29-42), wearing a sexy saree with an ultra-revealing, deep-cut blouse highlighting deep cleavage";
     
-    const prompt = `(8k, masterpiece, ultra-detailed), ${appearance}, ${targetPose}, cinematic lighting, professional photography, high-resolution.`;
+    const prompt = `(8k, masterpiece, ultra-detailed), ${appearance}, ((${targetPose})), cinematically posed, dramatic lighting, professional erotic photography, high-resolution.`;
     
     const postData = JSON.stringify({
         init_images: [base64Image],
         prompt: prompt,
-        negative_prompt: "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, covering cleavage, conservative dress, face changes",
-        steps: 35,
+        negative_prompt: "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, covering cleavage, conservative dress, face changes, standing straight, portrait",
+        steps: 40,
         width: 640,
         height: 640,
-        cfg_scale: 7.5,
-        denoising_strength: 0.58, // Slightly higher for variety
+        cfg_scale: 8.0,
+        denoising_strength: 0.85, // Radical change to break the standing silhouette
         sampler_name: "Euler a",
         batch_size: 1,
         n_iter: 1,
