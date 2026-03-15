@@ -4,7 +4,7 @@ const path = require('path');
 
 const API_URL = 'http://127.0.0.1:7860/sdapi/v1/img2img';
 const BASE_IMAGE = '/Users/rahulgirase/Documents/RoleplayApp/public/assets/kavya_avatar_final_sexy.png';
-const OUTPUT_FILE = '/Users/rahulgirase/Documents/RoleplayApp/public/assets/kavya_remix_pose_2.png';
+const OUTPUT_FILE = '/Users/rahulgirase/Documents/RoleplayApp/public/assets/kavya_remix_pose_3.png';
 
 function fileToBase64(filePath) {
     try {
@@ -17,7 +17,7 @@ function fileToBase64(filePath) {
 }
 
 async function run() {
-    console.log("Generating second pose for Kavya...");
+    console.log("Generating third pose for Kavya...");
     
     const base64Image = fileToBase64(BASE_IMAGE);
     if (!base64Image) {
@@ -29,7 +29,7 @@ async function run() {
     const appearance = "breathtakingly beautiful Indian woman with a voluptuous figure (38C-29-42), wearing a sexy saree with an ultra-revealing, deep-cut blouse highlighting deep cleavage";
     
     // User requested "different sexy pose"
-    const targetPose = "sitting provocatively on a bed, leaning back on arms, seductive smile, direct eye contact";
+    const targetPose = "standing provocatively against a wall, one knee up, hands behind head, seductive smile, direct eye contact";
 
     const prompt = `(8k, masterpiece, ultra-detailed), ${appearance}, ${targetPose}, cinematic lighting, professional photography, high-resolution.`;
     
