@@ -28,7 +28,7 @@ const cleanLeakage = (text) => {
 };
 
 // Helper to trim history to fit context window
-const trimHistory = (messages, maxChars = 15000) => {
+const trimHistory = (messages, maxChars = 8000) => {
     let currentChars = 0;
     const trimmed = [];
     
@@ -85,7 +85,7 @@ ${localStorage.getItem('userAppearance') ? "Appearance: " + localStorage.getItem
 
 Confirm you are ready to begin the roleplay as ${persona.name}.`;
 
-    const safeMessages = trimHistory(messages, 12000); // Reserve space for priming
+    const safeMessages = trimHistory(messages, 6000); // Reserve space for large system prompts
 
     const formattedMessages = [
         { role: "system", content: systemPrompt },

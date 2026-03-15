@@ -419,7 +419,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
         abortControllerRef.current = new AbortController();
 
-        const contextWindow = historyUpToTarget.slice(-20);
+        const contextWindow = historyUpToTarget.slice(-10);
 
         // Inject isolation directive if we are in a sub-character role (Velvet Club)
         let isolationPrompt = "";
@@ -541,7 +541,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             ? `${persona.systemPrompt}\n\n[CRITICAL EVENT: The character ${invitedPersona.name} has entered the scene. You are now roleplaying as BOTH ${persona.name} AND ${invitedPersona.name}. Prefix each line of dialogue or action with their name (e.g., "${persona.name}: ..." or "${invitedPersona.name}: ...") to distinguish who is speaking. Here is ${invitedPersona.name}'s personality context: ${invitedPersona.systemPrompt}]`
             : persona.systemPrompt;
 
-        const contextWindow = messages.slice(-20);
+        const contextWindow = messages.slice(-10);
 
         abortControllerRef.current = new AbortController();
 
