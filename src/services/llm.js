@@ -28,7 +28,7 @@ const cleanLeakage = (text) => {
 };
 
 // Helper to trim history to fit context window
-const trimHistory = (messages, maxChars = 8000) => {
+const trimHistory = (messages, maxChars = 4000) => {
     let currentChars = 0;
     const trimmed = [];
     
@@ -85,7 +85,7 @@ ${localStorage.getItem('userAppearance') ? "Appearance: " + localStorage.getItem
 
 Confirm you are ready to begin the roleplay as ${persona.name}.`;
 
-    const safeMessages = trimHistory(messages, 6000); // Reserve space for large system prompts
+    const safeMessages = trimHistory(messages, 4000); // Reserve space for large system prompts
 
     const formattedMessages = [
         { role: "system", content: systemPrompt },
@@ -93,7 +93,7 @@ Confirm you are ready to begin the roleplay as ${persona.name}.`;
         { role: "assistant", content: `I am ${persona.name}. I understand the context and I am ready to begin. I will remain in character, drive the story forward, and avoid banned terms while being visceral and creative.` },
         ...safeMessages.map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
-            content: msg.content.length > 800 ? msg.content.substring(0, 800) + "..." : msg.content
+            content: msg.content.length > 400 ? msg.content.substring(0, 400) + "..." : msg.content
         }))
     ];
 

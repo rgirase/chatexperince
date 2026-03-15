@@ -419,7 +419,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
         abortControllerRef.current = new AbortController();
 
-        const contextWindow = historyUpToTarget.slice(-10);
+        const contextWindow = historyUpToTarget.slice(-6);
 
         // Inject isolation directive if we are in a sub-character role (Velvet Club)
         let isolationPrompt = "";
@@ -534,7 +534,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         const aiMessageId = targetMsg.id;
         setMessages(prev => prev.map(m => m.id === aiMessageId ? { ...m, content: '', isError: false } : m));
 
-        const contextWindow = historyUpToTarget.filter(m => m.role !== 'system').slice(-10);
+        const contextWindow = historyUpToTarget.filter(m => m.role !== 'system').slice(-6);
         const userMsgToResend = lastUserMsg || { role: 'user', content: '*Continues*' };
 
         await executeAiRequest(aiMessageId, [...contextWindow, userMsgToResend]);
@@ -547,7 +547,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             const aiMessageId = (Date.now() + 1).toString();
             setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
             
-            const contextWindow = messages.slice(-10);
+            const contextWindow = messages.slice(-6);
             await executeAiRequest(aiMessageId, contextWindow);
         }
     };
@@ -636,7 +636,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         const aiMessageId = (Date.now() + 1).toString();
         setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
 
-        const contextWindow = messages.slice(-10);
+        const contextWindow = messages.slice(-6);
         await executeAiRequest(aiMessageId, [...contextWindow, userMessage]);
     };
 
