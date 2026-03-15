@@ -419,16 +419,20 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
         abortControllerRef.current = new AbortController();
 
-        const personaWithMemory = {
-            ...persona
-        };
-
-
         const contextWindow = historyUpToTarget.slice(-20);
 
+        // Inject isolation directive if we are in a sub-character role (Velvet Club)
+        let isolationPrompt = "";
+        if (persona.id === 'amira_velvet_club' && activePersonaImage && activePersonaImage !== persona.image) {
+            isolationPrompt = `\n\n[SYSTEM DIRECTIVE: AMIRA IS NOT IN THE SCENE. You are now roleplaying EXCLUSIVELY and BOLDLY as the girl shown in the active avatar. Use her specific personality, name, and tone. Do NOT speak as Amira. Do NOT mention Amira.]`;
+        }
+
+        const personaWithMemory = {
+            ...persona,
+            systemPrompt: persona.systemPrompt + isolationPrompt
+        };
+
         await generateResponse(
-            personaWithMemory,
-            [...contextWindow, continuePrompt],
             (chunkText) => {
                 setIsTyping(false);
                 let cleanText = chunkText
@@ -537,15 +541,20 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             ? `${persona.systemPrompt}\n\n[CRITICAL EVENT: The character ${invitedPersona.name} has entered the scene. You are now roleplaying as BOTH ${persona.name} AND ${invitedPersona.name}. Prefix each line of dialogue or action with their name (e.g., "${persona.name}: ..." or "${invitedPersona.name}: ...") to distinguish who is speaking. Here is ${invitedPersona.name}'s personality context: ${invitedPersona.systemPrompt}]`
             : persona.systemPrompt;
 
+        const contextWindow = messages.slice(-20);
+
         abortControllerRef.current = new AbortController();
+
+        // Inject isolation directive if we are in a sub-character role (Velvet Club)
+        let isolationPrompt = "";
+        if (persona.id === 'amira_velvet_club' && activePersonaImage && activePersonaImage !== persona.image) {
+            isolationPrompt = `\n\n[SYSTEM DIRECTIVE: AMIRA IS NOT IN THE SCENE. You are now roleplaying EXCLUSIVELY and BOLDLY as the girl shown in the active avatar. Use her specific personality, name, and tone. Do NOT speak as Amira. Do NOT mention Amira.]`;
+        }
 
         const personaWithMemory = {
             ...persona,
-            systemPrompt: mergedBasePrompt
+            systemPrompt: mergedBasePrompt + isolationPrompt
         };
-
-
-        const contextWindow = messages.slice(-20);
 
         await generateResponse(
             personaWithMemory,
