@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard } from 'lucide-react';
+import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon } from 'lucide-react';
 import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones } from '../services/llm';
 import { saveMilestone, getMemories, clearMemories } from '../services/memory';
 import { Book, History } from 'lucide-react';
@@ -120,7 +120,7 @@ const generateSelfie = async (prompt, persona, aiMessageId, setMessages) => {
     }
 };
 
-const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
+const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }) => {
     // Initialize messages from localStorage if available
     const [messages, setMessages] = useState(() => {
         const saved = localStorage.getItem(`chat_${persona.id}`);
@@ -163,6 +163,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
     const [isJournalOpen, setIsJournalOpen] = useState(false);
     const [milestones, setMilestones] = useState(() => getMemories(persona.id));
     const [newManualMemory, setNewManualMemory] = useState('');
+    const [isPhotoGalleryOpen, setIsPhotoGalleryOpen] = useState(false);
+    const [activePersonaImage, setActivePersonaImage] = useState(persona.image);
     const messagesAreaRef = useRef(null);
     const abortControllerRef = useRef(null);
 
@@ -213,6 +215,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
             localStorage.removeItem(`invited_${persona.id}`);
         }
     }, [invitedPersona, persona.id]);
+
+    // Keep active image in sync with persona prop (which App updates)
+    useEffect(() => {
+        setActivePersonaImage(persona.image);
+    }, [persona.image]);
 
     const handleCopyChat = () => {
         let log = "";
@@ -414,7 +421,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
             [...contextWindow, continuePrompt],
             (chunkText) => {
                 setIsTyping(false);
-                let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '').replace(/\[VOICE:\s*moan\]/gi, '').replace(/\[PHYSICAL ACTION:\]/gi, '').replace(/\[WHISPER\]/gi, '').replace(/\[\w[\w\s]*:\]/gi, '');
+                let cleanText = chunkText
+                    .replace(/\[SCORE:\s*[+-]\d+\]/gi, '')
+                    .replace(/\[PHOTO:\s*.*?\]/gi, '')
+                    .replace(/\[AVATAR:\s*.*?\]/gi, '')
+                    .replace(/\[VOICE:\s*moan\]/gi, '')
+                    .replace(/\[PHYSICAL ACTION:\]/gi, '')
+                    .replace(/\[WHISPER\]/gi, '')
+                    .replace(/\[\w[\w\s]*:\]/gi, '');
                 setMessages(prev => prev.map(msg =>
                     msg.id === aiMessageId ? { ...msg, content: cleanText } : msg
                 ));
@@ -431,6 +445,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
                 const photoMatch = fullText.match(/\[PHOTO:\s*(.*?)\]/i);
                 if (photoMatch) {
                     photoPrompt = photoMatch[1];
+                }
+
+                const avatarMatch = fullText.match(/\[AVATAR:\s*(.*?)\]/i);
+                if (avatarMatch) {
+                    setActivePersonaImage(avatarMatch[1].trim());
                 }
 
                 if (scoreDelta !== 0) {
@@ -525,7 +544,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
             [...contextWindow, userMessage],
             (chunkText) => {
                 setIsTyping(false);
-                let cleanText = chunkText.replace(/\[SCORE:\s*[+-]\d+\]/gi, '').replace(/\[PHOTO:\s*.*?\]/gi, '').replace(/\[VOICE:\s*moan\]/gi, '').replace(/\[PHYSICAL ACTION:\]/gi, '').replace(/\[WHISPER\]/gi, '').replace(/\[\w[\w\s]*:\]/gi, '');
+                let cleanText = chunkText
+                    .replace(/\[SCORE:\s*[+-]\d+\]/gi, '')
+                    .replace(/\[PHOTO:\s*.*?\]/gi, '')
+                    .replace(/\[AVATAR:\s*.*?\]/gi, '')
+                    .replace(/\[VOICE:\s*moan\]/gi, '')
+                    .replace(/\[PHYSICAL ACTION:\]/gi, '')
+                    .replace(/\[WHISPER\]/gi, '')
+                    .replace(/\[\w[\w\s]*:\]/gi, '');
                 setMessages(prev => prev.map(msg =>
                     msg.id === aiMessageId ? { ...msg, content: cleanText } : msg
                 ));
@@ -542,6 +568,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
                 const photoMatch = fullText.match(/\[PHOTO:\s*(.*?)\]/i);
                 if (photoMatch) {
                     photoPrompt = photoMatch[1];
+                }
+
+                const avatarMatch = fullText.match(/\[AVATAR:\s*(.*?)\]/i);
+                if (avatarMatch) {
+                    setActivePersonaImage(avatarMatch[1].trim());
                 }
 
                 if (scoreDelta !== 0) {
@@ -613,15 +644,18 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
                 <button className="back-btn" onClick={onGoHome} title="Go Home">
                     <Home size={20} />
                 </button>
-                {persona.image ? (
+                {activePersonaImage ? (
                     <img
-                        src={persona.image}
+                        src={activePersonaImage}
                         alt={persona.name}
                         className="chat-avatar"
+                        onClick={() => setIsPhotoGalleryOpen(true)}
                         style={{
+                            cursor: 'pointer',
                             filter: relationshipScore >= 80 ? 'contrast(1.1) saturate(1.3) sepia(0.3) hue-rotate(-15deg) brightness(0.95)' : 'none',
                             transition: 'filter 2s ease'
                         }}
+                        title="View Gallery"
                     />
                 ) : (
                     <div className="chat-avatar" style={{
@@ -682,6 +716,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
                     </button>
                     <button
                         className="back-btn"
+                        onClick={() => setIsPhotoGalleryOpen(true)}
+                        title="Character Photo Gallery"
+                        style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(236, 72, 153, 0.1)', color: '#ec4899' }}
+                    >
+                        <ImageIcon size={18} />
+                    </button>
+                    <button
+                        className="back-btn"
                         onClick={handleClearChat}
                         title="Clear Chat History"
                         style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}
@@ -704,6 +746,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
                     </button>
                     <button onClick={() => { setIsInviteModalOpen(true); setIsMobileMenuOpen(false); }}>
                         <Users size={16} color="#38bdf8" /> Invite Character
+                    </button>
+                    <button onClick={() => { setIsPhotoGalleryOpen(true); setIsMobileMenuOpen(false); }}>
+                        <ImageIcon size={16} color="#ec4899" /> Photo Gallery
                     </button>
                     <button onClick={() => { setIsJournalOpen(true); setIsMobileMenuOpen(false); }}>
                         <Book size={16} color="#10b981" /> Character Journal
@@ -768,9 +813,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
                         ) : (
                             <>
                                 {msg.role === 'ai' && (
-                                    persona.image ? (
+                                    activePersonaImage ? (
                                         <img
-                                            src={persona.image}
+                                            src={activePersonaImage}
                                             alt={persona.name}
                                             style={{
                                                 width: '32px', height: '32px', borderRadius: '50%', marginRight: '8px', alignSelf: 'flex-end', objectFit: 'cover',
@@ -897,9 +942,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
                             </motion.svg>
 
                             {/* Avatar (Over SVG Ring) */}
-                            {persona.image ? (
+                            {activePersonaImage ? (
                                 <img
-                                    src={persona.image}
+                                    src={activePersonaImage}
                                     alt="Typing"
                                     style={{
                                         position: 'relative', zIndex: 1,
@@ -990,28 +1035,32 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
             </div>
 
             {isInviteModalOpen && (
-                <div className="invite-modal-overlay fade-in" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-                    <div className="glass-panel" style={{ width: '90%', maxWidth: '400px', padding: '1.5rem', position: 'relative' }}>
-                        <button onClick={() => setIsInviteModalOpen(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}><X size={20} /></button>
-                        <h3 style={{ marginBottom: '1rem', color: '#38bdf8' }}>Invite to Scene</h3>
-                        {invitedPersona ? (
-                            <div style={{ textAlign: 'center' }}>
-                                <p style={{ marginBottom: '1rem', color: '#d4d4d8' }}>{invitedPersona.name} is currently in the scene.</p>
-                                <button
-                                    onClick={() => { setInvitedPersona(null); setIsInviteModalOpen(false); }}
-                                    style={{ padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '4px', cursor: 'pointer', width: '100%' }}
-                                >Remove {invitedPersona.name}</button>
-                            </div>
-                        ) : (
-                            <div style={{ display: 'grid', gap: '0.5rem', maxHeight: '50vh', overflowY: 'auto' }}>
-                                {allPersonas && allPersonas.filter(p => p.id !== persona.id).map(p => (
-                                    <div key={p.id} onClick={() => { setInvitedPersona(p); setIsInviteModalOpen(false); }} style={{ display: 'flex', alignItems: 'center', padding: '0.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: '4px', cursor: 'pointer', border: '1px solid #3f3f46' }}>
-                                        <img src={p.image} alt={p.name} style={{ width: '30px', height: '30px', borderRadius: '50%', marginRight: '10px', objectFit: 'cover' }} />
-                                        <span style={{ color: '#f3f4f6' }}>{p.name}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                <div className="modal-overlay" onClick={() => setIsInviteModalOpen(false)}>
+                    <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+                        <div className="modal-header">
+                            <h3 style={{ margin: 0, color: '#38bdf8' }}>Invite to Scene</h3>
+                            <button onClick={() => setIsInviteModalOpen(false)} style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}><X size={20} /></button>
+                        </div>
+                        <div className="modal-body">
+                            {invitedPersona ? (
+                                <div style={{ textAlign: 'center' }}>
+                                    <p style={{ marginBottom: '1rem', color: '#d4d4d8' }}>{invitedPersona.name} is currently in the scene.</p>
+                                    <button
+                                        onClick={() => { setInvitedPersona(null); setIsInviteModalOpen(false); }}
+                                        style={{ padding: '0.8rem 1rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '12px', cursor: 'pointer', width: '100%', fontWeight: 'bold' }}
+                                    >Remove {invitedPersona.name}</button>
+                                </div>
+                            ) : (
+                                <div style={{ display: 'grid', gap: '0.75rem' }}>
+                                    {allPersonas && allPersonas.filter(p => p.id !== persona.id).map(p => (
+                                        <div key={p.id} onClick={() => { setInvitedPersona(p); setIsInviteModalOpen(false); }} style={{ display: 'flex', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', transition: 'all 0.2s ease' }}>
+                                            <img src={p.image} alt={p.name} style={{ width: '40px', height: '40px', borderRadius: '50%', marginRight: '12px', objectFit: 'cover' }} />
+                                            <span style={{ color: '#f3f4f6', fontWeight: '600' }}>{p.name}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
@@ -1024,9 +1073,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
                         onClick={(e) => e.stopPropagation()}
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        style={{ maxWidth: '500px', width: '90%', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}
                     >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
+                        <div className="modal-header">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                 <Book size={24} color="#10b981" />
                                 <h2 style={{ margin: 0, fontSize: '1.25rem' }}>{persona.name}'s Journal</h2>
@@ -1036,39 +1084,39 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
                             </button>
                         </div>
 
-                        {/* Manual Entry Section */}
-                        <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '8px' }}>
-                            <input 
-                                type="text"
-                                value={newManualMemory}
-                                onChange={(e) => setNewManualMemory(e.target.value)}
-                                placeholder="Add a custom memory..."
-                                style={{ flex: 1, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '10px', borderRadius: '8px', fontSize: '0.9rem' }}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && newManualMemory.trim()) {
-                                        const updated = saveMilestone(persona.id, newManualMemory.trim());
-                                        setMilestones(updated);
-                                        setNewManualMemory('');
-                                    }
-                                }}
-                            />
-                            <button 
-                                onClick={() => {
-                                    if (newManualMemory.trim()) {
-                                        const updated = saveMilestone(persona.id, newManualMemory.trim());
-                                        setMilestones(updated);
-                                        setNewManualMemory('');
-                                    }
-                                }}
-                                style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#10b981', padding: '0 15px', borderRadius: '8px', cursor: 'pointer' }}
-                            >
-                                Add
-                            </button>
-                        </div>
+                        <div className="modal-body">
+                            {/* Manual Entry Section */}
+                            <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '8px' }}>
+                                <input 
+                                    type="text"
+                                    value={newManualMemory}
+                                    onChange={(e) => setNewManualMemory(e.target.value)}
+                                    placeholder="Add a custom memory..."
+                                    style={{ flex: 1, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '10px', borderRadius: '8px', fontSize: '0.9rem' }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && newManualMemory.trim()) {
+                                            const updated = saveMilestone(persona.id, newManualMemory.trim());
+                                            setMilestones(updated);
+                                            setNewManualMemory('');
+                                        }
+                                    }}
+                                />
+                                <button 
+                                    onClick={() => {
+                                        if (newManualMemory.trim()) {
+                                            const updated = saveMilestone(persona.id, newManualMemory.trim());
+                                            setMilestones(updated);
+                                            setNewManualMemory('');
+                                        }
+                                    }}
+                                    style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#10b981', padding: '0 15px', borderRadius: '8px', cursor: 'pointer' }}
+                                >
+                                    Add
+                                </button>
+                            </div>
 
-                        <div style={{ flex: 1, overflowY: 'auto', paddingRight: '0.5rem' }}>
                             {milestones.length === 0 ? (
-                                <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#71717a' }}>
+                                <div style={{ textAlign: 'center', padding: '2rem 1rem', color: '#71717a' }}>
                                     <History size={48} style={{ marginBottom: '1rem', opacity: 0.2 }} />
                                     <p>No special memories yet. Keep talking to build your story!</p>
                                 </div>
@@ -1086,7 +1134,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
                             )}
                         </div>
 
-                        <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                        <div className="modal-footer">
                             <button 
                                 onClick={() => {
                                     if(window.confirm("Forget all special memories?")) {
@@ -1098,6 +1146,85 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome }) => {
                             >
                                 Clear All Memories
                             </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Photo Gallery Modal */}
+            {isPhotoGalleryOpen && (
+                <div className="modal-overlay" onClick={() => setIsPhotoGalleryOpen(false)}>
+                    <motion.div 
+                        className="modal-content glass-panel" 
+                        onClick={(e) => e.stopPropagation()}
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                    >
+                        <div className="modal-header">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <ImageIcon size={24} color="#ec4899" />
+                                <h2 style={{ margin: 0, fontSize: '1.25rem' }}>{persona.name}'s Gallery</h2>
+                            </div>
+                            <button onClick={() => setIsPhotoGalleryOpen(false)} style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}>
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="modal-body">
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '1rem', paddingBottom: '2rem' }}>
+                                {persona.gallery && persona.gallery.map((imgUrl, idx) => (
+                                    <div 
+                                        key={idx} 
+                                        className={`gallery-item ${activePersonaImage === imgUrl ? 'active' : ''}`}
+                                        style={{ 
+                                            position: 'relative', 
+                                            aspectRatio: '2/3', 
+                                            borderRadius: '12px', 
+                                            overflow: 'hidden',
+                                            border: activePersonaImage === imgUrl ? '2px solid #ec4899' : '1px solid rgba(255,255,255,0.1)',
+                                            boxShadow: activePersonaImage === imgUrl ? '0 0 15px rgba(236, 72, 153, 0.4)' : 'none'
+                                        }}
+                                    >
+                                        <img src={imgUrl} alt={`Gallery ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <div style={{ 
+                                            position: 'absolute', 
+                                            bottom: 0, left: 0, right: 0, 
+                                            background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+                                            padding: '8px',
+                                            display: 'flex',
+                                            justifyContent: 'center'
+                                        }}>
+                                            {activePersonaImage === imgUrl ? (
+                                                <span style={{ fontSize: '0.75rem', color: '#ec4899', fontWeight: 'bold' }}>Current Profile</span>
+                                            ) : (
+                                                <button 
+                                                    onClick={() => {
+                                                        setActivePersonaImage(imgUrl);
+                                                        onSelectImage(persona.id, imgUrl);
+                                                    }}
+                                                    style={{ 
+                                                        background: 'rgba(236, 72, 153, 0.8)', 
+                                                        border: 'none', 
+                                                        color: 'white', 
+                                                        padding: '4px 8px', 
+                                                        borderRadius: '4px', 
+                                                        fontSize: '0.7rem',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    Set Profile
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            {(!persona.gallery || persona.gallery.length === 0) && (
+                                <div style={{ textAlign: 'center', padding: '3rem', color: '#71717a' }}>
+                                    <ImageIcon size={48} style={{ opacity: 0.1, marginBottom: '1rem' }} />
+                                    <p>No photos in this character's gallery yet.</p>
+                                </div>
+                            )}
                         </div>
                     </motion.div>
                 </div>

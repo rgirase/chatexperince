@@ -16,6 +16,7 @@ function App() {
   const [panicMode, setPanicMode] = useState(false);
   const [activeServerUrl, setActiveServerUrl] = useState('');
   const [savedServers, setSavedServers] = useState([]);
+  const [imageUpdateKey, setImageUpdateKey] = useState(0);
 
   // Universal View State Management
   const [activeView, setActiveView] = useState(() => localStorage.getItem('activeView') || 'home');
@@ -29,6 +30,15 @@ function App() {
       setCustomPersonas(parsed);
       loadedPersonas = [...loadedPersonas, ...parsed];
     }
+
+    // Apply image overrides from localStorage
+    loadedPersonas = loadedPersonas.map(p => {
+      const savedImg = localStorage.getItem(`persona_img_${p.id}`);
+      if (savedImg) {
+        return { ...p, image: savedImg };
+      }
+      return p;
+    });
 
     // Load server info
     const servers = JSON.parse(localStorage.getItem('savedServers') || '[]');
@@ -121,10 +131,25 @@ function App() {
     };
   }, []);
 
+  const getProcessedPersonas = () => {
+    let loadedPersonas = [...defaultPersonas, ...customPersonas];
+    return loadedPersonas.map(p => {
+      const savedImg = localStorage.getItem(`persona_img_${p.id}`);
+      if (savedImg) {
+        return { ...p, image: savedImg };
+      }
+      return p;
+    });
+  };
+
   const handleSelectPersona = (persona) => {
     window.history.pushState({ view: 'chat' }, '');
     hasPushedHistory = true;
-    setSelectedPersona(persona);
+    
+    // Use the latest version with overrides
+    const processed = getProcessedPersonas().find(p => p.id === persona.id) || persona;
+    setSelectedPersona(processed);
+    
     setActiveView('chat');
     localStorage.setItem('activeView', 'chat');
     localStorage.setItem('lastPersonaId', persona.id);
@@ -173,6 +198,21 @@ function App() {
   const handleSwitchServer = (url) => {
     setActiveServerUrl(url);
     localStorage.setItem('lmStudioUrl', url);
+  };
+
+  const handleSelectImage = (personaId, newImage) => {
+    // Update both default and custom personas in state
+    const updatePersonaList = (list) => 
+      list.map(p => p.id === personaId ? { ...p, image: newImage } : p);
+
+    // We also need to update the currently selected persona if it matches
+    if (selectedPersona && selectedPersona.id === personaId) {
+      setSelectedPersona({ ...selectedPersona, image: newImage });
+    }
+
+    // Re-trigger the persona loading logic by updating state
+    setCustomPersonas(prev => updatePersonaList(prev));
+    setImageUpdateKey(prev => prev + 1);
   };
 
   // Re-sync server list when entering/leaving settings or on refresh
@@ -255,9 +295,10 @@ function App() {
       {selectedPersona ? (
         <ChatInterface
           persona={selectedPersona}
-          allPersonas={[...defaultPersonas, ...customPersonas]}
+          allPersonas={getProcessedPersonas()}
           onBack={handleBack}
           onGoHome={handleGoHome}
+          onSelectImage={handleSelectImage}
         />
       ) : isSettingsOpen ? (
         <Settings
@@ -270,9 +311,14 @@ function App() {
         <Gallery
           onBack={handleBack}
           customPersonas={customPersonas}
+          onSelectImage={handleSelectImage}
         />
       ) : (
-        <PersonaList onSelectPersona={handleSelectPersona} customPersonas={customPersonas} />
+        <PersonaList 
+          onSelectPersona={handleSelectPersona} 
+          customPersonas={customPersonas}
+          allPersonas={getProcessedPersonas()}
+        />
       )}
 
       {/* Mobile Bottom Navigation */}

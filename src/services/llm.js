@@ -27,6 +27,31 @@ const cleanLeakage = (text) => {
         .trim();
 };
 
+// Helper to trim history to fit context window
+const trimHistory = (messages, maxChars = 15000) => {
+    let currentChars = 0;
+    const trimmed = [];
+    
+    // Iterate backwards to keep newest messages
+    for (let i = messages.length - 1; i >= 0; i--) {
+        const msg = messages[i];
+        const content = msg.content || "";
+        if (currentChars + content.length > maxChars) {
+            // If even the newest message is too long, truncate it
+            if (trimmed.length === 0) {
+                trimmed.push({
+                    ...msg,
+                    content: content.substring(content.length - maxChars)
+                });
+            }
+            break;
+        }
+        trimmed.unshift(msg);
+        currentChars += content.length;
+    }
+    return trimmed;
+};
+
 export const generateResponse = async (persona, messages, onChunk, onComplete, onError, signal, options = {}) => {
 
     const { 
@@ -60,13 +85,15 @@ ${localStorage.getItem('userAppearance') ? "Appearance: " + localStorage.getItem
 
 Confirm you are ready to begin the roleplay as ${persona.name}.`;
 
+    const safeMessages = trimHistory(messages, 12000); // Reserve space for priming
+
     const formattedMessages = [
         { role: "system", content: systemPrompt },
         { role: "user", content: primingContext },
         { role: "assistant", content: `I am ${persona.name}. I understand the context and I am ready to begin. I will remain in character, drive the story forward, and avoid banned terms while being visceral and creative.` },
-        ...messages.map(msg => ({
+        ...safeMessages.map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
-            content: msg.content.length > 500 ? msg.content.substring(0, 500) + "..." : msg.content
+            content: msg.content.length > 800 ? msg.content.substring(0, 800) + "..." : msg.content
         }))
     ];
 
@@ -101,7 +128,18 @@ Confirm you are ready to begin the roleplay as ${persona.name}.`;
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-            throw new Error(`Failed to connect to LM Studio: ${response.statusText}`);
+            let errorText = "";
+            try {
+                const errorData = await response.json();
+                errorText = errorData.error?.message || response.statusText;
+            } catch (e) {
+                errorText = response.statusText;
+            }
+            
+            if (errorText.toLowerCase().includes("context") || response.status === 400) {
+                throw new Error(`CONTEXT_SIZE_ERROR: ${errorText}`);
+            }
+            throw new Error(`Failed to connect to LM Studio: ${errorText}`);
         }
 
         const reader = response.body.getReader();

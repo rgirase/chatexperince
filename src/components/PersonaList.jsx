@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { personas } from '../data/personas';
 
-const PersonaList = ({ onSelectPersona, customPersonas = [] }) => {
-    const allPersonas = [...personas, ...customPersonas];
+const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
 
     const getInitialActiveChats = () => {
         const ids = [];
