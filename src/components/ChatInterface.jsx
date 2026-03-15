@@ -126,7 +126,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             }
         } catch (e) {
             console.error('Image Generation Error:', e);
-            showToast(e.message);
+            if (e.message === 'Failed to fetch') {
+                showToast("Connection Fail: Check if your Image Engine (Draw Things/A1111) is running and has CORS enabled.");
+            } else {
+                showToast(e.message);
+            }
             setMessages(prev => prev.filter(msg => msg.id !== photoMsgId));
         }
     };

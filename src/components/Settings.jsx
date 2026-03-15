@@ -111,6 +111,38 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
         localStorage.removeItem(`chat_${id}`); // Clean up chat history
     };
 
+    const handleTestLmStudio = async () => {
+        try {
+            const res = await fetch(`${lmStudioUrl.replace(/\/$/, '')}/models`);
+            if (res.ok) {
+                alert("✅ Success: LM Studio is connected and responding!");
+            } else {
+                alert(`❌ LM Studio returned error: ${res.status}`);
+            }
+        } catch (e) {
+            alert(`❌ LM Studio Connection Failed: ${e.message}\n\nTroubleshooting:\n1. Ensure LM Studio is RUNNING.\n2. Enable "CORS: On" in LM Studio Server settings.\n3. Verify the URL matches exactly.`);
+        }
+    };
+
+    const handleTestSd = async () => {
+        const urlBase = sdUrl.replace(/\/$/, '');
+        let testUrl = `${urlBase}/sdapi/v1/options`; // Default for A1111 / Draw Things
+        
+        if (imageEngine === 'comfyui') testUrl = `${urlBase}/system_stats`;
+        if (imageEngine === 'diffusionbee') testUrl = `${urlBase}/status`;
+
+        try {
+            const res = await fetch(testUrl);
+            if (res.ok) {
+                alert(`✅ Success: ${imageEngine.toUpperCase()} is connected!`);
+            } else {
+                alert(`❌ ${imageEngine.toUpperCase()} returned status: ${res.status}`);
+            }
+        } catch (e) {
+            alert(`❌ Connection Failed: ${e.message}\n\nPotential Causes:\n1. Server is not running.\n2. CORS is blocking the request (especially in Draw Things).\n3. Wrong URL or Port.\n4. If using mobile, ensure you use your Computer's IP (not 127.0.0.1).`);
+        }
+    };
+
     return (
         <div className="persona-list-container fade-in" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
             <div className="header" style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
@@ -142,6 +174,12 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
                             placeholder="http://192.168.1.233:1234/v1"
                             style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
                         />
+                        <button 
+                            onClick={handleTestLmStudio}
+                            style={{ padding: '0.75rem', borderRadius: '8px', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid #22c55e', cursor: 'pointer' }}
+                        >
+                            Test
+                        </button>
                     </div>
                     <small style={{ color: '#71717a', display: 'block', marginTop: '0.5rem' }}>The active server URL used for chat.</small>
                     
@@ -205,13 +243,21 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
 
                 <div style={{ marginBottom: '1.5rem' }}>
                     <label style={{ display: 'block', marginBottom: '0.5rem', color: '#a1a1aa' }}>Image API URL</label>
-                    <input
-                        type="text"
-                        value={sdUrl}
-                        onChange={(e) => setSdUrl(e.target.value)}
-                        placeholder="http://127.0.0.1:7860"
-                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
-                    />
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <input
+                            type="text"
+                            value={sdUrl}
+                            onChange={(e) => setSdUrl(e.target.value)}
+                            placeholder="http://127.0.0.1:7860"
+                            style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
+                        />
+                        <button 
+                            onClick={handleTestSd}
+                            style={{ padding: '0.75rem', borderRadius: '8px', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid #22c55e', cursor: 'pointer' }}
+                        >
+                            Test
+                        </button>
+                    </div>
                     <small style={{ color: '#71717a', display: 'block', marginTop: '0.5rem' }}>A1111: 7860 | ComfyUI: 8188 | Diffusion Bee: 1111</small>
                 </div>
 
