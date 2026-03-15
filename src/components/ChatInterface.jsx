@@ -419,7 +419,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
         abortControllerRef.current = new AbortController();
 
-        const contextWindow = historyUpToTarget.slice(-6);
+        const contextWindow = historyUpToTarget;
 
         // Inject isolation directive if we are in a sub-character role (Velvet Club)
         let isolationPrompt = "";
@@ -534,7 +534,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         const aiMessageId = targetMsg.id;
         setMessages(prev => prev.map(m => m.id === aiMessageId ? { ...m, content: '', isError: false } : m));
 
-        const contextWindow = historyUpToTarget.filter(m => m.role !== 'system').slice(-6);
+        const contextWindow = historyUpToTarget.filter(m => m.role !== 'system');
         const userMsgToResend = lastUserMsg || { role: 'user', content: '*Continues*' };
 
         await executeAiRequest(aiMessageId, [...contextWindow, userMsgToResend]);
@@ -547,7 +547,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             const aiMessageId = (Date.now() + 1).toString();
             setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
             
-            const contextWindow = messages.slice(-6);
+            const contextWindow = messages;
             await executeAiRequest(aiMessageId, contextWindow);
         }
     };
@@ -636,7 +636,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         const aiMessageId = (Date.now() + 1).toString();
         setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
 
-        const contextWindow = messages.slice(-6);
+        const contextWindow = messages;
         await executeAiRequest(aiMessageId, [...contextWindow, userMessage]);
     };
 
@@ -1162,6 +1162,39 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                         </div>
 
                         <div className="modal-body">
+                            {/* AI Story Summary (Permanent Context) */}
+                            <div style={{ marginBottom: '2rem', padding: '1rem', background: 'rgba(56, 189, 248, 0.05)', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: '12px' }}>
+                                <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <History size={16} /> The Story So Far (Long-term Memory)
+                                </h3>
+                                <textarea
+                                    value={memory}
+                                    onChange={(e) => {
+                                        setMemory(e.target.value);
+                                        localStorage.setItem(`memory_${persona.id}`, e.target.value);
+                                    }}
+                                    placeholder="The AI will automatically summarize your story here, but you can also write your own summary to keep the plot on track..."
+                                    style={{ 
+                                        width: '100%', 
+                                        minHeight: '100px', 
+                                        background: 'rgba(0,0,0,0.3)', 
+                                        border: '1px solid rgba(56, 189, 248, 0.1)', 
+                                        color: '#e4e4e7', 
+                                        padding: '10px', 
+                                        borderRadius: '8px', 
+                                        fontSize: '0.85rem',
+                                        lineHeight: '1.5',
+                                        resize: 'vertical'
+                                    }}
+                                />
+                                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.7rem', color: '#71717a' }}>
+                                    This summary is always sent to the AI, ensuring it never forgets the major plot points of your roleplay.
+                                </p>
+                            </div>
+
+                            <h3 style={{ margin: '0 0 1rem 0', fontSize: '0.9rem', color: '#10b981', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Check size={16} /> Key Milestones & Notes
+                            </h3>
                             {/* Manual Entry Section */}
                             <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '8px' }}>
                                 <input 

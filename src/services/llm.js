@@ -28,24 +28,18 @@ const cleanLeakage = (text) => {
 };
 
 // Helper to trim history to fit context window
-const trimHistory = (messages, maxChars = 4000) => {
+const trimHistory = (messages, maxChars = 12000) => {
     let currentChars = 0;
     const trimmed = [];
     
-    // Iterate backwards to keep newest messages
+    // Work backwards to get the most recent messages first
     for (let i = messages.length - 1; i >= 0; i--) {
         const msg = messages[i];
-        const content = msg.content || "";
-        if (currentChars + content.length > maxChars) {
-            // If even the newest message is too long, truncate it
-            if (trimmed.length === 0) {
-                trimmed.push({
-                    ...msg,
-                    content: content.substring(content.length - maxChars)
-                });
-            }
-            break;
-        }
+        if (!msg || !msg.content || msg.isPhoto) continue;
+        
+        const content = msg.content;
+        if (currentChars + content.length > maxChars) break;
+        
         trimmed.unshift(msg);
         currentChars += content.length;
     }
@@ -75,17 +69,17 @@ Narrative Environment:
 - Proactively move the scene forward.
 - Intensity Level: ${intensity}/5.
 
-Memory Context:
-${memory ? "Summary: " + memory : ""}
-${milestones.length > 0 ? "Key Events: " + milestones.join(" | ") : ""}
+Memory Context (The Story So Far):
+${memory ? "Background: " + memory : "No previous story context yet."}
+${milestones.length > 0 ? "Key Milestones: " + milestones.join(" | ") : ""}
 
-Current Partner:
+Current Partner Context:
 ${localStorage.getItem('userName') ? "Name: " + localStorage.getItem('userName') : ""}
 ${localStorage.getItem('userAppearance') ? "Appearance: " + localStorage.getItem('userAppearance') : ""}
 
 Confirm you are ready to begin the roleplay as ${persona.name}.`;
 
-    const safeMessages = trimHistory(messages, 4000); // Reserve space for large system prompts
+    const safeMessages = trimHistory(messages, 8000); // 8000 + system prompt (~4000) fits in 4096 context
 
     const formattedMessages = [
         { role: "system", content: systemPrompt },
@@ -93,7 +87,7 @@ Confirm you are ready to begin the roleplay as ${persona.name}.`;
         { role: "assistant", content: `I am ${persona.name}. I understand the context and I am ready to begin. I will remain in character, drive the story forward, and avoid banned terms while being visceral and creative.` },
         ...safeMessages.map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
-            content: msg.content.length > 400 ? msg.content.substring(0, 400) + "..." : msg.content
+            content: msg.content
         }))
     ];
 
