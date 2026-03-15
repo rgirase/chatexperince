@@ -85,7 +85,10 @@ async function run() {
         { name: "Chloe", prompt: "flirtatious Indian woman with vibrant reddish-tinted hair, bold seductive makeup, provocative lacy black lingerie, biting lip" },
         { name: "Ananya", prompt: "young high-energy Indian student, extremely naughty expression, tiny tight club dress, messy hair, looking back" },
         { name: "Aisha", prompt: "sharp corporate Indian woman, commanding and dominant presence, unbuttoned silk blouse, stern but incredibly sexy gaze" },
-        { name: "Victoria", prompt: "wild uninhibited Indian woman, aggressive stance, tight leather club outfit, messy hair, sweat on skin, primal energy" }
+        { name: "Victoria", prompt: "wild uninhibited Indian woman, aggressive stance, tight leather club outfit, messy hair, sweat on skin, primal energy" },
+        { name: "Maya", prompt: "young innocent Indian virgin girl, shy and curious expression, white sheer lace dress, untouched beauty, soft cinematic lighting" },
+        { name: "Sunita", prompt: "mature voluptuous Indian MILF, nurturing but extremely provocative, deep-cut blouse highlighting deep cleavage, high-intensity sexuality, 'milking' energy, moisture on skin" },
+        { name: "Kiran", prompt: "sophisticated married Indian woman, wearing a mangalsutra and a very revealing sexy designer saree, forbidden desire, elegant and high-class but intensely thirsty gaze" }
     ];
 
     for (const girl of girls) {
