@@ -102,7 +102,7 @@ Confirm you are ready to begin the roleplay as ${persona.name}.`;
         formattedMessages.splice(3, 0, { role: 'user', content: '*Approaches you*' });
     }
 
-    const fetchTimeout = 20000; // 20s initial timeout
+    const fetchTimeout = 60000; // 60s initial timeout for slower local hardware
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), fetchTimeout);
 

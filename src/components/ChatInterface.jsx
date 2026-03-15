@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera } from 'lucide-react';
+import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw } from 'lucide-react';
 import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones } from '../services/llm';
 import { saveMilestone, getMemories, clearMemories } from '../services/memory';
 import { Book, History } from 'lucide-react';
@@ -518,34 +518,45 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         }
     };
 
-    const handleSend = async () => {
-        if (!input.trim()) return;
+    const handleRegenerate = async (targetMsg) => {
+        if (isTyping || isSuggesting) return;
+        
+        const msgIndex = messages.findIndex(m => m.id === targetMsg.id);
+        if (msgIndex === -1) return;
 
-        const userMessage = { id: Date.now().toString(), role: 'user', content: input.trim() };
-        setMessages(prev => [...prev, userMessage]);
-        setInput('');
+        const historyUpToTarget = messages.slice(0, msgIndex);
+        const lastUserMsg = [...historyUpToTarget].reverse().find(m => m.role === 'user');
+        
+        // Remove all messages after the one we are regenerating to preserve timeline
+        setMessages(messages.slice(0, msgIndex + 1));
+        
         setIsTyping(true);
+        const aiMessageId = targetMsg.id;
+        setMessages(prev => prev.map(m => m.id === aiMessageId ? { ...m, content: '', isError: false } : m));
 
-        // Reset textarea height to original size after sending
-        const textareas = document.getElementsByClassName('message-input');
-        if (textareas.length > 0) {
-            textareas[0].style.height = 'auto';
+        const contextWindow = historyUpToTarget.filter(m => m.role !== 'system').slice(-10);
+        const userMsgToResend = lastUserMsg || { role: 'user', content: '*Continues*' };
+
+        await executeAiRequest(aiMessageId, [...contextWindow, userMsgToResend]);
+    };
+
+    const handleRetry = async () => {
+        const lastMsg = messages[messages.length - 1];
+        if (lastMsg && lastMsg.role === 'user') {
+            setIsTyping(true);
+            const aiMessageId = (Date.now() + 1).toString();
+            setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
+            
+            const contextWindow = messages.slice(-10);
+            await executeAiRequest(aiMessageId, contextWindow);
         }
+    };
 
-        // Placeholder for AI streaming message
-        const aiMessageId = (Date.now() + 1).toString();
-        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
-
-        // Inject long-term memory into the system prompt dynamically
+    const executeAiRequest = async (aiMessageId, context) => {
         const mergedBasePrompt = invitedPersona
             ? `${persona.systemPrompt}\n\n[CRITICAL EVENT: The character ${invitedPersona.name} has entered the scene. You are now roleplaying as BOTH ${persona.name} AND ${invitedPersona.name}. Prefix each line of dialogue or action with their name (e.g., "${persona.name}: ..." or "${invitedPersona.name}: ...") to distinguish who is speaking. Here is ${invitedPersona.name}'s personality context: ${invitedPersona.systemPrompt}]`
             : persona.systemPrompt;
 
-        const contextWindow = messages.slice(-10);
-
-        abortControllerRef.current = new AbortController();
-
-        // Inject isolation directive if we are in a sub-character role (Velvet Club)
         let isolationPrompt = "";
         if (persona.id === 'amira_velvet_club' && activePersonaImage && activePersonaImage !== persona.image) {
             isolationPrompt = `\n\n[SYSTEM DIRECTIVE: AMIRA IS NOT IN THE SCENE. You are now roleplaying EXCLUSIVELY and BOLDLY as the girl shown in the active avatar. Use her specific personality, name, and tone. Do NOT speak as Amira. Do NOT mention Amira.]`;
@@ -556,63 +567,77 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             systemPrompt: mergedBasePrompt + isolationPrompt
         };
 
-        await generateResponse(
-            personaWithMemory,
-            [...contextWindow, userMessage],
-            (chunkText) => {
-                setIsTyping(false);
-                let cleanText = chunkText
-                    .replace(/\[SCORE:\s*[+-]\d+\]/gi, '')
-                    .replace(/\[PHOTO:\s*.*?\]/gi, '')
-                    .replace(/\[AVATAR:\s*.*?\]/gi, '')
-                    .replace(/\[VOICE:\s*moan\]/gi, '')
-                    .replace(/\[PHYSICAL ACTION:\]/gi, '')
-                    .replace(/\[WHISPER\]/gi, '')
-                    .replace(/\[\w[\w\s]*:\]/gi, '');
-                setMessages(prev => prev.map(msg =>
-                    msg.id === aiMessageId ? { ...msg, content: cleanText } : msg
-                ));
-            },
-            (fullText) => {
-                let scoreDelta = 0;
-                let photoPrompt = null;
+        abortControllerRef.current = new AbortController();
 
-                const scoreMatch = fullText.match(/\[SCORE:\s*([+-]\d+)\]/i);
-                if (scoreMatch) {
-                    scoreDelta = parseInt(scoreMatch[1]);
+        try {
+            await generateResponse(
+                personaWithMemory,
+                context,
+                (chunkText) => {
+                    setIsTyping(false);
+                    let cleanText = chunkText
+                        .replace(/\[SCORE:\s*[+-]\d+\]/gi, '')
+                        .replace(/\[PHOTO:\s*.*?\]/gi, '')
+                        .replace(/\[AVATAR:\s*.*?\]/gi, '')
+                        .replace(/\[VOICE:\s*moan\]/gi, '')
+                        .replace(/\[PHYSICAL ACTION:\]/gi, '')
+                        .replace(/\[WHISPER\]/gi, '')
+                        .replace(/\[\w[\w\s]*:\]/gi, '');
+                    setMessages(prev => prev.map(msg =>
+                        msg.id === aiMessageId ? { ...msg, content: cleanText, isError: false } : msg
+                    ));
+                },
+                (fullText) => {
+                    let scoreDelta = 0;
+                    let photoPrompt = null;
+
+                    const scoreMatch = fullText.match(/\[SCORE:\s*([+-]\d+)\]/i);
+                    if (scoreMatch) scoreDelta = parseInt(scoreMatch[1]);
+
+                    const photoMatch = fullText.match(/\[PHOTO:\s*(.*?)\]/i);
+                    if (photoMatch) photoPrompt = photoMatch[1];
+
+                    const avatarMatch = fullText.match(/\[AVATAR:\s*(.*?)\]/i);
+                    if (avatarMatch) setActivePersonaImage(avatarMatch[1].trim());
+
+                    if (scoreDelta !== 0) setRelationshipScore(prev => Math.max(0, Math.min(100, prev + (scoreDelta * 5))));
+                    if (photoPrompt) generateSelfie(photoPrompt, persona, aiMessageId, setMessages);
+                },
+                (errMessage) => {
+                    setIsTyping(false);
+                    showToast("Could not connect to LM Studio. Tap 'Retry' to resubmit.");
+                    setMessages(prev => prev.map(msg => 
+                        msg.id === aiMessageId ? { ...msg, content: "*(Connection failed. Please retry...)*", isError: true } : msg
+                    ));
+                },
+                abortControllerRef.current.signal,
+                { 
+                    milestones: milestones.slice(-5).map(m => m.content || m.text || m),
+                    intensity: intensity,
+                    memory: memory
                 }
+            );
+        } catch (e) {
+            setIsTyping(false);
+        }
+    };
 
-                const photoMatch = fullText.match(/\[PHOTO:\s*(.*?)\]/i);
-                if (photoMatch) {
-                    photoPrompt = photoMatch[1];
-                }
+    const handleSend = async () => {
+        if (!input.trim()) return;
 
-                const avatarMatch = fullText.match(/\[AVATAR:\s*(.*?)\]/i);
-                if (avatarMatch) {
-                    setActivePersonaImage(avatarMatch[1].trim());
-                }
+        const userMessage = { id: Date.now().toString(), role: 'user', content: input.trim() };
+        setMessages(prev => [...prev, userMessage]);
+        setInput('');
+        setIsTyping(true);
 
-                if (scoreDelta !== 0) {
-                    setRelationshipScore(prev => Math.max(0, Math.min(100, prev + (scoreDelta * 5))));
-                }
+        const textareas = document.getElementsByClassName('message-input');
+        if (textareas.length > 0) textareas[0].style.height = 'auto';
 
-                if (photoPrompt) {
-                    generateSelfie(photoPrompt, persona, aiMessageId, setMessages);
-                }
-            },
-            (errMessage) => {
-                setIsTyping(false);
-                showToast("Could not connect to LM Studio. Ensure it is running locally on port 1234 with CORS enabled.");
-                setMessages(prev => prev.filter(msg => msg.id !== aiMessageId));
-            },
-            abortControllerRef.current.signal,
-            { 
-                milestones: milestones.slice(-5).map(m => m.content || m.text || m),
-                intensity: intensity,
-                memory: memory
-            }
-        );
+        const aiMessageId = (Date.now() + 1).toString();
+        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
 
+        const contextWindow = messages.slice(-10);
+        await executeAiRequest(aiMessageId, [...contextWindow, userMessage]);
     };
 
     const handleRequestPhoto = () => {
@@ -905,6 +930,15 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                                 {msg.role === 'ai' && (
                                                     <>
                                                         <button
+                                                            onClick={() => handleRegenerate(msg)}
+                                                            style={{ background: 'transparent', border: 'none', color: '#fbbf24', cursor: 'pointer', display: 'flex', alignItems: 'center', fontSize: '0.7rem' }}
+                                                            title="Regenerate Response"
+                                                            onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+                                                            onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
+                                                        >
+                                                            <RotateCcw size={10} style={{ marginRight: '4px' }} /> Regenerate
+                                                        </button>
+                                                        <button
                                                             onClick={() => handleEditStart(msg)}
                                                             style={{ background: 'transparent', border: 'none', color: '#d4d4d8', cursor: 'pointer', display: 'flex', alignItems: 'center', fontSize: '0.7rem' }}
                                                             title="Override Response"
@@ -938,6 +972,16 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                     )}
                                 </div>
                             </>
+                        )}
+                        {msg.role === 'user' && i === messages.length - 1 && !isTyping && (
+                            <div style={{ padding: '0 12px 12px', display: 'flex', justifyContent: 'flex-start' }}>
+                                <button 
+                                    onClick={handleRetry}
+                                    style={{ background: 'rgba(236, 72, 153, 0.1)', border: '1px solid rgba(236, 72, 153, 0.3)', borderRadius: '8px', color: '#ec4899', fontSize: '0.75rem', padding: '4px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                                >
+                                    <RotateCcw size={12} /> Resubmit last message
+                                </button>
+                            </div>
                         )}
                     </div>
                 ))}
