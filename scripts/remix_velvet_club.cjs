@@ -23,17 +23,17 @@ async function generateAvatar(name, prompt_suffix) {
     const base64Image = fileToBase64(BASE_IMAGE);
     if (!base64Image) return;
 
-    const fullPrompt = `(8k, masterpiece, ultra-detailed, photorealistic), a beautiful Indian woman, ${prompt_suffix}, in an exclusive high-end pleasure club, bokeh background of club lights, cinematic lighting, professional photography, high-resolution.`;
+    const fullPrompt = `(8k, masterpiece, ultra-detailed, photorealistic), stunningly beautiful Indian woman, ${prompt_suffix}, intensely seductive gaze, cinematic club lighting with purple and gold highlights, highly detailed skin texture, intricate clothing details, professional fashion photography, high-resolution.`;
     
     const postData = JSON.stringify({
         init_images: [base64Image],
         prompt: fullPrompt,
-        negative_prompt: "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, group of people, multiple faces, distorted face",
-        steps: 30,
+        negative_prompt: "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, group of people, multiple faces, distorted face, plain, boring, safe",
+        steps: 40,
         width: 640,
         height: 640,
-        cfg_scale: 7.5,
-        denoising_strength: 0.65, // Strong enough to focus on one face but keep the vibe
+        cfg_scale: 8.5,
+        denoising_strength: 0.72, // Allow more radical change for "wow" factor
         sampler_name: "Euler a",
         batch_size: 1,
         n_iter: 1,
@@ -79,13 +79,13 @@ async function generateAvatar(name, prompt_suffix) {
 
 async function run() {
     const girls = [
-        { name: "Eleanor", prompt: "elegant mature Indian woman, sophisticated evening gown, diamonds, poised" },
-        { name: "Sarah", prompt: "fit vibrant Indian woman, playful expression, athletic build, sheer club wear" },
-        { name: "Priya", prompt: "breathtaking traditional Indian woman, intricate saree, heavy jewelry, devoted gaze" },
-        { name: "Chloe", prompt: "flirtatious Indian woman with reddish-tinted hair, bold makeup, provocative lingerie" },
-        { name: "Ananya", prompt: "young high-energy Indian student, naughty expression, short club dress" },
-        { name: "Aisha", prompt: "sharp corporate Indian woman, commanding presence, silk blouse, stern but sexy" },
-        { name: "Victoria", prompt: "wild uninhibited Indian woman, aggressive stance, leather club outfit, messy hair" }
+        { name: "Eleanor", prompt: "elegant mature Indian woman, extremely sophisticated deep-cut evening gown, diamonds dripping from neck, poised and provocative" },
+        { name: "Sarah", prompt: "fit vibrant Indian woman, playful and naughty expression, toned athletic build, sheer revealing club wear, wet-look skin" },
+        { name: "Priya", prompt: "breathtaking traditional Indian woman, intricate semi-transparent saree, heavy gold jewelry, intensely devoted and lustful gaze" },
+        { name: "Chloe", prompt: "flirtatious Indian woman with vibrant reddish-tinted hair, bold seductive makeup, provocative lacy black lingerie, biting lip" },
+        { name: "Ananya", prompt: "young high-energy Indian student, extremely naughty expression, tiny tight club dress, messy hair, looking back" },
+        { name: "Aisha", prompt: "sharp corporate Indian woman, commanding and dominant presence, unbuttoned silk blouse, stern but incredibly sexy gaze" },
+        { name: "Victoria", prompt: "wild uninhibited Indian woman, aggressive stance, tight leather club outfit, messy hair, sweat on skin, primal energy" }
     ];
 
     for (const girl of girls) {
