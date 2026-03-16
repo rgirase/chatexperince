@@ -1,187 +1,299 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Lock } from 'lucide-react';
-import { personas as defaultPersonas } from '../data/personas';
+import { ArrowLeft, Lock, X, Maximize2, MessageSquare, UserCheck } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const Gallery = ({ onBack, customPersonas, onSelectImage }) => {
-    const allPersonas = [...defaultPersonas, ...customPersonas];
-    const [selectedPersonaId, setSelectedPersonaId] = useState(allPersonas[0]?.id || null);
-    const [viewMode, setViewMode] = useState('progression'); // 'progression' or 'photos'
-
-    const getScore = (id) => parseInt(localStorage.getItem(`score_${id}`)) || 50;
-
-    const selectedPersona = allPersonas.find(p => p.id === selectedPersonaId);
+const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [activeCategory, setActiveCategory] = useState('All');
     
-    // Get the active image from localStorage or fallback to default
-    const getActiveImage = (persona) => {
-        if (!persona) return '';
-        return localStorage.getItem(`persona_img_${persona.id}`) || persona.image;
-    };
+    // Flatten all images into a single list with metadata
+    const allImages = allPersonas.flatMap(persona => {
+        const gallery = persona.gallery || [persona.image];
+        return gallery.map((img, idx) => ({
+            url: img,
+            personaId: persona.id,
+            personaName: persona.name,
+            category: persona.category || 'Modern',
+            isProfile: (localStorage.getItem(`persona_img_${persona.id}`) || persona.image) === img,
+            id: `${persona.id}_${idx}`
+        }));
+    });
 
-    const score = selectedPersona ? getScore(selectedPersona.id) : 0;
+    const categories = ['All', 'Family', 'Professional', 'Modern', 'Traditional'];
+    
+    const filteredImages = allImages.filter(img => 
+        activeCategory === 'All' || img.category === activeCategory
+    );
 
-    const thresholds = [
-        { level: 20, desc: "Level 1 (Curious)" },
-        { level: 50, desc: "Level 2 (Comfortable)" },
-        { level: 80, desc: "Level 3 (Intimate)" },
-        { level: 100, desc: "Level 4 (Devoted)" }
-    ];
-
-    const handleSetImage = (img) => {
-        localStorage.setItem(`persona_img_${selectedPersonaId}`, img);
-        if (onSelectImage) onSelectImage(selectedPersonaId, img);
-        // Force re-render if needed, though App state should handle it
+    const handleSetProfile = (imgObj) => {
+        localStorage.setItem(`persona_img_${imgObj.personaId}`, imgObj.url);
+        if (onSelectImage) onSelectImage(imgObj.personaId, imgObj.url);
+        // Update local state to show 'Check' icon
+        setSelectedImage({ ...imgObj, isProfile: true });
     };
 
     return (
-        <div className="gallery-container fade-in" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', color: '#f3f4f6', paddingBottom: '5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem', gap: '1rem' }}>
-                <button onClick={onBack} className="back-btn" style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <ArrowLeft size={20} /> Back
+        <div className="gallery-layout" style={{ 
+            minHeight: '100vh',
+            background: '#09090b',
+            color: '#f4f4f5',
+            paddingBottom: '5rem'
+        }}>
+            {/* Header */}
+            <header style={{
+                padding: '1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                position: 'sticky',
+                top: 0,
+                background: 'rgba(9, 9, 11, 0.8)',
+                backdropFilter: 'blur(12px)',
+                zIndex: 100,
+                borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+            }}>
+                <button onClick={onBack} style={{ 
+                    background: 'rgba(255, 255, 255, 0.05)', 
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    color: '#f4f4f5',
+                    padding: '0.6rem 1rem',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                }}>
+                    <ArrowLeft size={18} /> Back
                 </button>
-                <h2 style={{ flex: 1, textAlign: 'center', color: '#ec4899', margin: 0 }}>Character Gallery</h2>
+                <div style={{ textAlign: 'center' }}>
+                    <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 'bold', background: 'linear-gradient(to right, #f472b6, #c084fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                        Visual Library
+                    </h2>
+                </div>
+                <div style={{ width: '80px' }}></div> {/* Spacer */}
+            </header>
+
+            {/* Content */}
+            <div style={{ padding: '1.5rem' }}>
+                {/* Category Pills */}
+                <div style={{ 
+                    display: 'flex', 
+                    gap: '0.6rem', 
+                    overflowX: 'auto', 
+                    marginBottom: '2rem',
+                    paddingBottom: '8px',
+                    scrollbarWidth: 'none'
+                }}>
+                    {categories.map(cat => (
+                        <motion.button
+                            key={cat}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setActiveCategory(cat)}
+                            style={{
+                                padding: '0.5rem 1.2rem',
+                                background: activeCategory === cat ? 'rgba(192, 132, 252, 0.2)' : 'rgba(255, 255, 255, 0.03)',
+                                color: activeCategory === cat ? '#c084fc' : '#a1a1aa',
+                                border: `1px solid ${activeCategory === cat ? 'rgba(192, 132, 252, 0.5)' : 'rgba(255, 255, 255, 0.05)'}`,
+                                borderRadius: '20px',
+                                fontSize: '0.85rem',
+                                fontWeight: activeCategory === cat ? '600' : '400',
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            {cat}
+                        </motion.button>
+                    ))}
+                </div>
+
+                {/* Grid */}
+                <motion.div 
+                    layout
+                    style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', 
+                        gap: '8px' 
+                    }}
+                >
+                    <AnimatePresence mode='popLayout'>
+                        {filteredImages.map((img) => (
+                            <motion.div
+                                key={img.id}
+                                layout
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => setSelectedImage(img)}
+                                style={{
+                                    position: 'relative',
+                                    aspectRatio: '2/3',
+                                    borderRadius: '12px',
+                                    overflow: 'hidden',
+                                    cursor: 'pointer',
+                                    background: '#18181b',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                                }}
+                            >
+                                <img 
+                                    src={img.url} 
+                                    alt={img.personaName} 
+                                    style={{ 
+                                        width: '100%', 
+                                        height: '100%', 
+                                        objectFit: 'cover'
+                                    }} 
+                                />
+                                <div style={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    padding: '2rem 0.5rem 0.5rem 0.5rem',
+                                    background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'flex-end',
+                                    opacity: 0.8
+                                }}>
+                                    <span style={{ fontSize: '0.65rem', fontWeight: '500', color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        {img.personaName.split('(')[0]}
+                                    </span>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </motion.div>
             </div>
 
-            {/* Character Selector */}
-            <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', marginBottom: '1.5rem', paddingBottom: '0.5rem' }}>
-                {allPersonas.map(p => (
-                    <button
-                        key={p.id}
-                        onClick={() => setSelectedPersonaId(p.id)}
+            {/* Lightbox / Full Screen View */}
+            <AnimatePresence>
+                {selectedImage && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
                         style={{
-                            padding: '0.5rem 1rem',
-                            background: selectedPersonaId === p.id ? 'rgba(236, 72, 153, 0.2)' : 'rgba(0,0,0,0.3)',
-                            border: `1px solid ${selectedPersonaId === p.id ? '#ec4899' : '#3f3f46'}`,
-                            color: selectedPersonaId === p.id ? '#ec4899' : '#a1a1aa',
-                            borderRadius: '20px',
-                            cursor: 'pointer',
-                            whiteSpace: 'nowrap',
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: 'rgba(0, 0, 0, 0.95)',
                             display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
+                            flexDirection: 'column',
+                            zIndex: 1000,
+                            backdropFilter: 'blur(20px)'
                         }}
                     >
-                        <img 
-                            src={getActiveImage(p)} 
-                            alt="" 
-                            style={{ width: '20px', height: '20px', borderRadius: '50%', objectFit: 'cover' }} 
-                        />
-                        {p.name}
-                    </button>
-                ))}
-            </div>
+                        {/* Header Controls */}
+                        <div style={{
+                            padding: '1.5rem',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ fontSize: '1rem', fontWeight: '600' }}>{selectedImage.personaName}</span>
+                                <span style={{ fontSize: '0.75rem', color: '#a1a1aa' }}>{selectedImage.category} Collection</span>
+                            </div>
+                            <button 
+                                onClick={() => setSelectedImage(null)}
+                                style={{ 
+                                    background: 'rgba(255, 255, 255, 0.1)', 
+                                    border: 'none', 
+                                    color: 'white', 
+                                    padding: '0.5rem', 
+                                    borderRadius: '50%',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
 
-            {/* Mode Selector */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem', gap: '1rem' }}>
-                <button 
-                    onClick={() => setViewMode('progression')}
-                    className={viewMode === 'progression' ? 'active-tab' : ''}
-                    style={{
-                        background: viewMode === 'progression' ? '#ec4899' : 'transparent',
-                        color: 'white',
-                        border: '1px solid #ec4899',
-                        padding: '0.5rem 1.5rem',
-                        borderRadius: '8px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Progression
-                </button>
-                <button 
-                    onClick={() => setViewMode('photos')}
-                    className={viewMode === 'photos' ? 'active-tab' : ''}
-                    style={{
-                        background: viewMode === 'photos' ? '#ec4899' : 'transparent',
-                        color: 'white',
-                        border: '1px solid #ec4899',
-                        padding: '0.5rem 1.5rem',
-                        borderRadius: '8px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Photos
-                </button>
-            </div>
+                        {/* Image Body */}
+                        <div style={{
+                            flex: 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '1rem'
+                        }}>
+                            <motion.img
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                                src={selectedImage.url}
+                                alt="Full screen"
+                                style={{
+                                    maxWidth: '100%',
+                                    maxHeight: '100%',
+                                    borderRadius: '16px',
+                                    boxShadow: '0 0 50px rgba(0,0,0,0.5)',
+                                    objectFit: 'contain'
+                                }}
+                            />
+                        </div>
 
-            {selectedPersona && viewMode === 'progression' && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                    {thresholds.map(t => {
-                        const isUnlocked = score >= t.level;
-                        return (
-                            <div key={t.level} className="glass-panel" style={{ padding: '1rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-                                <div style={{ marginBottom: '1rem', color: isUnlocked ? '#38bdf8' : '#a1a1aa', fontWeight: 'bold' }}>
-                                    {t.desc}
-                                </div>
-                                <div style={{
-                                    width: '100%',
-                                    aspectRatio: '2/3',
-                                    background: isUnlocked
-                                        ? (selectedPersona.image ? `url(${getActiveImage(selectedPersona)}) center/cover` : 'linear-gradient(135deg, #8b5cf6, #ec4899)')
-                                        : 'rgba(0,0,0,0.5)',
-                                    borderRadius: '8px',
+                        {/* Footer Actions */}
+                        <div style={{
+                            padding: '2rem 1.5rem',
+                            display: 'flex',
+                            gap: '1rem',
+                            background: 'linear-gradient(transparent, rgba(0,0,0,0.5))'
+                        }}>
+                            <button
+                                onClick={() => handleSetProfile(selectedImage)}
+                                style={{
+                                    flex: 1,
+                                    padding: '1rem',
+                                    borderRadius: '16px',
+                                    border: 'none',
+                                    background: selectedImage.isProfile ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                                    color: selectedImage.isProfile ? '#4ade80' : 'white',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    border: isUnlocked ? '2px solid #38bdf8' : '1px dashed #52525b',
-                                    filter: isUnlocked ? 'brightness(1.2)' : 'none',
-                                    fontSize: '48px',
-                                    fontWeight: 'bold',
-                                    color: 'white'
-                                }}>
-                                    {isUnlocked && !selectedPersona.image && selectedPersona.name.charAt(0)}
-                                    {!isUnlocked && (
-                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#52525b' }}>
-                                            <Lock size={32} style={{ marginBottom: '8px' }} />
-                                            <span>Unlocks at {t.level}%</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
-
-            {selectedPersona && viewMode === 'photos' && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
-                    {(selectedPersona.gallery || [selectedPersona.image]).map((img, idx) => {
-                        const isActive = getActiveImage(selectedPersona) === img;
-                        return (
-                            <div 
-                                key={idx} 
-                                className="glass-panel" 
-                                style={{ 
-                                    padding: '0.5rem', 
-                                    border: isActive ? '2px solid #ec4899' : '1px solid #3f3f46',
-                                    transition: 'all 0.2s',
+                                    gap: '8px',
+                                    fontWeight: '600',
                                     cursor: 'pointer'
                                 }}
-                                onClick={() => handleSetImage(img)}
                             >
-                                <img 
-                                    src={img} 
-                                    alt={`${selectedPersona.name} ${idx}`} 
-                                    style={{ width: '100%', aspectRatio: '2/3', objectFit: 'cover', borderRadius: '4px', marginBottom: '0.5rem' }} 
-                                />
-                                <button 
-                                    disabled={isActive}
-                                    style={{
-                                        width: '100%',
-                                        padding: '4px',
-                                        fontSize: '0.75rem',
-                                        background: isActive ? '#ec4899' : 'rgba(255,255,255,0.1)',
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        color: 'white',
-                                        cursor: isActive ? 'default' : 'pointer'
-                                    }}
-                                >
-                                    {isActive ? 'Active' : 'Set as Profile'}
-                                </button>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
+                                {selectedImage.isProfile ? <UserCheck size={20} /> : <Maximize2 size={20} />}
+                                {selectedImage.isProfile ? 'Active Profile' : 'Set as Avatar'}
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    // logic to start chat - close gallery first then trigger select
+                                    // Since we don't have direct onSelectPersona here, we'd need to go back or handle it in App
+                                    setSelectedImage(null);
+                                    onBack(); // Go back home
+                                }}
+                                style={{
+                                    flex: 1,
+                                    padding: '1rem',
+                                    borderRadius: '16px',
+                                    border: 'none',
+                                    background: 'linear-gradient(135deg, #ec4899 0%, #d946ef 100%)',
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '8px',
+                                    fontWeight: '600',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <MessageSquare size={20} />
+                                Chat Now
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

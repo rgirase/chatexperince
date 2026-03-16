@@ -310,7 +310,7 @@ function App() {
       ) : isGalleryOpen ? (
         <Gallery
           onBack={handleBack}
-          customPersonas={customPersonas}
+          allPersonas={getProcessedPersonas()}
           onSelectImage={handleSelectImage}
         />
       ) : (

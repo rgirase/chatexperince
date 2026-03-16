@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Search } from 'lucide-react';
 import { personas } from '../data/personas';
 
 const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [activeCategory, setActiveCategory] = useState('All');
+
+    const categories = ['All', 'Family', 'Professional', 'Modern', 'Traditional'];
 
     const getInitialActiveChats = () => {
-        const ids = [];
+        const chats = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             if (key && key.startsWith('chat_')) {
@@ -17,7 +22,10 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                         const chatData = JSON.parse(localStorage.getItem(key));
                         // Only count as active if there's more than just the initial message
                         if (Array.isArray(chatData) && chatData.length > 2) {
-                            ids.push(id);
+                            // Use timestamp from last message for sorting
+                            const lastMsg = chatData[chatData.length - 1];
+                            const timestamp = parseInt(lastMsg.id) || 0;
+                            chats.push({ id, timestamp });
                         }
                     } catch (e) {
                         // If invalid JSON, treat as inactive
@@ -25,7 +33,8 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                 }
             }
         }
-        return ids;
+        // Sort chats by timestamp descending (most recent first)
+        return chats.sort((a, b) => b.timestamp - a.timestamp).map(c => c.id);
     };
 
     const [activeChatIds, setActiveChatIds] = useState(getInitialActiveChats);
@@ -44,9 +53,15 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
         localStorage.setItem('lastPersonaTab', activeTab);
     }, [activeTab]);
 
-    const displayedPersonas = activeTab === 'all'
+    const displayedPersonas = (activeTab === 'all'
         ? allPersonas
-        : allPersonas.filter(p => activeChatIds.includes(p.id));
+        : activeChatIds.map(id => allPersonas.find(p => p.id === id)).filter(Boolean)
+    ).filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                             p.tagline.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
+        return matchesSearch && matchesCategory;
+    });
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -73,22 +88,94 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
 
     return (
         <div className="persona-container" style={{ paddingBottom: '4rem' }}>
-            <motion.div
-                className="persona-header"
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-            >
-                <h2>Choose Your Companion</h2>
-                <p>Select a persona to start your intimate journey.</p>
-            </motion.div>
 
-            <div className="tabs-container fade-in">
+            {/* Search & Categories */}
+            <div style={{ 
+                margin: '1rem 0 2rem 0',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.5rem',
+                position: 'relative',
+                zIndex: 10
+            }}>
+                {/* Search Bar */}
+                <div style={{
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center'
+                }}>
+                    <Search 
+                        size={18} 
+                        style={{ 
+                            position: 'absolute', 
+                            left: '1rem', 
+                            color: '#71717a', 
+                            zIndex: 1 
+                        }} 
+                    />
+                    <input
+                        type="text"
+                        placeholder="Search companions..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '0.8rem 1rem 0.8rem 2.8rem',
+                            background: 'rgba(24, 24, 27, 0.8)',
+                            backdropFilter: 'blur(20px)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: '16px',
+                            color: '#f4f4f5',
+                            fontSize: '1rem',
+                            outline: 'none',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)'
+                        }}
+                    />
+                </div>
+
+                {/* Category Filter */}
+                <div style={{ 
+                    display: 'flex', 
+                    gap: '0.6rem', 
+                    overflowX: 'auto', 
+                    padding: '4px',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
+                }}>
+                    {categories.map(cat => (
+                        <motion.button
+                            key={cat}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setActiveCategory(cat)}
+                            style={{
+                                padding: '0.5rem 1.2rem',
+                                background: activeCategory === cat ? 'linear-gradient(135deg, #c084fc 0%, #a855f7 100%)' : 'rgba(255, 255, 255, 0.05)',
+                                color: activeCategory === cat ? 'white' : '#a1a1aa',
+                                border: 'none',
+                                borderRadius: '12px',
+                                fontSize: '0.85rem',
+                                fontWeight: activeCategory === cat ? '600' : '400',
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap',
+                                transition: 'all 0.3s ease',
+                                border: activeCategory === cat ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
+                                boxShadow: activeCategory === cat ? '0 4px 12px rgba(168, 85, 247, 0.3)' : 'none'
+                            }}
+                        >
+                            {cat}
+                        </motion.button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="tabs-container fade-in" style={{ marginBottom: '1.5rem' }}>
                 <button
                     className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
                     onClick={() => setActiveTab('all')}
                 >
-                    All Characters
+                    All Characters ({allPersonas.length})
                 </button>
                 {activeChatIds.length > 0 && (
                     <button
