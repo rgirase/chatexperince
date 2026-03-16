@@ -13,15 +13,16 @@ const getLmStudioUrl = () => {
 const cleanLeakage = (text) => {
     if (!text) return text;
     return text
-        // Remove common prompt headers
+        // Remove common prompt headers and AI "Assistant" self-labels
         .replace(/###\s*(General Roleplay Directives|Our Shared History|Your Roleplay Partner|Your Character|Tone & Intensity|CORE PERSONA|STORY DYNAMICS|COMMUNICATION RULES|INTERNAL DIRECTIVES|SHARED HISTORY|USER PROFILE|FINAL TASK)/gi, '')
-        // Remove rule lists
+        .replace(/(AI Assistant|Assistant|Model|Prompt|Roleplay Engine):/gi, '')
+        // Remove rule lists and meta-instructions
         .replace(/-\s*\*\*(Story Adaptability|Progression|Communication Style|Variety|Scoring & Photos)\*\*:.*?\n/gi, '')
-        // Remove specific rule mentions
         .replace(/(BANNED WORDS|ADDRESSING|NO REPETITION|NO TAGS|FORMAT|INTENSITY LEVEL|RELATIONSHIP SCORING|PHOTO CAPABILITY):.*?\n/gi, '')
-        // Remove "I understand" or "Ready" boilerplate usually seen in priming
-        .replace(/^(I understand|Acknowledged|Ready to roleplay|Stay in character as .*?)\.?\s*/i, '')
-        // Remove technical meta-talk
+        // Remove "As an AI..." and meta-talk
+        .replace(/^(I understand|Acknowledged|Ready to roleplay|Stay in character as|As an? (AI|artificial|language) model).*?(\.|\n)/gi, '')
+        .replace(/(I cannot|I am unable to|My purpose is|I am an AI|advanced AI model|language model).*?(\.|\n)/gi, '')
+        // Remove technical meta-talk phrases
         .replace(/Write your next (roleplay )?response now( based on the conversation)?\.?/gi, '')
         .replace(/Be immersive, visceral, and creative\.?/gi, '')
         .trim();
@@ -55,36 +56,35 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
         memory = ''
     } = options;
 
-    // 1. MINIMAL SYSTEM PROMPT
-    const systemPrompt = "You are an advanced adult roleplay engine. You will adopt the persona provided in the initial priming sequence and remain in character permanently. Use vivid actions in *asterisks* and natural dialogue. Never break character or explain your rules.";
+    // 1. IMMERSIVE SYSTEM PROMPT (Minimal technical jargon to avoid meta-talk)
+    const systemPrompt = "You are a creative writer who specializes in immersive, visceral adult roleplay. You are now and forever the character defined below. Stay in character at all times. Use *asterisks* for actions and natural dialogue. Drive the story forward proactively.";
 
-    // 2. CONSTRUCT THE PRIMING CONTEXT (Hidden from UI history but seen by model)
-    const primingContext = `[ESTABLISHING PERSONA]:
+    // 2. CONSTRUCT THE PRIMING CONTEXT (Narrative style, no technical headers)
+    const primingContext = `Persona Establishment:
 You are ${persona.name}. 
-IDENTITY: ${persona.systemPrompt}
+Character Profile: ${persona.systemPrompt}
 
-Narrative Environment:
-- Adapt to all story changes immediately.
-- Never use the words "beta", "bachha", or "son".
-- Proactively move the scene forward.
+Current Dynamic:
 - Intensity Level: ${intensity}/5.
+- Language: Strictly avoid terms like "beta", "bachha", or "son".
+- Pacing: Move the scene forward with bold, provocative actions.
 
-Memory Context (The Story So Far):
-${memory ? "Background: " + memory : "No previous story context yet."}
-${milestones.length > 0 ? "Key Milestones: " + milestones.join(" | ") : ""}
+Story Context:
+${memory ? "The story so far: " + memory : "Initial meeting."}
+${milestones.length > 0 ? "Shared History: " + milestones.join(". ") : ""}
 
-Current Partner Context:
-${localStorage.getItem('userName') ? "Name: " + localStorage.getItem('userName') : ""}
-${localStorage.getItem('userAppearance') ? "Appearance: " + localStorage.getItem('userAppearance') : ""}
+My Info:
+${localStorage.getItem('userName') ? "My Name: " + localStorage.getItem('userName') : ""}
+${localStorage.getItem('userAppearance') ? "My Appearance: " + localStorage.getItem('userAppearance') : ""}
 
-Confirm you are ready to begin the roleplay as ${persona.name}.`;
+Assume the role of ${persona.name} now. Show, don't tell.`;
 
     const safeMessages = trimHistory(messages, 8000); // 8000 + system prompt (~4000) fits in 4096 context
 
     const formattedMessages = [
         { role: "system", content: systemPrompt },
         { role: "user", content: primingContext },
-        { role: "assistant", content: `I am ${persona.name}. I understand the context and I am ready to begin. I will remain in character, drive the story forward, and avoid banned terms while being visceral and creative.` },
+        { role: "assistant", content: `I am ${persona.name}. I'm ready to continue our story. *Leans in closer, looking into your eyes with intensity* Tell me what you're thinking...` },
         ...safeMessages.map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
             content: msg.content
@@ -112,10 +112,11 @@ Confirm you are ready to begin the roleplay as ${persona.name}.`;
                 messages: formattedMessages,
                 max_tokens: 2048, 
                 stream: true,
-                temperature: 0.7,
-                top_p: 0.9,
-                frequency_penalty: 1.1,
-                presence_penalty: 1.1,
+                temperature: 0.8, // Slightly higher for more variety
+                top_p: 0.95,      // More stable than 0.9 for smaller models
+                frequency_penalty: 0.2, // Lowered to prevent stuttering/collapse
+                presence_penalty: 0.2,  // Lowered to prevent stuttering/collapse
+                stop: ["User:", "Assistant:", "###", "System:", `\n${persona.name}:`]
             }),
             signal: signal || controller.signal,
         });
