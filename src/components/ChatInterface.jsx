@@ -433,6 +433,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         };
 
         await generateResponse(
+            personaWithMemory,
+            [...contextWindow, continuePrompt],
             (chunkText) => {
                 setIsTyping(false);
                 let cleanText = chunkText
