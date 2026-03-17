@@ -1,6 +1,7 @@
 {
   "short_name": "Aura",
   "name": "Aura Roleplay",
+  "description": "Premium intimate AI roleplay experience.",
   "icons": [
     {
       "src": "vite.svg",
@@ -9,9 +10,11 @@
       "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "theme_color": "#8b5cf6",
-  "background_color": "#0d0d12"
+  "theme_color": "#0d0d12",
+  "background_color": "#0d0d12",
+  "scope": "/",
+  "categories": ["social", "entertainment"]
 }

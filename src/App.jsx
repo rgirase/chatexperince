@@ -28,7 +28,23 @@ const ErrorBoundary = ({ children }) => {
         <div style={{ padding: '1rem', background: 'rgba(255,0,0,0.1)', borderRadius: '8px', border: '1px solid rgba(255,0,0,0.2)', maxWidth: '100%', overflow: 'auto' }}>
           <code style={{ fontSize: '0.75rem', color: '#ef4444' }}>{error?.message || 'Unknown runtime error'}</code>
         </div>
-        <button onClick={() => window.location.reload()} style={{ padding: '0.5rem 1rem', background: '#8b5cf6', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer' }}>Reload App</button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button onClick={() => window.location.reload()} style={{ padding: '0.5rem 1rem', background: '#8b5cf6', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer' }}>Reload App</button>
+          <button 
+            onClick={() => {
+              if (confirm("This will clear all temporary data and service workers. Your chat history will be safe. Proceed?")) {
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+                }
+                caches.keys().then(names => Promise.all(names.map(n => caches.delete(n))));
+                window.location.reload();
+              }
+            }} 
+            style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', color: 'white', cursor: 'pointer' }}
+          >
+            Clear Caches
+          </button>
+        </div>
       </div>
     );
   }
