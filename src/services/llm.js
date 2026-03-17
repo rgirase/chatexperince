@@ -30,6 +30,14 @@ export const fetchAvailableModels = async () => {
 export const cleanLeakage = (text) => {
     if (!text) return text;
     return text
+        // === THINKING MODEL CLEANUP ===
+        // Strip entire <think>...</think> blocks (DeepSeek-R1, QwQ, etc.)
+        .replace(/<think>[\s\S]*?<\/think>/gi, '')
+        // Strip any remaining standalone <think> or </think> tags
+        .replace(/<\/?think>/gi, '')
+        // Strip trailing meta-commentary (lines starting with "---" or common post-response analytical text)
+        .replace(/---[\s\S]*$/g, '')
+        .replace(/\n+(I need to|I aim to|I should|Please provide feedback|My goal here|The key is|To keep the momentum|This response drives the scene|By acknowledging|Appending|Using "|This ensures|The stretch adds|This response).*[\s\S]*$/i, '')
         // Remove common prompt headers and AI "Assistant" self-labels
         .replace(/###\s*(General Roleplay Directives|Our Shared History|Your Roleplay Partner|Your Character|Tone & Intensity|CORE PERSONA|STORY DYNAMICS|COMMUNICATION RULES|INTERNAL DIRECTIVES|SHARED HISTORY|USER PROFILE|FINAL TASK)/gi, '')
         .replace(/(AI Assistant|Assistant|Model|Prompt|Roleplay Engine):/gi, '')
