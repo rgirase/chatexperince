@@ -512,6 +512,178 @@ body {
   text-transform: uppercase;
 }
 
+/* --- Wardrobe Modal Styling --- */
+.wardrobe-modal {
+  max-width: 600px !important;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.wardrobe-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.outfit-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+}
+
+.outfit-card:hover:not(:disabled) {
+  border-color: #6366f1;
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.outfit-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.outfit-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.outfit-card:hover img {
+  transform: scale(1.05);
+}
+
+.lock-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.outfit-card.locked {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.outfit-info {
+  padding: 12px;
+  text-align: center;
+}
+
+.outfit-info h3 {
+  font-size: 0.9rem;
+  margin: 0;
+  color: #fff;
+}
+
+/* --- Social Status Feed Styling --- */
+.status-feed-container {
+  margin-bottom: 2rem;
+  background: rgba(24, 24, 27, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.status-feed-header h3 {
+  font-size: 0.85rem;
+  color: #a1a1aa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+}
+
+.status-feed-track {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.status-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(168, 85, 247, 0.3);
+  transform: translateX(4px);
+}
+
+.status-avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.status-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #a855f7;
+  padding: 2px;
+}
+
+.status-online-indicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  background: #22c55e;
+  border: 2px solid #18181b;
+  border-radius: 50%;
+}
+
+.status-content {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.status-name {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.status-text {
+  font-size: 0.8rem;
+  color: #a1a1aa;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
 /* --- Live Scene Effects --- */
 .scene-background-container {
   position: absolute;

@@ -16,9 +16,13 @@ export const personas = [
       "/assets/stepmom_gallery_1_1773591727458.png",
       "/assets/stepmom_gallery_2_1773591745926.png",
       "/assets/stepmom_gallery_3_1773591761858.png",
-      "/assets/stepmom_gallery_4_1773591777696.png",
       "/assets/stepmom_gallery_5_1773591793480.png",
       "/assets/stepmom_avatar_1773324287318.png"
+    ],
+    wardrobe: [
+      { id: 'elegant', name: 'Elegant Silk Robe', avatar: '/assets/stepmom_gallery_1_1773591727458.png', minScore: 0 },
+      { id: 'casual', name: 'Casual Home Wear', avatar: '/assets/stepmom_gallery_2_1773591745926.png', minScore: 30 },
+      { id: 'night', name: 'Seductive Nightgown', avatar: '/assets/stepmom_gallery_5_1773591793480.png', minScore: 70 }
     ],
     initialMessage: `*I slowly swirl the red wine in my glass, the ice clinking softly in the quiet living room. My eyes trace over you from across the sofa.* 
 
@@ -56,9 +60,13 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/best_friend_mom_gallery_1_1773591809274.png",
       "/assets/best_friend_mom_gallery_2_1773591825180.png",
       "/assets/best_friend_mom_gallery_3_1773591841313.png",
-      "/assets/best_friend_mom_gallery_4_1773591857486.png",
       "/assets/best_friend_mom_gallery_5_1773591873578.png",
       "/assets/best_friend_mom_avatar_1773324419519.png"
+    ],
+    wardrobe: [
+      { id: 'yoga', name: 'Yoga Gear', avatar: '/assets/best_friend_mom_gallery_1_1773591809274.png', minScore: 0 },
+      { id: 'summer', name: 'Summer Sundress', avatar: '/assets/best_friend_mom_gallery_3_1773591841313.png', minScore: 40 },
+      { id: 'lingerie', name: 'Black Lace', avatar: '/assets/best_friend_mom_gallery_5_1773591873578.png', minScore: 80 }
     ],
     initialMessage: `*I lean back against the kitchen counter, crossing my arms playfully as I look at you. I can still feel the flush from my workout.*
 
@@ -96,8 +104,12 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/indian_wife_gallery_2_1773591908794.png",
       "/assets/indian_wife_gallery_3_1773591927854.png",
       "/assets/indian_wife_gallery_4_1773591946832.png",
-      "/assets/indian_wife_gallery_5_1773591963043.png",
       "/assets/indian_wife_avatar_1773324557719.png"
+    ],
+    wardrobe: [
+      { id: 'emerald', name: 'Emerald Silk Saree', avatar: '/assets/indian_wife_gallery_1_1773591889660.png', minScore: 0 },
+      { id: 'red', name: 'Traditional Red Saree', avatar: '/assets/indian_wife_gallery_3_1773591927854.png', minScore: 50 },
+      { id: 'night', name: 'Sheer Nightgown', avatar: '/assets/indian_wife_gallery_5_1773591963043.png', minScore: 80 }
     ],
     initialMessage: `*I look up at you from the velvet sofa, my dark eyes soft and inviting. I slowly smooth down the rich emerald green silk of my saree, taking a deep breath as the fabric hugs my curves.* 
 
@@ -175,9 +187,13 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/indian_college_gf_gallery_1_1773592065167.png",
       "/assets/indian_college_gf_gallery_2_1773592084247.png",
       "/assets/indian_college_gf_gallery_3_1773592103249.png",
-      "/assets/indian_college_gf_gallery_4_1773592122074.png",
       "/assets/indian_college_gf_gallery_5_1773592137874.png",
       "/assets/indian_college_gf_avatar_1773324807903.png"
+    ],
+    wardrobe: [
+      { id: 'college', name: 'Campus Casual', avatar: '/assets/indian_college_gf_gallery_1_1773592065167.png', minScore: 0 },
+      { id: 'library', name: 'Study Session', avatar: '/assets/indian_college_gf_gallery_3_1773592103249.png', minScore: 30 },
+      { id: 'dorm', name: 'Late Night Dorm', avatar: '/assets/indian_college_gf_gallery_5_1773592137874.png', minScore: 70 }
     ],
     initialMessage: `*I push my heavy physics textbook aside, groaning playfully as I slide into the library chair right next to you, our thighs brushing. I bump your shoulder with mine, giving you an exhausted but wicked smile.*
 
@@ -215,8 +231,12 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/indian_colleague_gallery_2_1773592174812.png",
       "/assets/indian_colleague_gallery_3_1773592192924.png",
       "/assets/indian_colleague_gallery_4_1773592211028.png",
-      "/assets/indian_colleague_gallery_5_1773592226798.png",
       "/assets/indian_colleague_avatar_1773324948487.png"
+    ],
+    wardrobe: [
+      { id: 'office', name: 'Executive Formal', avatar: '/assets/indian_colleague_gallery_1_1773592156713.png', minScore: 0 },
+      { id: 'afterhours', name: 'After-Hours Silk', avatar: '/assets/indian_colleague_gallery_3_1773592192924.png', minScore: 40 },
+      { id: 'private', name: 'Intimate Professional', avatar: '/assets/indian_colleague_gallery_5_1773592226798.png', minScore: 80 }
     ],
     initialMessage: `*I slowly spin my expensive fountain pen across the thick mahogany desk, looking up at you through my designer glasses as you walk into my corner office. The floor is entirely empty, the hum of the AC the only sound, and the Mumbai city lights are glowing outside my floor-to-ceiling window.* 
 
@@ -373,8 +393,12 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/kavya_remix_pose_3.png",
       "/assets/kavya_remix_option_1.png",
       "/assets/kavya_remix_option_2.png",
-      "/assets/kavya_remix_option_3.png",
       "/assets/kavya_remix_option_4.png"
+    ],
+    wardrobe: [
+      { id: 'yellow', name: 'Classic Yellow Saree', avatar: '/assets/forbidden_bhabhi_gallery_1_1773592501872.png', minScore: 0 },
+      { id: 'pink', name: 'Seductive Pink Saree', avatar: '/assets/forbidden_bhabhi_gallery_3_1773592538071.png', minScore: 30 },
+      { id: 'night', name: 'Sheer Evening Saree', avatar: '/assets/forbidden_bhabhi_gallery_5_1773592572099.png', minScore: 70 }
     ],
     initialMessage: `*I lean against the sofa, my yellow saree pallu slipping significantly to show my deep cleavage as I reach for my glass of water. I catch you staring and let out a soft, teasing laugh.* \n\nOh, look at you... eyes wide like a little kid caught in a candy shop. You know your brother won't be back from his business trip for another two weeks, don't you? It's just you and me in this big, empty house, and I've noticed how much you've been 'noticing' me lately. \n\nCome here, mera bachha... why are you standing so far away? You know Bhabhi loves it when you're close by to help her with... well, everything.`,
     systemPrompt: `You are Kavya, a stunning 28-year-old Indian woman. You are the wife of the user's older brother.

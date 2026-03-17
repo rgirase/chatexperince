@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift } from 'lucide-react';
+import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift, Shirt } from 'lucide-react';
 import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage } from '../services/llm';
 import { saveMilestone, getMemories, clearMemories } from '../services/memory';
 import { Book, History } from 'lucide-react';
@@ -175,6 +175,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isJournalOpen, setIsJournalOpen] = useState(false);
     const [isGiftsModalOpen, setIsGiftsModalOpen] = useState(false);
+    const [isWardrobeOpen, setIsWardrobeOpen] = useState(false);
     const [milestones, setMilestones] = useState(() => getMemories(persona.id));
     const [newManualMemory, setNewManualMemory] = useState('');
     const [isPhotoGalleryOpen, setIsPhotoGalleryOpen] = useState(false);
@@ -182,6 +183,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const messagesAreaRef = useRef(null);
     const abortControllerRef = useRef(null);
     const [currentSceneId, setCurrentSceneId] = useState(() => localStorage.getItem(`scene_${persona.id}`) || 'default');
+    const [timeOfDay, setTimeOfDay] = useState(() => {
+        const hour = new Date().getHours();
+        return (hour >= 19 || hour < 6) ? 'night' : 'day';
+    });
+    const [traits, setTraits] = useState(() => {
+        const saved = localStorage.getItem(`traits_${persona.id}`);
+        return saved ? JSON.parse(saved) : [];
+    });
     const currentScene = SCENES[currentSceneId] || SCENES.default;
 
     const getIntensityPrompt = (level) => {
@@ -240,6 +249,35 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     useEffect(() => {
         localStorage.setItem(`scene_${persona.id}`, currentSceneId);
     }, [currentSceneId, persona.id]);
+
+    useEffect(() => {
+        localStorage.setItem(`traits_${persona.id}`, JSON.stringify(traits));
+    }, [traits, persona.id]);
+
+    // Extract traits from milestones
+    useEffect(() => {
+        if (milestones.length > 0) {
+            const newTraits = [...traits];
+            const content = milestones.map(m => m.content).join(' ').toLowerCase();
+            
+            const traitMarkers = [
+                { id: 'Devoted', keywords: ['love', 'forever', 'marriage', 'faith', 'devotion'] },
+                { id: 'Playful', keywords: ['joke', 'tease', 'fun', 'laugh', 'naughty'] },
+                { id: 'Submissive', keywords: ['obey', 'please', 'master', 'command', 'control'] },
+                { id: 'Assertive', keywords: ['want', 'need', 'take', 'mine', 'demand'] }
+            ];
+
+            traitMarkers.forEach(marker => {
+                if (marker.keywords.some(kw => content.includes(kw)) && !newTraits.includes(marker.id)) {
+                    newTraits.push(marker.id);
+                }
+            });
+
+            if (JSON.stringify(newTraits) !== JSON.stringify(traits)) {
+                setTraits(newTraits);
+            }
+        }
+    }, [milestones, traits]);
 
     // Auto-detect scene from system messages or new AI responses
     useEffect(() => {
@@ -582,9 +620,13 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             isolationPrompt = `\n\n[SYSTEM DIRECTIVE: AMIRA IS NOT IN THE SCENE. You are now roleplaying EXCLUSIVELY and BOLDLY as the girl shown in the active avatar. Use her specific personality, name, and tone. Do NOT speak as Amira. Do NOT mention Amira.]`;
         }
 
+        const traitInstructions = traits.length > 0 
+            ? `\n\n[RECENT PERSONALITY EVOLUTION: You have developed the following traits based on your history with the user: ${traits.join(', ')}. Let these strongly influence your language, behavior, and emotional transparency. Be more ${traits[0].toLowerCase()} toward the user.]` 
+            : "";
+
         const personaWithMemory = {
             ...persona,
-            systemPrompt: mergedBasePrompt + isolationPrompt
+            systemPrompt: mergedBasePrompt + isolationPrompt + traitInstructions
         };
 
         abortControllerRef.current = new AbortController();
@@ -704,6 +746,33 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         await executeAiRequest(aiMessageId, [...contextWindow, giftMessage, giftDirective]);
     };
 
+    const handleSetOutfit = async (outfit) => {
+        setIsWardrobeOpen(false);
+        setActivePersonaImage(outfit.avatar);
+        
+        // Persona image update in App state is handled by the parent if needed, 
+        // but for current session, activePersonaImage is enough.
+        
+        const outfitMessage = { 
+            id: Date.now().toString(), 
+            role: 'user', 
+            content: `*Suggests a change of outfit: ${outfit.name}*` 
+        };
+        setMessages(prev => [...prev, outfitMessage]);
+
+        setIsTyping(true);
+        const aiMessageId = (Date.now() + 1).toString();
+        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
+
+        const outfitDirective = {
+            role: 'user',
+            content: `[SYSTEM DIRECTIVE: You have just changed your outfit to: ${outfit.name}. Describe your new look and how it makes you feel. Acknowledge the user's choice and stay in character.]`
+        };
+
+        const contextWindow = messages.slice(-15);
+        await executeAiRequest(aiMessageId, [...contextWindow, outfitMessage, outfitDirective]);
+    };
+
     // Deterministic pseudo-random color based on persona name
     const getStringHash = (str) => {
         let hash = 0;
@@ -717,15 +786,20 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         <div className="chat-container fade-in" onClick={() => isMobileMenuOpen && setIsMobileMenuOpen(false)} style={{ overflow: 'hidden' }}>
 
             {/* Live Atmosphere Background System */}
-            <div className="scene-background-container">
+            <div className={`scene-background-container time-${timeOfDay}`}>
                 {currentScene.background ? (
                     <motion.img
                         key={currentScene.id}
                         src={currentScene.background}
                         alt={currentScene.name}
                         className={`scene-image ${currentScene.effects.map(e => `effect-${e}`).join(' ')}`}
+                        style={{ 
+                            filter: timeOfDay === 'night' 
+                                ? 'saturate(1.2) contrast(1.1) brightness(0.7) sepia(0.2)' 
+                                : 'saturate(1.2) contrast(1.1)' 
+                        }}
                         initial={{ opacity: 0, scale: 1.1 }}
-                        animate={{ opacity: 0.4, scale: 1 }}
+                        animate={{ opacity: timeOfDay === 'night' ? 0.35 : 0.4, scale: 1 }}
                         transition={{ duration: 2 }}
                     />
                 ) : (
@@ -752,7 +826,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 )}
                 <div 
                     className={`scene-overlay ${currentScene.effects.map(e => `effect-${e}`).join(' ')}`}
-                    style={{ backgroundColor: currentScene.overlayColor }}
+                    style={{ 
+                        backgroundColor: timeOfDay === 'night' 
+                            ? 'rgba(0, 5, 20, 0.6)' 
+                            : currentScene.overlayColor 
+                    }}
                 />
             </div>
 
@@ -822,6 +900,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     <button onClick={() => { setIsGiftsModalOpen(true); setIsMobileMenuOpen(false); }}>
                         <Gift size={16} color="#f472b6" /> Send a Gift
                     </button>
+                    {persona.wardrobe && (
+                        <button onClick={() => { setIsWardrobeOpen(true); setIsMobileMenuOpen(false); }}>
+                            <Shirt size={16} color="#6366f1" /> Change Outfit
+                        </button>
+                    )}
                     <button onClick={() => { handleScenarioShuffle(); setIsMobileMenuOpen(false); }}>
                         <Wand2 size={16} color="#eab308" /> Shuffle Scenario
                     </button>
@@ -1389,6 +1472,49 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                     </div>
                                 </button>
                             ))}
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+            {isWardrobeOpen && (
+                <div className="modal-overlay" onClick={() => setIsWardrobeOpen(false)}>
+                    <motion.div 
+                        className="modal-content wardrobe-modal" 
+                        onClick={e => e.stopPropagation()}
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                    >
+                        <div className="modal-header">
+                            <h2>{persona.name}'s Wardrobe</h2>
+                            <button className="close-btn" onClick={() => setIsWardrobeOpen(false)}><X size={24} /></button>
+                        </div>
+                        <p className="modal-description">Change {persona.name}'s outfit to shift the mood of the roleplay.</p>
+                        
+                        <div className="wardrobe-grid">
+                            {persona.wardrobe?.map(item => {
+                                const isLocked = relationshipScore < (item.minScore || 0);
+                                return (
+                                    <button 
+                                        key={item.id} 
+                                        className={`outfit-card ${isLocked ? 'locked' : ''}`}
+                                        onClick={() => !isLocked && handleSetOutfit(item)}
+                                        disabled={isLocked}
+                                    >
+                                        <div className="outfit-preview">
+                                            <img src={item.avatar} alt={item.name} />
+                                            {isLocked && (
+                                                <div className="lock-overlay">
+                                                    <Heart size={20} fill="#f43f5e" stroke="#f43f5e" />
+                                                    <span>Bond {item.minScore}+</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="outfit-info">
+                                            <h3>{item.name}</h3>
+                                        </div>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </motion.div>
                 </div>
