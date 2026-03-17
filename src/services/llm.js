@@ -120,7 +120,7 @@ Current Dynamic:
 
 Story Context:
 ${memory ? "The story so far: " + memory : "The scene begins now."}
-${milestones.length > 0 ? "Shared History: " + milestones.join(". ") : ""}
+${milestones.length > 0 ? "Shared Relationship Milestones: " + milestones.join(". ") : ""}
 
 My Details:
 ${localStorage.getItem('userName') ? "My Name: " + localStorage.getItem('userName') : ""}
@@ -345,7 +345,8 @@ Here are the new older messages that need to be absorbed into memory:
 ${transcript}
 
 Task: Write a concise, bulleted summary of key facts, events, and relationship developments from these messages. Combine it with the existing memory to create a single, unified, updated memory block. 
-Keep it extremely brief and factual. Do not include extra commentary. Return ONLY the new memory block.`;
+Keep it extremely brief, intimate, and factual. Focus on details like names mentioned, specific promises made, and feelings shared.
+Return ONLY the new memory block. Do not include extra commentary or intro/outro.`;
 
     try {
         const response = await fetch(url, {
@@ -357,7 +358,7 @@ Keep it extremely brief and factual. Do not include extra commentary. Return ONL
                 model: "local-model",
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.3,
-                max_tokens: 300,
+                max_tokens: 500,
                 stream: false,
             }),
         });
@@ -393,9 +394,10 @@ Examples:
 - They had their first kiss.
 - The User mentioned they love a specific food.
 
-If something important happened, describe it in one short sentence starting with "Remember that...".
+If something important happened, describe it in one short, impactful sentence starting with "Remember that...".
+If multiple things happened, combine them into one sentence.
 If nothing significantly new happened, return ONLY the word "NONE".
-Return ONLY the sentence or "NONE".`;
+Return ONLY the sentence or "NONE". Do not include extra dialogue.`;
 
     try {
         const response = await fetch(url, {
@@ -407,7 +409,7 @@ Return ONLY the sentence or "NONE".`;
                 model: "local-model",
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.3,
-                max_tokens: 100,
+                max_tokens: 150,
                 stream: false,
             }),
         });
@@ -417,12 +419,9 @@ Return ONLY the sentence or "NONE".`;
         const data = await response.json();
         const content = data.choices?.[0]?.message?.content || "NONE";
         const result = cleanLeakage(content.trim());
-        return result === "NONE" ? null : result;
+        return result.toUpperCase() === "NONE" ? null : result;
     } catch (error) {
         console.error("Error extracting milestones:", error);
         return null;
     }
 };
-
-
-

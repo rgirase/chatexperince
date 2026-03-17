@@ -253,43 +253,36 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         });
     };
 
-    // Background memory engine
-    useEffect(() => {
-        const runMemoryEngine = async () => {
-            // If chat gets too long, summarize the oldest 10 messages (skipping the first greeting)
-            if (messages.length > 20 && !isSummarizing) {
-                setIsSummarizing(true);
-                const messagesToSummarize = messages.slice(1, 11);
-
-                try {
-                    // 1. Extract Milestones (Important Moments)
-                    const milestone = await extractMilestones(persona, messagesToSummarize);
-                    if (milestone) {
-                        const updatedMilestones = saveMilestone(persona.id, milestone);
-                        setMilestones(updatedMilestones);
-                    }
-
-                    // 2. Summarize for Context
-                    const newMemory = await summarizeMemory(persona, memory, messagesToSummarize);
-                    setMemory(newMemory);
-
-                    // 3. Remove the summarized messages from the chat log - DISABLED per user request
-                    /* 
-                    setMessages(prev => {
-                        const remaining = prev.filter(m => !messagesToSummarize.find(ms => ms.id === m.id));
-                        return remaining;
-                    });
-                    */
-
-                } catch (err) {
-                    console.error("Memory engine failed", err);
-                } finally {
-                    setIsSummarizing(false);
-                }
-            }
-        };
-        runMemoryEngine();
-    }, [messages.length, isSummarizing, memory, persona, messages]);
+     // Background memory engine (Distills long-term context)
+     useEffect(() => {
+         const runMemoryEngine = async () => {
+             // If chat gets deep, summarize a chunk of messages to move into long-term memory
+             if (messages.length > 25 && !isSummarizing) {
+                 setIsSummarizing(true);
+                 
+                 // We take messages 1 through 10 (keeping 0 as it's often the initial intro)
+                 const messagesToDigest = messages.slice(1, 11);
+ 
+                 try {
+                     // 1. Extract Milestones (Important Permanent Facts)
+                     const milestone = await extractMilestones(persona, messagesToDigest);
+                     if (milestone) {
+                         const updatedMilestones = saveMilestone(persona.id, milestone);
+                         setMilestones(updatedMilestones);
+                     }
+ 
+                     // 2. Distill into Narrative Memory
+                     const newMemory = await summarizeMemory(persona, memory, messagesToDigest);
+                     setMemory(newMemory);
+                 } catch (err) {
+                     console.error("Memory engine failed", err);
+                 } finally {
+                     setIsSummarizing(false);
+                 }
+             }
+         };
+         runMemoryEngine();
+     }, [messages.length, isSummarizing, memory, persona.id]); // Added persona.id to deps
 
     const handleClearChat = () => {
         if (window.confirm("Are you sure you want to clear your chat history with " + persona.name + "?")) {
@@ -728,80 +721,16 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                         {persona.name.charAt(0)}
                     </div>
                 )}
-                <div className="chat-header-info" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div>
-                        <h3>{persona.name} {invitedPersona && `& ${invitedPersona.name}`}</h3>
+                <div className="chat-header-info" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ flex: 1 }}>
+                        <h3>
+                            {persona.name} {invitedPersona && `& ${invitedPersona.name}`}
+                        </h3>
                         <p>Online</p>
                     </div>
                 </div>
-                <div className="desktop-actions">
-                    <button
-                        className="back-btn"
-                        onClick={() => setIsInviteModalOpen(true)}
-                        title="Invite Character to Scene"
-                        style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8' }}
-                    >
-                        <Users size={18} />
-                    </button>
-                    <button
-                        className="back-btn"
-                        onClick={handleRequestPhoto}
-                        title="📸 Request Magic Selfie"
-                        style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(236, 72, 153, 0.1)', color: '#ec4899' }}
-                    >
-                        <Camera size={18} />
-                    </button>
-                    <button
-                        className="back-btn"
-                        onClick={handleScenarioShuffle}
-                        title="Shuffle Scenario (Auto-change location)"
-                        style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(234, 179, 8, 0.1)', color: '#eab308' }}
-                    >
-                        <Wand2 size={18} />
-                    </button>
-                    <button
-                        className="back-btn"
-                        onClick={handleSceneChange}
-                        title="Change Scene (Manual)"
-                        style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(192, 132, 252, 0.1)', color: '#c084fc' }}
-                    >
-                        <MapPin size={18} />
-                    </button>
-                    <button
-                        className="back-btn"
-                        onClick={handleCopyChat}
-                        title="Copy Chat to Clipboard"
-                        style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e' }}
-                    >
-                        <Clipboard size={18} />
-                    </button>
-                    <button
-                        className="back-btn"
-                        onClick={() => setIsJournalOpen(true)}
-                        title="View Shared Memories"
-                        style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}
-                    >
-                        <Book size={18} />
-                    </button>
-                    <button
-                        className="back-btn"
-                        onClick={() => setIsPhotoGalleryOpen(true)}
-                        title="Character Photo Gallery"
-                        style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(236, 72, 153, 0.1)', color: '#ec4899' }}
-                    >
-                        <ImageIcon size={18} />
-                    </button>
-                    <button
-                        className="back-btn"
-                        onClick={handleClearChat}
-                        title="Clear Chat History"
-                        style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}
-                    >
-                        <Trash2 size={18} />
-                    </button>
-                </div>
                 <button
-                    className="mobile-menu-btn"
+                    className="more-menu-btn"
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 >
                     <MoreVertical size={22} />
@@ -809,7 +738,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             </div>
 
             {isMobileMenuOpen && (
-                <div className="mobile-dropdown" onClick={(e) => e.stopPropagation()}>
+                <div className="more-dropdown" onClick={(e) => e.stopPropagation()}>
                     <button onClick={() => { onGoHome(); setIsMobileMenuOpen(false); }}>
                         <Home size={16} color="#a1a1aa" /> Home
                     </button>
@@ -854,20 +783,6 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 </div>
             )}
 
-            <div className="chat-header-extended desktop-only" style={{ padding: '0.5rem 1rem', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <span style={{ fontSize: '0.8rem', color: '#a1a1aa', display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
-                    <Flame size={14} style={{ marginRight: '4px', color: intensity > 3 ? '#ef4444' : '#a1a1aa' }} /> Heat
-                </span>
-                <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    value={intensity}
-                    onChange={(e) => setIntensity(parseInt(e.target.value))}
-                    className="intensity-slider"
-                />
-                <span style={{ fontSize: '0.8rem', color: intensity > 3 ? '#ef4444' : '#a1a1aa', fontWeight: 'bold' }}>Lv {intensity}</span>
-            </div>
 
             <div className="messages-area" ref={messagesAreaRef}>
                 {messages.map((msg, i) => (
@@ -1172,9 +1087,30 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                         <div className="modal-body">
                             {/* AI Story Summary (Permanent Context) */}
                             <div style={{ marginBottom: '2rem', padding: '1rem', background: 'rgba(56, 189, 248, 0.05)', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: '12px' }}>
-                                <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    <History size={16} /> The Story So Far (Long-term Memory)
-                                </h3>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                                    <h3 style={{ margin: 0, fontSize: '0.9rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <History size={16} /> The Story So Far (Long-term Memory)
+                                    </h3>
+                                    <button 
+                                        onClick={async () => {
+                                            if (isSummarizing) return;
+                                            setIsSummarizing(true);
+                                            try {
+                                                const newMemory = await summarizeMemory(persona, memory, messages.slice(1, -1));
+                                                setMemory(newMemory);
+                                                showToast("Memory distilled!", "success");
+                                            } catch (e) {
+                                                showToast("Distillation failed.");
+                                            } finally {
+                                                setIsSummarizing(false);
+                                            }
+                                        }}
+                                        disabled={isSummarizing}
+                                        style={{ fontSize: '0.7rem', background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.2)', color: '#38bdf8', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                    >
+                                        <RotateCcw size={10} className={isSummarizing ? "spin-animation" : ""} /> {isSummarizing ? "Working..." : "Auto-Distill Now"}
+                                    </button>
+                                </div>
                                 <textarea
                                     value={memory}
                                     onChange={(e) => {
