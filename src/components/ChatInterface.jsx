@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw } from 'lucide-react';
-import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones } from '../services/llm';
+import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage } from '../services/llm';
 import { saveMilestone, getMemories, clearMemories } from '../services/memory';
 import { Book, History } from 'lucide-react';
 
@@ -146,13 +146,13 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 localStorage.setItem(`chat_${persona.id}`, JSON.stringify(updatedMessage));
                 return updatedMessage;
             }
-            return parsed;
+            return parsed.map(msg => ({ ...msg, content: cleanLeakage(msg.content) }));
         }
         return [
             {
                 id: Date.now().toString(),
                 role: 'ai',
-                content: persona.initialMessage || `*I look at you with a soft smile* Hello there... I'm glad you're here.`
+                content: cleanLeakage(persona.initialMessage) || `*I look at you with a soft smile* Hello there... I'm glad you're here.`
             }
         ];
     });
@@ -203,7 +203,12 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
     // Sync messages to localStorage whenever they change
     useEffect(() => {
-        localStorage.setItem(`chat_${persona.id}`, JSON.stringify(messages));
+        // Scrub messages before saving to eliminate feedback loop in long-term storage
+        const cleanedMessages = messages.map(msg => ({
+            ...msg,
+            content: cleanLeakage(msg.content)
+        }));
+        localStorage.setItem(`chat_${persona.id}`, JSON.stringify(cleanedMessages));
     }, [messages, persona.id]);
 
     useEffect(() => {
@@ -395,10 +400,10 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         const historyUpToTarget = messages.slice(0, msgIndex + 1);
         
         const continuationPrompts = [
-            "[SYSTEM DIRECTIVE]: Continue the scene. Advance the story. DO NOT repeat your last message. Use new actions.",
-            "[SYSTEM DIRECTIVE]: What happens in the very next second? Describe it. DO NOT repeat your previous sentences.",
-            "[SYSTEM DIRECTIVE]: The story moves forward now. Take a new physical action. Avoid phrases you just used.",
-            "[SYSTEM DIRECTIVE]: Break the loop. Change the pacing. Describe a new sensation or a bold move."
+            "[SYSTEM DIRECTIVE]: Continue the scene with a BOLD PHYSICAL ACTION. Advance the story. DO NOT ask a question. DO NOT wait for permission.",
+            "[SYSTEM DIRECTIVE]: What happens in the very next second? Describe a new sensation or a bold move. DO NOT repeat yourself.",
+            "[SYSTEM DIRECTIVE]: The story moves forward now. Take the lead and pull the user deeper into the scene. No questions.",
+            "[SYSTEM DIRECTIVE]: Break the loop. Take a provocative new action and describe the immediate consequence."
         ];
         const randomContinuePrompt = continuationPrompts[Math.floor(Math.random() * continuationPrompts.length)];
 
@@ -557,7 +562,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
     const executeAiRequest = async (aiMessageId, context) => {
         const mergedBasePrompt = invitedPersona
-            ? `${persona.systemPrompt}\n\n[CRITICAL EVENT: The character ${invitedPersona.name} has entered the scene. You are now roleplaying as BOTH ${persona.name} AND ${invitedPersona.name}. Prefix each line of dialogue or action with their name (e.g., "${persona.name}: ..." or "${invitedPersona.name}: ...") to distinguish who is speaking. Here is ${invitedPersona.name}'s personality context: ${invitedPersona.systemPrompt}]`
+            ? `${persona.systemPrompt}\n\n[CRITICAL: ${invitedPersona.name} has joined. You are now BOTH ${persona.name} AND ${invitedPersona.name}. Distinguish them with names (e.g. "${persona.name}: ..." or "${invitedPersona.name}: ..."). ${invitedPersona.name}'s identity: ${invitedPersona.systemPrompt.substring(0, 1500)}]`
             : persona.systemPrompt;
 
         let isolationPrompt = "";

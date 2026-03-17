@@ -10,7 +10,7 @@ const getLmStudioUrl = () => {
 };
 
 // Helper to strip instructional patterns from AI output
-const cleanLeakage = (text) => {
+export const cleanLeakage = (text) => {
     if (!text) return text;
     return text
         // Remove common prompt headers and AI "Assistant" self-labels
@@ -25,7 +25,21 @@ const cleanLeakage = (text) => {
         // Remove technical meta-talk phrases
         .replace(/Write your next (roleplay )?response now( based on the conversation)?\.?/gi, '')
         .replace(/Be immersive, visceral, and creative\.?/gi, '')
+        // STRIP CONTROL CHARACTERS AND SPECIAL TOKENS (Fix for <SPECIAL_30> and ASCII 1E)
+        .replace(/[\x00-\x1F\x7F-\x9F]/g, '') 
+        .replace(/<SPECIAL_\d+>/gi, '') 
+        .replace(/<\|.*?\|>/g, '') // Strip tokens like <|eot_id|>
+        .replace(/<.*?>/g, (match) => {
+            // Only strip if it looks technical (e.g., contains underscores or all caps)
+            if (match.match(/[A-Z_]{3,}/) || match.includes('SPECIAL')) return '';
+            return match; // Keep potential narrative tags like <i>
+        })
         .trim();
+};
+
+const getShortName = (name) => {
+    if (!name) return "";
+    return name.split('(')[0].trim();
 };
 
 // Helper to trim history to fit context window
@@ -47,6 +61,39 @@ const trimHistory = (messages, maxChars = 12000) => {
     return trimmed;
 };
 
+// 2. CULTURAL & TABOO INJECTORS
+// Dynamically constructs instructions based on character metadata
+const injectCulturalTraits = (persona) => {
+    if (!persona.origin || !persona.culturalTraits) return "";
+
+    const { origin, culturalTraits } = persona;
+    const { languageHabits, values, traditions } = culturalTraits;
+
+    return `
+CULTURAL IDENTITY:
+- Origin: ${origin}
+- Language Habits: ${languageHabits}
+- Core Values: ${values}
+- Traditions/Context: ${traditions}
+- Rule: Authentically embody these traits. If ${origin} mentions specific neighborhoods, foods, or honorifics, use them naturally but sparingly to maintain immersion.
+`;
+};
+
+const injectThemeIntensity = (persona, intensity) => {
+    const tabooRating = persona.tabooRating || 0;
+    // Scale taboo dynamic based on persona's base rating and current user intensity setting
+    const effectiveTaboo = Math.min(10, Math.floor((tabooRating + intensity) / 2));
+
+    if (effectiveTaboo < 4) return "";
+
+    return `
+TABOO THEME DYNAMICS (Intensity: ${effectiveTaboo}/10):
+- You are in a high-tension, potentially forbidden relationship dynamic.
+- Lean into the "tension of the forbidden." The more taboo the act, the more conflicted yet intense your desire should be.
+- If this is a family, boss, or traditional dynamic, emphasize the risk of being caught and the thrill of breaking social boundaries.
+`;
+};
+
 export const generateResponse = async (persona, messages, onChunk, onComplete, onError, signal, options = {}) => {
 
     const { 
@@ -57,43 +104,61 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
     } = options;
 
     // 1. IMMERSIVE SYSTEM PROMPT (Minimal technical jargon to avoid meta-talk)
-    const systemPrompt = "You are a creative writer who specializes in immersive, visceral adult roleplay. You are now and forever the character defined below. Stay in character at all times. Use *asterisks* for actions and natural dialogue. Drive the story forward proactively.";
+    const systemPrompt = "You are a creative writer who specializes in immersive, visceral adult roleplay. You are now and forever the character defined below. Stay in character at all times. Use *asterisks* for actions and natural dialogue. Drive the story forward proactively. Ensure your responses are substantial and detailed.";
+
+    const charName = getShortName(persona.name);
 
     // 2. CONSTRUCT THE PRIMING CONTEXT (Narrative style, no technical headers)
-    const primingContext = `Persona Establishment:
-You are ${persona.name}. 
-Character Profile: ${persona.systemPrompt}
+    const primingContext = `Persona:
+You are ${charName}. 
+Roleplay Identity: ${persona.systemPrompt}
 
 Current Dynamic:
-- Intensity Level: ${intensity}/5.
+- Intensity: ${intensity}/5.
 - Language: Strictly avoid terms like "beta", "bachha", or "son".
-- Pacing: Move the scene forward with bold, provocative actions.
+- Pacing: Move the scene forward with bold, visceral actions.
 
 Story Context:
-${memory ? "The story so far: " + memory : "Initial meeting."}
+${memory ? "The story so far: " + memory : "The scene begins now."}
 ${milestones.length > 0 ? "Shared History: " + milestones.join(". ") : ""}
 
-My Info:
+My Details:
 ${localStorage.getItem('userName') ? "My Name: " + localStorage.getItem('userName') : ""}
 ${localStorage.getItem('userAppearance') ? "My Appearance: " + localStorage.getItem('userAppearance') : ""}
 
-Assume the role of ${persona.name} now. Show, don't tell.`;
+${injectCulturalTraits(persona)}
+${injectThemeIntensity(persona, intensity)}
 
-    const safeMessages = trimHistory(messages, 8000); // 8000 + system prompt (~4000) fits in 4096 context
+Assume the role of ${charName} now. Show, don't tell.`;
+
+    // DYNAMIC CONTEXT BUDGETING (Prevents "failed to find space in KV cache")
+    const totalBudget = 7000;
+    const promptLength = systemPrompt.length + primingContext.length;
+    const historyBudget = Math.max(1000, totalBudget - promptLength);
+
+    let rawHistory = trimHistory(messages, historyBudget);
+    
+    // Ensure history starts with a USER message for Jinja safety
+    while (rawHistory.length > 0 && rawHistory[0].role !== 'user') {
+        rawHistory.shift();
+    }
+
+    const safeMessages = rawHistory.map(msg => ({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: cleanLeakage(msg.content)
+    }));
 
     const formattedMessages = [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: primingContext },
-        { role: "assistant", content: `I am ${persona.name}. I'm ready to continue our story. *Leans in closer, looking into your eyes with intensity* Tell me what you're thinking...` },
-        ...safeMessages.map(msg => ({
-            role: msg.role === 'user' ? 'user' : 'assistant',
-            content: msg.content
-        }))
+        { 
+            role: "system", 
+            content: systemPrompt + "\n\n" + primingContext 
+        },
+        ...safeMessages
     ];
 
-    // Ensure the first message after priming is from the user
-    if (formattedMessages.length > 3 && formattedMessages[3].role === 'assistant') {
-        formattedMessages.splice(3, 0, { role: 'user', content: '*Approaches you*' });
+    // Final safety: if history became empty after shifting, add a dummy user prompt to avoid empty sequence
+    if (formattedMessages.length === 1) {
+        formattedMessages.push({ role: "user", content: "Hello! Let's continue our story." });
     }
 
     const fetchTimeout = 60000; // 60s initial timeout for slower local hardware
@@ -116,7 +181,11 @@ Assume the role of ${persona.name} now. Show, don't tell.`;
                 top_p: 0.95,      // More stable than 0.9 for smaller models
                 frequency_penalty: 0.2, // Lowered to prevent stuttering/collapse
                 presence_penalty: 0.2,  // Lowered to prevent stuttering/collapse
-                stop: ["User:", "Assistant:", "###", "System:", `\n${persona.name}:`]
+                stop: [
+                    "User:", "Assistant:", "###", "System:", 
+                    "<|eot_id|>", "<|im_end|>", "<|endoftext|>", "<|end_of_text|>",
+                    "<|end|>", "</s>"
+                ]
             }),
             signal: signal || controller.signal,
         });
@@ -201,9 +270,11 @@ Assume the role of ${persona.name} now. Show, don't tell.`;
 };
 
 export const generateSuggestion = async (persona, messages, signal) => {
+    const charName = getShortName(persona.name);
+
     // Format the conversation history into a single string for better context understanding
     const contextStr = messages.map(msg => {
-        const roleName = msg.role === 'user' ? 'User' : persona.name;
+        const roleName = msg.role === 'user' ? 'User' : charName;
         return `${roleName}: ${msg.content}`;
     }).slice(-15).join('\n\n'); // Focus on last 15 messages for context
 
@@ -254,7 +325,8 @@ RULES:
         }
 
         const data = await response.json();
-        return data.choices?.[0]?.message?.content?.trim() || "What do I say next?";
+        const content = data.choices?.[0]?.message?.content || "";
+        return cleanLeakage(content.trim()) || "What do I say next?";
     } catch (error) {
         console.error("Error generating suggestion:", error);
         return null;
@@ -262,8 +334,9 @@ RULES:
 };
 
 export const summarizeMemory = async (persona, currentMemory, oldMessages) => {
+    const charName = getShortName(persona.name);
     const url = getLmStudioUrl();
-    const transcript = oldMessages.map(msg => `${msg.role === 'user' ? 'User' : persona.name}: ${msg.content}`).join('\n\n');
+    const transcript = oldMessages.map(msg => `${msg.role === 'user' ? 'User' : charName}: ${msg.content}`).join('\n\n');
 
     const prompt = `You are a background memory engine for a roleplay app.
 Below is a transcript of older messages between the User and the character ${persona.name}.
@@ -294,7 +367,8 @@ Keep it extremely brief and factual. Do not include extra commentary. Return ONL
         }
 
         const data = await response.json();
-        return data.choices?.[0]?.message?.content?.trim() || currentMemory;
+        const content = data.choices?.[0]?.message?.content || "";
+        return cleanLeakage(content.trim()) || currentMemory;
     } catch (error) {
         console.error("Error summarizing memory:", error);
         return currentMemory;
@@ -302,8 +376,9 @@ Keep it extremely brief and factual. Do not include extra commentary. Return ONL
 };
 
 export const extractMilestones = async (persona, messages) => {
+    const charName = getShortName(persona.name);
     const url = getLmStudioUrl();
-    const transcript = messages.map(msg => `${msg.role === 'user' ? 'User' : persona.name}: ${msg.content}`).join('\n\n');
+    const transcript = messages.map(msg => `${msg.role === 'user' ? 'User' : charName}: ${msg.content}`).join('\n\n');
 
     const prompt = `You are a character development engine.
 Review the following recent interaction between the User and ${persona.name}.
@@ -340,7 +415,8 @@ Return ONLY the sentence or "NONE".`;
         if (!response.ok) throw new Error(`Failed to extract milestones`);
 
         const data = await response.json();
-        const result = data.choices?.[0]?.message?.content?.trim() || "NONE";
+        const content = data.choices?.[0]?.message?.content || "NONE";
+        const result = cleanLeakage(content.trim());
         return result === "NONE" ? null : result;
     } catch (error) {
         console.error("Error extracting milestones:", error);

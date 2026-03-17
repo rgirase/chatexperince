@@ -6,8 +6,11 @@ import { personas } from '../data/personas';
 const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('All');
-
-    const categories = ['All', 'Family', 'Professional', 'Modern', 'Traditional'];
+    const [activeRegion, setActiveRegion] = useState('All');
+    
+    // Combined list of categories including the new Taboo theme
+    const categories = ['All', 'Family', 'Professional', 'Modern', 'Traditional', 'Taboo'];
+    const regions = ['All', 'Indian', 'American', 'Latina-American', 'European', 'East Asian'];
 
     const getInitialActiveChats = () => {
         const chats = [];
@@ -59,8 +62,20 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     ).filter(p => {
         const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                              p.tagline.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
-        return matchesSearch && matchesCategory;
+        
+        // Handle Taboo category (based on tabooRating > 0)
+        let matchesCategory = false;
+        if (activeCategory === 'All') {
+            matchesCategory = true;
+        } else if (activeCategory === 'Taboo') {
+            matchesCategory = (p.tabooRating && p.tabooRating > 0);
+        } else {
+            matchesCategory = p.category === activeCategory;
+        }
+
+        const matchesRegion = activeRegion === 'All' || p.origin === activeRegion;
+        
+        return matchesSearch && matchesCategory && matchesRegion;
     });
 
     const containerVariants = {
@@ -98,6 +113,27 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                 position: 'relative',
                 zIndex: 10
             }}>
+                {/* Taboo Highlight Banner */}
+                {activeCategory === 'Taboo' && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        style={{
+                            padding: '0.8rem 1.2rem',
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            borderRadius: '12px',
+                            color: '#fca5a5',
+                            fontSize: '0.85rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
+                        }}
+                    >
+                        <span style={{ fontSize: '1.2rem' }}>🔥</span>
+                        Exploring high-tension, forbidden dynamics and deep personal secrets.
+                    </motion.div>
+                )}
                 {/* Search Bar */}
                 <div style={{
                     position: 'relative',
@@ -165,6 +201,41 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                             }}
                         >
                             {cat}
+                        </motion.button>
+                    ))}
+                </div>
+
+                {/* Region Filter */}
+                <div style={{ 
+                    display: 'flex', 
+                    gap: '0.6rem', 
+                    overflowX: 'auto', 
+                    padding: '4px',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                    marginTop: '-0.5rem' // Tighten gap with main categories
+                }}>
+                    {regions.map(region => (
+                        <motion.button
+                            key={region}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setActiveRegion(region)}
+                            style={{
+                                padding: '0.4rem 1rem',
+                                background: activeRegion === region ? 'rgba(255, 255, 255, 0.15)' : 'transparent',
+                                color: activeRegion === region ? '#f4f4f5' : '#71717a',
+                                border: 'none',
+                                borderRadius: '10px',
+                                fontSize: '0.75rem',
+                                fontWeight: activeRegion === region ? '600' : '400',
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap',
+                                transition: 'all 0.3s ease',
+                                border: '1px solid ' + (activeRegion === region ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)')
+                            }}
+                        >
+                            {region}
                         </motion.button>
                     ))}
                 </div>
