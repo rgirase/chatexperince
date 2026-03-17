@@ -35,9 +35,9 @@ export const cleanLeakage = (text) => {
         .replace(/<think>[\s\S]*?<\/think>/gi, '')
         // Strip any remaining standalone <think> or </think> tags
         .replace(/<\/?think>/gi, '')
-        // Strip trailing meta-commentary (lines starting with "---" or common post-response analytical text)
-        .replace(/---[\s\S]*$/g, '')
-        .replace(/\n+(I need to|I aim to|I should|Please provide feedback|My goal here|The key is|To keep the momentum|This response drives the scene|By acknowledging|Appending|Using "|This ensures|The stretch adds|This response).*[\s\S]*$/i, '')
+        // Strip trailing meta-commentary (after a hard separator)
+        // Only strip the "---" separator block — safe because real dialogue rarely uses "---"
+        .replace(/\n?---[\s\S]*$/g, '')
         // Remove common prompt headers and AI "Assistant" self-labels
         .replace(/###\s*(General Roleplay Directives|Our Shared History|Your Roleplay Partner|Your Character|Tone & Intensity|CORE PERSONA|STORY DYNAMICS|COMMUNICATION RULES|INTERNAL DIRECTIVES|SHARED HISTORY|USER PROFILE|FINAL TASK)/gi, '')
         .replace(/(AI Assistant|Assistant|Model|Prompt|Roleplay Engine):/gi, '')
@@ -50,8 +50,8 @@ export const cleanLeakage = (text) => {
         // Remove technical meta-talk phrases
         .replace(/Write your next (roleplay )?response now( based on the conversation)?\.?/gi, '')
         .replace(/Be immersive, visceral, and creative\.?/gi, '')
-        // STRIP CONTROL CHARACTERS AND SPECIAL TOKENS (Fix for <SPECIAL_30> and ASCII 1E)
-        .replace(/[\x00-\x1F\x7F-\x9F]/g, '') 
+        // STRIP CONTROL CHARACTERS AND SPECIAL TOKENS (preserve newlines and tabs!)
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '') 
         .replace(/<SPECIAL_\d+>/gi, '') 
         .replace(/<\|.*?\|>/g, '') // Strip tokens like <|eot_id|>
         .replace(/<.*?>/g, (match) => {
@@ -133,7 +133,13 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
 
     const charName = getShortName(persona.name);
 
-    const userAura = JSON.parse(localStorage.getItem('userAura') || 'null');
+    let userAura = null;
+    try {
+        const savedAura = localStorage.getItem('userAura');
+        userAura = savedAura ? JSON.parse(savedAura) : null;
+    } catch (e) {
+        console.error("Failed to parse userAura in llm service", e);
+    }
     const auraPrompt = userAura ? `\n[USER REPUTATION: The user is known as "${userAura.name}". They typically interact in a way that is ${userAura.keywords.join(', ')}. Respond to them in a way that acknowledges and plays into this specific dynamic.]` : "";
 
     // 2. CONSTRUCT THE PRIMING CONTEXT (Narrative style, no technical headers)

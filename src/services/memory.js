@@ -14,8 +14,13 @@ export const saveMilestone = (personaId, milestone) => {
 };
 
 export const getMemories = (personaId) => {
-    const saved = localStorage.getItem(`milestones_${personaId}`);
-    return saved ? JSON.parse(saved) : [];
+    try {
+        const saved = localStorage.getItem(`milestones_${personaId}`);
+        return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+        console.error(`Failed to parse memories for ${personaId}`, e);
+        return [];
+    }
 };
 
 export const clearMemories = (personaId) => {

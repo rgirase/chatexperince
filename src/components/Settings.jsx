@@ -39,8 +39,13 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
         setUserBackground(localStorage.getItem('userBackground') || '');
 
         // Load saved servers
-        const servers = JSON.parse(localStorage.getItem('savedServers') || '[]');
-        setSavedServers(servers);
+        try {
+            const servers = JSON.parse(localStorage.getItem('savedServers') || '[]');
+            setSavedServers(Array.isArray(servers) ? servers : []);
+        } catch (e) {
+            console.error("Failed to parse savedServers in Settings", e);
+            setSavedServers([]);
+        }
 
         // Fetch models if URL exists
         const initialUrl = localStorage.getItem('lmStudioUrl') || DEFAULT_LM_STUDIO;

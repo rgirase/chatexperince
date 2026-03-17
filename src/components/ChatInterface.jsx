@@ -139,15 +139,19 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const [messages, setMessages] = useState(() => {
         const saved = localStorage.getItem(`chat_${persona.id}`);
         if (saved) {
-            const parsed = JSON.parse(saved);
-            // SMART SYNC: If the chat history only contains the initial message, 
-            // and that message is different from the current persona config, update it.
-            if (Array.isArray(parsed) && parsed.length === 1 && parsed[0].role === 'ai' && parsed[0].content !== persona.initialMessage) {
-                const updatedMessage = [{ ...parsed[0], content: persona.initialMessage || parsed[0].content }];
-                localStorage.setItem(`chat_${persona.id}`, JSON.stringify(updatedMessage));
-                return updatedMessage;
+            try {
+                const parsed = JSON.parse(saved);
+                // SMART SYNC: If the chat history only contains the initial message, 
+                // and that message is different from the current persona config, update it.
+                if (Array.isArray(parsed) && parsed.length === 1 && parsed[0].role === 'ai' && parsed[0].content !== persona.initialMessage) {
+                    const updatedMessage = [{ ...parsed[0], content: persona.initialMessage || parsed[0].content }];
+                    localStorage.setItem(`chat_${persona.id}`, JSON.stringify(updatedMessage));
+                    return updatedMessage;
+                }
+                return parsed.map(msg => ({ ...msg, content: cleanLeakage(msg.content) }));
+            } catch (e) {
+                console.error(`Failed to parse chat for ${persona.id}`, e);
             }
-            return parsed.map(msg => ({ ...msg, content: cleanLeakage(msg.content) }));
         }
         return [
             {
@@ -188,9 +192,22 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         const hour = new Date().getHours();
         return (hour >= 19 || hour < 6) ? 'night' : 'day';
     });
+    const [worldState, setWorldState] = useState(() => {
+        try {
+            const saved = localStorage.getItem(`world_${persona.id}`);
+            return saved ? JSON.parse(saved) : null;
+        } catch (e) {
+            return null;
+        }
+    });
     const [traits, setTraits] = useState(() => {
         const saved = localStorage.getItem(`traits_${persona.id}`);
-        return saved ? JSON.parse(saved) : [];
+        try {
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+            console.error(`Failed to parse traits for ${persona.id}`, e);
+            return [];
+        }
     });
     const currentScene = SCENES[currentSceneId] || SCENES.default;
 
@@ -699,7 +716,12 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     };
 
     const saveMemorableMoment = (persona, content, image) => {
-        const moments = JSON.parse(localStorage.getItem(`moments_${persona.id}`) || '[]');
+        let moments = [];
+        try {
+            moments = JSON.parse(localStorage.getItem(`moments_${persona.id}`) || '[]');
+        } catch (e) {
+            console.error(`Failed to parse moments for ${persona.id}`, e);
+        }
         const cleanContent = content
             .replace(/\[MOOD:\s*.*?\]/gi, '')
             .replace(/\[SCORE:\s*[+-]\d+\]/gi, '')
@@ -844,7 +866,12 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             // We don't await this to keep UI snappy, but we fire and forget
             generateDiaryEntry(persona, messages).then(entry => {
                 if (entry) {
-                    const diaries = JSON.parse(localStorage.getItem(`diaries_${persona.id}`) || '[]');
+                    let diaries = [];
+                    try {
+                        diaries = JSON.parse(localStorage.getItem(`diaries_${persona.id}`) || '[]');
+                    } catch (e) {
+                        console.error(`Failed to parse diaries for ${persona.id}`, e);
+                    }
                     diaries.unshift({
                         id: Date.now(),
                         content: entry,

@@ -334,9 +334,13 @@ function App() {
   // Re-sync server list when entering/leaving settings or on refresh
   useEffect(() => {
     if (!isSettingsOpen) {
-      const servers = JSON.parse(localStorage.getItem('savedServers') || '[]');
-      setSavedServers(servers);
-      setActiveServerUrl(localStorage.getItem('lmStudioUrl') || '');
+      try {
+        const servers = JSON.parse(localStorage.getItem('savedServers') || '[]');
+        setSavedServers(Array.isArray(servers) ? servers : []);
+        setActiveServerUrl(localStorage.getItem('lmStudioUrl') || '');
+      } catch (e) {
+        console.error('[App] Failed to re-sync servers', e);
+      }
     }
   }, [isSettingsOpen]);
 
