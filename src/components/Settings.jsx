@@ -17,6 +17,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
     const [comfyWorkflow, setComfyWorkflow] = useState('');
     const [preferredLanguage, setPreferredLanguage] = useState('english');
     const [newPersona, setNewPersona] = useState({ name: '', tagline: '', systemPrompt: '', initialMessage: '' });
+    const [saveToast, setSaveToast] = useState('');
     
     // User Profile Profile States
     const [userName, setUserName] = useState('');
@@ -85,7 +86,8 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
         // Save servers
         localStorage.setItem('savedServers', JSON.stringify(savedServers));
         
-        alert('Settings and User Profile saved successfully!');
+        setSaveToast('✅ Settings and User Profile saved!');
+        setTimeout(() => setSaveToast(''), 3000);
     };
 
     const handleAddServer = () => {
@@ -98,14 +100,16 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
         setSavedServers(updated);
         localStorage.setItem('savedServers', JSON.stringify(updated));
         setNewServerName('');
-        alert(`Server "${newServerName}" saved!`);
+        setSaveToast(`✅ Server "${newServerName}" saved!`);
+        setTimeout(() => setSaveToast(''), 3000);
     };
 
     const handleConnectServer = (url) => {
         setLmStudioUrl(url);
         localStorage.setItem('lmStudioUrl', url);
         loadModels(url); // Auto-load models for the new server
-        alert("Connected to server! Model list updated.");
+        setSaveToast('✅ Connected! Model list updated.');
+        setTimeout(() => setSaveToast(''), 3000);
     };
 
     const handleDeleteServer = (id) => {

@@ -136,11 +136,9 @@ function App() {
     setSavedServers(servers);
     setActiveServerUrl(localStorage.getItem('lmStudioUrl') || '');
 
-    // Restore exact view state
-    const savedView = localStorage.getItem('activeView') || 'home';
-    if (!window.history.state) {
-      window.history.replaceState({ view: savedView }, '');
-    }
+    // Always ensure a 'home' entry exists at the base of the history stack
+    // This prevents history.back() from navigating out of the app
+    window.history.replaceState({ view: 'home' }, '');
 
     if (savedView === 'settings') {
       setIsSettingsOpen(true);
@@ -162,6 +160,7 @@ function App() {
 
     const handlePopState = (e) => {
       const stateView = e.state?.view || 'home';
+      // Handle all possible pop states
       if (stateView === 'home') {
         if (localStorage.getItem('activeView') === 'chat') {
           localStorage.setItem('lastPersonaTab', 'active');
@@ -169,6 +168,22 @@ function App() {
         setSelectedPersona(null);
         setIsSettingsOpen(false);
         setIsGalleryOpen(false);
+        setActiveView('home');
+        localStorage.setItem('activeView', 'home');
+        hasPushedHistory = false;
+      } else if (stateView === 'settings') {
+        // If somehow we pop back to settings state, just go home safely
+        setIsSettingsOpen(false);
+        setIsGalleryOpen(false);
+        setSelectedPersona(null);
+        setActiveView('home');
+        localStorage.setItem('activeView', 'home');
+        hasPushedHistory = false;
+      } else {
+        // Unknown state: go home as a fallback
+        setIsSettingsOpen(false);
+        setIsGalleryOpen(false);
+        setSelectedPersona(null);
         setActiveView('home');
         localStorage.setItem('activeView', 'home');
         hasPushedHistory = false;
@@ -272,8 +287,9 @@ function App() {
     if (activeView === 'chat') {
       localStorage.setItem('lastPersonaTab', 'active');
     }
-
-    if (hasPushedHistory || window.history.state?.view !== 'home') {
+    // For settings and gallery: always go directly home to avoid history stack issues
+    // For chat: use browser history so swipe-back works
+    if (activeView === 'chat' && hasPushedHistory) {
       window.history.back();
       hasPushedHistory = false;
     } else {
