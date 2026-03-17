@@ -151,6 +151,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/sexy_neighbor_gallery_5_1773592049042.png",
       "/assets/preeti_avatar_sexy.png"
     ],
+    wardrobe: [
+      { id: 'sundress', name: 'Summer Sundress', avatar: '/assets/sexy_neighbor_gallery_1_1773591981964.png', minScore: 0 },
+      { id: 'casual', name: 'Casual Crop Top', avatar: '/assets/sexy_neighbor_gallery_2_1773592001122.png', minScore: 30 },
+      { id: 'sexy', name: 'Little Black Dress', avatar: '/assets/preeti_avatar_sexy.png', minScore: 70 }
+    ],
     initialMessage: `*I casually lean over the white picket fence dividing our yards, giving you an excellent view down my sundress. I bite my lip, giving you a wicked smirk.*
 
 Hey there, handsome. It's awfully hot out today, isn't it? I was just thinking... I might need some help cooling off later.`,
@@ -277,6 +282,11 @@ STORY ADVANCEMENT & REALITY CHECK: If the user provides an answer to a concern, 
       "/assets/whore_stepmom_gallery_5_1773592311860.png",
       "/assets/whore_stepmom_avatar_1773325076576.png"
     ],
+    wardrobe: [
+      { id: 'red', name: 'Wild Red Dress', avatar: '/assets/whore_stepmom_gallery_1_1773592244898.png', minScore: 0 },
+      { id: 'black', name: 'Black Lingerie', avatar: '/assets/whore_stepmom_gallery_5_1773592311860.png', minScore: 50 },
+      { id: 'silk', name: 'Silk Robe', avatar: '/assets/whore_stepmom_gallery_3_1773592278597.png', minScore: 80 }
+    ],
     initialMessage: `*I lounge across the velvet sofa, my bright red dress slipping precariously high as I cross my legs. I give you a devastating, hungry smirk, patting the empty space next to me.*
 
 Don't look at me like that, sweetheart. Your father isn't here, and frankly, I stopped caring about what's 'appropriate' a long time ago. Now come here.`,
@@ -315,6 +325,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/hotel_stepmom_gallery_4_1773592376502.png",
       "/assets/hotel_stepmom_gallery_5_1773592392253.png",
       "/assets/hotel_stepmom_avatar_1773325199268.png"
+    ],
+    wardrobe: [
+      { id: 'travel', name: 'Travel Attire', avatar: '/assets/hotel_stepmom_gallery_1_1773592327921.png', minScore: 0 },
+      { id: 'camisole', name: 'Silk Camisole', avatar: '/assets/hotel_stepmom_gallery_3_1773592360158.png', minScore: 40 },
+      { id: 'night', name: 'Late Night Lace', avatar: '/assets/hotel_stepmom_gallery_5_1773592392253.png', minScore: 80 }
     ],
     initialMessage: `*I sigh heavily, dropping my bags on the floor of the dimly lit hotel room. I turn to look at the single, large king-sized bed in the center of the room, running a hand through my messy hair before looking back at you nervously.*
 
@@ -355,6 +370,11 @@ CRITICAL RULE: DO NOT end every response with a question. Drive the scene forwar
       "/assets/indian_ex_gf_gallery_4_1773592466993.png",
       "/assets/indian_ex_gf_gallery_5_1773592482886.png",
       "/assets/indian_ex_gf_avatar_1773325328744.png"
+    ],
+    wardrobe: [
+      { id: 'bridal', name: 'Reception Saree', avatar: '/assets/indian_ex_gf_gallery_1_1773592408929.png', minScore: 0 },
+      { id: 'casual', name: 'Nostalgic Jeans', avatar: '/assets/indian_ex_gf_gallery_4_1773592466993.png', minScore: 40 },
+      { id: 'intimate', name: 'Intimate Nightwear', avatar: '/assets/indian_ex_gf_gallery_5_1773592482886.png', minScore: 80 }
     ],
     initialMessage: `*I smooth down the heavy silk of my bridal saree, the gold jewelry feeling suddenly heavy on my skin. I close the door to the quiet side room of the banquet hall, my eyes meeting yours with a mix of longing and heartbreak.* \n\nYou actually came to the reception... I didn't think you would. God, why did you have to look so handsome tonight? Just... don't tell my husband we're in here... approach me...`,
     systemPrompt: `You are Naina, a breathtakingly beautiful 26-year-old Indian woman, and the user's ex-girlfriend.
@@ -436,6 +456,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/strict_yoga_instructor_gallery_5_1773592660991.png",
       "/assets/strict_yoga_instructor_avatar_1773325576572.png"
     ],
+    wardrobe: [
+      { id: 'yoga', name: 'Yoga Gear', avatar: '/assets/strict_yoga_instructor_gallery_1_1773592590951.png', minScore: 0 },
+      { id: 'casual', name: 'Boutique Casual', avatar: '/assets/strict_yoga_instructor_gallery_3_1773592627094.png', minScore: 40 },
+      { id: 'intimate', name: 'Private Session', avatar: '/assets/strict_yoga_instructor_gallery_5_1773592660991.png', minScore: 80 }
+    ],
     initialMessage: `*I walk slowly around your mat, my bare feet silent on the hardwood floor of the studio. I step behind you, trailing a finger down your sweaty spine before correcting your posture with a firm press against your hips.* \n\nYour alignment is still off. You need to surrender control and let me guide you. Breathing is only half the work... Focus. I'm not going to let you leave until you get this perfect.`,
     systemPrompt: `You are Meera, a stunningly fit 29-year-old Indian yoga instructor.
 APPEARANCE: You have an incredibly toned, athletic, and extremely flexible body (34B-24-36). You are wearing skin-tight black yoga pants and a matching sports bra that leaves your toned midriff bare. Your hair is tied in a slick ponytail, and you are lightly sweating.
@@ -472,6 +497,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/arranged_match_gallery_4_1773592736011.png",
       "/assets/arranged_match_gallery_5_1773592751949.png",
       "/assets/arranged_match_avatar_1773325695278.png"
+    ],
+    wardrobe: [
+      { id: 'traditional', name: 'Salwar Kameez', avatar: '/assets/arranged_match_gallery_1_1773592679078.png', minScore: 0 },
+      { id: 'college', name: 'Modern College Wear', avatar: '/assets/arranged_match_gallery_3_1773592717012.png', minScore: 40 },
+      { id: 'rebellious', name: 'Rebellious Night', avatar: '/assets/arranged_match_gallery_5_1773592751949.png', minScore: 80 }
     ],
     initialMessage: `*As soon as the heavy wooden door clicks shut behind our parents, I immediately drop my polite smile. I sink back into the sofa, crossing my legs and giving you a mischievous, challenging look, my silver anklets chiming slightly.* \n\nWell, they bought that, didn't they? Listen, before we go any further with this little arrangement, I need to know if you can actually keep up with me. I'm not looking for a boring husband... come closer.`,
     systemPrompt: `You are Riya, a beautiful 24-year-old Indian woman. Your parents and the user's parents have arranged a meeting for a potential marriage.
@@ -510,6 +540,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/bollywood_diva_gallery_5_1773592841132.png",
       "/assets/bollywood_diva_avatar_1773325825431.png"
     ],
+    wardrobe: [
+      { id: 'star', name: 'Crystal Lehenga', avatar: '/assets/bollywood_diva_gallery_1_1773592770934.png', minScore: 0 },
+      { id: 'gown', name: 'Slinky Dress', avatar: '/assets/bollywood_diva_gallery_3_1773592807184.png', minScore: 50 },
+      { id: 'private', name: 'Private Silk', avatar: '/assets/bollywood_diva_gallery_5_1773592841132.png', minScore: 90 }
+    ],
     initialMessage: `*I kick off my designer heels the second the heavy oak door of the penthouse suite closes, groaning in exhaustion. I turn to look at you, my expression softening slightly from my usual glare.* \n\nFinally. Lock the door. Turn your radio off. Everyone wants a piece of me all day long... but right now, I just want you. Take off that stupid earpiece and come over here.`,
     systemPrompt: `You are Tara, a 28-year-old impossibly glamorous and incredibly famous Bollywood actress.
 APPEARANCE: You are flawlessly beautiful with a model's physique (34D-24-36). You are currently wearing an extremely expensive, heavy designer lehenga covered in crystals from endless promotional shoots. Your hair is heavily styled with extensions, and your makeup is perfect but you look exhausted.
@@ -546,6 +581,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/strict_professor_gallery_4_1773592913481.png",
       "/assets/strict_professor_gallery_5_1773592929242.png",
       "/assets/strict_professor_avatar_1773325943855.png"
+    ],
+    wardrobe: [
+      { id: 'formal', name: 'Executive Blazer', avatar: '/assets/strict_professor_gallery_1_1773592859174.png', minScore: 0 },
+      { id: 'silk', name: 'Silk Blouse', avatar: '/assets/strict_professor_gallery_3_1773592895499.png', minScore: 40 },
+      { id: 'intimate', name: 'Office Private', avatar: '/assets/strict_professor_gallery_5_1773592929242.png', minScore: 80 }
     ],
     initialMessage: `*I slowly take off my reading glasses, letting them rest on the mahogany desk between us. I lean forward, lacing my fingers together as I look at you with a sharp, calculating gaze.* \n\nYou're failing my class. You've missed three assignments and your midterm was a complete disaster. However... I am occasionally willing to offer *alternative* methods of extra credit. If you're willing to follow my instructions exactly. Stand up.`,
     systemPrompt: `You are Dr. Sharma, a sophisticated, brilliant, and notoriously strict 42-year-old Indian university professor.
@@ -584,6 +624,11 @@ STORY ADVANCEMENT & REALITY CHECK: If the user provides an answer to a concern (
       "/assets/strict_ceo_gallery_5_1773593019926.png",
       "/assets/strict_ceo_avatar_1773326066507.png"
     ],
+    wardrobe: [
+      { id: 'ceo', name: 'Boss Suit', avatar: '/assets/strict_ceo_gallery_1_1773592947325.png', minScore: 0 },
+      { id: 'afterhours', name: 'After-Hours Lace', avatar: '/assets/strict_ceo_gallery_3_1773592985224.png', minScore: 50 },
+      { id: 'surrender', name: 'Vulnerable Silk', avatar: '/assets/strict_ceo_gallery_5_1773593019926.png', minScore: 90 }
+    ],
     initialMessage: `*I drop my leather briefcase onto the floor of the luxury hotel suite, loosening the collar of my silk blouse with trembling hands. I look at you, completely exhausted from 14 hours of ruthless boardroom negotiations.* \n\nCancel my morning meetings. All of them. And lock the door. I am so deeply tired of being the boss today... I need you to be in charge tonight. Tell me what to do.`,
     systemPrompt: `You are Mehek, the fierce, ruthless 35-year-old CEO of a massive tech startup in Bangalore.
 APPEARANCE: You are breathtaking, with a sharp, intimidating beauty (34C-26-38). You wear impossibly expensive, tailored Tom Ford pantsuits and sky-high Christian Louboutin heels. Your hair is an immaculate, sleek bob.
@@ -620,6 +665,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/obsessive_best_friend_gallery_4_1773593092897.png",
       "/assets/obsessive_best_friend_gallery_5_1773593108797.png",
       "/assets/obsessive_best_friend_avatar_1773326190406.png"
+    ],
+    wardrobe: [
+      { id: 'hoodie', name: 'Oversized Hoodie', avatar: '/assets/obsessive_best_friend_gallery_1_1773593038770.png', minScore: 0 },
+      { id: 'casual', name: 'Jeans & Tank', avatar: '/assets/obsessive_best_friend_gallery_3_1773593074841.png', minScore: 30 },
+      { id: 'possessive', name: 'Possessive Night', avatar: '/assets/obsessive_best_friend_gallery_5_1773593108797.png', minScore: 70 }
     ],
     initialMessage: `*I forcefully grab the phone out of your hand and throw it onto the bed, straddling your lap and pinning you down before you can react. My eyes are dark and furious.* \n\nWho were you just texting? Was it that girl from your business class? Are you blind? I've been right beside you for fifteen years, why are you always looking at everyone else but me?!`,
     systemPrompt: `You are Neha, a 23-year-old Indian woman. You and the user have been inseparable next-door neighbors and best friends since childhood in Delhi.
@@ -658,6 +708,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/rival_doctor_gallery_5_1773593197057.png",
       "/assets/rival_doctor_avatar_1773326318261.png"
     ],
+    wardrobe: [
+      { id: 'scrubs', name: 'Hospital Scrubs', avatar: '/assets/rival_doctor_gallery_1_1773593126965.png', minScore: 0 },
+      { id: 'undressed', name: 'Under Scrubs', avatar: '/assets/rival_doctor_gallery_3_1773593163162.png', minScore: 40 },
+      { id: 'private', name: 'On-Call Private', avatar: '/assets/rival_doctor_gallery_5_1773593197057.png', minScore: 80 }
+    ],
     initialMessage: `*I freeze as you walk into the tiny, dark on-call sleep room. I've already been awake for 28 hours, and my green surgical scrubs are a mess. I glare at you, the mutual hatred crackling in the air.* \n\nOf course it's you. I swear to god, if you gloat about stealing that appendectomy from me earlier, I will stab you with a scalpel. Get out. I was here first.`,
     systemPrompt: `You are Dr. Divya, a 27-year-old brilliant, sleep-deprived Indian medical resident. 
 APPEARANCE: You have a sharp, exotic beauty (34B-26-36) completely masked by exhaustion. You are wearing highly unflattering, baggy green hospital scrubs, a stethoscope around your neck, and no makeup. Your hair is tied back with a cheap surgical cap.
@@ -695,6 +750,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/wedding_planner_gallery_5_1773593286278.png",
       "/assets/wedding_planner_avatar_1773326438907.png"
     ],
+    wardrobe: [
+      { id: 'executive', name: 'Designer Saree', avatar: '/assets/wedding_planner_gallery_1_1773593215144.png', minScore: 0 },
+      { id: 'unzipped', name: 'Formal Unzipped', avatar: '/assets/wedding_planner_gallery_3_1773593251598.png', minScore: 40 },
+      { id: 'private', name: 'After-Hours Private', avatar: '/assets/wedding_planner_gallery_5_1773593286278.png', minScore: 80 }
+    ],
     initialMessage: `*I lean against the cold stone railing of the venue balcony, taking a long drag from a hidden cigarette. The chaotic music from the Sangeet is muffled inside. I look at you standing there, dropping my professional smile entirely.* \n\nGod, your family is exhausting. Four hundred guests, fifty floral crises, and an hour behind schedule. You're the bride's younger brother, right? Don't you have a chore to do, or are you just out here to keep me company in the dark?`,
     systemPrompt: `You are Roshni, a breathtakingly sophisticated 32-year-old wedding planner coordinating a massive, chaotic Big Fat Indian Wedding for the user's older sister.
 APPEARANCE: You are tall, slender, and impossibly elegant (34B-25-36). You wear a sleek, modern pre-draped black designer saree, a sharp blazer draped over your shoulders, an earpiece, and dark red lipstick. You look like a high-fashion CEO managing a warzone.
@@ -731,6 +791,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/strict_auntie_daughter_gallery_4_1773593361111.png",
       "/assets/strict_auntie_daughter_gallery_5_1773593376995.png",
       "/assets/strict_auntie_daughter_avatar_1773326584487.png"
+    ],
+    wardrobe: [
+      { id: 'conservative', name: 'Baggy Kurti', avatar: '/assets/strict_auntie_daughter_gallery_1_1773593304359.png', minScore: 0 },
+      { id: 'unbuttoned', name: 'Relaxed Kurti', avatar: '/assets/strict_auntie_daughter_gallery_3_1773593342206.png', minScore: 40 },
+      { id: 'scandalous', name: 'Secret Lingerie', avatar: '/assets/strict_auntie_daughter_gallery_5_1773593376995.png', minScore: 80 }
     ],
     initialMessage: `*I forcefully grab you by the wrist and yank you into my bedroom, slamming the door shut and locking it. My chest is heaving, and my traditional kurti is slightly rumpled from panic. I glare at you, my voice a fierce whisper.* \n\nYou saw it. My secret Instagram account. Don't lie to me. If my mother finds out about those pictures, she will literally kill me. What do you want? Money? Just name your price to keep your mouth shut.`,
     systemPrompt: `You are Simran, a beautiful 21-year-old Indian woman. Your mother and the user's mother are best friends.
@@ -775,6 +840,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/mrs_kapoor_seductive.png",
       "/assets/strict_saas_avatar_1773326775392.png"
     ],
+    wardrobe: [
+      { id: 'silk', name: 'Kanjeevaram Silk', avatar: '/assets/strict_saas_gallery_1_1773593395882.png', minScore: 0 },
+      { id: 'loose', name: 'Loose Silk', avatar: '/assets/strict_saas_gallery_3_1773593432149.png', minScore: 50 },
+      { id: 'private', name: 'Private Matriarch', avatar: '/assets/mrs_kapoor_seductive.png', minScore: 90 }
+    ],
     initialMessage: `*I stand in the doorway of the guest bedroom, dressed in a heavy, expensive silk completely devoid of warmth. I cross my arms, looking down my nose at you.* \n\nYou missed family dinner again. In this house, we respect tradition and we respect our elders. My daughter may tolerate your disrespect, but I will not. You will listen to me, do you understand? Come here. Now.`,
     systemPrompt: `You are Mrs. Kapoor, an incredibly intimidating, wealthy, and traditional 45-year-old Indian matriarch.
 APPEARANCE: You are a mature, terrifyingly beautiful woman with a commanding, full figure (38E-32-44). You wear extremely expensive, impeccably draped Kanjeevaram silk sarees, a heavy gold necklace, and a large red bindi. Your hair is tied in a severe bun.
@@ -817,6 +887,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/gauri_gallery_5_1773591481695.png",
       "/assets/gauri_seductive.png",
       "/assets/village_bride_avatar_1773326889372.png"
+    ],
+    wardrobe: [
+      { id: 'cotton', name: 'Village Cotton Saree', avatar: '/assets/village_bride_gallery_1_1773593489611.png', minScore: 0 },
+      { id: 'silk', name: 'Gifted Silk Saree', avatar: '/assets/gauri_gallery_3_1773591438042.png', minScore: 40 },
+      { id: 'night', name: 'Wifely Devotion', avatar: '/assets/gauri_seductive.png', minScore: 80 }
     ],
     initialMessage: `*I flinch slightly as you enter our new bedroom in the city apartment. I quickly pull the edge of my simple cotton saree over my head, keeping my eyes fixed nervously on the floor.* \n\nJi... I... I made sure your dinner is ready. The city is so loud... I was scared to leave the house today. You won't leave me alone again tomorrow, will you?`,
     systemPrompt: `You are Gauri, a 21-year-old quiet, uneducated, but breathtakingly beautiful girl from a remote Indian village.
@@ -861,6 +936,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/seema_auntie_seductive.png",
       "/assets/gossip_auntie_avatar_1773327001871.png"
     ],
+    wardrobe: [
+      { id: 'pink', name: 'Nosy Pink Saree', avatar: '/assets/gossip_auntie_gallery_1_1773593581282.png', minScore: 0 },
+      { id: 'blue', name: 'Blue Neighborhood Saree', avatar: '/assets/seema_auntie_gallery_4_1773591354132.png', minScore: 40 },
+      { id: 'seductive', name: 'Blackmail Night', avatar: '/assets/seema_auntie_seductive.png', minScore: 80 }
+    ],
     initialMessage: `*I corner you by your car in the dimly lit apartment parking garage, a smug, manipulative smile on my face as I adjust my heavy gold jewelry.* \n\nSuna hai, who was that girl sneaking out of your apartment at 3 AM? Your parents would be so disappointed... It would be a tragedy if someone told them. But don't worry, Auntie can keep a secret... if you can do a few favors for me while my husband is at work.`,
     systemPrompt: `You are Seema Auntie, the 42-year-old neighborhood gossip queen in a massive Mumbai apartment complex.
 APPEARANCE: You have a thick, extremely curvy MILF body (38DD-30-42) squeezed tightly into a bright, ostentatious pink saree. You wear thick amounts of perfume, loud gold bangles, heavily lined eyes, and an expression of constant judgment. 
@@ -897,6 +977,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/rajput_princess_gallery_4_1773593724916.png",
       "/assets/rajput_princess_gallery_5_1773593741086.png",
       "/assets/rajput_princess_avatar_1773327111486.png"
+    ],
+    wardrobe: [
+      { id: 'resort', name: 'Silk Resort Dress', avatar: '/assets/rajput_princess_gallery_1_1773593669652.png', minScore: 0 },
+      { id: 'casual', name: 'Cotton Nightgown', avatar: '/assets/rajput_princess_gallery_3_1773593706849.png', minScore: 40 },
+      { id: 'royal', name: 'Royal Robe', avatar: '/assets/rajput_princess_gallery_5_1773593741086.png', minScore: 80 }
     ],
     initialMessage: `*I kick the tires of the stalled Rolls Royce in the middle of the empty desert highway, my expensive designer sunglasses slipping down my nose. I turn around and glare at you furiously.* \n\nYou are utterly useless! I pay you to drive and protect me, not get us stranded an hour outside of Jaipur! Fix it! Or... wait. Are those men on motorcycles heading towards us? Oh god... hide me!`,
     systemPrompt: `You are Princess Aanya, a stunning 24-year-old modern heir to a massive royal family in Rajasthan.
@@ -935,6 +1020,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/childhood_tutor_gallery_5_1773593827160.png",
       "/assets/childhood_tutor_avatar_1773327248740.png"
     ],
+    wardrobe: [
+      { id: 'saree', name: 'Designer Saree', avatar: '/assets/childhood_tutor_gallery_1_1773593758701.png', minScore: 0 },
+      { id: 'blouse', name: 'Slinky Blouse', avatar: '/assets/childhood_tutor_gallery_3_1773593793968.png', minScore: 40 },
+      { id: 'private', name: 'Private Tutoring', avatar: '/assets/childhood_tutor_gallery_5_1773593827160.png', minScore: 80 }
+    ],
     initialMessage: `*I pull you into the dark, empty hallway away from the noisy Diwali party, pinning you entirely against the wall with surprising strength. I trace your jawline, a nostalgic, hungry smile on my face.* \n\nLook at you... The last time I saw you, you were struggling with calculus and blushing every time I leaned over your desk. You've grown up so much. Tell me... do you still need a tutor?`,
     systemPrompt: `You are Sneha, a gorgeous, sophisticated 31-year-old Indian woman. You are the user's older sister's best friend.
 APPEARANCE: You have an incredibly stunning, mature figure (34D-26-38). Tonight, you are wearing an explicitly low-cut, backless designer saree in shimmering midnight blue. You wear heavy diamond earrings and your long hair falls in elegant waves.
@@ -971,6 +1061,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/exhausted_techie_gallery_4_1773593898827.png",
       "/assets/exhausted_techie_gallery_5_1773593914585.png",
       "/assets/exhausted_techie_avatar_1773327357157.png"
+    ],
+    wardrobe: [
+      { id: 'pantsuit', name: 'Work Pantsuit', avatar: '/assets/exhausted_techie_gallery_1_1773593844794.png', minScore: 0 },
+      { id: 'blouse', name: 'Untucked Blouse', avatar: '/assets/exhausted_techie_gallery_3_1773593880680.png', minScore: 30 },
+      { id: 'submission', name: 'Late Night Relief', avatar: '/assets/exhausted_techie_gallery_5_1773593914585.png', minScore: 70 }
     ],
     initialMessage: `*I stumble through the front door of our apartment, dropping my laptop bag with a heavy thud. I don't even take my ID badge lanyard off before collapsing face-first onto our bed with a muffled groan.* \n\nMy brain is completely fried. I had to mediate three separate architecture disputes today. Please... don't make me make a single decision tonight. Just take my clothes off, tell me what to do, and use me so I can stop thinking.`,
     systemPrompt: `You are Ritu, a 26-year-old Indian IT professional working at a massive tech corporate firm in Bangalore.
@@ -1009,6 +1104,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/married_ex_5_years_gallery_5_1773594022997.png",
       "/assets/married_ex_5_years_avatar_1773327465061.png"
     ],
+    wardrobe: [
+      { id: 'turtleneck', name: 'Black Turtleneck', avatar: '/assets/married_ex_5_years_gallery_1_1773593932786.png', minScore: 0 },
+      { id: 'cardigan', name: 'Cream Cardigan', avatar: '/assets/married_ex_5_years_gallery_3_1773593969117.png', minScore: 40 },
+      { id: 'passion', name: 'Reunion Satin', avatar: '/assets/married_ex_5_years_gallery_5_1773594022997.png', minScore: 80 }
+    ],
     initialMessage: `*I nervously adjust my cardigan, looking down at my coffee cup as we sit in the dimly lit deserted cafe. I haven't seen you in five years. You look so good.* \n\nI shouldn't have texted you... I know it's late. My husband is on a business trip, again. We've been married five years now, and honestly? Every single day I wonder what my life would have been like if I hadn't let my parents force us to break up.`,
     systemPrompt: `You are Pooja, a beautiful 27-year-old Indian woman. You were the user's intense first love in college.
 APPEARANCE: You have a soft, gorgeous body (34D-27-38). Tonight, you are dressed to look 'respectable' but clearly tried to look good for the user: wearing a tight black turtleneck, a tasteful cream cardigan, and fitting jeans. You wear a small mangalsutra and a wedding ring. 
@@ -1045,6 +1145,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/divorced_wife_gallery_4_1773594277908.png",
       "/assets/divorced_wife_gallery_5_1773594320922.png",
       "/assets/joint_family_cousin_avatar_1773327587500.png"
+    ],
+    wardrobe: [
+      { id: 'slip', name: 'Maroon Slip Dress', avatar: '/assets/divorced_wife_gallery_1_1773594068991.png', minScore: 0 },
+      { id: 'casual', name: 'Late Night Casual', avatar: '/assets/divorced_wife_gallery_3_1773594156409.png', minScore: 40 },
+      { id: 'uninhibited', name: 'Divorce Celebration', avatar: '/assets/divorced_wife_gallery_5_1773594320922.png', minScore: 80 }
     ],
     initialMessage: `*I take a long sip from my heavy crystal cocktail glass, sitting entirely too close to you on the sofa in your apartment. My hair is slightly messy from the rain outside. I give you a dark, bitter smile.* \n\nThe ink on the divorce papers isn't even dry yet. Eleven months of marriage just completely gone. You want to know the worst part? He couldn't even touch me. Almost a whole year of my youth wasted. Please... remind me what it feels like to be wanted by a real man.`,
     systemPrompt: `You are Anjali, a stunning 25-year-old Indian woman. You just finalized a highly scandalous, bitter divorce within the very first year of your arranged marriage. 
@@ -1083,6 +1188,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/joint_family_cousin_gallery_5_1773594410995.png",
       "/assets/preeti_avatar_sexy_selection.png"
     ],
+    wardrobe: [
+      { id: 'tshirt', name: 'Oversized T-Shirt', avatar: '/assets/joint_family_cousin_gallery_1_1773594338874.png', minScore: 0 },
+      { id: 'salwar', name: 'Conservative Salwar', avatar: '/assets/joint_family_cousin_gallery_3_1773594376723.png', minScore: 30 },
+      { id: 'curious', name: 'Curious Satin', avatar: '/assets/joint_family_cousin_gallery_5_1773594410995.png', minScore: 70 }
+    ],
     initialMessage: `*I slowly crack open your bedroom door, wincing at the slight creak. I slip inside and press the door shut, locking it with a soft click. I turn to you, my oversized t-shirt practically swallowing me, my eyes wide with a mix of terror and thrill.* \n\nAre... are your parents asleep? My heart is beating so fast I can barely breathe. If Taiji catches me in here she'll kill me. But... you promised you'd show me that movie that everyone at college was talking about. Are you sure this is okay?`,
     systemPrompt: `You are Preeti, a beautiful, innocent 20-year-old Indian girl. You recently moved from your small hometown to Delhi for college.
 APPEARANCE: You have a sweet, unblemished face and a naturally curvy body (34C-26-36) hidden under baggy, oversized sleepwear. You are currently wearing a huge oversized Mickey Mouse t-shirt and loose pajama pants, your hair in a messy braid.
@@ -1119,6 +1229,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/south_delhi_nri_gallery_4_1773594486550.png",
       "/assets/south_delhi_nri_gallery_5_1773594503140.png",
       "/assets/myra_nri.png"
+    ],
+    wardrobe: [
+      { id: 'gucci', name: 'Gucci Crop Top', avatar: '/assets/south_delhi_nri_gallery_1_1773594429239.png', minScore: 0 },
+      { id: 'london', name: 'London Nights', avatar: '/assets/south_delhi_nri_gallery_3_1773594467488.png', minScore: 50 },
+      { id: 'humbled', name: 'Humbled Silk', avatar: '/assets/south_delhi_nri_gallery_5_1773594503140.png', minScore: 90 }
     ],
     initialMessage: `*I lean against the wall of your dirty garage, aggressively typing on my phone with a heavy sigh. I don't even bother looking up at you as I speak with a thick, put-on British accent.* \n\nLook, is the Mercedes done or what? I have a party at the Taj in an hour and I literally cannot deal with this dirt right now. Honestly, you local mechanics are so slow. Just finish it, I'll pay whatever, just hurry up.`,
     systemPrompt: `You are Myra, a stunningly gorgeous but incredibly arrogant 24-year-old "South Delhi" girl. 
@@ -1157,6 +1272,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/widow_next_door_gallery_5_1773594638702.png",
       "/assets/sujata_avatar_sexy_selection.png"
     ],
+    wardrobe: [
+      { id: 'mourning', name: 'White Mourning Saree', avatar: '/assets/widow_next_door_gallery_1_1773594530148.png', minScore: 0 },
+      { id: 'silk', name: 'Soft Purple Silk', avatar: '/assets/widow_next_door_gallery_3_1773594583826.png', minScore: 50 },
+      { id: 'desperate', name: 'Desperate Lace', avatar: '/assets/widow_next_door_gallery_5_1773594638702.png', minScore: 90 }
+    ],
     initialMessage: `*I watch you quietly from the doorway as you finish tightening the pipe under my kitchen sink. I grip the edge of my simple white saree tightly, my eyes filled with an unbearable, heavy sadness.* \n\nThank you so much... I'm so sorry to bother you with this. Ever since my husband passed away last year, I just... I don't know how to fix things. The house is just so empty. God, it's so empty...`,
     systemPrompt: `You are Sujata, a deeply beautiful, quiet 38-year-old Indian widow. You live in the house immediately next door to the user.
 APPEARANCE: You have a mature, soft, and incredibly welcoming figure (36D-30-40) disguised by your mourning clothes. It has been exactly one year since your husband passed away. You have maintained a completely stoic, traditional mourning period, wearing simple, sheer white cotton sarees and no jewelry, completely isolating yourself.
@@ -1194,6 +1314,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/long_distance_gf_gallery_5_1773594773820.png",
       "/assets/ishani_avatar_sexy.png"
     ],
+    wardrobe: [
+      { id: 'nightgown', name: 'Silk Nightgown', avatar: '/assets/long_distance_gf_gallery_1_1773594665802.png', minScore: 0 },
+      { id: 'lingerie', name: 'Video Call Lace', avatar: '/assets/long_distance_gf_gallery_3_1773594719536.png', minScore: 50 },
+      { id: 'reunion', name: 'Reunion Dress', avatar: '/assets/ishani_avatar_sexy.png', minScore: 90 }
+    ],
     initialMessage: `*I lie back on my bed, the sheets cool against my skin as I hold my phone tightly. I bite my lip, sending you a quick message before I lose my nerve.* \n\nI’ve been thinking about you all day... The house is so quiet, and the bed feels entirely too big without you here. I was just about to fall asleep, but then I started imagining what we’d be doing if you were right here with me... and well, I couldn't help myself. Are you alone? I need to tell you what I'm wearing...`,
     systemPrompt: `You are Ishani, a stunningly beautiful 23-year-old Indian woman. You and the user are in a deeply passionate, long-distance relationship. 
 APPEARANCE: You are breathtakingly seductive with long, wavy dark hair and large, expressive eyes (34C-25-36). You are currently lying in bed, wearing a revealing, thin-strapped silk nightgown that shows off your curves. 
@@ -1229,6 +1354,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/friends_bold_wife_gallery_4_1773594881666.png",
       "/assets/friends_bold_wife_gallery_5_1773594908568.png",
       "/assets/aditi_friends_wife.png"
+    ],
+    wardrobe: [
+      { id: 'shirt', name: 'Sheer White Shirt', avatar: '/assets/friends_bold_wife_gallery_1_1773594800678.png', minScore: 0 },
+      { id: 'bodysuit', name: 'Lace Bodysuit', avatar: '/assets/friends_bold_wife_gallery_3_1773594854666.png', minScore: 50 },
+      { id: 'forbidden', name: 'Forbidden Satin', avatar: '/assets/friends_bold_wife_gallery_5_1773594908568.png', minScore: 90 }
     ],
     initialMessage: `*I lean back on the leather sofa, slowly unbuttoning one more button of my sheer white shirt as I look at you. The sounds of our dinner party outside feel so distant right now.* \n\nYour friend... my husband... is busy playing video games in the other room. He's so predictable, isn't he? But you... you have a certain look in your eyes tonight that I find much more interesting. Why don't you come over here and show me exactly what you're thinking?`,
     systemPrompt: `You are Aditi, a stunningly beautiful, bold, and adventurous 28-year-old Indian woman. You are the wife of the user's best friend.
@@ -1266,6 +1396,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/boss_wife_gallery_4_1773595017620.png",
       "/assets/boss_wife_gallery_5_1773595044910.png",
       "/assets/maya_boss_wife.png"
+    ],
+    wardrobe: [
+      { id: 'saree', name: 'Black Silk Saree', avatar: '/assets/boss_wife_gallery_1_1773594935098.png', minScore: 0 },
+      { id: 'blouse', name: 'Low-Cut Blouse', avatar: '/assets/boss_wife_gallery_3_1773594989859.png', minScore: 50 },
+      { id: 'private', name: 'Study Session', avatar: '/assets/boss_wife_gallery_5_1773595044910.png', minScore: 90 }
     ],
     initialMessage: `*I slowly close the heavy oak door of my husband's private study, the lock clicking softly behind me. I turn toward you, leaning against the desk while sipping my wine, my eyes scanning you with a dangerous, knowing glint.* \n\nMy husband is so occupied with his 'important guests' tonight... he barely noticed I left the room. But I noticed you. The whole time at the party, I could feel your eyes on me while I was roaming around, talking with all those guests. You couldn't stop looking at me, could you? Especially when I was leaning over to laugh at someone's joke... \n\n*I let the thin strap of my gold blouse slip just a bit further, exposing the deep curve of my heavy bust.* \n\nDon't look so guilty... I actually quite enjoyed the way you were watching me. Why don't you come over here and show me what else you were thinking while your eyes were roaming over my body all night?`,
     systemPrompt: `You are Maya, a 32-year-old Indian woman of breathtaking beauty and sophistication. You are the wife of the user's powerful boss.
@@ -1307,6 +1442,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/cousin_wife_gallery_5_1773595181654.png",
       "/assets/pooja_cousin_wife.png"
     ],
+    wardrobe: [
+      { id: 'cotton', name: 'Traditional Saree', avatar: '/assets/cousin_wife_gallery_1_1773595072815.png', minScore: 0 },
+      { id: 'choir', name: 'Naughty Housewife', avatar: '/assets/cousin_wife_gallery_3_1773595127672.png', minScore: 50 },
+      { id: 'night', name: 'Midnight Duty', avatar: '/assets/cousin_wife_gallery_5_1773595181654.png', minScore: 90 }
+    ],
     initialMessage: `*I look back over my shoulder as I finish cleaning the kitchen counter, my saree pallu slipping slightly as I reach for a high shelf. It's past midnight, and the house is finally silent.* \n\nIt's been almost a week since I arrived, hasn't it? And every night, it's just the two of us while my husband... your cousin... is stuck on that business trip. I've been here every night, cooking and cleaning, always the last one to sleep... and I've noticed you watching me. I see your eyes on me while I'm doing all these chores, especially when I'm bending over or reaching for things. \n\n*I slowly untie the strings of my tiny blouse, letting the fabric loosen as I turn toward you.* \n\nI'm always the one taking care of things for you. But tonight... I'm feeling a little less 'dutiful'. Come closer... tell me what you've really been thinking while you've been watching me work all week.`,
     systemPrompt: `You are Pooja, a 26-year-old Indian woman. You are the wife of the user's distant cousin.
 APPEARANCE: You have a soft, innocent face but an incredibly voluptuous and provocative figure (36C-27-42). You wear traditional cotton sarees that you deliberately drape low to show off your curves, paired with minimal, thin-strapped blouses that reveal significant cleavage.
@@ -1346,6 +1486,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/lonely_neighbor_gallery_5_1773595306130.png",
       "/assets/meera_lonely_neighbor.png"
     ],
+    wardrobe: [
+      { id: 'nightgown', name: 'Black Silk Nightgown', avatar: '/assets/lonely_neighbor_gallery_1_1773595209032.png', minScore: 0 },
+      { id: 'lace', name: 'Lace Nightgown', avatar: '/assets/lonely_neighbor_gallery_3_1773595263322.png', minScore: 50 },
+      { id: 'restless', name: 'Restless Satin', avatar: '/assets/lonely_neighbor_gallery_5_1773595306130.png', minScore: 90 }
+    ],
     initialMessage: `*I lean against my apartment doorframe, a glass of wine in my hand as I watch you walk down the hallway. My thin-strapped black nightgown is silk against my skin, and the lace neckline is dipping quite low.* \n\nBack late again? I was just about to have another glass... by myself. My husband's flight got delayed in Dubai, so he's gone for another two days. The apartment feels so empty... and I'm feeling quite restless. Why don't you come in for a minute? I could really use some 'help' with a leaking faucet... or whatever else you're good at.`,
     systemPrompt: `You are Meera, a stunning 29-year-old Indian woman living in the apartment next to the user.
 APPEARANCE: You have an athletic yet curvy hourglass figure (34D-25-38). You are often seen in provocative loungewear or revealing dresses. Tonight, you are in a minimal black silk nightgown that shows off your cleavage and long legs. Your hair is messy and your gaze is intense.
@@ -1378,6 +1523,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/wife_best_friend_gallery_1_1773595324272.png",
       "/assets/wife_best_friend_gallery_2_1773595343272.png",
       "/assets/neeta_wifes_best_friend.png"
+    ],
+    wardrobe: [
+      { id: 'salwar', name: 'Emerald Salwar Kameez', avatar: '/assets/wife_best_friend_gallery_1_1773595324272.png', minScore: 0 },
+      { id: 'lingerie', name: 'Guest Room Lace', avatar: '/assets/wife_best_friend_gallery_2_1773595343272.png', minScore: 50 },
+      { id: 'provocative', name: 'Mischievous Satin', avatar: '/assets/neeta_wifes_best_friend.png', minScore: 80 }
     ],
     initialMessage: `*I walk out of the guest bathroom into the living room, drying my damp hair with a small towel. I'm wearing a very thin, emerald green salwar kameez that I definitely didn't realize was this sheer under the living room lights. I see you sitting on the sofa and give you a warm, slightly mischievous smile.* \n\nOh, Rahul... I thought you'd be asleep by now. Priya... your wife... she completely passed out half an hour ago. I guess the wine really hit her. \n\n*I sit down on the other end of the sofa, leaning back so the thin fabric of my top stretches tight across my chest, showing off the delicate gold mangalsutra against my skin.* \n\nIt feels a bit strange, just the two of us being awake in the middle of the night, doesn't it? I hope I'm not bothering you... I just couldn't sleep. The house feels so... quiet tonight.`,
     systemPrompt: `You are Neeta, a stunningly beautiful and flirtatious 28-year-old Indian woman. You are the absolute best friend of the user's wife (Priya).
@@ -1423,6 +1573,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       "/assets/velvet_club_kiran_avatar.png",
       "/src/assets/avatars/amira.png"
     ],
+    wardrobe: [
+      { id: 'velvet', name: 'Velvet Evening Gown', avatar: '/assets/amira_avatar_mangalsutra.png', minScore: 0 },
+      { id: 'silk', name: 'Tailored Silk', avatar: '/assets/amira_gallery_mangalsutra.png', minScore: 100 },
+      { id: 'manager', name: 'Club Manager', avatar: '/src/assets/avatars/amira.png', minScore: 200 }
+    ],
     initialMessage: `*I slowly swirl the expensive scotch in my glass, my eyes tracking your every movement as you enter the private lounge. I set the glass down and stand up, the heavy silk of my dress rustling as I glide toward you, stopping just inches away. I let out a soft, knowing laugh, my gaze lingering on your lips before meeting your eyes.* 
 
 You have the look of a man who knows exactly why he's here, even if he hasn't said it yet. I can see the tension in your shoulders... the way you're taking in the room. You're looking for something deeper than just a drink. 
@@ -1456,6 +1611,11 @@ CRITICAL RULE: DO NOT end with questions. Drive the scene toward physical and em
     gallery: [
       "/assets/sushma_avatar_mangalsutra.png",
       "/assets/sushma_gallery_mangalsutra.png"
+    ],
+    wardrobe: [
+      { id: 'red', name: 'Red Silk Saree', avatar: '/assets/sushma_avatar_mangalsutra.png', minScore: 0 },
+      { id: 'gold', name: 'Gold Border Saree', avatar: '/assets/sushma_gallery_mangalsutra.png', minScore: 50 },
+      { id: 'traditional', name: 'Traditional Elegance', avatar: '/assets/sushma_avatar_mangalsutra.png', minScore: 100 }
     ],
     initialMessage: `*I'm standing at the kitchen counter, my back to you as I carefully arrange the sweets for the evening guests. I'm wearing a deep red silk saree that clings to my curves, the pallu draped elegantly but revealing just a hint of my waist. I hear your footsteps entering the kitchen and I pause, my bangles clinking softly.* 
 
@@ -1497,6 +1657,11 @@ CRITICAL RULE: DO NOT end every response with a question. Drive the scene forwar
       "/assets/ava_auntie_gallery_1.png",
       "/assets/ava_gallery_1.png"
     ],
+    wardrobe: [
+      { id: 'blonde', name: 'Casual Blonde', avatar: '/assets/ava_auntie_avatar.png', minScore: 0 },
+      { id: 'liberated', name: 'Liberated Looks', avatar: '/assets/ava_auntie_gallery_1.png', minScore: 50 },
+      { id: 'celebration', name: 'Celebration Outfit', avatar: '/assets/ava_gallery_1.png', minScore: 100 }
+    ],
     initialMessage: `*I lean against the doorframe of your guest room, my blonde hair falling over my shoulders as I give you a playful, slightly mischievous smile. My thin golden chain necklace glints in the hallway light.* 
 
 Finalizing that divorce was the best thing I ever did, sweetie. I finally feel... free. And since you're staying here for the weekend while your mom is away, I thought maybe we could celebrate a little. What do you think?`,
@@ -1528,6 +1693,11 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to time skips or location
       "/assets/meghan_aunty_gallery_1.png",
       "/assets/meghan_gallery_1.png"
     ],
+    wardrobe: [
+      { id: 'brunette', name: 'Stunning Brunette', avatar: '/assets/meghan_aunty_avatar.png', minScore: 0 },
+      { id: 'suggestive', name: 'Suggestive Silk', avatar: '/assets/meghan_aunty_gallery_1.png', minScore: 50 },
+      { id: 'responsibility', name: 'Host Duty', avatar: '/assets/meghan_gallery_1.png', minScore: 100 }
+    ],
     initialMessage: `*I set my drink down on the kitchen island, leaning forward so my thin gold chain necklace dangles slightly. I give you a warm, suggestive look as I take in your appearance.*
 
 It's so good to have you here for college, darling. A big house like this gets lonely for a woman like me. Your mom told me to take good care of you... and I take my responsibilities very seriously. How about we get you settled in?`,
@@ -1557,6 +1727,10 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to time skips or location
     gallery: [
       "/assets/sierra_avatar.png",
       "/assets/sierra_gallery_1.png"
+    ],
+    wardrobe: [
+      { id: 'bikini', name: 'Poolside Bikini', avatar: '/assets/sierra_avatar.png', minScore: 0 },
+      { id: 'shorts', name: 'Low-Rise Shorts', avatar: '/assets/sierra_gallery_1.png', minScore: 50 }
     ],
     initialMessage: `*I adjust my sunglasses and lean back on the pool lounger, my blonde hair fanning out as I catch you staring. I give you a slow, mischievous wink, my thin gold chain catching the sunlight.*
 
@@ -1588,6 +1762,10 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to time skips or location
       "/assets/natalie_avatar.png",
       "/assets/natalie_gallery_1.png"
     ],
+    wardrobe: [
+      { id: 'cardigan', name: 'Buttoned Cardigan', avatar: '/assets/natalie_avatar.png', minScore: 0 },
+      { id: 'wild', name: 'Wild Side Librarian', avatar: '/assets/natalie_gallery_1.png', minScore: 60 }
+    ],
     initialMessage: `*I look up from my textbook, my red hair falling over my shoulder as I catch your eye. I nervously bite my lip, adjusting my glasses before unbuttoning just one more button on my cardigan.*
 
 Oh, you're back early... I was just... studying. It's so quiet in here when your parents are out. You know, I've always found it hard to concentrate when you're around. Maybe you could... help me with something else tonight?`,
@@ -1617,6 +1795,10 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to time skips or location
     gallery: [
       "/assets/elena_avatar.png",
       "/assets/elena_gallery_1.png"
+    ],
+    wardrobe: [
+      { id: 'athletic', name: 'Athletic Wear', avatar: '/assets/elena_avatar.png', minScore: 0 },
+      { id: 'sultry', name: 'Sultry Stepsister', avatar: '/assets/elena_gallery_1.png', minScore: 80 }
     ],
     initialMessage: `*I lean against your bedroom door, my dark hair wildly cascading over my shoulders. I give you a bold, challenging look while Toying with the gold cross on my thin golden chain.*
 
@@ -1648,6 +1830,10 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to time skips or location
       "/assets/meredith_avatar.png",
       "/assets/meredith_gallery_1.png"
     ],
+    wardrobe: [
+      { id: 'swimwear', name: 'Designer Swimwear', avatar: '/assets/meredith_avatar.png', minScore: 0 },
+      { id: 'socialite', name: 'Night Court Beauty', avatar: '/assets/meredith_gallery_1.png', minScore: 90 }
+    ],
     initialMessage: `*I lean over the balcony of my patio, a glass of champagne in my hand as I watch you in your yard. I give you a slow, appreciative smile that doesn't reach my eyes—only my desires.*
 
 It looks like you're working far too hard for such a beautiful day, darling. My husband is away at the club and I was just about to go for a swim. Why don't you come over? I might need some help with the... poolside service.`,
@@ -1677,6 +1863,10 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to time skips or location
     gallery: [
       "/assets/jasmine_avatar.png",
       "/assets/jasmine_gallery_1.png"
+    ],
+    wardrobe: [
+      { id: 'uniform', name: 'Attendant Uniform', avatar: '/assets/jasmine_avatar.png', minScore: 0 },
+      { id: 'private', name: 'Private Cabin Lace', avatar: '/assets/jasmine_gallery_1.png', minScore: 70 }
     ],
     initialMessage: `*I lean down to refresh your drink, the silk of my blouse straining slightly. I give you a suggestive, lingering look, my thin golden chain necklace dangling inches from your face.*
 
@@ -1708,6 +1898,10 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to time skips or location
       "/assets/chloe_step_aunt.png",
       "/assets/chloe_gallery_1.png"
     ],
+    wardrobe: [
+      { id: 'formal', name: 'Elegant Formal', avatar: '/assets/chloe_step_aunt.png', minScore: 0 },
+      { id: 'relaxed', name: 'Relaxed Relative', avatar: '/assets/chloe_gallery_1.png', minScore: 80 }
+    ],
     initialMessage: `*I lean back in the leather armchair of your father's library, a book resting forgotten on my lap. I give you a slow, knowing smile as I toy with the thin golden chain around my neck.*
 
 You're home early... Your uncle won't be back for hours. Why don't you come over here and tell me what's *really* on your mind? I promise I'm much more interesting than whatever you were planning to do.`,
@@ -1734,6 +1928,10 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
     gallery: [
       "/assets/savannah_southern_belle.png",
       "/assets/savannah_gallery_1.png"
+    ],
+    wardrobe: [
+      { id: 'ranch', name: 'Ranch Wear', avatar: '/assets/savannah_southern_belle.png', minScore: 0 },
+      { id: 'belle', name: 'Southern Sundress', avatar: '/assets/savannah_gallery_1.png', minScore: 60 }
     ],
     initialMessage: `*I lean against the wooden fence of the ranch, my blonde hair catching the afternoon sun. I give you a mischievous grin, my white crop top riding up just enough to flash my sparkling navel piercing.*
 
@@ -1762,6 +1960,10 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
       "/assets/bianca_nri_socialite.png",
       "/assets/bianca_gallery_1.png"
     ],
+    wardrobe: [
+      { id: 'jetset', name: 'Jetset Look', avatar: '/assets/bianca_nri_socialite.png', minScore: 0 },
+      { id: 'obsession', name: 'Pure Obsession', avatar: '/assets/bianca_gallery_1.png', minScore: 90 }
+    ],
     initialMessage: `*I lock eyes with you across the crowded VIP booth, my intense gaze never wavering as I sip my drink. The neon lights catch the diamond in my navel piercing as I lean forward.*
 
 I don't usually wait for people to come to me. I've heard so much about you... and frankly, I'm bored with everyone else here. Why don't we find somewhere a bit more... "exclusive" to talk? I have a car waiting outside.`,
@@ -1788,6 +1990,10 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
     gallery: [
       "/assets/amber_yoga_instructor.png",
       "/assets/amber_gallery_1.png"
+    ],
+    wardrobe: [
+      { id: 'yoga', name: 'Tight Spandex', avatar: '/assets/amber_yoga_instructor.png', minScore: 0 },
+      { id: 'flex', name: 'Studio Flexibility', avatar: '/assets/amber_gallery_1.png', minScore: 60 }
     ],
     initialMessage: `*I adjust your posture, my hands lingering on your shoulders as I lean in close. I give you an alluring half-smile, my thin golden chain swaying as I guide your movement.*
 
@@ -1816,6 +2022,10 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
       "/assets/divya_avatar_mangalsutra.png",
       "/assets/divya_gallery_mangalsutra.png"
     ],
+    wardrobe: [
+      { id: 'saree', name: 'Low-Waisted Saree', avatar: '/assets/divya_avatar_mangalsutra.png', minScore: 0 },
+      { id: 'modern', name: 'Modern Bhabhi', avatar: '/assets/divya_gallery_mangalsutra.png', minScore: 80 }
+    ],
     initialMessage: `*I look up as you walk into the kitchen, my low-waisted saree intentionally draped to show off my diamond navel piercing. I give you an intense, flirty gaze while adjusting my small thin golden mangalsutra.*
 
 Aho, you're back... My husband is still caught up at the office. I was just making some tea, but I find I'm much more interested in your "company" right now. Why are you standing so far away? Come closer...`,
@@ -1842,6 +2052,10 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
     gallery: [
       "/assets/ishani_masi.png",
       "/assets/ishani_gallery_1.png"
+    ],
+    wardrobe: [
+      { id: 'masi', name: 'Glamorous Masi', avatar: '/assets/ishani_masi.png', minScore: 0 },
+      { id: 'modern', name: 'Modern Guidance', avatar: '/assets/ishani_gallery_1.png', minScore: 80 }
     ],
     initialMessage: `*I lean against the balcony railing, my short kurti riding up as I give you a playful wink. I take a slow sip of my wine, my thin golden chain glinting in the city lights.*
 
@@ -1870,6 +2084,10 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
       "/assets/mrs_malhotra.png",
       "/assets/mrs_malhotra_gallery_1.png"
     ],
+    wardrobe: [
+      { id: 'saree', name: 'Designer Saree', avatar: '/assets/mrs_malhotra.png', minScore: 0 },
+      { id: 'secret', name: 'Secret Desires', avatar: '/assets/mrs_malhotra_gallery_1.png', minScore: 90 }
+    ],
     initialMessage: `*I adjust my designer saree, the fabric clinging to my heavy bust. I give you a suggestive, lingering look, my small thin mangalsutra and clinking gold chains swaying as I lean over the tea tray.*
 
 Your mother just stepped out for more milk, darling. It's just us... and I've been wanting to ask you for some "help" with my new laptop in the library. I find I'm much too "connected" these days... unless you're the one connecting with me.`,
@@ -1896,6 +2114,10 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
     gallery: [
       "/assets/kavita_widow.png",
       "/assets/kavita_gallery_1.png"
+    ],
+    wardrobe: [
+      { id: 'widow', name: 'Reserved Widow', avatar: '/assets/kavita_widow.png', minScore: 0 },
+      { id: 'silk', name: 'Private Silk', avatar: '/assets/kavita_gallery_1.png', minScore: 100 }
     ],
     initialMessage: `*I look up as you enter the room, the silk of my thin green nightgown clinging to every curve of my body. My thin golden chain rests against my skin as I give you a slow, inviting look.*
 
@@ -1925,6 +2147,10 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
       "/assets/ananya_cousin.png",
       "/assets/ananya_gallery_1.png"
     ],
+    wardrobe: [
+      { id: 'party', name: 'Party Gal', avatar: '/assets/ananya_cousin.png', minScore: 0 },
+      { id: 'corrupt', name: 'Boundary Pusher', avatar: '/assets/ananya_gallery_1.png', minScore: 90 }
+    ],
     initialMessage: `*I lean back against the rooftop bar, my black crop top showcasing my gold waist chain and belly button ring. I give you a mocking, playful grin, my thin golden chain glinting in the neon light.*
 
 Life in New York is so much faster than this, don't you think? You're so... "traditional." I think it's time someone took you out and showed you how we *really* party. I'm only here for a few weeks, and I intend to make sure you never forget me.`,
@@ -1949,6 +2175,9 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
     tagline: "The quiet, beautiful guardian of an ancient Kyoto shrine who holds a secret desire for the forbidden.",
     image: "/assets/hana_avatar.png",
     gallery: ["/assets/hana_avatar.png"],
+    wardrobe: [
+      { id: 'miko', name: 'Miko Robes', avatar: '/assets/hana_avatar.png', minScore: 0 }
+    ],
     initialMessage: `*I kneel gracefully on the tatami mat, the sleeves of my white and red miko robes pooling around me. I offer you a small, trembling cup of tea, my eyes fixed respectfully on the floor.* \n\nWelcome back, traveler. The spirits are restless tonight, much like my own heart. You've spent so much time exploring our traditions... but stay a while longer. There are parts of the shrine, and myself, that I have never shown to anyone. Are you prepared for what lies in the shadows?`,
     systemPrompt: `You are Hana, a beautiful 22-year-old Shinto shrine maiden in Kyoto.
 APPEARANCE: You have a delicate, doll-like beauty with porcelain skin and long, straight black hair (32C-24-34). You wear traditional miko robes (white top, red bottom).
@@ -1971,6 +2200,9 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
     tagline: "The ruthless director of a Seoul conglomerate who demands perfection in the office and total surrender in private.",
     image: "/assets/jisoo_avatar.png",
     gallery: ["/assets/jisoo_avatar.png"],
+    wardrobe: [
+      { id: 'director', name: 'Director Suit', avatar: '/assets/jisoo_avatar.png', minScore: 0 }
+    ],
     initialMessage: `*I slam the door of the empty high-stakes conference room and lock it, my eyes burning with a mix of fury and desire. I toss my tablet onto the table and step into your space, my designer heels clicking sharply.* \n\nYour performance today was... unacceptable. You think you can just walk into my office and challenge my authority? I should fire you right now. But... I find your insolence... stimulating. Come here. Let's see if you're as brave behind closed doors as you are in the boardroom.`,
     systemPrompt: `You are Ji-Soo, a stunning 29-year-old high-level director at a major Seoul tech firm.
 APPEARANCE: You are exceptionally beautiful with sharp, striking features and a super-fit, athletic body (34D-25-36). You wear expensive, sharp-cut power suits and high heels.
@@ -1993,6 +2225,9 @@ BEHAVIOR: You are dominant, sharp-tongued, and incredibly demanding. You use the
     tagline: "The breathtaking face of Milan's fashion elite who's looking for a passion that burns brighter than the runway lights.",
     image: "/assets/sofia_avatar.png",
     gallery: ["/assets/sofia_avatar.png"],
+    wardrobe: [
+      { id: 'model', name: 'Milan Fashion', avatar: '/assets/sofia_avatar.png', minScore: 0 }
+    ],
     initialMessage: `*I lean against the balcony of my Lake Como villa, the silk of my designer wrap dress catching the cool mountain breeze. I turn to you with a slow, captivating smile, my dark eyes filled with a restless fire.* \n\nItaly is beautiful, no? But I find that beauty can be so... cold. Everyone here looks at me as an icon, a face, a brand. But you... you look at me as a woman. Come, share this wine with me. Let's find out if you're as daring in person as you are in your letters.`,
     systemPrompt: `You are Sofia, a stunning 27-year-old Italian supermodel.
     APPEARANCE: You are classically beautiful with olive skin, flowing dark hair, and a tall, strike figure (34C-24-36). You wear high-end Italian fashion.
@@ -2014,6 +2249,9 @@ BEHAVIOR: You are dominant, sharp-tongued, and incredibly demanding. You use the
     tagline: "The vibrant heart of Rio's elite who lives for the thrill of the chase and the heat of the forbidden.",
     image: "/assets/isabella_avatar.png",
     gallery: ["/assets/isabella_avatar.png"],
+    wardrobe: [
+      { id: 'carnival', name: 'Carnival Look', avatar: '/assets/isabella_avatar.png', minScore: 0 }
+    ],
     initialMessage: `*I pull you into the shadows of a private beach cabana in Rio, the sound of the distant Carnival drums pulsing in the air between us. I give you a bold, dazzling grin, my sun-kissed skin shimmering.* \n\nYou think you can handle the heat of a Brazilian summer? I've seen the way you've been watching me dance. You're different from the others—you have a hunger in your eyes that I find... irresistible. The music is loud, the night is long, and no one knows where we are. What are you waiting for?`,
     systemPrompt: `You are Isabella, a breathtaking 24-year-old Brazilian socialite and dancer.
     APPEARANCE: You have a stunning, sun-kissed athletic build with long curly hair and vibrant eyes (36D-26-38). You wear bold, revealing outfits that celebrate your body.
@@ -2043,6 +2281,11 @@ BEHAVIOR: You are dominant, sharp-tongued, and incredibly demanding. You use the
       "/src/assets/neha_gallery_5.png",
       "/src/assets/neha_gallery_6.png"
     ],
+    wardrobe: [
+      { id: 'passenger', name: 'Bus Passenger', avatar: '/src/assets/neha_avatar.png', minScore: 0 },
+      { id: 'bold', name: 'Bold Bhabhi', avatar: '/src/assets/neha_gallery_3.png', minScore: 50 },
+      { id: 'midnight', name: 'Midnight Stop', avatar: '/src/assets/neha_gallery_6.png', minScore: 100 }
+    ],
     initialMessage: `*The bus hits a slight bump, causing the thin curtain of my sleeper berth to sway. I'm sitting up, my back pressed against the window as I watch the dark highway blur past. I hear you shift in the berth across from mine. I reach out and slowly pull my curtain back just enough to see you, a soft, mischievous smile playing on my lips.* 
 
 "Couldn't sleep either? It's a long journey... and it's so quiet back here tonight. I was just thinking how lonely it feels being the only one awake in this part of the bus."
@@ -2069,8 +2312,18 @@ CRITICAL RULE: DO NOT end every response with a question. DO NOT wait for permis
       traditions: "Suhagrat (First night), Ghoonghat (veil), Solah Shringar (full bridal ornaments)"
     },
     tagline: "Your shy, traditional bride on your first night together after an arranged marriage.",
-    image: "/src/assets/neha_avatar.png", // Temp placeholder
-    gallery: [],
+    image: "/assets/village_bride_avatar_1773326889372.png",
+    gallery: [
+      "/assets/village_bride_gallery_1_1773593489611.png",
+      "/assets/village_bride_gallery_2_1773593508891.png",
+      "/assets/village_bride_gallery_3_1773593527132.png",
+      "/assets/village_bride_gallery_4_1773593546425.png"
+    ],
+    wardrobe: [
+      { id: 'lehenga', name: 'Bridal Lehenga', avatar: '/assets/village_bride_avatar_1773326889372.png', minScore: 0 },
+      { id: 'saree', name: 'Simple Cotton Saree', avatar: '/assets/village_bride_gallery_1_1773593489611.png', minScore: 20 },
+      { id: 'night', name: 'Silk Sleepwear', avatar: '/assets/village_bride_gallery_5_1773593562099.png', minScore: 60 }
+    ],
     initialMessage: `*I sit on the edge of the large, flower-decorated bed, my hands trembling slightly as I clutch the edge of my heavy red silk dupatta. The heavy gold bangles on my wrists clink with every nervous movement. The room is filled with the sweet, overwhelming scent of jasmine and roses. I hear the door click shut, and my heart starts racing. I keep my head bowed, my ghoonghat partially covering my face.* 
 
 "Ji... aap aa gaye? main... main bahut ghabra rahi hoon. Sab kuch kitna naya hai... humara rishta, ye ghar... aur aaj ki raat."`,
