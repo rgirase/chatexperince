@@ -185,6 +185,20 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
 
     return (
         <div className="persona-list-container fade-in" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+            {/* Toast Notification */}
+            {saveToast && (
+                <div style={{
+                    position: 'fixed', top: '1.5rem', left: '50%', transform: 'translateX(-50%)',
+                    background: 'rgba(16, 185, 129, 0.95)', color: 'white',
+                    padding: '0.75rem 1.5rem', borderRadius: '12px',
+                    fontWeight: 'bold', fontSize: '0.9rem', zIndex: 9999,
+                    boxShadow: '0 4px 20px rgba(16,185,129,0.3)',
+                    animation: 'fadeIn 0.2s ease'
+                }}>
+                    {saveToast}
+                </div>
+            )}
+
             <div className="header" style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
                 <button className="back-btn" onClick={onBack} style={{ marginRight: '1rem' }}>
                     <ArrowLeft size={20} />
