@@ -1,36 +1,42 @@
 /**
- * KILL SWITCH Service Worker
+ * Minimal Production-Ready Service Worker
  * 
- * This SW's only job is to unregister itself and clear ALL caches.
- * This permanently fixes the "blank black screen" issue caused by a
- * previous rogue service worker serving stale content.
+ * - Caches app shell on install for offline support
+ * - Uses network-first strategy so updates always come through
+ * - Required for Android PWA standalone mode ("Add to Home Screen")
  */
-self.addEventListener('install', (event) => {
-  // Force this new SW to become active immediately, bypassing the waiting phase
-  self.skipWaiting();
-});
+const CACHE_NAME = 'aura-app-v1';
+const PRECACHE_URLS = ['/', '/index.html'];
 
-self.addEventListener('activate', (event) => {
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
-    // Step 1: Delete every cache stored by any previous SW version
-    caches.keys()
-      .then((cacheNames) => Promise.all(cacheNames.map((name) => caches.delete(name))))
-      .then(() => {
-        console.log('[SW] All caches cleared successfully.');
-        // Step 2: Take control of all open tabs immediately
-        return self.clients.claim();
-      })
-      .then(() => {
-        // Step 3: Unregister THIS service worker so it never runs again
-        return self.registration.unregister();
-      })
-      .then(() => {
-        console.log('[SW] Service Worker unregistered. App will now load fresh from the network.');
-      })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
   );
 });
 
-// Let all fetches go directly to the network — no caching at all
+self.addEventListener('activate', (event) => {
+  // Remove old caches from previous versions
+  event.waitUntil(
+    caches.keys().then((names) =>
+      Promise.all(names.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n)))
+    ).then(() => self.clients.claim())
+  );
+});
+
 self.addEventListener('fetch', (event) => {
-  event.respondWith(fetch(event.request));
+  // Network-first: always try network, fall back to cache
+  // This ensures users always get the latest code
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        // Cache successful GET responses for the app shell
+        if (response.ok && event.request.method === 'GET') {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
+  );
 });
