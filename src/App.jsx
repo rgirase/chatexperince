@@ -136,8 +136,9 @@ function App() {
     setSavedServers(servers);
     setActiveServerUrl(localStorage.getItem('lmStudioUrl') || '');
 
-    // Always ensure a 'home' entry exists at the base of the history stack
-    // This prevents history.back() from navigating out of the app
+    // Always ensure a 'home' entry exists at the base of the history stack.
+    // This prevents history.back() from ever navigating out of the app.
+    const savedView = localStorage.getItem('activeView') || 'home';
     window.history.replaceState({ view: 'home' }, '');
 
     if (savedView === 'settings') {
