@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift } from 'lucide-react';
 import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage } from '../services/llm';
 import { saveMilestone, getMemories, clearMemories } from '../services/memory';
 import { Book, History } from 'lucide-react';
@@ -174,6 +174,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isJournalOpen, setIsJournalOpen] = useState(false);
+    const [isGiftsModalOpen, setIsGiftsModalOpen] = useState(false);
     const [milestones, setMilestones] = useState(() => getMemories(persona.id));
     const [newManualMemory, setNewManualMemory] = useState('');
     const [isPhotoGalleryOpen, setIsPhotoGalleryOpen] = useState(false);
@@ -677,6 +678,32 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         }
     };
 
+    const handleSendGift = async (gift) => {
+        setIsGiftsModalOpen(false);
+        setIsTyping(true);
+
+        const giftMessage = { 
+            id: Date.now().toString(), 
+            role: 'user', 
+            content: `*Sends you a gift: ${gift.name}*` 
+        };
+        setMessages(prev => [...prev, giftMessage]);
+
+        // Reward relationship score
+        setRelationshipScore(prev => Math.min(100, prev + gift.bonus));
+
+        const aiMessageId = (Date.now() + 1).toString();
+        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
+
+        const giftDirective = {
+            role: 'user',
+            content: `[SYSTEM DIRECTIVE: The user has just gifted you a ${gift.name}. This is a ${gift.description}. React with intense emotion, surprise, and deep gratitude. Describe your physical reaction in detail as you receive it. Stay in character.]`
+        };
+
+        const contextWindow = messages.slice(-15);
+        await executeAiRequest(aiMessageId, [...contextWindow, giftMessage, giftDirective]);
+    };
+
     // Deterministic pseudo-random color based on persona name
     const getStringHash = (str) => {
         let hash = 0;
@@ -791,6 +818,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     </button>
                     <button onClick={() => { setIsJournalOpen(true); setIsMobileMenuOpen(false); }}>
                         <Book size={16} color="#10b981" /> Character Journal
+                    </button>
+                    <button onClick={() => { setIsGiftsModalOpen(true); setIsMobileMenuOpen(false); }}>
+                        <Gift size={16} color="#f472b6" /> Send a Gift
                     </button>
                     <button onClick={() => { handleScenarioShuffle(); setIsMobileMenuOpen(false); }}>
                         <Wand2 size={16} color="#eab308" /> Shuffle Scenario
@@ -1329,6 +1359,40 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     </div>
                 ))}
             </div>
+            {isGiftsModalOpen && (
+                <div className="modal-overlay" onClick={() => setIsGiftsModalOpen(false)}>
+                    <motion.div 
+                        className="modal-content gift-modal" 
+                        onClick={e => e.stopPropagation()}
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                    >
+                        <div className="modal-header">
+                            <h2>Send a Gift to {persona.name}</h2>
+                            <button className="close-btn" onClick={() => setIsGiftsModalOpen(false)}><X size={24} /></button>
+                        </div>
+                        <p className="modal-description">Sending gifts increases your Bond and triggers special emotional reactions.</p>
+                        
+                        <div className="gift-grid">
+                            {[
+                                { id: 'flowers', name: 'Fresh Flowers', icon: '🌸', bonus: 10, description: 'A beautiful bouquet of her favorite flowers.' },
+                                { id: 'chocolate', name: 'Premium Chocolates', icon: '🍫', bonus: 15, description: 'A luxury box of imported dark chocolates.' },
+                                { id: 'jewelry', name: 'Gold Necklace', icon: '📿', bonus: 25, description: 'An elegant, handcrafted gold piece.' },
+                                { id: 'saree', name: 'Silk Saree', icon: '👗', bonus: 25, description: 'A stunning, vibrant traditional silk saree.' }
+                            ].map(gift => (
+                                <button key={gift.id} className="gift-card" onClick={() => handleSendGift(gift)}>
+                                    <span className="gift-icon">{gift.icon}</span>
+                                    <div className="gift-info">
+                                        <h3>{gift.name}</h3>
+                                        <p>{gift.description}</p>
+                                        <span className="gift-bonus">+{gift.bonus} Bond</span>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
 };

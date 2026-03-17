@@ -450,6 +450,68 @@ body {
   border-radius: 4px;
 }
 
+/* --- Gift Modal Styling --- */
+.gift-modal {
+  max-width: 500px !important;
+  padding: 1.5rem !important;
+}
+
+.modal-description {
+  color: #a1a1aa;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.gift-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.gift-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.gift-card:hover {
+  background: rgba(244, 114, 182, 0.1);
+  border-color: #f472b6;
+  transform: translateY(-2px);
+}
+
+.gift-icon {
+  font-size: 2rem;
+}
+
+.gift-info h3 {
+  font-size: 0.95rem;
+  margin: 0;
+  color: #fff;
+}
+
+.gift-info p {
+  font-size: 0.75rem;
+  color: #a1a1aa;
+  margin: 4px 0;
+  line-height: 1.2;
+}
+
+.gift-bonus {
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #f472b6;
+  text-transform: uppercase;
+}
+
 /* --- Live Scene Effects --- */
 .scene-background-container {
   position: absolute;
