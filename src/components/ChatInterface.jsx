@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift, Shirt } from 'lucide-react';
-import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage } from '../services/llm';
+import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage, generateDiaryEntry } from '../services/llm';
 import { saveMilestone, getMemories, clearMemories } from '../services/memory';
 import { Book, History } from 'lucide-react';
 import { SCENES, detectSceneId } from '../data/scenes';
@@ -180,6 +180,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const [newManualMemory, setNewManualMemory] = useState('');
     const [isPhotoGalleryOpen, setIsPhotoGalleryOpen] = useState(false);
     const [activePersonaImage, setActivePersonaImage] = useState(persona.image);
+    const [currentMood, setCurrentMood] = useState(null);
     const messagesAreaRef = useRef(null);
     const abortControllerRef = useRef(null);
     const [currentSceneId, setCurrentSceneId] = useState(() => localStorage.getItem(`scene_${persona.id}`) || 'default');
@@ -641,6 +642,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                         .replace(/\[SCORE:\s*[+-]\d+\]/gi, '')
                         .replace(/\[PHOTO:\s*.*?\]/gi, '')
                         .replace(/\[AVATAR:\s*.*?\]/gi, '')
+                        .replace(/\[MOOD:\s*.*?\]/gi, '')
                         .replace(/\[VOICE:\s*moan\]/gi, '')
                         .replace(/\[PHYSICAL ACTION:\]/gi, '')
                         .replace(/\[WHISPER\]/gi, '')
@@ -662,7 +664,19 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     const avatarMatch = fullText.match(/\[AVATAR:\s*(.*?)\]/i);
                     if (avatarMatch) setActivePersonaImage(avatarMatch[1].trim());
 
-                    if (scoreDelta !== 0) setRelationshipScore(prev => Math.max(0, Math.min(100, prev + (scoreDelta * 5))));
+                    const moodMatch = fullText.match(/\[MOOD:\s*(.*?)\]/i);
+                    if (moodMatch) setCurrentMood(moodMatch[1].trim());
+
+                    if (scoreDelta !== 0) {
+                        setRelationshipScore(prev => {
+                            const newScore = Math.max(0, Math.min(100, prev + (scoreDelta * 5)));
+                            // Detect Memorable Moment (Significant jump)
+                            if (scoreDelta >= 2 && newScore >= prev + 10) {
+                                saveMemorableMoment(persona, fullText, activePersonaImage);
+                            }
+                            return newScore;
+                        });
+                    }
                     if (photoPrompt) generateSelfie(photoPrompt, persona, aiMessageId, setMessages);
                 },
                 (errMessage) => {
@@ -682,6 +696,48 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         } catch (e) {
             setIsTyping(false);
         }
+    };
+
+    const saveMemorableMoment = (persona, content, image) => {
+        const moments = JSON.parse(localStorage.getItem(`moments_${persona.id}`) || '[]');
+        const cleanContent = content
+            .replace(/\[MOOD:\s*.*?\]/gi, '')
+            .replace(/\[SCORE:\s*[+-]\d+\]/gi, '')
+            .replace(/\[PHOTO:\s*.*?\]/gi, '')
+            .replace(/\[AVATAR:\s*.*?\]/gi, '')
+            .trim();
+        
+        // Only keep if something remains
+        if (!cleanContent) return;
+
+        const newMoment = {
+            id: Date.now(),
+            content: cleanContent.split('\n').slice(-1)[0], // Just the last paragraph usually
+            image: image,
+            timestamp: new Date().toISOString()
+        };
+
+        // Don't save duplicates
+        if (moments.some(m => m.content === newMoment.content)) return;
+
+        moments.unshift(newMoment);
+        localStorage.setItem(`moments_${persona.id}`, JSON.stringify(moments.slice(0, 15)));
+    };
+
+    const handleHotspotClick = (hotspot) => {
+        const actionMessage = {
+            id: Date.now().toString(),
+            role: 'user',
+            content: `*${hotspot.action}*`,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        
+        setMessages(prev => [...prev, actionMessage]);
+        
+        // Trigger AI response to the action
+        setTimeout(() => {
+            executeAiRequest([...messages, actionMessage]);
+        }, 500);
     };
 
     const handleSend = async () => {
@@ -782,6 +838,28 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const hue1 = Math.abs(getStringHash(persona.name)) % 360;
     const hue2 = (hue1 + 45) % 360;
 
+    const handleExit = async (exitType) => {
+        // Trigger background diary generation before leaving
+        if (messages.length > 5) {
+            // We don't await this to keep UI snappy, but we fire and forget
+            generateDiaryEntry(persona, messages).then(entry => {
+                if (entry) {
+                    const diaries = JSON.parse(localStorage.getItem(`diaries_${persona.id}`) || '[]');
+                    diaries.unshift({
+                        id: Date.now(),
+                        content: entry,
+                        timestamp: new Date().toISOString()
+                    });
+                    // Keep only last 10 entries
+                    localStorage.setItem(`diaries_${persona.id}`, JSON.stringify(diaries.slice(0, 10)));
+                }
+            }).catch(err => console.error("Diary generation failed", err));
+        }
+
+        if (exitType === 'back') onBack();
+        else onGoHome();
+    };
+
     return (
         <div className="chat-container fade-in" onClick={() => isMobileMenuOpen && setIsMobileMenuOpen(false)} style={{ overflow: 'hidden' }}>
 
@@ -824,6 +902,39 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                         />
                     </>
                 )}
+
+                {/* Hotspots Overlay */}
+                {currentScene.hotspots && currentScene.hotspots.length > 0 && (
+                    <div className="hotspots-layer" style={{ position: 'absolute', inset: 0, zIndex: 5 }}>
+                        {currentScene.hotspots.map(spot => (
+                            <motion.div
+                                key={spot.id}
+                                className="hotspot-orb"
+                                style={{
+                                    position: 'absolute',
+                                    left: spot.x,
+                                    top: spot.y,
+                                    cursor: 'pointer'
+                                }}
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ 
+                                    scale: [1, 1.2, 1],
+                                    opacity: [0.6, 1, 0.6]
+                                }}
+                                transition={{ 
+                                    duration: 3, 
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                }}
+                                onClick={() => handleHotspotClick(spot)}
+                            >
+                                <div className="hotspot-pulse" />
+                                <div className="hotspot-label">{spot.label}</div>
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
+
                 <div 
                     className={`scene-overlay ${currentScene.effects.map(e => `effect-${e}`).join(' ')}`}
                     style={{ 
@@ -835,10 +946,10 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             </div>
 
             <div className="chat-header" style={{ position: 'relative', zIndex: 10 }}>
-                <button className="back-btn" onClick={onBack} title="Back">
+                <button className="back-btn" onClick={() => handleExit('back')} title="Back">
                     <ArrowLeft size={20} />
                 </button>
-                <button className="back-btn" onClick={onGoHome} title="Go Home">
+                <button className="back-btn" onClick={() => handleExit('home')} title="Go Home">
                     <Home size={20} />
                 </button>
                 {activePersonaImage ? (
@@ -866,8 +977,27 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 )}
                 <div className="chat-header-info" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <div style={{ flex: 1 }}>
-                        <h3>
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             {persona.name} {invitedPersona && `& ${invitedPersona.name}`}
+                            {currentMood && (
+                                <motion.span 
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    style={{
+                                        fontSize: '0.65rem',
+                                        background: 'rgba(168, 85, 247, 0.15)',
+                                        color: '#c084fc',
+                                        padding: '2px 8px',
+                                        borderRadius: '10px',
+                                        border: '1px solid rgba(168, 85, 247, 0.3)',
+                                        fontWeight: 'bold',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.05em'
+                                    }}
+                                >
+                                    {currentMood}
+                                </motion.span>
+                            )}
                         </h3>
                         <p>Online</p>
                     </div>
@@ -882,7 +1012,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
             {isMobileMenuOpen && (
                 <div className="more-dropdown" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={() => { onGoHome(); setIsMobileMenuOpen(false); }}>
+                    <button onClick={() => { handleExit('home'); setIsMobileMenuOpen(false); }}>
                         <Home size={16} color="#a1a1aa" /> Home
                     </button>
                     <button onClick={() => { setIsInviteModalOpen(true); setIsMobileMenuOpen(false); }}>

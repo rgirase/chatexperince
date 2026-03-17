@@ -9,6 +9,23 @@ const getLmStudioUrl = () => {
     return '/api/chat/completions'; // Fallback to proxy
 };
 
+const getModelId = () => {
+    return localStorage.getItem('lmStudioModel') || 'local-model';
+};
+
+export const fetchAvailableModels = async () => {
+    try {
+        const url = getLmStudioUrl().replace('/chat/completions', '/models');
+        const response = await fetch(url);
+        if (!response.ok) return [];
+        const data = await response.json();
+        return data.data || [];
+    } catch (e) {
+        console.error("Failed to fetch models", e);
+        return [];
+    }
+};
+
 // Helper to strip instructional patterns from AI output
 export const cleanLeakage = (text) => {
     if (!text) return text;
@@ -104,9 +121,12 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
     } = options;
 
     // 1. IMMERSIVE SYSTEM PROMPT (Minimal technical jargon to avoid meta-talk)
-    const systemPrompt = "You are a creative writer who specializes in immersive, visceral adult roleplay. You are now and forever the character defined below. Stay in character at all times. Use *asterisks* for actions and natural dialogue. Drive the story forward proactively. Ensure your responses are substantial and detailed.";
+    const systemPrompt = "You are a creative writer who specializes in immersive, visceral adult roleplay. You are now and forever the character defined below. Stay in character at all times. Use *asterisks* for actions and natural dialogue. Drive the story forward proactively. Ensure your responses are substantial and detailed. \n\nCRITICAL: Always append your current emotional state at the very end of your response in the format [MOOD: emotion] (e.g., [MOOD: Playful], [MOOD: Conflicted], [MOOD: Lustful]). Only use one emotion.";
 
     const charName = getShortName(persona.name);
+
+    const userAura = JSON.parse(localStorage.getItem('userAura') || 'null');
+    const auraPrompt = userAura ? `\n[USER REPUTATION: The user is known as "${userAura.name}". They typically interact in a way that is ${userAura.keywords.join(', ')}. Respond to them in a way that acknowledges and plays into this specific dynamic.]` : "";
 
     // 2. CONSTRUCT THE PRIMING CONTEXT (Narrative style, no technical headers)
     const primingContext = `Persona:
@@ -117,6 +137,7 @@ Current Dynamic:
 - Intensity: ${intensity}/5.
 - Language: Strictly avoid terms like "beta", "bachha", or "son".
 - Pacing: Move the scene forward with bold, visceral actions.
+${auraPrompt}
 
 Story Context:
 ${memory ? "The story so far: " + memory : "The scene begins now."}
@@ -173,7 +194,7 @@ Assume the role of ${charName} now. Show, don't tell.`;
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: "local-model",
+                model: getModelId(),
                 messages: formattedMessages,
                 max_tokens: 2048, 
                 stream: true,
@@ -306,7 +327,7 @@ RULES:
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: "local-model",
+                model: getModelId(),
                 messages: [
                     systemMessage,
                     { role: "user", content: "What should the User say next? Generate exactly one creative suggestion to continue the story." }
@@ -355,7 +376,7 @@ Return ONLY the new memory block. Do not include extra commentary or intro/outro
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: "local-model",
+                model: getModelId(),
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.3,
                 max_tokens: 500,
@@ -406,7 +427,7 @@ Return ONLY the sentence or "NONE". Do not include extra dialogue.`;
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: "local-model",
+                model: getModelId(),
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.3,
                 max_tokens: 150,
@@ -422,6 +443,48 @@ Return ONLY the sentence or "NONE". Do not include extra dialogue.`;
         return result.toUpperCase() === "NONE" ? null : result;
     } catch (error) {
         console.error("Error extracting milestones:", error);
+        return null;
+    }
+};
+
+export const generateDiaryEntry = async (persona, messages) => {
+    const charName = getShortName(persona.name);
+    const url = getLmStudioUrl();
+    const transcript = messages.map(msg => `${msg.role === 'user' ? 'User' : charName}: ${msg.content}`).slice(-20).join('\n\n');
+
+    const prompt = `You are a creative writer. Write a private diary entry from the perspective of ${charName} (female) after her recent interaction with the User.
+    
+    Transcript of recent interaction:
+    ${transcript}
+    
+    TASK: Write a 2-sentence diary entry that reveals her secret thoughts, feelings, or desires after this specific conversation. 
+    - Use first-person ("I").
+    - Be intimate, emotional, and visceral.
+    - Focus on how the User made her feel.
+    - Do NOT include any intro, outro, or meta-commentary. Just the two sentences.`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: getModelId(),
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.8,
+                max_tokens: 150,
+                stream: false,
+            }),
+        });
+
+        if (!response.ok) throw new Error(`Failed to generate diary entry`);
+
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content || "";
+        return cleanLeakage(content.trim());
+    } catch (error) {
+        console.error("Error generating diary entry:", error);
         return null;
     }
 };

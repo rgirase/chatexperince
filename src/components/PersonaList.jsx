@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search } from 'lucide-react';
+import { Search, Book, X, History, Clock, Map as MapIcon } from 'lucide-react';
 import { personas } from '../data/personas';
 import { getRandomStatus } from '../data/statusUpdates';
+import StoryMap from './StoryMap';
 
 const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('All');
     const [activeRegion, setActiveRegion] = useState('All');
+    const [diaryPersona, setDiaryPersona] = useState(null);
+    const [storyMapPersona, setStoryMapPersona] = useState(null);
     
     // Combined list of categories including the new Taboo theme
     const categories = ['All', 'Family', 'Professional', 'Modern', 'Traditional', 'Taboo'];
@@ -44,11 +47,15 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     const [activeChatIds, setActiveChatIds] = useState(getInitialActiveChats);
     
     const [activeTab, setActiveTab] = useState(() => {
-        const savedTab = localStorage.getItem('lastPersonaTab');
-        const initialActive = getInitialActiveChats();
-        
-        if (savedTab === 'active' && initialActive.length > 0) {
-            return 'active';
+        try {
+            const savedTab = localStorage.getItem('lastPersonaTab');
+            const initialActive = getInitialActiveChats();
+            
+            if (savedTab === 'active' && initialActive.length > 0) {
+                return 'active';
+            }
+        } catch (e) {
+            console.error("Local storage access failed", e);
         }
         return 'all';
     });
@@ -294,7 +301,7 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                key={activeTab} // Force re-render animation on tab switch
+                key={activeCategory} // Force re-render animation on tab switch
             >
                 {displayedPersonas.map((persona) => (
                     <motion.div
@@ -323,15 +330,157 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                         }}></div>
 
                         <div className="persona-info" style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'flex-end', padding: '1.5rem' }}>
-                            <div className="persona-name" style={{ fontSize: '1.4rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                {persona.name}
-                                <span className="status-dot"></span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                                <div style={{ flex: 1 }}>
+                                    <div className="persona-name" style={{ fontSize: '1.4rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                        {persona.name}
+                                        <span className="status-dot"></span>
+                                    </div>
+                                    <p className="persona-tagline" style={{ color: '#d4d4d8', fontSize: '0.9rem', margin: 0, lineHeight: 1.4 }}>{persona.tagline}</p>
+                                </div>
+                                
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <motion.button
+                                        whileHover={{ scale: 1.1, backgroundColor: 'rgba(139, 92, 246, 0.2)' }}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setStoryMapPersona(persona);
+                                        }}
+                                        style={{
+                                            background: 'rgba(139, 92, 246, 0.1)',
+                                            border: '1px solid rgba(139, 92, 246, 0.3)',
+                                            borderRadius: '10px',
+                                            color: '#c084fc',
+                                            padding: '8px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer'
+                                        }}
+                                        title="View Story Map"
+                                    >
+                                        <MapIcon size={18} />
+                                    </motion.button>
+
+                                    {localStorage.getItem(`diaries_${persona.id}`) && (
+                                        <motion.button
+                                            whileHover={{ scale: 1.1, backgroundColor: 'rgba(16, 185, 129, 0.2)' }}
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setDiaryPersona(persona);
+                                            }}
+                                            style={{
+                                                background: 'rgba(16, 185, 129, 0.1)',
+                                                border: '1px solid rgba(16, 185, 129, 0.3)',
+                                                borderRadius: '10px',
+                                                color: '#10b981',
+                                                padding: '8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                cursor: 'pointer'
+                                            }}
+                                            title="Read Private Diary"
+                                        >
+                                            <Book size={18} />
+                                        </motion.button>
+                                    )}
+                                </div>
                             </div>
-                            <p className="persona-tagline" style={{ color: '#d4d4d8', fontSize: '0.9rem', margin: 0, lineHeight: 1.4 }}>{persona.tagline}</p>
                         </div>
                     </motion.div>
                 ))}
             </motion.div>
+
+            {/* Diary Modal */}
+            <AnimatePresence>
+                {diaryPersona && (
+                    <div className="modal-overlay" onClick={() => setDiaryPersona(null)}>
+                        <motion.div 
+                            className="modal-content glass-panel" 
+                            onClick={(e) => e.stopPropagation()}
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            style={{ maxWidth: '500px' }}
+                        >
+                            <div className="modal-header">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                    <div style={{ position: 'relative' }}>
+                                        <img src={diaryPersona.image} alt={diaryPersona.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                                        <div style={{ position: 'absolute', bottom: -2, right: -2, background: '#10b981', borderRadius: '50%', padding: '2px', border: '2px solid #18181b' }}>
+                                            <Book size={10} color="white" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h2 style={{ margin: 0, fontSize: '1.1rem' }}>{diaryPersona.name}'s Secret Diary</h2>
+                                        <p style={{ margin: 0, fontSize: '0.75rem', color: '#10b981' }}>Private Thoughts & Post-Chat Reflections</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => setDiaryPersona(null)} style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}>
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            <div className="modal-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                                {(() => {
+                                    const diaries = JSON.parse(localStorage.getItem(`diaries_${diaryPersona.id}`) || '[]');
+                                    if (diaries.length === 0) return <p style={{ textAlign: 'center', color: '#71717a', padding: '2rem' }}>No diary entries yet. Chat with {diaryPersona.name} to see her reflections.</p>;
+                                    
+                                    return (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                            {diaries.map((entry, idx) => (
+                                                <div key={entry.id} style={{ 
+                                                    background: 'rgba(16, 185, 129, 0.03)', 
+                                                    borderLeft: '3px solid #10b981',
+                                                    padding: '1rem',
+                                                    borderRadius: '0 12px 12px 0',
+                                                    position: 'relative'
+                                                }}>
+                                                    <p style={{ 
+                                                        margin: 0, 
+                                                        fontSize: '0.95rem', 
+                                                        lineHeight: '1.6', 
+                                                        color: '#e4e4e7',
+                                                        fontStyle: 'italic'
+                                                    }}>
+                                                        "{entry.content}"
+                                                    </p>
+                                                    <div style={{ 
+                                                        display: 'flex', 
+                                                        alignItems: 'center', 
+                                                        gap: '6px', 
+                                                        marginTop: '0.75rem', 
+                                                        fontSize: '0.7rem', 
+                                                        color: '#71717a' 
+                                                    }}>
+                                                        <Clock size={10} />
+                                                        {new Date(entry.timestamp).toLocaleDateString()} at {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+
+                            <div className="modal-footer" style={{ justifyContent: 'center' }}>
+                                <p style={{ fontSize: '0.75rem', color: '#71717a', fontStyle: 'italic' }}>
+                                    Only you can see these private reflections...
+                                </p>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+                {storyMapPersona && (
+                    <StoryMap 
+                        persona={storyMapPersona} 
+                        onClose={() => setStoryMapPersona(null)} 
+                    />
+                )}
+            </AnimatePresence>
         </div >
     );
 };

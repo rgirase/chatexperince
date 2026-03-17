@@ -1152,3 +1152,51 @@ body {
     transform: translateY(0) scale(1);
   }
 }
+/* --- Hotspots Overlay --- */
+.hotspot-orb {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.hotspot-pulse {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.4);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+}
+
+.hotspot-label {
+  position: absolute;
+  top: -30px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: #fff;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hotspot-orb:hover .hotspot-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hotspot-orb:hover .hotspot-pulse {
+  background: rgba(255, 100, 200, 0.6);
+  border-color: #f472b6;
+  box-shadow: 0 0 20px #f472b6;
+}

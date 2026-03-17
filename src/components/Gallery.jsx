@@ -19,18 +19,52 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
         }));
     });
 
-    const categories = ['All', 'Family', 'Professional', 'Modern', 'Traditional'];
+    const categories = ['All', 'Family', 'Professional', 'Modern', 'Traditional', 'Memories'];
     
     const filteredImages = allImages.filter(img => 
         activeCategory === 'All' || img.category === activeCategory
     );
 
     const handleSetProfile = (imgObj) => {
+        if (imgObj.isMoment) return; // Can't set moments as profile directly
         localStorage.setItem(`persona_img_${imgObj.personaId}`, imgObj.url);
         if (onSelectImage) onSelectImage(imgObj.personaId, imgObj.url);
         // Update local state to show 'Check' icon
         setSelectedImage({ ...imgObj, isProfile: true });
     };
+
+    const getMemorableMoments = () => {
+        const moments = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('moments_')) {
+                const personaId = key.replace('moments_', '');
+                const persona = allPersonas.find(p => p.id === personaId);
+                if (persona) {
+                    try {
+                        const personaMoments = JSON.parse(localStorage.getItem(key));
+                        if (Array.isArray(personaMoments)) {
+                            personaMoments.forEach(m => {
+                                moments.push({
+                                    ...m,
+                                    personaId,
+                                    personaName: persona.name,
+                                    category: 'Memories',
+                                    isMoment: true,
+                                    url: m.image // Use the image stored with the moment
+                                });
+                            });
+                        }
+                    } catch (e) {}
+                }
+            }
+        }
+        return moments.sort((a, b) => b.id - a.id);
+    };
+
+    const displayItems = activeCategory === 'Memories' 
+        ? getMemorableMoments()
+        : filteredImages;
 
     return (
         <div className="gallery-layout" style={{ 
@@ -116,9 +150,9 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                     }}
                 >
                     <AnimatePresence mode='popLayout'>
-                        {filteredImages.map((img) => (
+                        {displayItems.map((img) => (
                             <motion.div
-                                key={img.id}
+                                key={img.id || `${img.personaId}_${img.timestamp}`}
                                 layout
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
@@ -229,12 +263,37 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                                 alt="Full screen"
                                 style={{
                                     maxWidth: '100%',
-                                    maxHeight: '100%',
+                                    maxHeight: '70%',
                                     borderRadius: '16px',
                                     boxShadow: '0 0 50px rgba(0,0,0,0.5)',
                                     objectFit: 'contain'
                                 }}
                             />
+                            {selectedImage.isMoment && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    style={{
+                                        position: 'absolute',
+                                        bottom: '20%',
+                                        width: '90%',
+                                        maxWidth: '400px',
+                                        background: 'rgba(0,0,0,0.8)',
+                                        backdropFilter: 'blur(12px)',
+                                        padding: '1.5rem',
+                                        borderRadius: '16px',
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        textAlign: 'center',
+                                        fontStyle: 'italic',
+                                        fontSize: '1rem',
+                                        lineHeight: '1.6',
+                                        color: '#e4e4e7',
+                                        boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+                                    }}
+                                >
+                                    "{selectedImage.content}"
+                                </motion.div>
+                            )}
                         </div>
 
                         {/* Footer Actions */}
@@ -244,26 +303,28 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                             gap: '1rem',
                             background: 'linear-gradient(transparent, rgba(0,0,0,0.5))'
                         }}>
-                            <button
-                                onClick={() => handleSetProfile(selectedImage)}
-                                style={{
-                                    flex: 1,
-                                    padding: '1rem',
-                                    borderRadius: '16px',
-                                    border: 'none',
-                                    background: selectedImage.isProfile ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-                                    color: selectedImage.isProfile ? '#4ade80' : 'white',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '8px',
-                                    fontWeight: '600',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                {selectedImage.isProfile ? <UserCheck size={20} /> : <Maximize2 size={20} />}
-                                {selectedImage.isProfile ? 'Active Profile' : 'Set as Avatar'}
-                            </button>
+                                {!selectedImage.isMoment && (
+                                    <button
+                                        onClick={() => handleSetProfile(selectedImage)}
+                                        style={{
+                                            flex: 1,
+                                            padding: '1rem',
+                                            borderRadius: '16px',
+                                            border: 'none',
+                                            background: selectedImage.isProfile ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                                            color: selectedImage.isProfile ? '#4ade80' : 'white',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '8px',
+                                            fontWeight: '600',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {selectedImage.isProfile ? <UserCheck size={20} /> : <Maximize2 size={20} />}
+                                        {selectedImage.isProfile ? 'Active Profile' : 'Set as Avatar'}
+                                    </button>
+                                )}
 
                             <button
                                 onClick={() => {

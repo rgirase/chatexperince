@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Plus, Trash2, Home } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, Home, RefreshCw } from 'lucide-react';
+import { fetchAvailableModels } from '../services/llm';
 
 const DEFAULT_LM_STUDIO = 'http://192.168.1.233:1234/v1';
 const DEFAULT_SD_URL = 'http://127.0.0.1:7860';
@@ -10,6 +11,9 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
     const [newServerName, setNewServerName] = useState('');
     const [sdUrl, setSdUrl] = useState('');
     const [imageEngine, setImageEngine] = useState('a1111');
+    const [lmStudioModel, setLmStudioModel] = useState('');
+    const [availableModels, setAvailableModels] = useState([]);
+    const [isLoadingModels, setIsLoadingModels] = useState(false);
     const [comfyWorkflow, setComfyWorkflow] = useState('');
     const [preferredLanguage, setPreferredLanguage] = useState('english');
     const [newPersona, setNewPersona] = useState({ name: '', tagline: '', systemPrompt: '', initialMessage: '' });
@@ -24,6 +28,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
         setLmStudioUrl(localStorage.getItem('lmStudioUrl') || DEFAULT_LM_STUDIO);
         setSdUrl(localStorage.getItem('sdUrl') || DEFAULT_SD_URL);
         setImageEngine(localStorage.getItem('imageEngine') || 'a1111');
+        setLmStudioModel(localStorage.getItem('lmStudioModel') || 'local-model');
         setComfyWorkflow(localStorage.getItem('comfyWorkflow') || '');
         setPreferredLanguage(localStorage.getItem('preferredIndianLanguage') || 'english');
         
@@ -35,12 +40,40 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
         // Load saved servers
         const servers = JSON.parse(localStorage.getItem('savedServers') || '[]');
         setSavedServers(servers);
+
+        // Fetch models if URL exists
+        const initialUrl = localStorage.getItem('lmStudioUrl') || DEFAULT_LM_STUDIO;
+        if (initialUrl) {
+            loadModels(initialUrl);
+        }
     }, []);
+
+    const loadModels = async (url) => {
+        setIsLoadingModels(true);
+        try {
+            const models = await fetchAvailableModels();
+            setAvailableModels(models);
+            
+            // Auto-select first model if current is default/invalid and models are available
+            if (models.length > 0) {
+                const currentModel = localStorage.getItem('lmStudioModel');
+                if (!currentModel || currentModel === 'local-model') {
+                    setLmStudioModel(models[0].id);
+                    localStorage.setItem('lmStudioModel', models[0].id);
+                }
+            }
+        } catch (e) {
+            console.error("Error loading models", e);
+        } finally {
+            setIsLoadingModels(false);
+        }
+    };
 
     const handleSaveSettings = () => {
         localStorage.setItem('lmStudioUrl', lmStudioUrl || DEFAULT_LM_STUDIO);
         localStorage.setItem('sdUrl', sdUrl || DEFAULT_SD_URL);
         localStorage.setItem('imageEngine', imageEngine);
+        localStorage.setItem('lmStudioModel', lmStudioModel);
         localStorage.setItem('comfyWorkflow', comfyWorkflow);
         localStorage.setItem('preferredIndianLanguage', preferredLanguage);
         
@@ -71,7 +104,8 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
     const handleConnectServer = (url) => {
         setLmStudioUrl(url);
         localStorage.setItem('lmStudioUrl', url);
-        alert("Connected to server!");
+        loadModels(url); // Auto-load models for the new server
+        alert("Connected to server! Model list updated.");
     };
 
     const handleDeleteServer = (id) => {
@@ -115,6 +149,8 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
         try {
             const res = await fetch(`${lmStudioUrl.replace(/\/$/, '')}/models`);
             if (res.ok) {
+                const data = await res.json();
+                setAvailableModels(data.data || []);
                 alert("✅ Success: LM Studio is connected and responding!");
             } else {
                 alert(`❌ LM Studio returned error: ${res.status}`);
@@ -182,6 +218,31 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
                         </button>
                     </div>
                     <small style={{ color: '#71717a', display: 'block', marginTop: '0.5rem' }}>The active server URL used for chat.</small>
+
+                    <div style={{ marginTop: '1.5rem' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', color: '#a1a1aa' }}>Active Model</label>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <select
+                                value={lmStudioModel}
+                                onChange={(e) => setLmStudioModel(e.target.value)}
+                                style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
+                            >
+                                <option value="local-model">Default (local-model)</option>
+                                {availableModels.map(model => (
+                                    <option key={model.id} value={model.id}>{model.id}</option>
+                                ))}
+                            </select>
+                            <button 
+                                onClick={() => loadModels(lmStudioUrl)}
+                                disabled={isLoadingModels}
+                                style={{ padding: '0.75rem', borderRadius: '8px', background: 'rgba(192, 132, 252, 0.1)', color: '#c084fc', border: '1px solid #c084fc', cursor: 'pointer' }}
+                                title="Refresh model list"
+                            >
+                                <RefreshCw size={18} className={isLoadingModels ? 'spin' : ''} />
+                            </button>
+                        </div>
+                        <small style={{ color: '#71717a', display: 'block', marginTop: '0.5rem' }}>Select the model currently loaded in LM Studio.</small>
+                    </div>
                     
                     <div style={{ marginTop: '1rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid #27272a' }}>
                         <h4 style={{ fontSize: '0.9rem', marginBottom: '0.75rem', color: '#c084fc' }}>Quick Save Current Server</h4>

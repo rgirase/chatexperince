@@ -1,10 +1,39 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Settings as SettingsIcon, Image as ImageIcon, MessageCircle, Home, Book } from 'lucide-react';
+import { Settings as SettingsIcon, Image as ImageIcon, MessageCircle, Home, Book, Sparkles } from 'lucide-react';
+import { updateAura } from './services/reputation';
 import PersonaList from './components/PersonaList';
 import ChatInterface from './components/ChatInterface';
 import Settings from './components/Settings';
 import Gallery from './components/Gallery';
 import { personas as defaultPersonas } from './data/personas';
+
+const ErrorBoundary = ({ children }) => {
+  const [hasError, setHasError] = React.useState(false);
+  const [error, setError] = React.useState(null);
+
+  React.useEffect(() => {
+    const handleError = (error) => {
+      setHasError(true);
+      setError(error);
+    };
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
+
+  if (hasError) {
+    return (
+      <div style={{ padding: '2rem', color: 'white', background: '#09090b', minHeight: '100vh', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+        <h2 style={{ color: '#ef4444' }}>Something went wrong</h2>
+        <p style={{ fontSize: '0.9rem', color: '#a1a1aa' }}>An error occurred that prevented the app from loading.</p>
+        <div style={{ padding: '1rem', background: 'rgba(255,0,0,0.1)', borderRadius: '8px', border: '1px solid rgba(255,0,0,0.2)', maxWidth: '100%', overflow: 'auto' }}>
+          <code style={{ fontSize: '0.75rem', color: '#ef4444' }}>{error?.message || 'Unknown runtime error'}</code>
+        </div>
+        <button onClick={() => window.location.reload()} style={{ padding: '0.5rem 1rem', background: '#8b5cf6', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer' }}>Reload App</button>
+      </div>
+    );
+  }
+  return children;
+};
 
 let hasPushedHistory = false;
 
@@ -17,10 +46,32 @@ function App() {
   const [activeServerUrl, setActiveServerUrl] = useState('');
   const [savedServers, setSavedServers] = useState([]);
   const [imageUpdateKey, setImageUpdateKey] = useState(0);
+  const [userAura, setUserAura] = useState(() => {
+    try {
+      const saved = localStorage.getItem('userAura');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      console.error("Failed to parse userAura", e);
+      return null;
+    }
+  });
 
   // Universal View State Management
-  const [activeView, setActiveView] = useState(() => localStorage.getItem('activeView') || 'home');
-  const [lastPersonaId, setLastPersonaId] = useState(() => localStorage.getItem('lastPersonaId') || null);
+  const [activeView, setActiveView] = useState(() => {
+    try {
+      return localStorage.getItem('activeView') || 'home';
+    } catch (e) {
+      return 'home';
+    }
+  });
+  
+  const [lastPersonaId, setLastPersonaId] = useState(() => {
+    try {
+      return localStorage.getItem('lastPersonaId') || null;
+    } catch (e) {
+      return null;
+    }
+  });
 
   useEffect(() => {
     const stored = localStorage.getItem('customPersonas');
@@ -116,18 +167,23 @@ function App() {
 
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('keydown', handleKeyDown);
-    if (typeof DeviceMotionEvent !== 'undefined') {
+    
+    // Enable Device Motion with safety check for mobile stability
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+      // iOS 13+ requires explicit permission
+      console.log("DeviceMotion permission required");
+    } else if (typeof DeviceMotionEvent !== 'undefined') {
       window.addEventListener('devicemotion', handleMotion);
     }
 
-    // Removed old hash wiping logic
+    // Restore exact view state
+    const aura = updateAura();
+    setUserAura(aura);
 
     return () => {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('keydown', handleKeyDown);
-      if (typeof DeviceMotionEvent !== 'undefined') {
-        window.removeEventListener('devicemotion', handleMotion);
-      }
+      window.removeEventListener('devicemotion', handleMotion);
     };
   }, []);
 
@@ -193,6 +249,9 @@ function App() {
     setActiveView('home');
     localStorage.setItem('activeView', 'home');
     hasPushedHistory = false;
+    
+    // Refresh Aura when returning home
+    setUserAura(updateAura());
   };
 
   const handleSwitchServer = (url) => {
@@ -244,108 +303,136 @@ function App() {
   }
 
   return (
-    <div className="app-container">
-      {!selectedPersona && !isSettingsOpen && !isGalleryOpen && (
-        <header className="header fade-in">
-          <div
-            className="header-title"
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-            style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
-          >
-            <span role="img" aria-label="sparkles">✨</span>
-            Aura Roleplay
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            {/* Server Quick Switcher */}
-            {savedServers.length > 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', padding: '2px 8px', border: '1px solid #3f3f46', marginRight: '4px' }}>
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#c084fc', marginRight: '6px' }}></div>
-                <select 
-                  value={activeServerUrl} 
-                  onChange={(e) => handleSwitchServer(e.target.value)}
-                  style={{ background: 'transparent', border: 'none', color: '#d4d4d8', fontSize: '0.75rem', outline: 'none', cursor: 'pointer', maxWidth: '100px' }}
-                >
-                  <option value="" disabled>Select Server</option>
-                  {savedServers.map(s => (
-                    <option key={s.id} value={s.url}>{s.name}</option>
-                  ))}
-                </select>
-              </div>
+    <ErrorBoundary>
+      <div className="app-container">
+        {/* ... existing content ... */}
+        {!selectedPersona && !isSettingsOpen && !isGalleryOpen && (
+          <header className="header fade-in">
+            {/* ... */}
+            <div
+              className="header-title"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+            >
+              <span role="img" aria-label="sparkles">✨</span>
+              Aura Roleplay
+            </div>
+
+            {/* User Aura Display */}
+            {userAura && userAura.color && (
+              <motion.div 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: `rgba(${parseInt(userAura.color.slice(1,3), 16) || 0}, ${parseInt(userAura.color.slice(3,5), 16) || 0}, ${parseInt(userAura.color.slice(5,7), 16) || 0}, 0.1)`,
+                  border: `1px solid ${userAura.color}44`,
+                  padding: '4px 12px',
+                  borderRadius: '20px',
+                  marginLeft: '1rem',
+                  cursor: 'help'
+                }}
+                title={`Your current Aura: ${userAura.name || 'Neutral'}. Based on your communication style across all characters.`}
+              >
+                <Sparkles size={14} color={userAura.color} />
+                <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: userAura.color }}>{userAura.name || 'Neutral'}</span>
+              </motion.div>
             )}
 
-            <button
-              onClick={handleOpenGallery}
-              style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', padding: '0.5rem' }}
-              title="Progression Gallery"
-            >
-              <ImageIcon size={24} />
-            </button>
-            <button
-              onClick={handleOpenSettings}
-              style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', padding: '0.5rem' }}
-              title="Settings"
-            >
-              <SettingsIcon size={24} />
-            </button>
-          </div>
-        </header>
-      )}
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              {/* Server Quick Switcher */}
+              {savedServers.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', padding: '2px 8px', border: '1px solid #3f3f46', marginRight: '4px' }}>
+                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#c084fc', marginRight: '6px' }}></div>
+                  <select 
+                    value={activeServerUrl} 
+                    onChange={(e) => handleSwitchServer(e.target.value)}
+                    style={{ background: 'transparent', border: 'none', color: '#d4d4d8', fontSize: '0.75rem', outline: 'none', cursor: 'pointer', maxWidth: '100px' }}
+                  >
+                    <option value="" disabled>Select Server</option>
+                    {savedServers.map(s => (
+                      <option key={s.id} value={s.url}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
-      {selectedPersona ? (
-        <ChatInterface
-          persona={selectedPersona}
-          allPersonas={getProcessedPersonas()}
-          onBack={handleBack}
-          onGoHome={handleGoHome}
-          onSelectImage={handleSelectImage}
-        />
-      ) : isSettingsOpen ? (
-        <Settings
-          onBack={handleBack}
-          onGoHome={handleGoHome}
-          customPersonas={customPersonas}
-          setCustomPersonas={setCustomPersonas}
-        />
-      ) : isGalleryOpen ? (
-        <Gallery
-          onBack={handleBack}
-          allPersonas={getProcessedPersonas()}
-          onSelectImage={handleSelectImage}
-        />
-      ) : (
-        <PersonaList 
-          onSelectPersona={handleSelectPersona} 
-          customPersonas={customPersonas}
-          allPersonas={getProcessedPersonas()}
-        />
-      )}
+              <button
+                onClick={handleOpenGallery}
+                style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', padding: '0.5rem' }}
+                title="Progression Gallery"
+              >
+                <ImageIcon size={24} />
+              </button>
+              <button
+                onClick={handleOpenSettings}
+                style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', padding: '0.5rem' }}
+                title="Settings"
+              >
+                <SettingsIcon size={24} />
+              </button>
+            </div>
+          </header>
+        )}
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="bottom-nav">
-        <button 
-          className={`nav-item ${activeView === 'home' ? 'active' : ''}`}
-          onClick={handleGoHome}
-        >
-          <Home size={24} />
-          <span>Home</span>
-        </button>
-        <button 
-          className={`nav-item ${activeView === 'gallery' ? 'active' : ''}`}
-          onClick={handleOpenGallery}
-        >
-          <ImageIcon size={24} />
-          <span>Gallery</span>
-        </button>
-        <button 
-          className={`nav-item ${activeView === 'settings' ? 'active' : ''}`}
-          onClick={handleOpenSettings}
-        >
-          <SettingsIcon size={24} />
-          <span>Settings</span>
-        </button>
-      </nav>
-    </div>
+        {selectedPersona ? (
+          <ChatInterface
+            persona={selectedPersona}
+            allPersonas={getProcessedPersonas()}
+            onBack={handleBack}
+            onGoHome={handleGoHome}
+            onSelectImage={handleSelectImage}
+          />
+        ) : isSettingsOpen ? (
+          <Settings
+            onBack={handleBack}
+            onGoHome={handleGoHome}
+            customPersonas={customPersonas}
+            setCustomPersonas={setCustomPersonas}
+          />
+        ) : isGalleryOpen ? (
+          <Gallery
+            onBack={handleBack}
+            allPersonas={getProcessedPersonas()}
+            onSelectImage={handleSelectImage}
+          />
+        ) : (
+          <PersonaList 
+            onSelectPersona={handleSelectPersona} 
+            customPersonas={customPersonas}
+            allPersonas={getProcessedPersonas()}
+          />
+        )}
+
+        {/* Mobile Bottom Navigation */}
+        <nav className="bottom-nav">
+          <button 
+            className={`nav-item ${activeView === 'home' ? 'active' : ''}`}
+            onClick={handleGoHome}
+          >
+            <Home size={24} />
+            <span>Home</span>
+          </button>
+          <button 
+            className={`nav-item ${activeView === 'gallery' ? 'active' : ''}`}
+            onClick={handleOpenGallery}
+          >
+            <ImageIcon size={24} />
+            <span>Gallery</span>
+          </button>
+          <button 
+            className={`nav-item ${activeView === 'settings' ? 'active' : ''}`}
+            onClick={handleOpenSettings}
+          >
+            <SettingsIcon size={24} />
+            <span>Settings</span>
+          </button>
+        </nav>
+      </div>
+    </ErrorBoundary>
   );
 }
 
