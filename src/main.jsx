@@ -10,24 +10,21 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 )
 window.appIsMounted = true;
 
-// Register Service Worker for PWA
+/**
+ * Service Worker Strategy: Kill Switch Mode
+ * 
+ * We register sw.js once — but sw.js is a "kill switch" that immediately
+ * clears all caches and then unregisters itself.
+ * 
+ * After run, no SW will be active, and the browser fetches fresh from network.
+ * This permanently fixes stale-cache blank screens on mobile.
+ */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then(reg => {
-        console.log('SW registered!', reg);
-        // Ensure the SW updates immediately if changed
-        reg.onupdatefound = () => {
-          const installingWorker = reg.installing;
-          if (installingWorker) {
-            installingWorker.onstatechange = () => {
-              if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('New content is available; please refresh.');
-              }
-            };
-          }
-        };
+        console.log('[App] Kill-switch SW registered, caches will be cleared.', reg);
       })
-      .catch(err => console.log('SW registration failed:', err));
+      .catch(err => console.log('[App] SW registration failed:', err));
   });
 }

@@ -5,12 +5,143 @@ import { personas } from '../data/personas';
 import { getRandomStatus } from '../data/statusUpdates';
 import StoryMap from './StoryMap';
 
+const SkeletonCard = () => (
+    <div className="persona-card full-bleed skeleton" style={{ height: '380px', borderRadius: '16px' }}>
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '1.5rem', background: 'linear-gradient(transparent, rgba(0,0,0,0.8))' }}>
+            <div className="skeleton" style={{ height: '1.5rem', width: '60%', borderRadius: '4px', marginBottom: '0.5rem' }}></div>
+            <div className="skeleton" style={{ height: '1rem', width: '80%', borderRadius: '4px' }}></div>
+        </div>
+    </div>
+);
+
+const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, itemVariants }) => {
+    const [imageLoaded, setImageLoaded] = useState(false);
+    const hasDiary = localStorage.getItem(`diaries_${persona.id}`);
+
+    return (
+        <motion.div
+            className={`persona-card full-bleed ${!imageLoaded ? 'skeleton' : ''}`}
+            variants={itemVariants}
+            whileHover={{ scale: 1.03, boxShadow: "0 20px 40px rgba(0,0,0,0.6)" }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => onSelectPersona(persona)}
+            style={{
+                backgroundImage: imageLoaded ? `url(${persona.image})` : 'none',
+                backgroundColor: '#18181b',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                position: 'relative',
+                overflow: 'hidden',
+                borderRadius: '16px',
+                cursor: 'pointer'
+            }}
+        >
+            {/* Hidden image element to track loading */}
+            <img 
+                src={persona.image} 
+                className="no-select"
+                style={{ display: 'none' }} 
+                onLoad={() => setImageLoaded(true)} 
+                alt=""
+            />
+
+            {/* Gradient overlay to make text readable */}
+            <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 40%, transparent 100%)',
+                zIndex: 1,
+                opacity: imageLoaded ? 1 : 0,
+                transition: 'opacity 0.3s ease'
+            }}></div>
+
+            <div className="persona-info" style={{ 
+                position: 'relative', 
+                zIndex: 2, 
+                display: 'flex', 
+                flexDirection: 'column', 
+                height: '100%', 
+                justifyContent: 'flex-end', 
+                padding: '1.5rem',
+                opacity: imageLoaded ? 1 : 0,
+                transition: 'opacity 0.3s ease'
+            }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <div style={{ flex: 1 }}>
+                        <div className="persona-name" style={{ fontSize: '1.4rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                            {persona.name}
+                            <span className="status-dot"></span>
+                        </div>
+                        <p className="persona-tagline" style={{ color: '#d4d4d8', fontSize: '0.9rem', margin: 0, lineHeight: 1.4 }}>{persona.tagline}</p>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <motion.button
+                            whileHover={{ scale: 1.1, backgroundColor: 'rgba(139, 92, 246, 0.2)' }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onOpenStoryMap(persona);
+                            }}
+                            style={{
+                                background: 'rgba(139, 92, 246, 0.1)',
+                                border: '1px solid rgba(139, 92, 246, 0.3)',
+                                borderRadius: '10px',
+                                color: '#c084fc',
+                                padding: '8px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer'
+                            }}
+                            title="View Story Map"
+                        >
+                            <MapIcon size={18} />
+                        </motion.button>
+
+                        {hasDiary && (
+                            <motion.button
+                                whileHover={{ scale: 1.1, backgroundColor: 'rgba(16, 185, 129, 0.2)' }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onOpenDiary(persona);
+                                }}
+                                style={{
+                                    background: 'rgba(16, 185, 129, 0.1)',
+                                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                                    borderRadius: '10px',
+                                    color: '#10b981',
+                                    padding: '8px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer'
+                                }}
+                                title="Read Private Diary"
+                            >
+                                <Book size={18} />
+                            </motion.button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    );
+};
+
 const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('All');
     const [activeRegion, setActiveRegion] = useState('All');
     const [diaryPersona, setDiaryPersona] = useState(null);
     const [storyMapPersona, setStoryMapPersona] = useState(null);
+    const [initialLoading, setInitialLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setInitialLoading(false), 800);
+        return () => clearTimeout(timer);
+    }, []);
     
     // Combined list of categories including the new Taboo theme
     const categories = ['All', 'Family', 'Professional', 'Modern', 'Traditional', 'Taboo'];
@@ -303,95 +434,21 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                 animate="visible"
                 key={activeCategory} // Force re-render animation on tab switch
             >
-                {displayedPersonas.map((persona) => (
-                    <motion.div
-                        key={persona.id}
-                        className="persona-card full-bleed"
-                        variants={itemVariants}
-                        whileHover={{ scale: 1.03, boxShadow: "0 20px 40px rgba(0,0,0,0.6)" }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => onSelectPersona(persona)}
-                        style={{
-                            backgroundImage: persona.image ? `url(${persona.image})` : 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            position: 'relative',
-                            overflow: 'hidden',
-                            borderRadius: '16px',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        {/* Gradient overlay to make text readable */}
-                        <div style={{
-                            position: 'absolute',
-                            inset: 0,
-                            background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 40%, transparent 100%)',
-                            zIndex: 1
-                        }}></div>
-
-                        <div className="persona-info" style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'flex-end', padding: '1.5rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                                <div style={{ flex: 1 }}>
-                                    <div className="persona-name" style={{ fontSize: '1.4rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                        {persona.name}
-                                        <span className="status-dot"></span>
-                                    </div>
-                                    <p className="persona-tagline" style={{ color: '#d4d4d8', fontSize: '0.9rem', margin: 0, lineHeight: 1.4 }}>{persona.tagline}</p>
-                                </div>
-                                
-                                <div style={{ display: 'flex', gap: '8px' }}>
-                                    <motion.button
-                                        whileHover={{ scale: 1.1, backgroundColor: 'rgba(139, 92, 246, 0.2)' }}
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setStoryMapPersona(persona);
-                                        }}
-                                        style={{
-                                            background: 'rgba(139, 92, 246, 0.1)',
-                                            border: '1px solid rgba(139, 92, 246, 0.3)',
-                                            borderRadius: '10px',
-                                            color: '#c084fc',
-                                            padding: '8px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            cursor: 'pointer'
-                                        }}
-                                        title="View Story Map"
-                                    >
-                                        <MapIcon size={18} />
-                                    </motion.button>
-
-                                    {localStorage.getItem(`diaries_${persona.id}`) && (
-                                        <motion.button
-                                            whileHover={{ scale: 1.1, backgroundColor: 'rgba(16, 185, 129, 0.2)' }}
-                                            whileTap={{ scale: 0.9 }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setDiaryPersona(persona);
-                                            }}
-                                            style={{
-                                                background: 'rgba(16, 185, 129, 0.1)',
-                                                border: '1px solid rgba(16, 185, 129, 0.3)',
-                                                borderRadius: '10px',
-                                                color: '#10b981',
-                                                padding: '8px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                cursor: 'pointer'
-                                            }}
-                                            title="Read Private Diary"
-                                        >
-                                            <Book size={18} />
-                                        </motion.button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-                ))}
+                {initialLoading ? (
+                    // Show placeholders for a consistent initial feel
+                    Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+                ) : (
+                    displayedPersonas.map((persona) => (
+                        <CharacterCard 
+                            key={persona.id}
+                            persona={persona}
+                            onSelectPersona={onSelectPersona}
+                            onOpenStoryMap={setStoryMapPersona}
+                            onOpenDiary={setDiaryPersona}
+                            itemVariants={itemVariants}
+                        />
+                    ))
+                )}
             </motion.div>
 
             {/* Diary Modal */}
