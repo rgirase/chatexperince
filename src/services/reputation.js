@@ -15,25 +15,30 @@ export const getUserAura = () => {
     // 1. Gather all user messages across all chats
     let allUserMessages = "";
     try {
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith('chat_')) {
-                try {
-                    const chat = JSON.parse(localStorage.getItem(key));
-                    if (Array.isArray(chat)) {
-                        allUserMessages += chat
-                            .filter(m => m.role === 'user')
-                            .map(m => m.content)
-                            .join(' ')
-                            .toLowerCase();
+        if (typeof window !== 'undefined' && window.localStorage) {
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('chat_')) {
+                    try {
+                        const saved = localStorage.getItem(key);
+                        if (saved) {
+                            const chat = JSON.parse(saved);
+                            if (Array.isArray(chat)) {
+                                allUserMessages += chat
+                                    .filter(m => m.role === 'user')
+                                    .map(m => m.content)
+                                    .join(' ')
+                                    .toLowerCase();
+                            }
+                        }
+                    } catch (e) {
+                        // Ignore individual chat failures
                     }
-                } catch (e) {
-                    // Ignore invalid chats
                 }
             }
         }
     } catch (e) {
-        console.error("Local storage error in getUserAura", e);
+        console.error("[Reputation] Critical storage failure", e);
     }
 
     if (!allUserMessages) return null;

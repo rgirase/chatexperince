@@ -13,6 +13,21 @@ const getModelId = () => {
     return localStorage.getItem('lmStudioModel') || 'local-model';
 };
 
+// Internal helper to ensure we have a valid model
+const ensureValidModel = async () => {
+    let currentModel = getModelId();
+    if (currentModel === 'local-model') {
+        console.log("[LLM] 'local-model' detected, attempting to auto-resolve...");
+        const models = await fetchAvailableModels();
+        if (models && models.length > 0) {
+            currentModel = models[0].id;
+            localStorage.setItem('lmStudioModel', currentModel);
+            console.log(`[LLM] Auto-resolved to model: ${currentModel}`);
+        }
+    }
+    return currentModel;
+};
+
 export const fetchAvailableModels = async () => {
     try {
         const url = getLmStudioUrl().replace('/chat/completions', '/models');
@@ -208,7 +223,7 @@ Assume the role of ${charName} now. Show, don't tell.`;
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: getModelId(),
+                model: await ensureValidModel(),
                 messages: formattedMessages,
                 max_tokens: 2048, 
                 stream: true,
@@ -341,7 +356,7 @@ RULES:
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: getModelId(),
+                model: await ensureValidModel(),
                 messages: [
                     systemMessage,
                     { role: "user", content: "What should the User say next? Generate exactly one creative suggestion to continue the story." }
@@ -390,7 +405,7 @@ Return ONLY the new memory block. Do not include extra commentary or intro/outro
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: getModelId(),
+                model: await ensureValidModel(),
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.3,
                 max_tokens: 500,
@@ -441,7 +456,7 @@ Return ONLY the sentence or "NONE". Do not include extra dialogue.`;
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: getModelId(),
+                model: await ensureValidModel(),
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.3,
                 max_tokens: 150,
@@ -484,7 +499,7 @@ export const generateDiaryEntry = async (persona, messages) => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: getModelId(),
+                model: await ensureValidModel(),
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.8,
                 max_tokens: 150,

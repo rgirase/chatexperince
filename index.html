@@ -9,10 +9,41 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <script>
+      window.onerror = function(msg, url, lineNo, columnNo, error) {
+        var str = "ERROR: " + msg + "\nFile: " + url + "\nLine: " + lineNo + ":" + columnNo;
+        console.error(str);
+        alert(str);
+        return false;
+      };
+    </script>
     <title>Aura Roleplay</title>
+    <script>
+      // EMERGENCY NUCLEAR RESET SCRIPT v4
+      if (window.location.search.includes('reset=true')) {
+        console.log("Emergency Reset v4 Triggered...");
+        try {
+          localStorage.clear();
+          sessionStorage.clear();
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(regs => {
+              for(let reg of regs) reg.unregister();
+            });
+          }
+          if (window.caches && caches.keys) {
+            caches.keys().then(names => {
+              for (let name of names) caches.delete(name);
+            });
+          }
+        } catch (e) {
+          console.warn("Reset script error", e);
+        }
+        window.location.href = window.location.origin + window.location.pathname;
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.jsx?v=4"></script>
   </body>
 </html>
