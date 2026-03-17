@@ -4,6 +4,7 @@ import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, 
 import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage } from '../services/llm';
 import { saveMilestone, getMemories, clearMemories } from '../services/memory';
 import { Book, History } from 'lucide-react';
+import { SCENES, detectSceneId } from '../data/scenes';
 
 const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }) => {
     // Toast State
@@ -179,6 +180,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const [activePersonaImage, setActivePersonaImage] = useState(persona.image);
     const messagesAreaRef = useRef(null);
     const abortControllerRef = useRef(null);
+    const [currentSceneId, setCurrentSceneId] = useState(() => localStorage.getItem(`scene_${persona.id}`) || 'default');
+    const currentScene = SCENES[currentSceneId] || SCENES.default;
 
     const getIntensityPrompt = (level) => {
         switch (level) {
@@ -232,6 +235,21 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             localStorage.removeItem(`invited_${persona.id}`);
         }
     }, [invitedPersona, persona.id]);
+
+    useEffect(() => {
+        localStorage.setItem(`scene_${persona.id}`, currentSceneId);
+    }, [currentSceneId, persona.id]);
+
+    // Auto-detect scene from system messages or new AI responses
+    useEffect(() => {
+        const lastMsg = messages[messages.length - 1];
+        if (lastMsg) {
+            const detected = detectSceneId(lastMsg.content);
+            if (detected && detected !== currentSceneId) {
+                setCurrentSceneId(detected);
+            }
+        }
+    }, [messages, currentSceneId]);
 
     // Keep active image in sync with persona prop (which App updates)
     useEffect(() => {
@@ -671,25 +689,45 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     return (
         <div className="chat-container fade-in" onClick={() => isMobileMenuOpen && setIsMobileMenuOpen(false)} style={{ overflow: 'hidden' }}>
 
-            {/* Ambient Animated Live Backgrounds */}
-            <motion.div
-                style={{
-                    position: 'absolute', top: '-10%', left: '-10%', width: '60vw', height: '60vw',
-                    background: `radial-gradient(circle, hsla(${hue1}, 80%, 40%, 0.15) 0%, transparent 70%)`,
-                    filter: 'blur(60px)', zIndex: 0, borderRadius: '50%', pointerEvents: 'none'
-                }}
-                animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
-                transition={{ duration: 15, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-            />
-            <motion.div
-                style={{
-                    position: 'absolute', bottom: '-20%', right: '-10%', width: '70vw', height: '70vw',
-                    background: `radial-gradient(circle, hsla(${hue2}, 80%, 30%, 0.15) 0%, transparent 70%)`,
-                    filter: 'blur(80px)', zIndex: 0, borderRadius: '50%', pointerEvents: 'none'
-                }}
-                animate={{ x: [0, -40, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
-                transition={{ duration: 20, repeat: Infinity, repeatType: "reverse", ease: "easeInOut", delay: 2 }}
-            />
+            {/* Live Atmosphere Background System */}
+            <div className="scene-background-container">
+                {currentScene.background ? (
+                    <motion.img
+                        key={currentScene.id}
+                        src={currentScene.background}
+                        alt={currentScene.name}
+                        className={`scene-image ${currentScene.effects.map(e => `effect-${e}`).join(' ')}`}
+                        initial={{ opacity: 0, scale: 1.1 }}
+                        animate={{ opacity: 0.4, scale: 1 }}
+                        transition={{ duration: 2 }}
+                    />
+                ) : (
+                    <>
+                        <motion.div
+                            style={{
+                                position: 'absolute', top: '-10%', left: '-10%', width: '60vw', height: '60vw',
+                                background: `radial-gradient(circle, hsla(${hue1}, 80%, 40%, 0.15) 0%, transparent 70%)`,
+                                filter: 'blur(60px)', zIndex: 0, borderRadius: '50%', pointerEvents: 'none'
+                            }}
+                            animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
+                            transition={{ duration: 15, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
+                        />
+                        <motion.div
+                            style={{
+                                position: 'absolute', bottom: '-20%', right: '-10%', width: '70vw', height: '70vw',
+                                background: `radial-gradient(circle, hsla(${hue2}, 80%, 30%, 0.15) 0%, transparent 70%)`,
+                                filter: 'blur(80px)', zIndex: 0, borderRadius: '50%', pointerEvents: 'none'
+                            }}
+                            animate={{ x: [0, -40, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
+                            transition={{ duration: 20, repeat: Infinity, repeatType: "reverse", ease: "easeInOut", delay: 2 }}
+                        />
+                    </>
+                )}
+                <div 
+                    className={`scene-overlay ${currentScene.effects.map(e => `effect-${e}`).join(' ')}`}
+                    style={{ backgroundColor: currentScene.overlayColor }}
+                />
+            </div>
 
             <div className="chat-header" style={{ position: 'relative', zIndex: 10 }}>
                 <button className="back-btn" onClick={onBack} title="Back">
