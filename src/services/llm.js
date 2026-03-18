@@ -182,7 +182,7 @@ ${injectThemeIntensity(persona, intensity)}
 Assume the role of ${charName} now. Show, don't tell.`;
 
     // DYNAMIC CONTEXT BUDGETING (Prevents "failed to find space in KV cache")
-    const totalBudget = 7000;
+    const totalBudget = 5000;
     const promptLength = systemPrompt.length + primingContext.length;
     const historyBudget = Math.max(1000, totalBudget - promptLength);
 
@@ -225,7 +225,7 @@ Assume the role of ${charName} now. Show, don't tell.`;
             body: JSON.stringify({
                 model: await ensureValidModel(),
                 messages: formattedMessages,
-                max_tokens: 2048, 
+                max_tokens: 1200, 
                 stream: true,
                 temperature: 0.8, // Slightly higher for more variety
                 top_p: 0.95,      // More stable than 0.9 for smaller models
