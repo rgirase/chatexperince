@@ -212,6 +212,8 @@ function App() {
     // Use the latest version with overrides
     const processed = getProcessedPersonas().find(p => p.id === persona.id) || persona;
     setSelectedPersona(processed);
+    setIsSettingsOpen(false);
+    setIsGalleryOpen(false);
     
     setActiveView('chat');
     localStorage.setItem('activeView', 'chat');
@@ -222,6 +224,8 @@ function App() {
   const handleOpenSettings = () => {
     window.history.pushState({ view: 'settings' }, '');
     hasPushedHistory = true;
+    setSelectedPersona(null);
+    setIsGalleryOpen(false);
     setIsSettingsOpen(true);
     setActiveView('settings');
     localStorage.setItem('activeView', 'settings');
@@ -230,6 +234,8 @@ function App() {
   const handleOpenGallery = () => {
     window.history.pushState({ view: 'gallery' }, '');
     hasPushedHistory = true;
+    setSelectedPersona(null);
+    setIsSettingsOpen(false);
     setIsGalleryOpen(true);
     setActiveView('gallery');
     localStorage.setItem('activeView', 'gallery');
@@ -400,7 +406,7 @@ function App() {
           </button>
           <button 
             className={`nav-item ${activeView === 'gallery' ? 'active' : ''}`}
-            onClick={() => setActiveView('gallery')}
+            onClick={handleOpenGallery}
           >
             <ImageIcon size={24} />
             <span>Gallery</span>
