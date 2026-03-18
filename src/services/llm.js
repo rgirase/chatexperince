@@ -156,6 +156,7 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
         console.error("Failed to parse userAura in llm service", e);
     }
     const auraPrompt = userAura ? `\n[USER REPUTATION: The user is known as "${userAura.name}". They typically interact in a way that is ${userAura.keywords.join(', ')}. Respond to them in a way that acknowledges and plays into this specific dynamic.]` : "";
+    const situationPrompt = options.currentSituation ? `\n[CURRENT SITUATION: ${options.currentSituation}]` : "";
 
     // 2. CONSTRUCT THE PRIMING CONTEXT (Narrative style, no technical headers)
     const primingContext = `Persona:
@@ -166,7 +167,7 @@ Current Dynamic:
 - Intensity: ${intensity}/5.
 - Language: Strictly avoid terms like "beta", "bachha", or "son".
 - Pacing: Move the scene forward with bold, visceral actions.
-${auraPrompt}
+${auraPrompt}${situationPrompt}
 
 Story Context:
 ${memory ? "The story so far: " + memory : "The scene begins now."}
@@ -458,20 +459,65 @@ Return ONLY the sentence or "NONE". Do not include extra dialogue.`;
             body: JSON.stringify({
                 model: await ensureValidModel(),
                 messages: [{ role: "user", content: prompt }],
-                temperature: 0.3,
+                temperature: 0.2,
                 max_tokens: 150,
                 stream: false,
             }),
         });
 
-        if (!response.ok) throw new Error(`Failed to extract milestones`);
-
+        if (!response.ok) return null;
         const data = await response.json();
         const content = data.choices?.[0]?.message?.content || "NONE";
         const result = cleanLeakage(content.trim());
         return result.toUpperCase() === "NONE" ? null : result;
     } catch (error) {
         console.error("Error extracting milestones:", error);
+        return null;
+    }
+};
+
+export const extractSceneSummary = async (persona, messages) => {
+    const charName = getShortName(persona.name);
+    const url = getLmStudioUrl();
+    // last 10 messages for scene context
+    const recent = messages.slice(-10);
+    const transcript = recent.map(msg => `${msg.role === 'user' ? 'User' : charName}: ${msg.content}`).join('\n\n');
+
+    const prompt = `You are a cinematic scene tracker.
+Review the following recent interaction for its IMMEDIATE physical and situational context.
+
+Transcript:
+${transcript}
+
+Task: Summarize the CURRENT situation in ONE short, factual sentence.
+Focus on: 
+1. Exact Location (e.g. "In the bedroom", "Sitting in the car").
+2. Physical State (e.g. "User is pinning ${charName} against the wall", "They are eating dinner").
+3. Immediate Mood/Goal (e.g. "Tension is high", "They are relaxing").
+
+Example: "Currently in the kitchen; the user is helping ${charName} cook while flirting heavily."
+Return ONLY the summary sentence. No intros or outros.`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: await ensureValidModel(),
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.2,
+                max_tokens: 100,
+                stream: false,
+            }),
+        });
+
+        if (!response.ok) return null;
+        const data = await response.json();
+        let content = data.choices?.[0]?.message?.content || "";
+        return cleanLeakage(content.trim());
+    } catch (error) {
         return null;
     }
 };

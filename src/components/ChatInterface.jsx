@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift, Shirt, Book, History } from 'lucide-react';
-import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage, generateDiaryEntry } from '../services/llm';
+import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift, Shirt, Book, History, Info, Save } from 'lucide-react';
+import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage, generateDiaryEntry, extractSceneSummary } from '../services/llm';
 import { saveMilestone, getMemories, clearMemories, deleteMilestone } from '../services/memory';
 import { SCENES, detectSceneId } from '../data/scenes';
 
@@ -199,6 +199,10 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             return null;
         }
     });
+    const [currentSituation, setCurrentSituation] = useState(() => localStorage.getItem(`situation_${persona.id}`) || 'Starting a new conversation...');
+    const [isEditingSituation, setIsEditingSituation] = useState(false);
+    const [situationInput, setSituationInput] = useState(currentSituation);
+    const [messageCountForScene, setMessageCountForScene] = useState(0);
     const [traits, setTraits] = useState(() => {
         const saved = localStorage.getItem(`traits_${persona.id}`);
         try {
@@ -266,6 +270,10 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     useEffect(() => {
         localStorage.setItem(`scene_${persona.id}`, currentSceneId);
     }, [currentSceneId, persona.id]);
+
+    useEffect(() => {
+        localStorage.setItem(`situation_${persona.id}`, currentSituation);
+    }, [currentSituation, persona.id]);
 
     useEffect(() => {
         localStorage.setItem(`traits_${persona.id}`, JSON.stringify(traits));
@@ -422,7 +430,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             { 
                 milestones: milestones.slice(-5).map(m => m.content || m.text || m),
                 intensity: intensity,
-                memory: memory
+                memory: memory,
+                currentSituation: currentSituation
             }
         );
 
@@ -563,7 +572,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 isContinuation: true, 
                 milestones: milestones.slice(-5).map(m => m.content || m.text || m),
                 intensity: intensity,
-                memory: memory
+                memory: memory,
+                currentSituation: currentSituation
             }
         );
 
@@ -694,6 +704,21 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                         });
                     }
                     if (photoPrompt) generateSelfie(photoPrompt, persona, aiMessageId, setMessages);
+
+                    // SITUATIONAL AWARENESS TICK
+                    setMessageCountForScene(prev => {
+                        const newCount = prev + 1;
+                        if (newCount >= 8) {
+                            extractSceneSummary(persona, [...context, { role: 'ai', content: fullText }]).then(summary => {
+                                if (summary) {
+                                    setCurrentSituation(summary);
+                                    setSituationInput(summary);
+                                }
+                            });
+                            return 0;
+                        }
+                        return newCount;
+                    });
                 },
                 (errMessage) => {
                     setIsTyping(false);
@@ -703,16 +728,17 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     ));
                 },
                 abortControllerRef.current.signal,
-                { 
-                    milestones: milestones.slice(-5).map(m => m.content || m.text || m),
-                    intensity: intensity,
-                    memory: memory
-                }
-            );
-        } catch (e) {
-            setIsTyping(false);
-        }
-    };
+            { 
+                milestones: milestones.slice(-5).map(m => m.content || m.text || m),
+                intensity: intensity,
+                memory: memory,
+                currentSituation: currentSituation
+            }
+        );
+    } catch (e) {
+        setIsTyping(false);
+    }
+};
 
     const saveMemorableMoment = (persona, content, image) => {
         let moments = [];
@@ -1093,6 +1119,47 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 </div>
             )}
 
+            {/* Scene Status Bar */}
+            <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{
+                    background: 'rgba(16, 185, 129, 0.08)',
+                    borderBottom: '1px solid rgba(16, 185, 129, 0.15)',
+                    padding: '0.6rem 1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    fontSize: '0.85rem',
+                    color: '#10b981',
+                    zIndex: 10
+                }}
+            >
+                <Info size={14} style={{ opacity: 0.7 }} />
+                <div style={{ flex: 1, fontWeight: '500' }}>
+                    {isEditingSituation ? (
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <input 
+                                value={situationInput}
+                                onChange={(e) => setSituationInput(e.target.value)}
+                                style={{ flex: 1, background: 'rgba(0,0,0,0.2)', border: '1px solid #10b981', color: 'white', borderRadius: '6px', padding: '4px 10px', fontSize: '0.8rem' }}
+                                onKeyDown={(e) => { if (e.key === 'Enter') { setCurrentSituation(situationInput); setIsEditingSituation(false); } }}
+                                autoFocus
+                            />
+                            <button onClick={() => { setCurrentSituation(situationInput); setIsEditingSituation(false); }} style={{ background: '#10b981', border: 'none', color: 'white', borderRadius: '4px', padding: '4px 8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Save size={12} /></button>
+                        </div>
+                    ) : (
+                        <span onClick={() => setIsEditingSituation(true)} style={{ cursor: 'pointer', opacity: 0.9 }}>
+                            {currentSituation}
+                        </span>
+                    )}
+                </div>
+                {!isEditingSituation && (
+                    <button onClick={() => setIsEditingSituation(true)} style={{ background: 'transparent', border: 'none', color: '#71717a', cursor: 'pointer', opacity: 0.5 }} onMouseOver={(e) => e.currentTarget.style.opacity = 1} onMouseOut={(e) => e.currentTarget.style.opacity = 0.5}>
+                        <Edit2 size={12} />
+                    </button>
+                )}
+            </motion.div>
 
             <div className="messages-area" ref={messagesAreaRef}>
                 {messages.map((msg, i) => (
