@@ -368,6 +368,7 @@ function App() {
 
         {selectedPersona ? (
           <ChatInterface
+            key={selectedPersona.id}
             persona={selectedPersona}
             allPersonas={getProcessedPersonas()}
             onBack={handleBack}
