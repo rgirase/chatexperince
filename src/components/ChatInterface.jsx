@@ -29,8 +29,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         const photoMsgId = aiMessageId + "_photo";
         setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: '*Sends a photo*', url: null }]);
 
-        const fullPrompt = `masterpiece, best quality, highly detailed, photorealistic, ${persona.name}, 1girl, ${prompt}`;
-        const negativePrompt = "lowres, bad quality, anime, cartoon, sketch, ugly";
+        const charAppearance = persona.prompt?.match(/APPEARANCE:\s*(.*?)(?=\n|BACKSTORY:|$)/is)?.[1] || "";
+        const charIdentity = persona.prompt?.match(/You are\s*(.*?)(?=\n|$)/i)?.[1] || persona.name;
+        
+        const fullPrompt = `masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ${charIdentity}, ${charAppearance}, ${prompt}`;
+        const negativePrompt = "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature";
 
         try {
             if (imageEngine === 'a1111' || imageEngine === 'drawthings') {

@@ -188,6 +188,54 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
         }
     };
 
+    const handleQuickSetupComfyUI = () => {
+        const comfyUrl = 'http://127.0.0.1:8000';
+        const workflow = {
+            "3": { "inputs": { "seed": 42, "steps": 25, "cfg": 7, "sampler_name": "dpmpp_2m", "scheduler": "karras", "denoise": 1, "model": ["4", 0], "positive": ["6", 0], "negative": ["7", 0], "latent_image": ["5", 0] }, "class_type": "KSampler", "_meta": { "title": "KSampler" } },
+            "4": { "inputs": { "ckpt_name": "Juggernaut-XL_v9.safetensors" }, "class_type": "CheckpointLoaderSimple", "_meta": { "title": "Load Checkpoint" } },
+            "5": { "inputs": { "width": 832, "height": 1216, "batch_size": 1 }, "class_type": "EmptyLatentImage", "_meta": { "title": "Empty Latent Image" } },
+            "6": { "inputs": { "text": "__PROMPT__", "clip": ["4", 1] }, "class_type": "CLIPTextEncode", "_meta": { "title": "CLIP Text Encode (Prompt)" } },
+            "7": { "inputs": { "text": "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry", "clip": ["4", 1] }, "class_type": "CLIPTextEncode", "_meta": { "title": "CLIP Text Encode (Negative Prompt)" } },
+            "8": { "inputs": { "samples": ["3", 0], "vae": ["4", 2] }, "class_type": "VAEDecode", "_meta": { "title": "VAE Decode" } },
+            "9": { "inputs": { "filename_prefix": "ChatExperience", "images": ["8", 0] }, "class_type": "SaveImage", "_meta": { "title": "Save Image" } }
+        };
+
+        setSdUrl(comfyUrl);
+        setImageEngine('comfyui');
+        setComfyWorkflow(JSON.stringify(workflow, null, 2));
+        
+        localStorage.setItem('sdUrl', comfyUrl);
+        localStorage.setItem('imageEngine', 'comfyui');
+        localStorage.setItem('comfyWorkflow', JSON.stringify(workflow, null, 2));
+
+        setSaveToast('🚀 ComfyUI Optimized for Juggernaut XL (High Quality)!');
+        setTimeout(() => setSaveToast(''), 3000);
+    };
+
+    const handleQuickSetupSD15 = () => {
+        const comfyUrl = 'http://127.0.0.1:8000';
+        const workflow = {
+            "3": { "inputs": { "seed": 42, "steps": 20, "cfg": 7, "sampler_name": "dpmpp_2m", "scheduler": "karras", "denoise": 1, "model": ["4", 0], "positive": ["6", 0], "negative": ["7", 0], "latent_image": ["5", 0] }, "class_type": "KSampler", "_meta": { "title": "KSampler" } },
+            "4": { "inputs": { "ckpt_name": "Realistic_Vision_V6.safetensors" }, "class_type": "CheckpointLoaderSimple", "_meta": { "title": "Load Checkpoint" } },
+            "5": { "inputs": { "width": 512, "height": 768, "batch_size": 1 }, "class_type": "EmptyLatentImage", "_meta": { "title": "Empty Latent Image" } },
+            "6": { "inputs": { "text": "high quality, photorealistic, cinematic, __PROMPT__", "clip": ["4", 1] }, "class_type": "CLIPTextEncode", "_meta": { "title": "CLIP Text Encode (Prompt)" } },
+            "7": { "inputs": { "text": "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry", "clip": ["4", 1] }, "class_type": "CLIPTextEncode", "_meta": { "title": "CLIP Text Encode (Negative Prompt)" } },
+            "8": { "inputs": { "samples": ["3", 0], "vae": ["4", 2] }, "class_type": "VAEDecode", "_meta": { "title": "VAE Decode" } },
+            "9": { "inputs": { "filename_prefix": "ChatExperience", "images": ["8", 0] }, "class_type": "SaveImage", "_meta": { "title": "Save Image" } }
+        };
+
+        setSdUrl(comfyUrl);
+        setImageEngine('comfyui');
+        setComfyWorkflow(JSON.stringify(workflow, null, 2));
+        
+        localStorage.setItem('sdUrl', comfyUrl);
+        localStorage.setItem('imageEngine', 'comfyui');
+        localStorage.setItem('comfyWorkflow', JSON.stringify(workflow, null, 2));
+
+        setSaveToast('⚡ ComfyUI Optimized for Realistic Vision (Fast/Low VRAM)!');
+        setTimeout(() => setSaveToast(''), 3000);
+    };
+
     return (
         <div className="persona-list-container fade-in" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
             {/* Toast Notification */}
@@ -323,6 +371,42 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
                         <option value="drawthings">Draw Things (Mac)</option>
                         <option value="diffusionbee">Diffusion Bee (Mac)</option>
                     </select>
+                </div>
+
+                <div style={{ marginBottom: '1.5rem', background: 'rgba(192, 132, 252, 0.1)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(192, 132, 252, 0.3)' }}>
+                    <h3 style={{ margin: '0 0 1rem 0', color: '#c084fc', fontSize: '1.1rem' }}>One-Click ComfyUI Setup</h3>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#ec4899' }}>Option A: Max Quality</h4>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#a1a1aa' }}>Uses Juggernaut XL. Needs 8GB+ VRAM & LowVRAM mode.</p>
+                            <button 
+                                onClick={handleQuickSetupComfyUI}
+                                style={{ 
+                                    marginTop: 'auto',
+                                    background: 'linear-gradient(135deg, #ec4899 0%, #c084fc 100%)', 
+                                    color: 'white', border: 'none', padding: '0.5rem', borderRadius: '6px', fontWeight: '600', cursor: 'pointer'
+                                }}
+                            >
+                                Setup SDXL
+                            </button>
+                        </div>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#22c55e' }}>Option B: Max Speed</h4>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#a1a1aa' }}>Uses SD 1.5. Extremely fast, works on all GPUs.</p>
+                            <button 
+                                onClick={handleQuickSetupSD15}
+                                style={{ 
+                                    marginTop: 'auto',
+                                    background: 'rgba(34, 197, 94, 0.2)', 
+                                    color: '#22c55e', border: '1px solid #22c55e', padding: '0.5rem', borderRadius: '6px', fontWeight: '600', cursor: 'pointer'
+                                }}
+                            >
+                                Setup SD 1.5
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div style={{ marginBottom: '1.5rem' }}>
