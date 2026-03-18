@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings as SettingsIcon, Image as ImageIcon, MessageCircle, Home, Book, Sparkles } from 'lucide-react';
+import { Home, Settings as SettingsIcon, Server, Shield, Smartphone, Zap, Image as ImageIcon } from 'lucide-react';
 import { updateAura } from './services/reputation';
 import PersonaList from './components/PersonaList';
 import ChatInterface from './components/ChatInterface';
@@ -397,6 +397,13 @@ function App() {
           >
             <Home size={24} />
             <span>Home</span>
+          </button>
+          <button 
+            className={`nav-item ${activeView === 'gallery' ? 'active' : ''}`}
+            onClick={() => setActiveView('gallery')}
+          >
+            <ImageIcon size={24} />
+            <span>Gallery</span>
           </button>
           <button 
             className={`nav-item ${activeView === 'settings' ? 'active' : ''}`}

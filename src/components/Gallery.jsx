@@ -262,11 +262,13 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                                 src={selectedImage.url}
                                 alt="Full screen"
                                 style={{
-                                    maxWidth: '100%',
-                                    maxHeight: '70%',
-                                    borderRadius: '16px',
+                                    maxWidth: '100vw',
+                                    maxHeight: '100vh',
+                                    borderRadius: selectedImage.isMoment ? '16px' : '0',
                                     boxShadow: '0 0 50px rgba(0,0,0,0.5)',
-                                    objectFit: 'contain'
+                                    objectFit: 'contain',
+                                    width: '100%',
+                                    height: 'auto'
                                 }}
                             />
                             {selectedImage.isMoment && (
