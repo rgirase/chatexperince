@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Book, X, History, Clock, Map as MapIcon } from 'lucide-react';
+import { Search, Book, X, History, Clock, Map as MapIcon, Trash2 } from 'lucide-react';
 import { personas } from '../data/personas';
 import { getRandomStatus } from '../data/statusUpdates';
 import StoryMap from './StoryMap';
+import { deleteDiaryEntry } from '../services/memory';
 
 const SkeletonCard = () => (
     <div className="persona-card full-bleed skeleton" style={{ height: '380px', borderRadius: '16px' }}>
@@ -467,12 +468,29 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                                                     borderRadius: '0 12px 12px 0',
                                                     position: 'relative'
                                                 }}>
+                                                    <button 
+                                                        onClick={() => {
+                                                            if (window.confirm("Delete this diary entry?")) {
+                                                                deleteDiaryEntry(diaryPersona.id, entry.id);
+                                                                // Force re-render by updating local state or just let the user re-open
+                                                                // Since this is inside a IIFE, we might need to handle state better
+                                                                // Let's add a local state for diary entries in the component
+                                                                setDiaryPersona({ ...diaryPersona }); // Simple hack to trigger re-render
+                                                            }
+                                                        }}
+                                                        style={{ position: 'absolute', top: '10px', right: '10px', background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', opacity: 0.5 }}
+                                                        onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+                                                        onMouseOut={(e) => e.currentTarget.style.opacity = 0.5}
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
                                                     <p style={{ 
                                                         margin: 0, 
                                                         fontSize: '0.95rem', 
                                                         lineHeight: '1.6', 
                                                         color: '#e4e4e7',
-                                                        fontStyle: 'italic'
+                                                        fontStyle: 'italic',
+                                                        paddingRight: '20px'
                                                     }}>
                                                         "{entry.content}"
                                                     </p>

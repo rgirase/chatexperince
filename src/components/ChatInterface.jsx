@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift, Shirt } from 'lucide-react';
+import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift, Shirt, Book, History } from 'lucide-react';
 import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage, generateDiaryEntry } from '../services/llm';
-import { saveMilestone, getMemories, clearMemories } from '../services/memory';
-import { Book, History } from 'lucide-react';
+import { saveMilestone, getMemories, clearMemories, deleteMilestone } from '../services/memory';
 import { SCENES, detectSceneId } from '../data/scenes';
 
 const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }) => {
@@ -1489,7 +1488,20 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                     {milestones.slice().reverse().map((m) => (
                                         <div key={m.id} style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '1rem', borderRadius: '12px', position: 'relative' }}>
-                                            <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.5', color: '#e4e4e7' }}>{m.content}</p>
+                                            <button 
+                                                onClick={() => {
+                                                    if (window.confirm("Remove this memory?")) {
+                                                        const updated = deleteMilestone(persona.id, m.id);
+                                                        setMilestones(updated);
+                                                    }
+                                                }}
+                                                style={{ position: 'absolute', top: '10px', right: '10px', background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', opacity: 0.5 }}
+                                                onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+                                                onMouseOut={(e) => e.currentTarget.style.opacity = 0.5}
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                            <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.5', color: '#e4e4e7', paddingRight: '20px' }}>{m.content}</p>
                                             <span style={{ fontSize: '0.7rem', color: '#71717a', marginTop: '0.5rem', display: 'block' }}>
                                                 {new Date(m.timestamp).toLocaleDateString()} at {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </span>
