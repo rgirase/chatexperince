@@ -1026,7 +1026,10 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                 </motion.span>
                             )}
                         </h3>
-                        <p>Online</p>
+                        <p style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span className="status-dot"></span>
+                            Online • {messages.length} messages
+                        </p>
                     </div>
                 </div>
                 <button

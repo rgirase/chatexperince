@@ -243,35 +243,6 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     return (
         <div className="persona-container" style={{ paddingBottom: '4rem' }}>
             
-            {/* Phase 10: Social Status Feed */}
-            <div className="status-feed-container">
-                <div className="status-feed-header">
-                    <h3>Recent Updates</h3>
-                </div>
-                <div className="status-feed-track">
-                    {allPersonas.filter(p => p.id === 'indian_wife' || p.id === 'stepmom' || p.id === 'best_friend_mom' || p.id === 'indian_college_gf').map(p => {
-                        const status = getRandomStatus(p.id);
-                        if (!status) return null;
-                        return (
-                            <motion.div 
-                                key={p.id} 
-                                className="status-item"
-                                whileHover={{ scale: 1.02 }}
-                                onClick={() => onSelectPersona(p)}
-                            >
-                                <div className="status-avatar-wrapper">
-                                    <img src={p.image} alt={p.name} className="status-avatar" />
-                                    <div className="status-online-indicator" />
-                                </div>
-                                <div className="status-content">
-                                    <span className="status-name">{p.name}</span>
-                                    <p className="status-text">{status}</p>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
-                </div>
-            </div>
 
             {/* Search & Categories */}
             <div style={{ 

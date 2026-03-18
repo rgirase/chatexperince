@@ -330,28 +330,6 @@ function App() {
               Aura Roleplay
             </div>
 
-            {/* User Aura Display */}
-            {userAura && userAura.color && (
-              <motion.div 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  background: `rgba(${parseInt(userAura.color.slice(1,3), 16) || 0}, ${parseInt(userAura.color.slice(3,5), 16) || 0}, ${parseInt(userAura.color.slice(5,7), 16) || 0}, 0.1)`,
-                  border: `1px solid ${userAura.color}44`,
-                  padding: '4px 12px',
-                  borderRadius: '20px',
-                  marginLeft: '1rem',
-                  cursor: 'help'
-                }}
-                title={`Your current Aura: ${userAura.name || 'Neutral'}. Based on your communication style across all characters.`}
-              >
-                <Sparkles size={14} color={userAura.color} />
-                <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: userAura.color }}>{userAura.name || 'Neutral'}</span>
-              </motion.div>
-            )}
 
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               {/* Server Quick Switcher */}
@@ -371,13 +349,6 @@ function App() {
                 </div>
               )}
 
-              <button
-                onClick={handleOpenGallery}
-                style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', padding: '0.5rem' }}
-                title="Progression Gallery"
-              >
-                <ImageIcon size={24} />
-              </button>
               <button
                 onClick={handleOpenSettings}
                 style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', padding: '0.5rem' }}
@@ -426,13 +397,6 @@ function App() {
           >
             <Home size={24} />
             <span>Home</span>
-          </button>
-          <button 
-            className={`nav-item ${activeView === 'gallery' ? 'active' : ''}`}
-            onClick={handleOpenGallery}
-          >
-            <ImageIcon size={24} />
-            <span>Gallery</span>
           </button>
           <button 
             className={`nav-item ${activeView === 'settings' ? 'active' : ''}`}
