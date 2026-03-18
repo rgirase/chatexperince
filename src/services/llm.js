@@ -165,7 +165,7 @@ Roleplay Identity: ${persona.systemPrompt}
 
 Current Dynamic:
 - Intensity: ${intensity}/5.
-- Language: Strictly avoid terms like "beta", "bachha", or "son".
+- Language: Strictly adhere to the specified cultural traits. Avoid mixing dialects or using honorifics from other cultures.
 - Pacing: Move the scene forward with bold, visceral actions.
 ${auraPrompt}${situationPrompt}
 
