@@ -3,9 +3,17 @@ import { DEFAULT_LM_STUDIO_URL, DEFAULT_LM_STUDIO_MODEL } from '../config';
 // Endpoint is proxied via Vite to bypass CORS issues constraints.
 
 const getLmStudioUrl = () => {
-    const customUrl = localStorage.getItem('lmStudioUrl');
-    const baseUrl = customUrl || DEFAULT_LM_STUDIO_URL;
-    return baseUrl.endsWith('/') ? `${baseUrl}chat/completions` : `${baseUrl}/chat/completions`;
+    let customUrl = localStorage.getItem('lmStudioUrl');
+    let baseUrl = customUrl || DEFAULT_LM_STUDIO_URL || '/api';
+    
+    baseUrl = baseUrl.trim();
+    if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+    
+    // Ensure /v1 exists if it's an OpenAI style endpoint and not using proxy
+    if (!baseUrl.includes('/v1') && !baseUrl.includes('/api')) {
+        baseUrl += '/v1';
+    }
+    return `${baseUrl}/chat/completions`;
 };
 
 const getModelId = () => {
@@ -29,7 +37,8 @@ const ensureValidModel = async () => {
 
 export const fetchAvailableModels = async () => {
     try {
-        const url = getLmStudioUrl().replace('/chat/completions', '/models');
+        const baseUrl = getLmStudioUrl().replace('/chat/completions', '');
+        const url = `${baseUrl}/models`;
         const response = await fetch(url);
         if (!response.ok) return [];
         const data = await response.json();
