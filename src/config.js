@@ -1,6 +1,6 @@
 // Central configuration for default values and fallbacks
-export const DEFAULT_LM_STUDIO_URL = 'http://192.168.1.233:1234/v1';
-export const DEFAULT_SD_URL = 'http://127.0.0.1:8000';
+export const DEFAULT_LM_STUDIO_URL = 'http://192.168.86.28:1234/v1';
+export const DEFAULT_SD_URL = 'http://192.168.86.28:8000';
 export const DEFAULT_IMAGE_ENGINE = 'comfyui';
 export const DEFAULT_LM_STUDIO_MODEL = 'local-model';
 

@@ -308,7 +308,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, savedSe
                             type="text"
                             value={lmStudioUrl}
                             onChange={(e) => setLmStudioUrl(e.target.value)}
-                            placeholder="http://192.168.1.233:1234/v1"
+                            placeholder="http://192.168.86.28:1234/v1"
                             style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
                         />
                         <button 
@@ -543,8 +543,8 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, savedSe
                     <p style={{ color: '#f3f4f6', marginBottom: '1rem' }}>To use this app on your Android device:</p>
                     <ol style={{ color: '#a1a1aa', paddingLeft: '1.2rem', lineHeight: '1.6' }}>
                         <li>Ensure your PC and Android are on the <strong>same Wi-Fi network</strong>.</li>
-                        <li>Find your PC's IP address (e.g., <code>192.168.1.XX</code>).</li>
-                        <li>Open Chrome on Android and visit <code>http://[YOUR-IP]:5173</code>.</li>
+                        <li>Find your PC's IP address (detected as <strong>192.168.86.28</strong>).</li>
+                        <li>Open Chrome on Android and visit <code>http://192.168.86.28:5173</code>.</li>
                         <li><strong>CORS Note:</strong> In LM Studio, go to Server settings and set <strong>CORS: On</strong> to allow the connection.</li>
                         <li><strong>Install as App:</strong> Tap the Chrome menu (⋮) and select "Install app" for a native Android look!</li>
                     </ol>
