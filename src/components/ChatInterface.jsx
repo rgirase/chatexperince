@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift, Shirt, Book, History, Info, Save } from 'lucide-react';
 import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage, generateDiaryEntry, extractSceneSummary } from '../services/llm';
-import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE } from '../config';
+import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_COMFY_WORKFLOW } from '../config';
 import { saveMilestone, getMemories, clearMemories, deleteMilestone } from '../services/memory';
 import { SCENES, detectSceneId } from '../data/scenes';
 
@@ -54,9 +54,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     throw new Error(`${imageEngine === 'drawthings' ? 'Draw Things' : 'A1111'} API error.`);
                 }
             } else if (imageEngine === 'comfyui') {
-                const comfyWorkflow = localStorage.getItem('comfyWorkflow');
+                let comfyWorkflow = localStorage.getItem('comfyWorkflow');
+                
+                // Fallback to central default if missing or invalid
                 if (!comfyWorkflow || !comfyWorkflow.includes('__PROMPT__')) {
-                    throw new Error("Invalid or missing ComfyUI workflow JSON.");
+                    comfyWorkflow = JSON.stringify(DEFAULT_COMFY_WORKFLOW);
                 }
 
                 let workflowStr = comfyWorkflow.replace(/__PROMPT__/g, fullPrompt);

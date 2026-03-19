@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Plus, Trash2, Home, RefreshCw } from 'lucide-react';
 import { fetchAvailableModels } from '../services/llm';
 
-import { DEFAULT_LM_STUDIO_URL, DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_LM_STUDIO_MODEL } from '../config';
+import { DEFAULT_LM_STUDIO_URL, DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_LM_STUDIO_MODEL, DEFAULT_COMFY_WORKFLOW } from '../config';
 
 const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, savedServers: serverProps, activeServerUrl: activeUrlProp, onSwitchServer }) => {
     const [lmStudioUrl, setLmStudioUrl] = useState(activeUrlProp || '');
@@ -188,16 +188,8 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, savedSe
     };
 
     const handleQuickSetupComfyUI = () => {
-        const comfyUrl = 'http://127.0.0.1:8000';
-        const workflow = {
-            "3": { "inputs": { "seed": 42, "steps": 25, "cfg": 7, "sampler_name": "dpmpp_2m", "scheduler": "karras", "denoise": 1, "model": ["4", 0], "positive": ["6", 0], "negative": ["7", 0], "latent_image": ["5", 0] }, "class_type": "KSampler", "_meta": { "title": "KSampler" } },
-            "4": { "inputs": { "ckpt_name": "Juggernaut-XL_v9.safetensors" }, "class_type": "CheckpointLoaderSimple", "_meta": { "title": "Load Checkpoint" } },
-            "5": { "inputs": { "width": 832, "height": 1216, "batch_size": 1 }, "class_type": "EmptyLatentImage", "_meta": { "title": "Empty Latent Image" } },
-            "6": { "inputs": { "text": "__PROMPT__", "clip": ["4", 1] }, "class_type": "CLIPTextEncode", "_meta": { "title": "CLIP Text Encode (Prompt)" } },
-            "7": { "inputs": { "text": "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry", "clip": ["4", 1] }, "class_type": "CLIPTextEncode", "_meta": { "title": "CLIP Text Encode (Negative Prompt)" } },
-            "8": { "inputs": { "samples": ["3", 0], "vae": ["4", 2] }, "class_type": "VAEDecode", "_meta": { "title": "VAE Decode" } },
-            "9": { "inputs": { "filename_prefix": "ChatExperience", "images": ["8", 0] }, "class_type": "SaveImage", "_meta": { "title": "Save Image" } }
-        };
+        const comfyUrl = DEFAULT_SD_URL;
+        const workflow = DEFAULT_COMFY_WORKFLOW;
 
         setSdUrl(comfyUrl);
         setImageEngine('comfyui');
@@ -207,7 +199,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, savedSe
         localStorage.setItem('imageEngine', 'comfyui');
         localStorage.setItem('comfyWorkflow', JSON.stringify(workflow, null, 2));
 
-        setSaveToast('🚀 ComfyUI Optimized for Juggernaut XL (High Quality)!');
+        setSaveToast('🚀 ComfyUI Optimized for Realistic Vision (Fast/High Quality)!');
         setTimeout(() => setSaveToast(''), 3000);
     };
 
