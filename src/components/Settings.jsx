@@ -197,81 +197,57 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
         
         const log = (msg, type = 'info') => setTroubleshootLog(prev => [...prev, { type, msg }]);
 
+        const fetchWithTimeout = async (url, options = {}, timeout = 5000) => {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            try {
+                const response = await fetch(url, { ...options, signal: controller.signal });
+                clearTimeout(id);
+                return response;
+            } catch (e) {
+                clearTimeout(id);
+                throw e;
+            }
+        };
+
         try {
             // 1. Basic Reachability
             log(`Testing reachability for ${sdUrl}...`);
             const startTime = Date.now();
             let isReachable = false;
             try {
-                // Try the main URL
-                await fetch(sdUrl, { mode: 'no-cors' });
+                await fetchWithTimeout(sdUrl, { mode: 'no-cors' }, 3000);
                 isReachable = true;
                 log(`Reachability OK (${Date.now() - startTime}ms)`);
             } catch (e) {
-                // If it's the 192/127 address, try the other common port 8188
                 if (sdUrl.includes(':8000')) {
                     const altUrl = sdUrl.replace(':8000', ':8188');
-                    log(`8000 failed. Probing default ComfyUI port 8188...`);
+                    log(`8000 slow/failed. Probing 8188...`);
                     try {
-                        await fetch(altUrl, { mode: 'no-cors' });
-                        log(`PORT MISMATCH: Detected ComfyUI on 8188! Please update your URL above.`, 'warning');
+                        await fetchWithTimeout(altUrl, { mode: 'no-cors' }, 3000);
+                        log(`PORT MISMATCH: Detected ComfyUI on 8188! Update your URL.`, 'warning');
                         isReachable = true;
                     } catch (e2) {}
                 }
                 
                 if (!isReachable) {
-                    log(`URL unreachable. Is ComfyUI running? Try 127.0.0.1:8000 or 127.0.0.1:8188.`, 'error');
-                    if (sdUrl.includes('192.168.')) log('TIP: You are using a local IP. If on PC, try 127.0.0.1.', 'info');
-                    if (sdUrl.includes('100.87') || sdUrl.includes('100.87.53.100')) {
-                        log('TIP: Tailscale detected. Use your PC\'s Tailnet IP in the URL field.', 'success');
-                    } else {
-                        log(`Your Tailscale IP is: 100.87.53.100`, 'info');
-                    }
+                    log(`URL unreachable or timed out.`, 'error');
+                    if (sdUrl.includes('192.168.')) log('TIP: You are using local IP. If on PC, try 127.0.0.1.', 'info');
+                    log(`Your Tailscale IP is: 100.87.53.100`, 'info');
                 }
             }
 
             // 2. ComfyUI API Check
-            if (imageEngine === 'comfyui') {
+            if (isReachable && imageEngine === 'comfyui') {
                 log('Checking ComfyUI API status...');
                 try {
-                    const stats = await fetch(`${sdUrl.replace(/\/$/, '')}/system_stats`);
+                    const stats = await fetchWithTimeout(`${sdUrl.replace(/\/$/, '')}/system_stats`, {}, 5000);
                     if (stats.ok) {
                         const data = await stats.json();
                         log(`ComfyUI Detected! System: ${data.system?.os || 'unknown'}`, 'success');
-                    } else {
-                        log(`API returned status ${stats.status}. Is this a ComfyUI endpoint?`, 'error');
                     }
                 } catch (e) {
-                    log('API Check failed. Ensure CORS is enabled (usually default in ComfyUI).', 'error');
-                }
-
-                // 3. History Deep Dive
-                log('Checking recent generation history...');
-                try {
-                    const hist = await fetch(`${sdUrl.replace(/\/$/, '')}/history?count=5`);
-                    const data = await hist.json();
-                    const promptIds = Object.keys(data);
-                    if (promptIds.length > 0) {
-                        const lastId = promptIds[promptIds.length - 1];
-                        const lastTask = data[lastId];
-                        if (lastTask.status?.completed) {
-                            const hasImages = Object.values(lastTask.outputs).some(o => o.images && o.images.length > 0);
-                            if (hasImages) {
-                                log('Last task was SUCCESSFUL and produced images.', 'success');
-                            } else {
-                                log('Last task finished but NO IMAGES were produced. Check ComfyUI console for model errors.', 'error');
-                                if (JSON.stringify(lastTask.outputs).includes('error')) {
-                                    log(`DETECTED ERROR: ${JSON.stringify(lastTask.outputs)}`, 'error');
-                                }
-                            }
-                        } else {
-                            log('Last task is still pending or failed.', 'warning');
-                        }
-                    } else {
-                        log('No task history found. Try requesting a selfie first.', 'info');
-                    }
-                } catch (e) {
-                    log('Could not fetch history.', 'error');
+                    log('API Check timed out or failed.', 'error');
                 }
             }
         } catch (globalErr) {
