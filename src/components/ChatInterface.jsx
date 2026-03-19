@@ -9,6 +9,8 @@ import { SCENES, detectSceneId } from '../data/scenes';
 const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }) => {
     // Toast State
     const [toasts, setToasts] = useState([]);
+    const [isSelfiePromptOpen, setIsSelfiePromptOpen] = useState(false);
+    const [selfiePrompt, setSelfiePrompt] = useState("");
 
     const showToast = (message, type = 'error') => {
         const id = Date.now();
@@ -824,22 +826,21 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
     const handleRequestPhoto = () => {
         if (isTyping || isSuggesting) return;
+        setSelfiePrompt("");
+        setIsSelfiePromptOpen(true);
+    };
 
+    const confirmSelfieRequest = () => {
+        setIsSelfiePromptOpen(false);
         const aiMessageId = Date.now().toString();
         
         // Extract appearance from persona
         const appearanceMatch = (persona.systemPrompt || persona.prompt)?.match(/APPEARANCE:\s*([^\n.]*)/i);
         const appearanceStr = appearanceMatch ? appearanceMatch[1] : "";
         
-        // If user has typed something in the input box, use it as the specific instruction.
-        // Otherwise, use a default "sexy" prompt.
-        let specificInstruction = input.trim();
         let finalPrompt = "";
-        
-        if (specificInstruction) {
-            finalPrompt = `${appearanceStr}, ${specificInstruction}, cinematic lighting`;
-            // Clear the input so it's not "sent" twice
-            setInput('');
+        if (selfiePrompt.trim()) {
+            finalPrompt = `${appearanceStr}, ${selfiePrompt.trim()}, cinematic lighting`;
         } else {
             finalPrompt = `${appearanceStr}, wearing a very sexy and revealing outfit, highly provocative pose, seductive gaze, bedroom setting, cinematic lighting`;
         }
@@ -1796,6 +1797,65 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                     </button>
                                 );
                             })}
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+            {/* Selfie Prompt Modal */}
+            {isSelfiePromptOpen && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', padding: '20px'
+                }}>
+                    <motion.div 
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="glass-panel"
+                        style={{ width: '100%', maxWidth: '400px', padding: '24px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)' }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                            <h3 style={{ margin: 0, color: '#ec4899', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Camera size={20} /> Request Selfie
+                            </h3>
+                            <button onClick={() => setIsSelfiePromptOpen(false)} style={{ background: 'transparent', border: 'none', color: '#a1a1aa' }}><X size={20} /></button>
+                        </div>
+                        
+                        <p style={{ color: '#a1a1aa', fontSize: '0.9rem', marginBottom: '16px' }}>
+                            Describe a specific pose, outfit, or location (Optional):
+                        </p>
+                        
+                        <textarea
+                            autoFocus
+                            value={selfiePrompt}
+                            onChange={(e) => setSelfiePrompt(e.target.value)}
+                            placeholder="e.g. wearing a red dress on a sunny beach..."
+                            style={{
+                                width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: '12px', padding: '12px', color: 'white', fontSize: '1rem',
+                                marginBottom: '20px', resize: 'none', height: '100px', outline: 'none'
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    confirmSelfieRequest();
+                                }
+                            }}
+                        />
+                        
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button 
+                                onClick={() => setIsSelfiePromptOpen(false)}
+                                style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'white', fontWeight: '600' }}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={confirmSelfieRequest}
+                                style={{ flex: 2, padding: '12px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', color: 'white', fontWeight: '700', boxShadow: '0 4px 15px rgba(236, 72, 153, 0.3)' }}
+                            >
+                                Generate
+                            </button>
                         </div>
                     </motion.div>
                 </div>
