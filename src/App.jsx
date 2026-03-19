@@ -78,11 +78,38 @@ function App() {
     // Load server info
     let servers = [];
     try {
-      servers = JSON.parse(localStorage.getItem('savedServers') || '[]');
+      const storedServers = localStorage.getItem('savedServers');
+      servers = storedServers ? JSON.parse(storedServers) : [];
       if (!Array.isArray(servers)) servers = [];
+      
+      // Inject presets if they don't exist
+      const presets = [
+        { id: 'mac', name: 'Mac', url: 'http://192.168.1.233:1234' },
+        { id: 'tailscale', name: 'Tailscale PC', url: 'http://100.87.53.100:1234' },
+        { id: 'pc', name: 'PC', url: 'http://169.254.83.107:1234' }
+      ];
+      
+      let modified = false;
+      presets.forEach(preset => {
+        if (!servers.find(s => s.url === preset.url)) {
+          servers.push(preset);
+          modified = true;
+        }
+      });
+      
+      if (modified) {
+        localStorage.setItem('savedServers', JSON.stringify(servers));
+      }
     } catch (e) {
       console.error('[App] Failed to parse savedServers, clearing.', e);
       localStorage.removeItem('savedServers');
+      // Fallback to presets
+      servers = [
+        { id: 'mac', name: 'Mac', url: 'http://192.168.1.233:1234' },
+        { id: 'tailscale', name: 'Tailscale PC', url: 'http://100.87.53.100:1234' },
+        { id: 'pc', name: 'PC', url: 'http://169.254.83.107:1234' }
+      ];
+      localStorage.setItem('savedServers', JSON.stringify(servers));
     }
     setSavedServers(servers);
     setActiveServerUrl(localStorage.getItem('lmStudioUrl') || '');
