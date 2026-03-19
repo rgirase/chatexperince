@@ -826,12 +826,25 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         if (isTyping || isSuggesting) return;
 
         const aiMessageId = Date.now().toString();
-        // Construct a prompt that matches the user's request for "sexy image"
-        const appearanceMatch = (persona.systemPrompt || persona.prompt).match(/APPEARANCE:\s*([^\n.]*)/i);
-        const appearanceStr = appearanceMatch ? appearanceMatch[1] : "";
-        const sexyPrompt = `${appearanceStr}, wearing a very sexy and revealing outfit, highly provocative pose, seductive gaze, bedroom setting, cinematic lighting`;
         
-        generateSelfie(sexyPrompt, persona, aiMessageId);
+        // Extract appearance from persona
+        const appearanceMatch = (persona.systemPrompt || persona.prompt)?.match(/APPEARANCE:\s*([^\n.]*)/i);
+        const appearanceStr = appearanceMatch ? appearanceMatch[1] : "";
+        
+        // If user has typed something in the input box, use it as the specific instruction.
+        // Otherwise, use a default "sexy" prompt.
+        let specificInstruction = input.trim();
+        let finalPrompt = "";
+        
+        if (specificInstruction) {
+            finalPrompt = `${appearanceStr}, ${specificInstruction}, cinematic lighting`;
+            // Clear the input so it's not "sent" twice
+            setInput('');
+        } else {
+            finalPrompt = `${appearanceStr}, wearing a very sexy and revealing outfit, highly provocative pose, seductive gaze, bedroom setting, cinematic lighting`;
+        }
+        
+        generateSelfie(finalPrompt, persona, aiMessageId);
     };
 
     const handleKeyDown = (e) => {
@@ -1383,7 +1396,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     <button onClick={() => setIsWardrobeOpen(true)} style={{ background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.2)', color: '#a855f7', padding: '8px 16px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
                         <Shirt size={14} /> Wardrobe
                     </button>
-                    <button onClick={handleRequestPhoto} style={{ background: 'rgba(236, 72, 153, 0.1)', border: '1px solid rgba(236, 72, 153, 0.2)', color: '#ec4899', padding: '8px 16px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                    <button 
+                        onClick={handleRequestPhoto} 
+                        title="Tip: Type a pose or outfit in the chat box before clicking!"
+                        style={{ background: 'rgba(236, 72, 153, 0.1)', border: '1px solid rgba(236, 72, 153, 0.2)', color: '#ec4899', padding: '8px 16px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+                    >
                         <Camera size={14} /> Request Selfie
                     </button>
                     <button onClick={() => setIsJournalOpen(true)} style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#10b981', padding: '8px 16px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
