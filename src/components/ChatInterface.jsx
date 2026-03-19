@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift, Shirt, Book, History, Info, Save } from 'lucide-react';
+import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift, Shirt, Book, History, Info, Save, Download } from 'lucide-react';
 import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage, generateDiaryEntry, extractSceneSummary } from '../services/llm';
 import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_COMFY_WORKFLOW } from '../config';
 import { saveMilestone, getMemories, clearMemories, deleteMilestone } from '../services/memory';
@@ -881,6 +881,17 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         }
     };
 
+    const handleDownload = (msg) => {
+        if (!msg.url) return;
+        const link = document.createElement('a');
+        link.href = msg.url;
+        link.download = `selfie_${msg.id}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast("Saving to gallery...", "success");
+    };
+
     const handleSendGift = async (gift) => {
         setIsGiftsModalOpen(false);
         setIsTyping(true);
@@ -1261,8 +1272,23 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                                 </div>
                                             )}
                                             {msg.isPhoto && msg.url && (
-                                                <div style={{ marginTop: '8px', marginBottom: '8px' }}>
+                                                <div style={{ marginTop: '8px', marginBottom: '8px', position: 'relative' }}>
                                                     <img src={msg.url} alt="Selfie" style={{ maxWidth: '100%', borderRadius: '16px', display: 'block', boxShadow: '0 8px 20px rgba(0,0,0,0.5)' }} />
+                                                    <button 
+                                                        onClick={() => handleDownload(msg)}
+                                                        title="Save to gallery"
+                                                        style={{
+                                                            position: 'absolute', top: '10px', right: '10px',
+                                                            background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
+                                                            border: '1px solid rgba(255,255,255,0.2)', borderRadius: '50%',
+                                                            width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                            color: 'white', cursor: 'pointer', transition: 'all 0.2s ease'
+                                                        }}
+                                                        onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(236, 72, 153, 0.8)'; e.currentTarget.style.scale = '1.1'; }}
+                                                        onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.5)'; e.currentTarget.style.scale = '1'; }}
+                                                    >
+                                                        <Download size={20} />
+                                                    </button>
                                                 </div>
                                             )}
                                             {/* Parse asterisks for italics in a very basic way for roleplay descriptions */}
