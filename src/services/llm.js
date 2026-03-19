@@ -24,8 +24,8 @@ const getModelId = () => {
 // 1 token ≈ 4 characters. 
 // Standard local context is 4096 tokens (~16,000 chars).
 // We set a conservative budget to leave room for the response (max_tokens).
-const MAX_CONTEXT_CHARS = 10000; // Total (System + History) 
-const MAX_HISTORY_CHARS = 8000;  // Portion reserved for messages
+const MAX_CONTEXT_CHARS = 8000; // Total (System + History) 
+const MAX_HISTORY_CHARS = 6000;  // Portion reserved for messages
 
 // Internal helper to ensure we have a valid model
 const ensureValidModel = async () => {

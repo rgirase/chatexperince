@@ -1230,7 +1230,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                             <span style={{ fontSize: '0.65rem', background: 'rgba(168, 85, 247, 0.2)', color: '#c084fc', padding: '2px 8px', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>{currentMood}</span>
                         )}
                     </h3>
-                    <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', margin: 0, fontWeight: '500' }}>Active Now</p>
+                    <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', margin: 0, fontWeight: '500' }}>Active Now · {messages.length} messages</p>
                 </div>
 
                 <div style={{ display: 'flex', gap: '8px' }}>
