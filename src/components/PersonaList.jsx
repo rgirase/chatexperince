@@ -69,20 +69,53 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
                 transition: 'opacity 0.3s ease'
             }}>
                 <div style={{ marginBottom: '0.5rem' }}>
-                    <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '8px',
-                        background: 'rgba(255,255,255,0.1)',
-                        backdropFilter: 'blur(8px)',
-                        padding: '4px 8px',
-                        borderRadius: '12px',
-                        width: 'fit-content',
-                        marginBottom: '8px',
-                        border: '1px solid rgba(255,255,255,0.1)'
-                    }}>
-                        <span className="status-dot" style={{ width: '6px', height: '6px' }}></span>
-                        <span style={{ fontSize: '0.7rem', fontWeight: '600', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active Now</span>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                        <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px',
+                            background: 'rgba(255,255,255,0.1)',
+                            backdropFilter: 'blur(8px)',
+                            padding: '4px 8px',
+                            borderRadius: '12px',
+                            width: 'fit-content',
+                            border: '1px solid rgba(255,255,255,0.1)'
+                        }}>
+                            <span className="status-dot" style={{ width: '6px', height: '6px' }}></span>
+                            <span style={{ fontSize: '0.7rem', fontWeight: '600', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active Now</span>
+                        </div>
+
+                        {persona.isTrending && (
+                            <div style={{ 
+                                background: 'linear-gradient(135deg, #ef4444, #f97316)',
+                                padding: '4px 10px',
+                                borderRadius: '12px',
+                                fontSize: '0.65rem',
+                                fontWeight: '800',
+                                color: 'white',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+                            }}>
+                                Trending
+                            </div>
+                        )}
+
+                        {persona.isNew && (
+                            <div style={{ 
+                                background: 'linear-gradient(135deg, #22c55e, #10b981)',
+                                padding: '4px 10px',
+                                borderRadius: '12px',
+                                fontSize: '0.65rem',
+                                fontWeight: '800',
+                                color: 'white',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                                boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)'
+                            }}>
+                                New
+                            </div>
+                        )}
                     </div>
                     
                     <h3 className="persona-name" style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, letterSpacing: '-0.02em' }}>
@@ -263,141 +296,147 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
         <div className="persona-container" style={{ paddingBottom: '4rem' }}>
             
 
-            {/* Search & Categories */}
-            <div style={{ 
-                margin: '1rem 0 2rem 0',
+            {/* Search & Categories Section */}
+            <div className="discovery-header glass-panel" style={{ 
+                margin: '1.5rem 0',
+                padding: '1.25rem',
+                borderRadius: '24px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '1.5rem',
+                gap: '1.25rem',
+                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(24, 24, 27, 0.4)',
+                backdropFilter: 'blur(20px)',
                 position: 'relative',
                 zIndex: 10
             }}>
-                {/* Taboo Highlight Banner */}
-                {activeCategory === 'Taboo' && (
-                    <motion.div 
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        style={{
-                            padding: '0.8rem 1.2rem',
-                            background: 'rgba(239, 68, 68, 0.1)',
-                            border: '1px solid rgba(239, 68, 68, 0.2)',
-                            borderRadius: '12px',
-                            color: '#fca5a5',
-                            fontSize: '0.85rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem'
-                        }}
-                    >
-                        <span style={{ fontSize: '1.2rem' }}>🔥</span>
-                        Exploring high-tension, forbidden dynamics and deep personal secrets.
-                    </motion.div>
-                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: '#fff' }}>Discover</h2>
+                    <p style={{ fontSize: '0.85rem', color: '#71717a', margin: 0 }}>Find your next companion</p>
+                </div>
+
                 {/* Search Bar */}
-                <div style={{
-                    position: 'relative',
-                    display: 'flex',
-                    alignItems: 'center'
-                }}>
+                <div style={{ position: 'relative' }}>
                     <Search 
-                        size={18} 
+                        size={20} 
                         style={{ 
                             position: 'absolute', 
-                            left: '1rem', 
-                            color: '#71717a', 
+                            left: '1.25rem', 
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            color: '#a1a1aa', 
                             zIndex: 1 
                         }} 
                     />
                     <input
                         type="text"
-                        placeholder="Search companions..."
+                        placeholder="Search by name or tagline..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{
                             width: '100%',
-                            padding: '0.8rem 1rem 0.8rem 2.8rem',
-                            background: 'rgba(24, 24, 27, 0.8)',
-                            backdropFilter: 'blur(20px)',
+                            padding: '1rem 1rem 1rem 3.5rem',
+                            background: 'rgba(0, 0, 0, 0.3)',
                             border: '1px solid rgba(255, 255, 255, 0.1)',
                             borderRadius: '16px',
-                            color: '#f4f4f5',
+                            color: '#fff',
                             fontSize: '1rem',
                             outline: 'none',
-                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)'
+                            transition: 'all 0.3s ease',
+                            boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.2)'
                         }}
                     />
                 </div>
 
-                {/* Category Filter */}
-                <div style={{ 
-                    display: 'flex', 
-                    gap: '0.6rem', 
-                    overflowX: 'auto', 
-                    padding: '4px',
-                    scrollbarWidth: 'none',
-                    msOverflowStyle: 'none'
-                }}>
-                    {categories.map(cat => (
-                        <motion.button
-                            key={cat}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setActiveCategory(cat)}
-                            style={{
-                                padding: '0.6rem 1.4rem',
-                                background: activeCategory === cat ? 'linear-gradient(135deg, #a855f7 0%, #f472b6 100%)' : 'rgba(255, 255, 255, 0.03)',
-                                color: activeCategory === cat ? 'white' : '#71717a',
-                                border: 'none',
-                                borderRadius: '14px',
-                                fontSize: '0.9rem',
-                                fontWeight: activeCategory === cat ? '700' : '500',
-                                cursor: 'pointer',
-                                whiteSpace: 'nowrap',
-                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                border: activeCategory === cat ? 'none' : '1px solid rgba(255, 255, 255, 0.05)',
-                                boxShadow: activeCategory === cat ? '0 10px 20px rgba(168, 85, 247, 0.3)' : 'none'
-                            }}
-                        >
-                            {cat}
-                        </motion.button>
-                    ))}
+                {/* Filters Container */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {/* Category Filter */}
+                    <div style={{ 
+                        display: 'flex', 
+                        gap: '0.5rem', 
+                        overflowX: 'auto', 
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none',
+                        paddingBottom: '2px'
+                    }}>
+                        {categories.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                style={{
+                                    padding: '0.6rem 1.25rem',
+                                    background: activeCategory === cat ? 'linear-gradient(135deg, #a855f7, #ec4899)' : 'rgba(255, 255, 255, 0.05)',
+                                    color: activeCategory === cat ? 'white' : '#a1a1aa',
+                                    border: 'none',
+                                    borderRadius: '12px',
+                                    fontSize: '0.85rem',
+                                    fontWeight: '700',
+                                    cursor: 'pointer',
+                                    whiteSpace: 'nowrap',
+                                    transition: 'all 0.2s ease',
+                                    boxShadow: activeCategory === cat ? '0 4px 12px rgba(168, 85, 247, 0.3)' : 'none'
+                                }}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Region Filter */}
+                    <div style={{ 
+                        display: 'flex', 
+                        gap: '0.4rem', 
+                        overflowX: 'auto', 
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none'
+                    }}>
+                        {regions.map(region => (
+                            <button
+                                key={region}
+                                onClick={() => setActiveRegion(region)}
+                                style={{
+                                    padding: '0.4rem 1rem',
+                                    background: activeRegion === region ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                                    color: activeRegion === region ? '#fff' : '#71717a',
+                                    border: '1px solid ' + (activeRegion === region ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)'),
+                                    borderRadius: '10px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    whiteSpace: 'nowrap',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                {region}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
-                {/* Region Filter */}
-                <div style={{ 
-                    display: 'flex', 
-                    gap: '0.6rem', 
-                    overflowX: 'auto', 
-                    padding: '4px',
-                    scrollbarWidth: 'none',
-                    msOverflowStyle: 'none',
-                    marginTop: '-0.5rem' // Tighten gap with main categories
-                }}>
-                    {regions.map(region => (
-                        <motion.button
-                            key={region}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setActiveRegion(region)}
+                {/* Taboo Highlight Banner */}
+                <AnimatePresence>
+                    {activeCategory === 'Taboo' && (
+                        <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
                             style={{
-                                padding: '0.4rem 1rem',
-                                background: activeRegion === region ? 'rgba(255, 255, 255, 0.15)' : 'transparent',
-                                color: activeRegion === region ? '#f4f4f5' : '#71717a',
-                                border: 'none',
-                                borderRadius: '10px',
+                                padding: '0.75rem 1rem',
+                                background: 'rgba(239, 68, 68, 0.1)',
+                                border: '1px solid rgba(239, 68, 68, 0.2)',
+                                borderRadius: '12px',
+                                color: '#fca5a5',
                                 fontSize: '0.75rem',
-                                fontWeight: activeRegion === region ? '600' : '400',
-                                cursor: 'pointer',
-                                whiteSpace: 'nowrap',
-                                transition: 'all 0.3s ease',
-                                border: '1px solid ' + (activeRegion === region ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)')
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                overflow: 'hidden'
                             }}
                         >
-                            {region}
-                        </motion.button>
-                    ))}
-                </div>
+                            <span>🔥</span> Exploring forbidden dynamics and secrets.
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
 
             <div className="tabs-container fade-in" style={{ marginBottom: '1.5rem' }}>

@@ -1,16 +1,17 @@
 :root {
-  --bg-color: #09090b; /* Slightly deeper than black */
-  --panel-bg: rgba(18, 18, 23, 0.7);
-  --panel-border: rgba(255, 255, 255, 0.1);
-  --primary-color: #a855f7; /* Vibrant Purple */
+  --bg-color: #050507;
+  --panel-bg: rgba(18, 18, 23, 0.6);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --primary-color: #a855f7;
   --primary-hover: #9333ea;
   --text-main: #fafafa;
   --text-muted: #a1a1aa;
-  --accent-color: #f472b6; /* Vibrant Pink */
-  --user-msg-bg: linear-gradient(135deg, #a855f7, #f472b6);
-  --ai-msg-bg: rgba(30, 30, 40, 0.4);
-  --input-bg: rgba(20, 20, 25, 0.6);
+  --accent-color: #f472b6;
+  --user-msg-bg: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f43f5e 100%);
+  --ai-msg-bg: rgba(24, 24, 32, 0.4);
+  --input-bg: rgba(12, 12, 16, 0.6);
   --aura-gradient: linear-gradient(135deg, #a855f7, #ec4899, #f43f5e);
+  --glass-glow: 0 8px 32px 0 rgba(168, 85, 247, 0.15);
 }
 
 * {
@@ -143,8 +144,9 @@ body {
 }
 
 .persona-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.3);
+  transform: translateY(-12px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(168, 85, 247, 0.2);
+  border-color: rgba(168, 85, 247, 0.3) !important;
 }
 
 .persona-card:active {
@@ -424,8 +426,36 @@ body {
 }
 
 .send-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.3;
   cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+/* Suggestion Bubbles */
+.suggestion-bubble {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #fff;
+    white-space: nowrap;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.suggestion-bubble:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.25);
+}
+
+.suggestion-bubble:active {
+    transform: translateY(0) scale(0.98);
 }
 
 /* Animations */

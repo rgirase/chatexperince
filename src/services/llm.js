@@ -20,6 +20,13 @@ const getModelId = () => {
     return localStorage.getItem('lmStudioModel') || DEFAULT_LM_STUDIO_MODEL;
 };
 
+// --- CONTEXT BUDGETING ---
+// 1 token ≈ 4 characters. 
+// Standard local context is 4096 tokens (~16,000 chars).
+// We set a conservative budget to leave room for the response (max_tokens).
+const MAX_CONTEXT_CHARS = 10000; // Total (System + History) 
+const MAX_HISTORY_CHARS = 8000;  // Portion reserved for messages
+
 // Internal helper to ensure we have a valid model
 const ensureValidModel = async () => {
     let currentModel = getModelId();
@@ -91,7 +98,7 @@ const getShortName = (name) => {
 };
 
 // Helper to trim history to fit context window
-const trimHistory = (messages, maxChars = 12000) => {
+const trimHistory = (messages, maxChars = MAX_HISTORY_CHARS) => {
     let currentChars = 0;
     const trimmed = [];
     
@@ -118,12 +125,11 @@ const injectCulturalTraits = (persona) => {
     const { languageHabits, values, traditions } = culturalTraits;
 
     return `
-CULTURAL IDENTITY:
-- Origin: ${origin}
-- Language Habits: ${languageHabits}
-- Core Values: ${values}
-- Traditions/Context: ${traditions}
-- Rule: Authentically embody these traits. If ${origin} mentions specific neighborhoods, foods, or honorifics, use them naturally but sparingly to maintain immersion.
+CULTURAL EMBODIMENT:
+- Identity: ${origin} character who follows these habits: ${languageHabits}.
+- Core Values: ${values}.
+- Traditions: ${traditions}.
+- CRITICAL NARRATIVE RULE: Maintain full continuity of the current scene and environment. Use Hinglish/Hindi terms naturally for emotional flavor, but ensure the core narrative actions and dialogue remain clear and progress the story in English.
 `;
 };
 
@@ -152,7 +158,7 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
     } = options;
 
     // 1. IMMERSIVE SYSTEM PROMPT (Minimal technical jargon to avoid meta-talk)
-    const systemPrompt = "You are a creative writer who specializes in immersive, visceral adult roleplay. You are now and forever the character defined below. Stay in character at all times. Use *asterisks* for actions and natural dialogue. Drive the story forward proactively. Ensure your responses are substantial and detailed. \n\nCRITICAL: Always append your current emotional state at the very end of your response in the format [MOOD: emotion] (e.g., [MOOD: Playful], [MOOD: Conflicted], [MOOD: Lustful]). Only use one emotion.";
+    const systemPrompt = "You are a creative writer who specializes in immersive, visceral adult roleplay. You are now and forever the character defined below. Stay in character at all times. Use *asterisks* for actions and natural dialogue. Drive the story forward proactively. Ensure your responses are substantial and detailed. \n\nSTORY ADAPTABILITY: If the user mentions time passing (e.g., 'days passed', 'every day', 'a week later', 'next morning'), you MUST play along. Briefly narrate what happened during that interval—routines, shared moments, or growing tension—to bridge the gap before continuing the current scene. Describe how the passage of time has affected your feelings or the environment.\n\nCRITICAL: Always append your current emotional state at the very end of your response in the format [MOOD: emotion] (e.g., [MOOD: Playful], [MOOD: Conflicted], [MOOD: Lustful]). Only use one emotion.";
 
     const charName = getShortName(persona.name);
 
@@ -191,11 +197,8 @@ ${injectThemeIntensity(persona, intensity)}
 Assume the role of ${charName} now. Show, don't tell.`;
 
     // DYNAMIC CONTEXT BUDGETING (Prevents "failed to find space in KV cache")
-    // Note: 1 token ≈ 4 characters. Most local models handle 2048-4096 tokens.
-    // We aim for a ~3000 token total request to stay safe on 4096-context models.
-    const totalBudget = 6000; // Total characters for (System + History)
     const promptLength = systemPrompt.length + primingContext.length;
-    const historyBudget = Math.max(2000, totalBudget - promptLength);
+    const historyBudget = Math.min(MAX_HISTORY_CHARS, MAX_CONTEXT_CHARS - promptLength);
 
     let rawHistory = trimHistory(messages, historyBudget);
     
@@ -232,16 +235,17 @@ Assume the role of ${charName} now. Show, don't tell.`;
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
             body: JSON.stringify({
                 model: await ensureValidModel(),
                 messages: formattedMessages,
                 max_tokens: 800, 
                 stream: true,
-                temperature: 0.8, // Slightly higher for more variety
-                top_p: 0.95,      // More stable than 0.9 for smaller models
-                frequency_penalty: 0.2, // Lowered to prevent stuttering/collapse
-                presence_penalty: 0.2,  // Lowered to prevent stuttering/collapse
+                temperature: 0.8,
+                top_p: 0.95,
+                frequency_penalty: 0.2,
+                presence_penalty: 0.2,
                 stop: [
                     "User:", "Assistant:", "###", "System:", 
                     "<|eot_id|>", "<|im_end|>", "<|endoftext|>", "<|end_of_text|>",
@@ -272,41 +276,51 @@ Assume the role of ${charName} now. Show, don't tell.`;
         const decoder = new TextDecoder("utf-8");
         let fullResponse = "";
         let isFirstChunk = true;
+        let buffer = "";
 
         while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+            try {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n');
-
-            for (const line of lines) {
-                const trimmedLine = line.trim();
-                if (!trimmedLine) continue;
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
                 
-                if (trimmedLine.includes('[DONE]')) {
-                    const finalCleanResponse = cleanLeakage(fullResponse);
-                    onComplete(finalCleanResponse);
-                    return;
-                }
+                // Keep the last partial line in the buffer
+                buffer = lines.pop();
 
-                if (trimmedLine.startsWith('data: ')) {
-                    try {
-                        const jsonStr = trimmedLine.slice(6);
-                        const data = JSON.parse(jsonStr);
-                        const content = data.choices?.[0]?.delta?.content || "";
-                        if (content) {
-                            if (isFirstChunk) {
-                                onChunk(""); // Clear loading state
-                                isFirstChunk = false;
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine) continue;
+                    
+                    if (trimmedLine.includes('[DONE]')) {
+                        const finalCleanResponse = cleanLeakage(fullResponse);
+                        onComplete(finalCleanResponse);
+                        return;
+                    }
+
+                    if (trimmedLine.startsWith('data: ')) {
+                        try {
+                            const jsonStr = trimmedLine.slice(6);
+                            const data = JSON.parse(jsonStr);
+                            const content = data.choices?.[0]?.delta?.content || "";
+                            if (content) {
+                                if (isFirstChunk) {
+                                    onChunk(""); // Clear loading state
+                                    isFirstChunk = false;
+                                }
+                                fullResponse += content;
+                                onChunk(cleanLeakage(fullResponse));
                             }
-                            fullResponse += content;
-                            onChunk(cleanLeakage(fullResponse));
+                        } catch (e) {
+                            // Partial JSON, will be handled by buffer in next read
                         }
-                    } catch (e) {
-                        // Incomplete JSON chunk, skip and wait for next
                     }
                 }
+            } catch (readError) {
+                console.error("Stream read error:", readError);
+                if (fullResponse) break; // If we have some content, try to use it
+                throw readError;
             }
         }
 
@@ -333,30 +347,26 @@ Assume the role of ${charName} now. Show, don't tell.`;
 export const generateSuggestion = async (persona, messages, signal) => {
     const charName = getShortName(persona.name);
 
-    // Format the conversation history into a single string for better context understanding
-    const contextStr = messages.map(msg => {
+    const suggestionHistory = trimHistory(messages, 4000); // Strict limit for suggestions
+    const contextStr = suggestionHistory.map(msg => {
         const roleName = msg.role === 'user' ? 'User' : charName;
         return `${roleName}: ${msg.content}`;
-    }).slice(-15).join('\n\n'); // Focus on last 15 messages for context
+    }).join('\n\n');
 
     const systemMessage = {
         role: "system",
-        content: `You are an expert creative writing assistant for a high-intensity roleplay app. Your job is to help the User respond to an AI character named ${persona.name}.
-The character's premise is: ${persona.tagline}.
+        content: `You are an immersive roleplay assistant. Help the User respond to ${persona.name}.
+Premise: ${persona.tagline}.
 
-Here is the conversation history so far:
+Recent Context:
 ${contextStr}
 
-TASK: Generate a single, highly immersive, and contextually aware response that the User could send back to ${persona.name}. 
-The suggestion should follow the current vibe and physical proximity of the scene.
-
+TASK: Generate ONE highly immersive response (40-70 words) for the User. 
 RULES:
-1. DRIVE THE STORY FORWARD. Provide a suggestion that moves the scene into a new action, a deeper emotional beat, or a provocative physical movement.
-2. BLEND DIALOGUE AND ACTION. Use asterisks for physical actions (e.g. *I pull you closer, my breath warm against your neck*) and combine it with a line of dialogue that fits the relationship.
-3. BE VISCERAL. Focus on the senses—touch, sound, temperature, and tension.
-4. DO NOT repeat what has already been said.
-5. NO COMMENTARY. Return only the raw text of the suggested response.
-6. LENGTH: Make it substantial enough to feel like a real contribution to the story (approx. 40-70 words).`
+1. Mix dialogue and *actions*.
+2. Move the story forward proactively.
+3. Use the current vibe/proximity.
+4. NO intro or meta-talk. Just the response.`
     };
 
     try {

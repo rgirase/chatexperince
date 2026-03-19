@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift, Shirt, Book, History, Info, Save, Download } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift, Shirt, Book, History, Info, Save, Download, Sparkles } from 'lucide-react';
 import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage, generateDiaryEntry, extractSceneSummary } from '../services/llm';
 import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_COMFY_WORKFLOW } from '../config';
 import { saveMilestone, getMemories, clearMemories, deleteMilestone } from '../services/memory';
 import { SCENES, detectSceneId } from '../data/scenes';
+import FantasyGallery from './FantasyGallery';
 
 const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }) => {
     // Toast State
@@ -267,7 +268,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const [newManualMemory, setNewManualMemory] = useState('');
     const [isPhotoGalleryOpen, setIsPhotoGalleryOpen] = useState(false);
     const [activePersonaImage, setActivePersonaImage] = useState(persona.image);
+    const [currentSuggestions, setCurrentSuggestions] = useState([]);
     const [currentMood, setCurrentMood] = useState(null);
+    const [isFantasyGalleryOpen, setIsFantasyGalleryOpen] = useState(false);
     const messagesAreaRef = useRef(null);
     const abortControllerRef = useRef(null);
     const [currentSceneId, setCurrentSceneId] = useState(() => localStorage.getItem(`scene_${persona.id}`) || 'default');
@@ -636,7 +639,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                         .replace(/\[Action:\s*.*?\]/gi, '')
                         .replace(/\[Emotion:\s*.*?\]/gi, '')
                         .replace(/\[Physical\s*Action:.*?\]/gi, '')
-                        .replace(/\[\w+:\]/gi, ''); // Only catch single words followed by colon in brackets
+                        .replace(/\[\w[\w\s]*:\]/gi, ''); // Only catch single words followed by colon in brackets
                 setMessages(prev => prev.map(msg =>
                     msg.id === aiMessageId ? { ...msg, content: cleanText } : msg
                 ));
@@ -692,15 +695,32 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const handleSuggest = async () => {
         if (isTyping || isSuggesting) return;
         setIsSuggesting(true);
+        setCurrentSuggestions([]);
 
         abortControllerRef.current = new AbortController();
 
         try {
             const suggestion = await generateSuggestion(persona, messages, abortControllerRef.current.signal);
             if (suggestion) {
-                setInput(suggestion);
+                // Robust parsing for multiple suggestion formats
+                let suggestionList = [];
+                
+                // Try splitting by obvious delimiters (1., 2., 3., or newlines)
+                const items = suggestion.split(/(?:\d+\.|\n-|\n\n)/).map(s => s.trim()).filter(s => s.length > 5);
+                
+                if (items.length > 1) {
+                    suggestionList = items.slice(0, 3);
+                } else if (suggestion.includes('\n')) {
+                    suggestionList = suggestion.split('\n').map(s => s.trim()).filter(s => s.length > 5).slice(0, 3);
+                } else {
+                    // Just one block of text - split by sentences if too long?
+                    suggestionList = [suggestion.trim()];
+                }
+                
+                setCurrentSuggestions(suggestionList);
+                console.log("Suggestions generated:", suggestionList);
             } else {
-                showToast("Could not generate a suggestion. Check LM Studio connection.");
+                showToast("The AI couldn't think of anything. Try saying it yourself!");
             }
         } catch (err) {
             if (err.name === 'AbortError') {
@@ -832,9 +852,13 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 },
                 (errMessage) => {
                     setIsTyping(false);
-                    showToast("Could not connect to LM Studio. Tap 'Retry' to resubmit.");
+                    if (errMessage.includes("CONTEXT_SIZE_ERROR")) {
+                        showToast("Conversation context full. Try clearing chat or summarizing memory.", "error");
+                    } else {
+                        showToast("LM Studio error: " + errMessage, "error");
+                    }
                     setMessages(prev => prev.map(msg => 
-                        msg.id === aiMessageId ? { ...msg, content: "*(Connection failed. Please retry...)*", isError: true } : msg
+                        msg.id === aiMessageId ? { ...msg, content: "⚠️ Generation failed. The local model might be out of memory or disconnected. Click to retry.", isError: true } : msg
                     ));
                 },
                 abortControllerRef.current.signal,
@@ -919,6 +943,20 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         if (isTyping || isSuggesting) return;
         setSelfiePrompt("");
         setIsSelfiePromptOpen(true);
+    };
+
+    const handleGenerateSceneImage = async () => {
+        if (isTyping || isSuggesting) return;
+
+        // Optionally refresh the situation if it's been a while, but for now we trust currentSituation
+        const charAppearance = (persona.systemPrompt || persona.prompt)?.match(/APPEARANCE:\s*([^\n.]*)/i)?.[1] || "";
+        const charIdentity = persona.prompt?.match(/You are\s*(.*?)(?=\n|$)/i)?.[1] || persona.name;
+        
+        const sceneName = currentScene.name !== 'Generic Atmosphere' ? `at ${currentScene.name}` : "";
+        const finalPrompt = `masterpiece, photorealistic, 8k uhd, cinematic lighting, ${charIdentity}, ${charAppearance}, ${currentSituation}, ${sceneName}`;
+        
+        const aiMessageId = Date.now().toString();
+        generateSelfie(finalPrompt, persona, aiMessageId);
     };
 
     const confirmSelfieRequest = () => {
@@ -1008,6 +1046,29 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
         const contextWindow = messages.slice(-15);
         await executeAiRequest(aiMessageId, [...contextWindow, outfitMessage, outfitDirective]);
+    };
+
+    const handleSelectFantasy = async (fantasy) => {
+        setIsFantasyGalleryOpen(false);
+        setIsTyping(true);
+
+        const fantasyMessage = { 
+            id: Date.now().toString(), 
+            role: 'user', 
+            content: `*Launches Scenario: ${fantasy.title}*\n\n${fantasy.description}` 
+        };
+        setMessages(prev => [...prev, fantasyMessage]);
+
+        const aiMessageId = (Date.now() + 1).toString();
+        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
+
+        const fantasyDirective = {
+            role: 'user',
+            content: `[SYSTEM DIRECTIVE: ${fantasy.directive}]`
+        };
+
+        const contextWindow = messages.slice(-5); // Short context for clean transition
+        await executeAiRequest(aiMessageId, [...contextWindow, fantasyMessage, fantasyDirective]);
     };
 
     // Deterministic pseudo-random color based on persona name
@@ -1173,6 +1234,16 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 </div>
 
                 <div style={{ display: 'flex', gap: '8px' }}>
+                    {persona.id === 'amira_velvet_club' && (
+                        <button 
+                            className="back-btn" 
+                            onClick={() => setIsFantasyGalleryOpen(true)} 
+                            style={{ background: 'linear-gradient(135deg, #a855f7, #ec4899)', borderRadius: '12px', padding: '10px', boxShadow: '0 0 15px rgba(168, 85, 247, 0.4)' }}
+                            title="Fantasy Library"
+                        >
+                            <Sparkles size={20} color="#fff" />
+                        </button>
+                    )}
                     <button className="back-btn" onClick={() => handleExit('home')} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '10px' }}>
                         <Home size={20} color="#fafafa" />
                     </button>
@@ -1184,6 +1255,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
             {isMobileMenuOpen && (
                 <div className="more-dropdown" onClick={(e) => e.stopPropagation()}>
+                    {persona.id === 'amira_velvet_club' && (
+                        <button onClick={() => { setIsFantasyGalleryOpen(true); setIsMobileMenuOpen(false); }} style={{ color: '#ec4899', fontWeight: 'bold' }}>
+                            <Sparkles size={16} color="#ec4899" /> Fantasy Library
+                        </button>
+                    )}
                     <button onClick={() => { handleExit('home'); setIsMobileMenuOpen(false); }}>
                         <Home size={16} color="#a1a1aa" /> Home
                     </button>
@@ -1192,6 +1268,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     </button>
                     <button onClick={() => { handleRequestPhoto(); setIsMobileMenuOpen(false); }}>
                         <Camera size={16} color="#ec4899" /> Magic Selfie
+                    </button>
+                    <button onClick={() => { handleGenerateSceneImage(); setIsMobileMenuOpen(false); }}>
+                        <Sparkles size={16} color="#a855f7" /> Magic Lens (Capture Scene)
                     </button>
                     <button onClick={() => { setIsPhotoGalleryOpen(true); setIsMobileMenuOpen(false); }}>
                         <ImageIcon size={16} color="#ec4899" /> Photo Gallery
@@ -1521,10 +1600,74 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     >
                         <Camera size={14} /> Request Selfie
                     </button>
+                    <button 
+                        onClick={handleGenerateSceneImage} 
+                        title="Generate an image of the current scene and situation"
+                        style={{ background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.2)', color: '#a855f7', padding: '8px 16px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+                    >
+                        <Sparkles size={14} /> Magic Lens
+                    </button>
                     <button onClick={() => setIsJournalOpen(true)} style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#10b981', padding: '8px 16px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
                         <Book size={14} /> Diary
                     </button>
                 </div>
+
+                {/* Floating Suggestions */}
+                <AnimatePresence>
+                    {currentSuggestions.length > 0 && !isTyping && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            style={{ 
+                                display: 'flex', 
+                                gap: '8px', 
+                                marginBottom: '1rem', 
+                                overflowX: 'auto', 
+                                paddingBottom: '4px',
+                                scrollbarWidth: 'none'
+                            }}
+                        >
+                            {currentSuggestions.map((suggestion, idx) => (
+                                <motion.button
+                                    key={idx}
+                                    whileHover={{ scale: 1.02, background: 'rgba(168, 85, 247, 0.2)' }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => {
+                                        setInput(suggestion.replace(/^["']|["']$/g, ''));
+                                        setCurrentSuggestions([]);
+                                    }}
+                                    className="suggestion-bubble"
+                                    style={{
+                                        background: 'rgba(168, 85, 247, 0.15)',
+                                        border: '1px solid rgba(168, 85, 247, 0.3)',
+                                        borderRadius: '16px',
+                                        padding: '10px 18px',
+                                        color: '#fff',
+                                        fontSize: '0.9rem',
+                                        fontWeight: '600',
+                                        whiteSpace: 'nowrap',
+                                        cursor: 'pointer',
+                                        backdropFilter: 'blur(10px)',
+                                        boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+                                        flexShrink: 0, // Prevent shrinking
+                                        maxWidth: '200px', // Limit width
+                                        overflow: 'hidden', // Hide overflow
+                                        textOverflow: 'ellipsis' // Add ellipsis
+                                    }}
+                                >
+                                    {suggestion.length > 45 ? suggestion.substring(0, 42) + "..." : suggestion}
+                                </motion.button>
+                            ))}
+                            <button 
+                                onClick={() => setCurrentSuggestions([])}
+                                style={{ background: 'transparent', border: 'none', color: '#71717a', cursor: 'pointer', padding: '0 4px' }}
+                            >
+                                <X size={14} />
+                            </button>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 <div className="input-container" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
                     {(isTyping || isSuggesting) ? (
@@ -1537,15 +1680,26 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                             <StopCircle size={18} />
                         </button>
                     ) : (
-                        <button
-                            className="send-btn"
-                            onClick={handleSuggest}
-                            disabled={isTyping || isSuggesting}
-                            title="Suggest Response"
-                            style={{ background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', border: '1px solid rgba(168, 85, 247, 0.2)' }}
-                        >
-                            <Wand2 size={18} />
-                        </button>
+                        <div style={{ display: 'flex' }}>
+                            <button
+                                className="send-btn"
+                                onClick={handleSuggest}
+                                disabled={isTyping || isSuggesting}
+                                title="Suggest Response"
+                                style={{ background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', border: '1px solid rgba(168, 85, 247, 0.2)', borderRight: 'none', borderRadius: '12px 0 0 12px' }}
+                            >
+                                <Wand2 size={18} />
+                            </button>
+                            <button
+                                className="send-btn"
+                                onClick={handleRequestPhoto}
+                                disabled={isTyping || isSuggesting}
+                                title="One-Click Selfie"
+                                style={{ background: 'rgba(236, 72, 153, 0.1)', color: '#ec4899', border: '1px solid rgba(236, 72, 153, 0.2)', borderRadius: '0 12px 12px 0' }}
+                            >
+                                <Camera size={18} />
+                            </button>
+                        </div>
                     )}
                     <textarea
                         className="message-input"
@@ -1976,6 +2130,13 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                         </div>
                     </motion.div>
                 </div>
+            )}
+
+            {isFantasyGalleryOpen && (
+                <FantasyGallery 
+                    onSelectFantasy={handleSelectFantasy}
+                    onClose={() => setIsFantasyGalleryOpen(false)}
+                />
             )}
         </div>
     );
