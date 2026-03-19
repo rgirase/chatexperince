@@ -1,16 +1,15 @@
 // Service to communicate with LM Studio local inference server
+import { DEFAULT_LM_STUDIO_URL, DEFAULT_LM_STUDIO_MODEL } from '../config';
 // Endpoint is proxied via Vite to bypass CORS issues constraints.
 
 const getLmStudioUrl = () => {
     const customUrl = localStorage.getItem('lmStudioUrl');
-    if (customUrl) {
-        return customUrl.endsWith('/') ? `${customUrl}chat/completions` : `${customUrl}/chat/completions`;
-    }
-    return '/api/chat/completions'; // Fallback to proxy
+    const baseUrl = customUrl || DEFAULT_LM_STUDIO_URL;
+    return baseUrl.endsWith('/') ? `${baseUrl}chat/completions` : `${baseUrl}/chat/completions`;
 };
 
 const getModelId = () => {
-    return localStorage.getItem('lmStudioModel') || 'local-model';
+    return localStorage.getItem('lmStudioModel') || DEFAULT_LM_STUDIO_MODEL;
 };
 
 // Internal helper to ensure we have a valid model

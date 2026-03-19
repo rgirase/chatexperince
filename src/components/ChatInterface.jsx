@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift, Shirt, Book, History, Info, Save } from 'lucide-react';
 import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage, generateDiaryEntry, extractSceneSummary } from '../services/llm';
+import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE } from '../config';
 import { saveMilestone, getMemories, clearMemories, deleteMilestone } from '../services/memory';
 import { SCENES, detectSceneId } from '../data/scenes';
 
@@ -18,13 +19,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     };
 
     const generateSelfie = async (prompt, persona, aiMessageId) => {
-        const sdUrl = localStorage.getItem('sdUrl');
-        const imageEngine = localStorage.getItem('imageEngine') || 'a1111';
-
-        if (!sdUrl) {
-            showToast("Stable Diffusion URL not set in Settings!");
-            return;
-        }
+        const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
+        const imageEngine = localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE;
 
         const photoMsgId = aiMessageId + "_photo";
         setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: '*Sends a photo*', url: null }]);
@@ -1000,72 +996,55 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 />
             </div>
 
-            <div className="chat-header" style={{ position: 'relative', zIndex: 10 }}>
-                <button className="back-btn" onClick={() => handleExit('back')} title="Back">
-                    <ArrowLeft size={20} />
+            <div className="chat-header glass-panel" style={{ 
+                position: 'relative', 
+                zIndex: 100,
+                borderTop: 'none',
+                borderLeft: 'none',
+                borderRight: 'none',
+                borderRadius: '0 0 24px 24px',
+                padding: '1rem 1.5rem',
+                marginBottom: '10px'
+            }}>
+                <button className="back-btn" onClick={() => handleExit('back')} title="Back" style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '10px' }}>
+                    <ArrowLeft size={20} color="#fafafa" />
                 </button>
-                <button className="back-btn" onClick={() => handleExit('home')} title="Go Home">
-                    <Home size={20} />
-                </button>
-                {activePersonaImage ? (
+                
+                <div style={{ position: 'relative' }} onClick={() => setIsPhotoGalleryOpen(true)}>
                     <img
-                        src={activePersonaImage}
+                        src={activePersonaImage || persona.image}
                         alt={persona.name}
                         className="chat-avatar"
-                        onClick={() => setIsPhotoGalleryOpen(true)}
                         style={{
-                            cursor: 'pointer',
-                            filter: relationshipScore >= 80 ? 'contrast(1.1) saturate(1.3) sepia(0.3) hue-rotate(-15deg) brightness(0.95)' : 'none',
-                            transition: 'filter 2s ease'
+                            width: '48px',
+                            height: '48px',
+                            borderRadius: '16px',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                            cursor: 'pointer'
                         }}
-                        title="View Gallery"
                     />
-                ) : (
-                    <div className="chat-avatar" style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px',
-                        background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-                        filter: relationshipScore >= 80 ? 'contrast(1.1) saturate(1.3) sepia(0.3) hue-rotate(-15deg) brightness(0.95)' : 'none',
-                        transition: 'filter 2s ease'
-                    }}>
-                        {persona.name.charAt(0)}
-                    </div>
-                )}
-                <div className="chat-header-info" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{ flex: 1 }}>
-                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            {persona.name} {invitedPersona && `& ${invitedPersona.name}`}
-                            {currentMood && (
-                                <motion.span 
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    style={{
-                                        fontSize: '0.65rem',
-                                        background: 'rgba(168, 85, 247, 0.15)',
-                                        color: '#c084fc',
-                                        padding: '2px 8px',
-                                        borderRadius: '10px',
-                                        border: '1px solid rgba(168, 85, 247, 0.3)',
-                                        fontWeight: 'bold',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.05em'
-                                    }}
-                                >
-                                    {currentMood}
-                                </motion.span>
-                            )}
-                        </h3>
-                        <p style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span className="status-dot"></span>
-                            Online • {messages.length} messages
-                        </p>
-                    </div>
+                    <div style={{ position: 'absolute', bottom: -2, right: -2, width: '12px', height: '12px', background: '#22c55e', borderRadius: '50%', border: '2px solid #09090b', boxShadow: '0 0 8px #22c55e' }}></div>
                 </div>
-                <button
-                    className="more-menu-btn"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                >
-                    <MoreVertical size={22} />
-                </button>
+
+                <div className="chat-header-info" style={{ flex: 1, paddingLeft: '4px' }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {persona.name}
+                        {currentMood && (
+                            <span style={{ fontSize: '0.65rem', background: 'rgba(168, 85, 247, 0.2)', color: '#c084fc', padding: '2px 8px', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>{currentMood}</span>
+                        )}
+                    </h3>
+                    <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', margin: 0, fontWeight: '500' }}>Active Now</p>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <button className="back-btn" onClick={() => handleExit('home')} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '10px' }}>
+                        <Home size={20} color="#fafafa" />
+                    </button>
+                    <button className="more-menu-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <MoreVertical size={22} color="#fafafa" />
+                    </button>
+                </div>
             </div>
 
             {isMobileMenuOpen && (
@@ -1172,21 +1151,19 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                 {msg.content}
                             </div>
                         ) : (
-                            <>
-                                {msg.role === 'ai' && (
-                                    activePersonaImage ? (
+                            <>                                {msg.role === 'ai' && (
+                                    activePersonaImage || persona.image ? (
                                         <img
-                                            src={activePersonaImage}
+                                            src={activePersonaImage || persona.image}
                                             alt={persona.name}
                                             style={{
-                                                width: '32px', height: '32px', borderRadius: '50%', marginRight: '8px', alignSelf: 'flex-end', objectFit: 'cover',
-                                                filter: relationshipScore >= 80 ? 'contrast(1.1) saturate(1.3) sepia(0.3) hue-rotate(-15deg) brightness(0.95)' : 'none',
-                                                transition: 'filter 2s ease'
+                                                width: '32px', height: '32px', borderRadius: '10px', marginRight: '8px', alignSelf: 'flex-end', objectFit: 'cover',
+                                                border: '1px solid rgba(255,255,255,0.1)'
                                             }}
                                         />
                                     ) : (
                                         <div style={{
-                                            width: '32px', height: '32px', borderRadius: '50%', marginRight: '8px', alignSelf: 'flex-end',
+                                            width: '32px', height: '32px', borderRadius: '10px', marginRight: '8px', alignSelf: 'flex-end',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px',
                                             background: 'linear-gradient(135deg, #8b5cf6, #ec4899)'
                                         }}>
@@ -1194,7 +1171,15 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                         </div>
                                     )
                                 )}
-                                <div className="message-bubble" style={{ minWidth: editingMessageId === msg.id ? '280px' : 'auto' }}>
+                                <div className="message-bubble glass-panel" style={{ 
+                                    minWidth: editingMessageId === msg.id ? '280px' : 'auto',
+                                    border: msg.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.08)',
+                                    background: msg.role === 'user' ? 'var(--user-msg-bg)' : 'rgba(255,255,255,0.03)',
+                                    boxShadow: msg.role === 'user' ? '0 8px 20px rgba(168, 85, 247, 0.3)' : '0 4px 12px rgba(0,0,0,0.2)',
+                                    borderRadius: msg.role === 'user' ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
+                                    padding: '1rem 1.25rem'
+                                }}>
+
                                     {editingMessageId === msg.id ? (
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                             <textarea
@@ -1218,57 +1203,45 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                             )}
                                             {msg.isPhoto && msg.url && (
                                                 <div style={{ marginTop: '8px', marginBottom: '8px' }}>
-                                                    <img src={msg.url} alt="Selfie" style={{ maxWidth: '100%', borderRadius: '8px', display: 'block' }} />
+                                                    <img src={msg.url} alt="Selfie" style={{ maxWidth: '100%', borderRadius: '16px', display: 'block', boxShadow: '0 8px 20px rgba(0,0,0,0.5)' }} />
                                                 </div>
                                             )}
                                             {/* Parse asterisks for italics in a very basic way for roleplay descriptions */}
                                             {msg.content && msg.content.split(/(\*[^*\n]+\*)/g).map((part, i) => {
                                                 if (part.startsWith('*') && part.endsWith('*')) {
-                                                    return <em key={i} style={{ color: '#c084fc' }}>{part}</em>;
+                                                    return <em key={i} style={{ color: '#c084fc', fontStyle: 'italic', opacity: 0.9 }}>{part}</em>;
                                                 }
-                                                return <span key={i}>{part}</span>;
+                                                return <span key={i} style={{ color: msg.role === 'user' ? '#fff' : 'rgba(255,255,255,0.9)' }}>{part}</span>;
                                             })}
 
-                                            <div style={{ display: 'flex', gap: '8px', justifyContent: msg.role === 'ai' ? 'flex-end' : 'flex-start', marginTop: '8px', opacity: 0.6 }} className="message-actions">
+                                            <div style={{ display: 'flex', gap: '12px', justifyContent: msg.role === 'ai' ? 'flex-end' : 'flex-start', marginTop: '10px', opacity: 0.5 }} className="message-actions">
                                                 {msg.role === 'ai' && (
                                                     <>
                                                         <button
                                                             onClick={() => handleRegenerate(msg)}
-                                                            style={{ background: 'transparent', border: 'none', color: '#fbbf24', cursor: 'pointer', display: 'flex', alignItems: 'center', fontSize: '0.7rem' }}
-                                                            title="Regenerate Response"
+                                                            style={{ background: 'transparent', border: 'none', color: '#fbbf24', cursor: 'pointer', display: 'flex', alignItems: 'center', fontSize: '0.65rem', fontWeight: 'bold' }}
                                                             onMouseOver={(e) => e.currentTarget.style.opacity = 1}
-                                                            onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
+                                                            onMouseOut={(e) => e.currentTarget.style.opacity = 0.5}
                                                         >
-                                                            <RotateCcw size={10} style={{ marginRight: '4px' }} /> Regenerate
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleEditStart(msg)}
-                                                            style={{ background: 'transparent', border: 'none', color: '#d4d4d8', cursor: 'pointer', display: 'flex', alignItems: 'center', fontSize: '0.7rem' }}
-                                                            title="Override Response"
-                                                            onMouseOver={(e) => e.currentTarget.style.opacity = 1}
-                                                            onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
-                                                        >
-                                                            <Edit2 size={10} style={{ marginRight: '4px' }} /> Override
+                                                            <RotateCcw size={10} style={{ marginRight: '4px' }} /> REDO
                                                         </button>
                                                         <button
                                                             onClick={() => handleContinue(msg)}
-                                                            style={{ background: 'transparent', border: 'none', color: '#60a5fa', cursor: 'pointer', display: 'flex', alignItems: 'center', fontSize: '0.7rem' }}
-                                                            title="Continue Generating"
+                                                            style={{ background: 'transparent', border: 'none', color: '#60a5fa', cursor: 'pointer', display: 'flex', alignItems: 'center', fontSize: '0.65rem', fontWeight: 'bold' }}
                                                             onMouseOver={(e) => e.currentTarget.style.opacity = 1}
-                                                            onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
+                                                            onMouseOut={(e) => e.currentTarget.style.opacity = 0.5}
                                                         >
-                                                            <FastForward size={10} style={{ marginRight: '4px' }} /> Continue
+                                                            <FastForward size={10} style={{ marginRight: '4px' }} /> NEXT
                                                         </button>
                                                     </>
                                                 )}
                                                 <button
                                                         onClick={() => handleDeleteMessage(msg.id)}
-                                                        style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', fontSize: '0.7rem' }}
-                                                        title="Delete Message"
+                                                        style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', fontSize: '0.65rem', fontWeight: 'bold' }}
                                                         onMouseOver={(e) => e.currentTarget.style.opacity = 1}
-                                                        onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
+                                                        onMouseOut={(e) => e.currentTarget.style.opacity = 0.5}
                                                     >
-                                                        <Trash2 size={10} style={{ marginRight: '4px' }} /> Delete
+                                                        <Trash2 size={10} style={{ marginRight: '4px' }} /> DEL
                                                 </button>
                                             </div>
                                         </>
@@ -1369,14 +1342,43 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 )}
             </div>
 
-            <div className="input-area glass-panel">
-                <div className="input-container">
+            <div className="input-area glass-panel" style={{ 
+                borderRadius: '24px 24px 0 0', 
+                borderBottom: 'none', 
+                padding: '1.25rem 1.5rem',
+                zIndex: 100 
+            }}>
+                {/* Interaction Quick Bar */}
+                <div style={{ 
+                    display: 'flex', 
+                    gap: '12px', 
+                    marginBottom: '1rem', 
+                    overflowX: 'auto', 
+                    paddingBottom: '4px',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
+                }}>
+                    <button onClick={() => setIsGiftsModalOpen(true)} style={{ background: 'rgba(244, 114, 182, 0.1)', border: '1px solid rgba(244, 114, 182, 0.2)', color: '#f472b6', padding: '8px 16px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                        <Gift size={14} /> Send Gift
+                    </button>
+                    <button onClick={() => setIsWardrobeOpen(true)} style={{ background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.2)', color: '#a855f7', padding: '8px 16px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                        <Shirt size={14} /> Wardrobe
+                    </button>
+                    <button onClick={handleRequestPhoto} style={{ background: 'rgba(236, 72, 153, 0.1)', border: '1px solid rgba(236, 72, 153, 0.2)', color: '#ec4899', padding: '8px 16px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                        <Camera size={14} /> Request Selfie
+                    </button>
+                    <button onClick={() => setIsJournalOpen(true)} style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#10b981', padding: '8px 16px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                        <Book size={14} /> Diary
+                    </button>
+                </div>
+
+                <div className="input-container" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
                     {(isTyping || isSuggesting) ? (
                         <button
                             className="send-btn"
                             onClick={handleStopGeneration}
                             title="Stop Generating"
-                            style={{ marginRight: '8px', background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}
+                            style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}
                         >
                             <StopCircle size={18} />
                         </button>
@@ -1386,14 +1388,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                             onClick={handleSuggest}
                             disabled={isTyping || isSuggesting}
                             title="Suggest Response"
-                            style={{ marginRight: '8px', background: 'rgba(192, 132, 252, 0.2)', color: '#c084fc' }}
+                            style={{ background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', border: '1px solid rgba(168, 85, 247, 0.2)' }}
                         >
                             <Wand2 size={18} />
                         </button>
                     )}
                     <textarea
                         className="message-input"
-                        placeholder={`Message ${persona.name}...`}
+                        placeholder={`Chat with ${persona.name}...`}
                         value={input}
                         onChange={(e) => {
                             setInput(e.target.value);
@@ -1402,12 +1404,13 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                         }}
                         onKeyDown={handleKeyDown}
                         rows={1}
+                        style={{ color: '#fff', fontSize: '1rem' }}
                     />
                     <button
                         className="send-btn"
                         onClick={handleSend}
                         disabled={!input.trim() || isTyping || isSuggesting}
-                        style={{ marginLeft: '8px' }}
+                        style={{ background: 'var(--user-msg-bg)', border: 'none', boxShadow: '0 4px 12px rgba(168, 85, 247, 0.4)' }}
                     >
                         <Send size={18} />
                     </button>

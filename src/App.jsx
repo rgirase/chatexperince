@@ -349,17 +349,36 @@ function App() {
 
   return (
     <div className="app-container">
+        {/* Dynamic Immersive Background */}
+        <AnimatePresence>
+          {selectedPersona && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.15 }}
+              exit={{ opacity: 0 }}
+              style={{
+                position: 'fixed',
+                inset: 0,
+                backgroundImage: `url(${selectedPersona.image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                filter: 'blur(60px) brightness(0.5)',
+                zIndex: -1,
+                pointerEvents: 'none'
+              }}
+            />
+          )}
+        </AnimatePresence>
         {/* ... existing content ... */}
         {!selectedPersona && !isSettingsOpen && !isGalleryOpen && (
           <header className="header fade-in">
             {/* ... */}
             <div
-              className="header-title"
+              className="header-title premium-gradient-text"
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
-              style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+              style={{ userSelect: 'none', WebkitUserSelect: 'none', fontSize: '1.6rem' }}
             >
-              <span role="img" aria-label="sparkles">✨</span>
               Aura Roleplay
             </div>
 
@@ -367,14 +386,23 @@ function App() {
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               {/* Server Quick Switcher */}
               {savedServers.length > 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', padding: '2px 8px', border: '1px solid #3f3f46', marginRight: '4px' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#c084fc', marginRight: '6px' }}></div>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  background: 'rgba(255,255,255,0.03)', 
+                  borderRadius: '12px', 
+                  padding: '4px 10px', 
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  marginRight: '4px',
+                  backdropFilter: 'blur(10px)'
+                }}>
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#a855f7', marginRight: '8px', boxShadow: '0 0 8px #a855f7' }}></div>
                   <select 
                     value={activeServerUrl} 
                     onChange={(e) => handleSwitchServer(e.target.value)}
-                    style={{ background: 'transparent', border: 'none', color: '#d4d4d8', fontSize: '0.75rem', outline: 'none', cursor: 'pointer', maxWidth: '100px' }}
+                    style={{ background: 'transparent', border: 'none', color: '#a1a1aa', fontSize: '0.75rem', outline: 'none', cursor: 'pointer', fontWeight: '500' }}
                   >
-                    <option value="" disabled>Select Server</option>
+                    <option value="" disabled>Server</option>
                     {savedServers.map(s => (
                       <option key={s.id} value={s.url}>{s.name}</option>
                     ))}
@@ -427,27 +455,33 @@ function App() {
         )}
 
         {/* Mobile Bottom Navigation */}
-        <nav className="bottom-nav">
+        <nav className="bottom-nav glass-panel" style={{ 
+          borderBottom: 'none', 
+          borderLeft: 'none', 
+          borderRight: 'none', 
+          borderRadius: '24px 24px 0 0',
+          paddingBottom: 'env(safe-area-inset-bottom)'
+        }}>
           <button 
             className={`nav-item ${activeView === 'home' ? 'active' : ''}`}
             onClick={handleGoHome}
           >
-            <Home size={24} />
-            <span>Home</span>
+            <Home size={22} color={activeView === 'home' ? '#a855f7' : '#71717a'} />
+            <span style={{ color: activeView === 'home' ? '#fff' : '#71717a' }}>Home</span>
           </button>
           <button 
             className={`nav-item ${activeView === 'gallery' ? 'active' : ''}`}
             onClick={handleOpenGallery}
           >
-            <ImageIcon size={24} />
-            <span>Gallery</span>
+            <ImageIcon size={22} color={activeView === 'gallery' ? '#a855f7' : '#71717a'} />
+            <span style={{ color: activeView === 'gallery' ? '#fff' : '#71717a' }}>Gallery</span>
           </button>
           <button 
             className={`nav-item ${activeView === 'settings' ? 'active' : ''}`}
             onClick={handleOpenSettings}
           >
-            <SettingsIcon size={24} />
-            <span>Settings</span>
+            <SettingsIcon size={22} color={activeView === 'settings' ? '#a855f7' : '#71717a'} />
+            <span style={{ color: activeView === 'settings' ? '#fff' : '#71717a' }}>Settings</span>
           </button>
         </nav>
       </div>

@@ -1,15 +1,16 @@
 :root {
-  --bg-color: #000000;
-  --panel-bg: rgba(0, 0, 0, 0.85);
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --primary-color: #8b5cf6;
-  --primary-hover: #7c3aed;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --accent-color: #ec4899;
-  --user-msg-bg: #8b5cf6;
-  --ai-msg-bg: rgba(30, 30, 40, 0.8);
-  --input-bg: rgba(20, 20, 25, 0.8);
+  --bg-color: #09090b; /* Slightly deeper than black */
+  --panel-bg: rgba(18, 18, 23, 0.7);
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --primary-color: #a855f7; /* Vibrant Purple */
+  --primary-hover: #9333ea;
+  --text-main: #fafafa;
+  --text-muted: #a1a1aa;
+  --accent-color: #f472b6; /* Vibrant Pink */
+  --user-msg-bg: linear-gradient(135deg, #a855f7, #f472b6);
+  --ai-msg-bg: rgba(30, 30, 40, 0.4);
+  --input-bg: rgba(20, 20, 25, 0.6);
+  --aura-gradient: linear-gradient(135deg, #a855f7, #ec4899, #f43f5e);
 }
 
 * {
@@ -36,11 +37,19 @@ body {
 /* Glassmorphism utilities */
 .glass-panel {
   background: var(--panel-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--panel-border);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.premium-gradient-text {
+  background: var(--aura-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
 }
 
 /* App Layout */
@@ -791,13 +800,38 @@ body {
   50% { opacity: 0.6; }
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 0.75rem 0;
+  z-index: 100;
 }
 
-/* Range Slider Mobile Fix & Styling */
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-item.active {
+  transform: translateY(-4px);
+}
+
+.chat-header {
+  padding: 1rem 1.5rem;
+}
 .intensity-slider {
-  flex: 1;
   -webkit-appearance: none;
   appearance: none;
   background: rgba(255, 255, 255, 0.1);

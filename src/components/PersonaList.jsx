@@ -21,23 +21,25 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
 
     return (
         <motion.div
-            className={`persona-card full-bleed ${!imageLoaded ? 'skeleton' : ''}`}
+            className={`persona-card ${!imageLoaded ? 'skeleton' : ''}`}
             variants={itemVariants}
-            whileHover={{ scale: 1.03, boxShadow: "0 20px 40px rgba(0,0,0,0.6)" }}
+            whileHover={{ y: -10, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => onSelectPersona(persona)}
             style={{
                 backgroundImage: imageLoaded ? `url(${persona.image})` : 'none',
-                backgroundColor: '#18181b',
+                backgroundColor: '#111',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 position: 'relative',
                 overflow: 'hidden',
-                borderRadius: '16px',
-                cursor: 'pointer'
+                borderRadius: '24px',
+                cursor: 'pointer',
+                height: '420px',
+                border: '1px solid rgba(255,255,255,0.05)',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
             }}
         >
-            {/* Hidden image element to track loading */}
             <img 
                 src={persona.image} 
                 className="no-select"
@@ -46,11 +48,10 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
                 alt=""
             />
 
-            {/* Gradient overlay to make text readable */}
             <div style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 40%, transparent 100%)',
+                background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 30%, transparent 60%)',
                 zIndex: 1,
                 opacity: imageLoaded ? 1 : 0,
                 transition: 'opacity 0.3s ease'
@@ -63,68 +64,85 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
                 flexDirection: 'column', 
                 height: '100%', 
                 justifyContent: 'flex-end', 
-                padding: '1.5rem',
+                padding: '1.25rem',
                 opacity: imageLoaded ? 1 : 0,
                 transition: 'opacity 0.3s ease'
             }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                    <div style={{ flex: 1 }}>
-                        <div className="persona-name" style={{ fontSize: '1.4rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                            {persona.name}
-                            <span className="status-dot"></span>
-                        </div>
-                        <p className="persona-tagline" style={{ color: '#d4d4d8', fontSize: '0.9rem', margin: 0, lineHeight: 1.4 }}>{persona.tagline}</p>
+                <div style={{ marginBottom: '0.5rem' }}>
+                    <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        background: 'rgba(255,255,255,0.1)',
+                        backdropFilter: 'blur(8px)',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        width: 'fit-content',
+                        marginBottom: '8px',
+                        border: '1px solid rgba(255,255,255,0.1)'
+                    }}>
+                        <span className="status-dot" style={{ width: '6px', height: '6px' }}></span>
+                        <span style={{ fontSize: '0.7rem', fontWeight: '600', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active Now</span>
                     </div>
                     
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <h3 className="persona-name" style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, letterSpacing: '-0.02em' }}>
+                        {persona.name}
+                    </h3>
+                    <p className="persona-tagline" style={{ 
+                        color: 'rgba(255,255,255,0.7)', 
+                        fontSize: '0.9rem', 
+                        margin: '4px 0 0 0', 
+                        lineHeight: 1.3,
+                        fontWeight: '500'
+                    }}>
+                        {persona.tagline}
+                    </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                    <motion.button
+                        whileHover={{ scale: 1.1, background: 'rgba(255,255,255,0.2)' }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onOpenStoryMap(persona);
+                        }}
+                        style={{
+                            background: 'rgba(255,255,255,0.1)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '12px',
+                            color: '#fff',
+                            padding: '10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            backdropFilter: 'blur(10px)'
+                        }}
+                    >
+                        <MapIcon size={18} />
+                    </motion.button>
+
+                    {hasDiary && (
                         <motion.button
-                            whileHover={{ scale: 1.1, backgroundColor: 'rgba(139, 92, 246, 0.2)' }}
+                            whileHover={{ scale: 1.1, background: 'rgba(168, 85, 247, 0.2)' }}
                             whileTap={{ scale: 0.9 }}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onOpenStoryMap(persona);
+                                onOpenDiary(persona);
                             }}
                             style={{
-                                background: 'rgba(139, 92, 246, 0.1)',
-                                border: '1px solid rgba(139, 92, 246, 0.3)',
-                                borderRadius: '10px',
+                                background: 'rgba(168, 85, 247, 0.1)',
+                                border: '1px solid rgba(168, 85, 247, 0.2)',
+                                borderRadius: '12px',
                                 color: '#c084fc',
-                                padding: '8px',
+                                padding: '10px',
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: 'pointer'
+                                backdropFilter: 'blur(10px)'
                             }}
-                            title="View Story Map"
                         >
-                            <MapIcon size={18} />
+                            <Book size={18} />
                         </motion.button>
-
-                        {hasDiary && (
-                            <motion.button
-                                whileHover={{ scale: 1.1, backgroundColor: 'rgba(16, 185, 129, 0.2)' }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onOpenDiary(persona);
-                                }}
-                                style={{
-                                    background: 'rgba(16, 185, 129, 0.1)',
-                                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                                    borderRadius: '10px',
-                                    color: '#10b981',
-                                    padding: '8px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    cursor: 'pointer'
-                                }}
-                                title="Read Private Diary"
-                            >
-                                <Book size={18} />
-                            </motion.button>
-                        )}
-                    </div>
+                    )}
                 </div>
             </div>
         </motion.div>
@@ -327,18 +345,18 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setActiveCategory(cat)}
                             style={{
-                                padding: '0.5rem 1.2rem',
-                                background: activeCategory === cat ? 'linear-gradient(135deg, #c084fc 0%, #a855f7 100%)' : 'rgba(255, 255, 255, 0.05)',
-                                color: activeCategory === cat ? 'white' : '#a1a1aa',
+                                padding: '0.6rem 1.4rem',
+                                background: activeCategory === cat ? 'linear-gradient(135deg, #a855f7 0%, #f472b6 100%)' : 'rgba(255, 255, 255, 0.03)',
+                                color: activeCategory === cat ? 'white' : '#71717a',
                                 border: 'none',
-                                borderRadius: '12px',
-                                fontSize: '0.85rem',
-                                fontWeight: activeCategory === cat ? '600' : '400',
+                                borderRadius: '14px',
+                                fontSize: '0.9rem',
+                                fontWeight: activeCategory === cat ? '700' : '500',
                                 cursor: 'pointer',
                                 whiteSpace: 'nowrap',
-                                transition: 'all 0.3s ease',
-                                border: activeCategory === cat ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
-                                boxShadow: activeCategory === cat ? '0 4px 12px rgba(168, 85, 247, 0.3)' : 'none'
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                border: activeCategory === cat ? 'none' : '1px solid rgba(255, 255, 255, 0.05)',
+                                boxShadow: activeCategory === cat ? '0 10px 20px rgba(168, 85, 247, 0.3)' : 'none'
                             }}
                         >
                             {cat}

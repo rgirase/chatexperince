@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Plus, Trash2, Home, RefreshCw } from 'lucide-react';
 import { fetchAvailableModels } from '../services/llm';
 
-const DEFAULT_LM_STUDIO = 'http://192.168.1.233:1234/v1';
-const DEFAULT_SD_URL = 'http://127.0.0.1:7860';
+import { DEFAULT_LM_STUDIO_URL, DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_LM_STUDIO_MODEL } from '../config';
 
 const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, savedServers: serverProps, activeServerUrl: activeUrlProp, onSwitchServer }) => {
     const [lmStudioUrl, setLmStudioUrl] = useState(activeUrlProp || '');
@@ -26,10 +25,10 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, savedSe
 
     useEffect(() => {
         // Load existing settings
-        setLmStudioUrl(localStorage.getItem('lmStudioUrl') || DEFAULT_LM_STUDIO);
+        setLmStudioUrl(localStorage.getItem('lmStudioUrl') || DEFAULT_LM_STUDIO_URL);
         setSdUrl(localStorage.getItem('sdUrl') || DEFAULT_SD_URL);
-        setImageEngine(localStorage.getItem('imageEngine') || 'a1111');
-        setLmStudioModel(localStorage.getItem('lmStudioModel') || 'local-model');
+        setImageEngine(localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE);
+        setLmStudioModel(localStorage.getItem('lmStudioModel') || DEFAULT_LM_STUDIO_MODEL);
         setComfyWorkflow(localStorage.getItem('comfyWorkflow') || '');
         setPreferredLanguage(localStorage.getItem('preferredIndianLanguage') || 'english');
         
@@ -48,7 +47,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, savedSe
         }
 
         // Fetch models if URL exists
-        const initialUrl = activeUrlProp || localStorage.getItem('lmStudioUrl') || DEFAULT_LM_STUDIO;
+        const initialUrl = activeUrlProp || localStorage.getItem('lmStudioUrl') || DEFAULT_LM_STUDIO_URL;
         if (initialUrl) {
             loadModels(initialUrl);
         }
@@ -63,7 +62,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, savedSe
             // Auto-select first model if current is default/invalid and models are available
             if (models.length > 0) {
                 const currentModel = localStorage.getItem('lmStudioModel');
-                if (!currentModel || currentModel === 'local-model') {
+                if (!currentModel || currentModel === DEFAULT_LM_STUDIO_MODEL) {
                     setLmStudioModel(models[0].id);
                     localStorage.setItem('lmStudioModel', models[0].id);
                 }
@@ -76,7 +75,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, savedSe
     };
 
     const handleSaveSettings = () => {
-        localStorage.setItem('lmStudioUrl', lmStudioUrl || DEFAULT_LM_STUDIO);
+        localStorage.setItem('lmStudioUrl', lmStudioUrl || DEFAULT_LM_STUDIO_URL);
         localStorage.setItem('sdUrl', sdUrl || DEFAULT_SD_URL);
         localStorage.setItem('imageEngine', imageEngine);
         localStorage.setItem('lmStudioModel', lmStudioModel);
