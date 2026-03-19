@@ -188,6 +188,78 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
     const handleTestLmStudio = () => testEndpoint('lm', lmStudioUrl);
     const handleTestSd = () => testEndpoint('sd', sdUrl);
 
+    const [isTroubleshooting, setIsTroubleshooting] = useState(false);
+    const [troubleshootLog, setTroubleshootLog] = useState([]);
+
+    const runTroubleshooter = async () => {
+        setIsTroubleshooting(true);
+        setTroubleshootLog([{ type: 'info', msg: 'Starting diagnostic...' }]);
+        
+        const log = (msg, type = 'info') => setTroubleshootLog(prev => [...prev, { type, msg }]);
+
+        try {
+            // 1. Basic Reachability
+            log(`Testing reachability for ${sdUrl}...`);
+            const startTime = Date.now();
+            try {
+                const ping = await fetch(sdUrl, { mode: 'no-cors' });
+                log(`Reachability OK (${Date.now() - startTime}ms)`);
+            } catch (e) {
+                log(`URL unreachable. Check if server is running or firewall is blocking.`, 'error');
+                if (sdUrl.includes('100.')) log('TIP: Tailscale detected. Ensure ComfyUI uses --listen 0.0.0.0', 'warning');
+            }
+
+            // 2. ComfyUI API Check
+            if (imageEngine === 'comfyui') {
+                log('Checking ComfyUI API status...');
+                try {
+                    const stats = await fetch(`${sdUrl.replace(/\/$/, '')}/system_stats`);
+                    if (stats.ok) {
+                        const data = await stats.json();
+                        log(`ComfyUI Detected! System: ${data.system?.os || 'unknown'}`, 'success');
+                    } else {
+                        log(`API returned status ${stats.status}. Is this a ComfyUI endpoint?`, 'error');
+                    }
+                } catch (e) {
+                    log('API Check failed. Ensure CORS is enabled (usually default in ComfyUI).', 'error');
+                }
+
+                // 3. History Deep Dive
+                log('Checking recent generation history...');
+                try {
+                    const hist = await fetch(`${sdUrl.replace(/\/$/, '')}/history?count=5`);
+                    const data = await hist.json();
+                    const promptIds = Object.keys(data);
+                    if (promptIds.length > 0) {
+                        const lastId = promptIds[promptIds.length - 1];
+                        const lastTask = data[lastId];
+                        if (lastTask.status?.completed) {
+                            const hasImages = Object.values(lastTask.outputs).some(o => o.images && o.images.length > 0);
+                            if (hasImages) {
+                                log('Last task was SUCCESSFUL and produced images.', 'success');
+                            } else {
+                                log('Last task finished but NO IMAGES were produced. Check ComfyUI console for model errors.', 'error');
+                                if (JSON.stringify(lastTask.outputs).includes('error')) {
+                                    log(`DETECTED ERROR: ${JSON.stringify(lastTask.outputs)}`, 'error');
+                                }
+                            }
+                        } else {
+                            log('Last task is still pending or failed.', 'warning');
+                        }
+                    } else {
+                        log('No task history found. Try requesting a selfie first.', 'info');
+                    }
+                } catch (e) {
+                    log('Could not fetch history.', 'error');
+                }
+            }
+        } catch (globalErr) {
+            log(`Diagnostics interrupted: ${globalErr.message}`, 'error');
+        } finally {
+            setIsTroubleshooting(false);
+        }
+    };
+
     const handleAddPersona = () => {
         if (!newPersona.name || !newPersona.systemPrompt) {
             alert("Name and System Prompt are required.");
@@ -465,6 +537,44 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
             </div>
 
             <div className="glass-panel" style={{ padding: '2rem' }}>
+                <h2 style={{ marginBottom: '1.5rem', color: '#c084fc' }}>Connection Troubleshooter</h2>
+                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '12px', border: '1px solid #27272a' }}>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                        <button 
+                            onClick={runTroubleshooter} 
+                            disabled={isTroubleshooting}
+                            style={{ flex: 2, padding: '0.75rem', borderRadius: '8px', background: 'rgba(192, 132, 252, 0.2)', color: '#c084fc', border: '1px solid #c084fc', cursor: 'pointer', fontWeight: 'bold' }}
+                        >
+                            {isTroubleshooting ? 'Running Diagnostics...' : '🔍 Launch Troubleshooter'}
+                        </button>
+                        <button 
+                            onClick={() => {
+                                if(window.confirm("Reset ComfyUI Workflow to factory default?")) {
+                                    setComfyWorkflow(JSON.stringify(DEFAULT_COMFY_WORKFLOW, null, 2));
+                                    setSaveToast('🔄 Workflow Reset!');
+                                    setTimeout(() => setSaveToast(''), 3000);
+                                }
+                            }}
+                            style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#a1a1aa', border: '1px solid #3f3f46', cursor: 'pointer', fontSize: '0.8rem' }}
+                        >
+                            Reset Workflow
+                        </button>
+                    </div>
+                    
+                    {troubleshootLog.length > 0 && (
+                        <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#09090b', borderRadius: '8px', border: '1px solid #3f3f46', maxHeight: '300px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '0.85rem' }}>
+                            {troubleshootLog.map((item, idx) => (
+                                <div key={idx} style={{ marginBottom: '0.4rem', color: item.type === 'error' ? '#ef4444' : (item.type === 'success' ? '#22c55e' : (item.type === 'warning' ? '#f59e0b' : '#a1a1aa')) }}>
+                                    {item.type === 'success' ? '✅ ' : (item.type === 'error' ? '❌ ' : (item.type === 'warning' ? '⚠️ ' : 'ℹ️ '))}
+                                    {item.msg}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '2rem', marginTop: '2rem' }}>
                 <h2 style={{ marginBottom: '1.5rem', color: '#c084fc' }}>Custom Personas</h2>
                 <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '12px', border: '1px solid #27272a' }}>
                     <div style={{ display: 'grid', gap: '1rem' }}>
