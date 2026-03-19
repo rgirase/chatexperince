@@ -298,8 +298,8 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                                 log(`Detected output nodes: ${nodeNames || 'NONE'}`, 'info');
                                 
                                 if (!nodeNames) {
-                                    log("RAW DATA (First 1000 chars):", 'warning');
-                                    log(JSON.stringify(lastTask).substring(0, 1000) + '...', 'info');
+                                    log("RAW DATA (First 5000 chars):", 'warning');
+                                    log(JSON.stringify(lastTask).substring(0, 5000), 'info');
                                 }
                                 
                                 for(const nid in lastTask.outputs || {}) {
@@ -626,17 +626,19 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                         </button>
                         <button 
                             onClick={async () => {
-                                if(window.confirm("Reset ComfyUI Workflow to factory default? This will SAVE immediately.")) {
-                                    const workflowStr = JSON.stringify(DEFAULT_COMFY_WORKFLOW, null, 2);
+                                if(window.confirm("AGGRESSIVE RESET: This will wipe your workflow and reload from config.js. Proceed?")) {
+                                    // Deep clone to ensure no references
+                                    const freshWorkflow = JSON.parse(JSON.stringify(DEFAULT_COMFY_WORKFLOW));
+                                    const workflowStr = JSON.stringify(freshWorkflow, null, 2);
                                     setComfyWorkflow(workflowStr);
                                     localStorage.setItem('comfyWorkflow', workflowStr);
-                                    setSaveToast('🔄 Workflow Reset & SAVED!');
+                                    setSaveToast('🔥 Aggressive Reset COMPLETE!');
                                     setTimeout(() => setSaveToast(''), 3000);
                                 }
                             }}
-                            style={{ flex: '1 1 100px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}
+                            style={{ flex: '1 1 120px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '1px solid #ef4444', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}
                         >
-                            Reset Workflow
+                            Aggressive Reset
                         </button>
                     </div>
                     
