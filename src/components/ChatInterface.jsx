@@ -102,7 +102,10 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                 break;
                             }
                         }
-                        if (!foundImage) throw new Error("No image output found in ComfyUI history.");
+                        if (!foundImage) {
+                            console.error("ComfyUI history received but no images found in outputs:", histData[promptId]);
+                            throw new Error("No image output found in ComfyUI history. Check ComfyUI logs for errors.");
+                        }
                         isComplete = true;
                     }
                 }

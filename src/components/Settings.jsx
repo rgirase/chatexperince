@@ -452,14 +452,14 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
             </div>
 
             <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
-                <h2 style={{ marginBottom: '1.5rem', color: '#c084fc' }}>Mobile Connectivity</h2>
+                <h2 style={{ marginBottom: '1.5rem', color: '#c084fc' }}>Mobile & Tailscale Connectivity</h2>
                 <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '12px', border: '1px solid #27272a' }}>
                     <ol style={{ color: '#a1a1aa', paddingLeft: '1.2rem', lineHeight: '1.8' }}>
-                        <li>Ensure PC and Phone are on <strong>Same Wi-Fi</strong>.</li>
-                        <li>Your PC IP: <strong>192.168.86.28</strong></li>
-                        <li>URL: <code>http://192.168.86.28:5173</code></li>
-                        <li>CORS: Set <strong>CORS to On</strong> in LM Studio.</li>
-                        <li>Firewall: Allow ports <strong>5173, 8000, 1234</strong>.</li>
+                        <li><strong>Local Wi-Fi</strong>: Ensure phone and PC are on the same SSID. PC IP: <code>192.168.86.28</code>.</li>
+                        <li><strong>Tailscale</strong>: If using Tailscale, use your <strong>Tailnet IP</strong> (100.x.x.x) in the URL fields above instead of the local IP.</li>
+                        <li><strong>ComfyUI Remote Access</strong>: You <u>must</u> start ComfyUI with the <code>--listen 0.0.0.0</code> flag to allow outside connections.</li>
+                        <li><strong>LM Studio CORS</strong>: Set <strong>CORS to ON</strong> in LM Studio's server settings.</li>
+                        <li><strong>Firewall</strong>: Allow inbound traffic on ports <strong>5173, 8000, 1234</strong> in Windows Defender.</li>
                     </ol>
                 </div>
             </div>
