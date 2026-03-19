@@ -70,6 +70,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     body: JSON.stringify({ prompt: workflowObj })
                 });
                 const queueData = await queueRes.json();
+                if (!queueData.prompt_id) {
+                    throw new Error("ComfyUI failed to queue the prompt. Check if your workflow is correct.");
+                }
                 const promptId = queueData.prompt_id;
 
                 let isComplete = false;
