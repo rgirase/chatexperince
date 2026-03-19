@@ -237,17 +237,61 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                 }
             }
 
-            // 2. ComfyUI API Check
+            // 2. ComfyUI API & Model Check
             if (isReachable && imageEngine === 'comfyui') {
-                log('Checking ComfyUI API status...');
+                log('Checking ComfyUI API & Models...');
+                let availableCheckpoints = [];
                 try {
-                    const stats = await fetchWithTimeout(`${sdUrl.replace(/\/$/, '')}/system_stats`, {}, 5000);
-                    if (stats.ok) {
-                        const data = await stats.json();
-                        log(`ComfyUI Detected! System: ${data.system?.os || 'unknown'}`, 'success');
+                    const objInfo = await fetchWithTimeout(`${sdUrl.replace(/\/$/, '')}/object_info`, {}, 5000);
+                    if (objInfo.ok) {
+                        const data = await objInfo.json();
+                        availableCheckpoints = data.CheckpointLoaderSimple?.input?.required?.ckpt_name?.[0] || [];
+                        log(`ComfyUI Connected. Found ${availableCheckpoints.length} checkpoints.`);
+                        
+                        const targetModel = "Juggernaut-XL_v9.safetensors";
+                        if (availableCheckpoints.length > 0 && !availableCheckpoints.includes(targetModel)) {
+                            log(`MODEL MISSING: "${targetModel}" not found in your models/checkpoints folder.`, 'error');
+                            log(`Available: ${availableCheckpoints.slice(0, 3).join(', ')}...`, 'info');
+                            log(`TIP: Rename your SDXL model to "${targetModel}" or download it from CivitAI.`, 'warning');
+                        } else if (availableCheckpoints.length > 0) {
+                            log(`Verified model "${targetModel}" is available.`, 'success');
+                        }
                     }
                 } catch (e) {
                     log('API Check timed out or failed.', 'error');
+                }
+
+                // 3. History Deep Dive
+                log('Checking recent generation history...');
+                try {
+                    const hist = await fetchWithTimeout(`${sdUrl.replace(/\/$/, '')}/history?count=5`, {}, 5000);
+                    const data = await hist.json();
+                    const promptIds = Object.keys(data);
+                    if (promptIds.length > 0) {
+                        const lastId = promptIds[promptIds.length - 1];
+                        const lastTask = data[lastId];
+                        
+                        if (lastTask.status?.completed) {
+                            const hasImages = Object.values(lastTask.outputs).some(o => o.images && o.images.length > 0);
+                            if (hasImages) {
+                                log('Last task was SUCCESSFUL and produced images.', 'success');
+                            } else {
+                                log('Last task finished but NO IMAGES were produced.', 'error');
+                                // Report common node errors if found
+                                for(const nid in lastTask.outputs) {
+                                    if(lastTask.outputs[nid].error) {
+                                        log(`Node ${nid} Error: ${JSON.stringify(lastTask.outputs[nid].error)}`, 'error');
+                                    }
+                                }
+                                log('Check browser console (F12) for raw history data.', 'info');
+                                console.log("COMFYUI_DIAGNOSTIC_HISTORY:", lastTask);
+                            }
+                        }
+                    } else {
+                        log('No task history found. Try requesting a selfie first.', 'info');
+                    }
+                } catch (e) {
+                    log('Could not fetch history.', 'error');
                 }
             }
         } catch (globalErr) {
