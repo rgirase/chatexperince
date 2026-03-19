@@ -536,13 +536,25 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
             <div className="glass-panel" style={{ padding: '2rem' }}>
                 <h2 style={{ marginBottom: '1.5rem', color: '#c084fc' }}>Connection Troubleshooter</h2>
                 <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '12px', border: '1px solid #27272a' }}>
-                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
                         <button 
                             onClick={runTroubleshooter} 
                             disabled={isTroubleshooting}
-                            style={{ flex: 2, padding: '0.75rem', borderRadius: '8px', background: 'rgba(192, 132, 252, 0.2)', color: '#c084fc', border: '1px solid #c084fc', cursor: 'pointer', fontWeight: 'bold' }}
+                            style={{ flex: '1 1 200px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(192, 132, 252, 0.2)', color: '#c084fc', border: '1px solid #c084fc', cursor: 'pointer', fontWeight: 'bold' }}
                         >
-                            {isTroubleshooting ? 'Running Diagnostics...' : '🔍 Launch Troubleshooter'}
+                            {isTroubleshooting ? 'Running...' : '🔍 Launch Troubleshooter'}
+                        </button>
+                        <button 
+                            onClick={() => { setSdUrl('http://127.0.0.1:8188'); setSaveToast('📍 Switched to Localhost!'); setTimeout(() => setSaveToast(''), 3000); }}
+                            style={{ flex: '1 1 100px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#a1a1aa', border: '1px solid #3f3f46', cursor: 'pointer', fontSize: '0.75rem' }}
+                        >
+                            Try Localhost
+                        </button>
+                        <button 
+                            onClick={() => { setSdUrl('http://100.87.53.100:8188'); setSaveToast('🌐 Switched to Tailscale!'); setTimeout(() => setSaveToast(''), 3000); }}
+                            style={{ flex: '1 1 100px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#a1a1aa', border: '1px solid #3f3f46', cursor: 'pointer', fontSize: '0.75rem' }}
+                        >
+                            Try Tailnet
                         </button>
                         <button 
                             onClick={() => {
@@ -552,7 +564,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                                     setTimeout(() => setSaveToast(''), 3000);
                                 }
                             }}
-                            style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#a1a1aa', border: '1px solid #3f3f46', cursor: 'pointer', fontSize: '0.8rem' }}
+                            style={{ flex: '1 1 100px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}
                         >
                             Reset Workflow
                         </button>
