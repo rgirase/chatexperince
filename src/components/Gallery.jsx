@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Lock, X, Maximize2, MessageSquare, UserCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import galleryManifest from '../data/gallery_manifest.json';
 
 const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
     const [selectedImage, setSelectedImage] = useState(null);
@@ -8,7 +9,8 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
     
     // Flatten all images into a single list with metadata
     const allImages = allPersonas.flatMap(persona => {
-        const gallery = persona.gallery || [persona.image];
+        const extraGallery = galleryManifest[persona.id] || [];
+        const gallery = Array.from(new Set([...(persona.gallery || []), ...(persona.image ? [persona.image] : []), ...extraGallery]));
         return gallery.map((img, idx) => ({
             url: img,
             personaId: persona.id,
