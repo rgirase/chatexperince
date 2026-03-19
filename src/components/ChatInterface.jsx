@@ -256,12 +256,38 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
     // Sync messages to localStorage whenever they change
     useEffect(() => {
-        // Scrub messages before saving to eliminate feedback loop in long-term storage
-        const cleanedMessages = messages.map(msg => ({
-            ...msg,
-            content: cleanLeakage(msg.content)
-        }));
-        localStorage.setItem(`chat_${persona.id}`, JSON.stringify(cleanedMessages));
+        try {
+            // Scrub messages before saving to eliminate feedback loop in long-term storage
+            let cleanedMessages = messages.map(msg => ({
+                ...msg,
+                content: cleanLeakage(msg.content)
+            }));
+
+            // [QUOTA SAFEGUARD]: If total size is approaching 5MB limit (~5M characters), 
+            // prune the oldest Base64 images to stay functional.
+            let serialized = JSON.stringify(cleanedMessages);
+            if (serialized.length > 4000000) { // ~4MB threshold
+                console.warn("Chat history approaching LocalStorage limit. Pruning oldest images...");
+                for (let i = 0; i < cleanedMessages.length; i++) {
+                    if (cleanedMessages[i].isPhoto && cleanedMessages[i].url) {
+                        cleanedMessages[i].url = null; // Remove massive Base64
+                        serialized = JSON.stringify(cleanedMessages);
+                        if (serialized.length < 3500000) break; // Pruned enough
+                    }
+                }
+            }
+            
+            localStorage.setItem(`chat_${persona.id}`, serialized);
+        } catch (e) {
+            console.error("LocalStorage sync failed (Quota likely exceeded):", e);
+            // Fallback: If still failing, try to save without ANY photo URLs
+            try {
+                const ultraCleaned = messages.map(msg => ({ ...msg, url: msg.isPhoto ? null : msg.url, content: cleanLeakage(msg.content) }));
+                localStorage.setItem(`chat_${persona.id}`, JSON.stringify(ultraCleaned));
+            } catch (innerE) {
+                console.error("Critical storage failure:", innerE);
+            }
+        }
     }, [messages, persona.id]);
 
     useEffect(() => {
