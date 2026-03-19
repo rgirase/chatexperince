@@ -277,12 +277,17 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                                 log('Last task was SUCCESSFUL and produced images.', 'success');
                             } else {
                                 log('Last task finished but NO IMAGES were produced.', 'error');
-                                // Report common node errors if found
+                                // Deep introspection
+                                const nodeNames = Object.keys(lastTask.outputs).join(', ');
+                                log(`Detected output nodes: ${nodeNames}`, 'info');
+                                
                                 for(const nid in lastTask.outputs) {
-                                    if(lastTask.outputs[nid].error) {
-                                        log(`Node ${nid} Error: ${JSON.stringify(lastTask.outputs[nid].error)}`, 'error');
-                                    }
+                                    const nodeOut = lastTask.outputs[nid];
+                                    if(nodeOut.images) log(`Node ${nid} has 'images' key but length is ${nodeOut.images.length}`, 'warning');
+                                    if(nodeOut.gifs) log(`Node ${nid} has 'gifs' key. (Experimental support needed)`, 'warning');
+                                    if(nodeOut.error) log(`Node ${nid} ERROR: ${JSON.stringify(nodeOut.error)}`, 'error');
                                 }
+                                
                                 log('Check browser console (F12) for raw history data.', 'info');
                                 console.log("COMFYUI_DIAGNOSTIC_HISTORY:", lastTask);
                             }

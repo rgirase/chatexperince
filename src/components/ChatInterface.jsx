@@ -88,6 +88,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                         for (const nodeId in outputs) {
                             if (outputs[nodeId].images && outputs[nodeId].images.length > 0) {
                                 const imgParams = outputs[nodeId].images[0];
+                                // Handle both 'output' (SaveImage) and 'temp' (PreviewImage) types
                                 const paramsObj = new URLSearchParams(imgParams);
                                 const viewRes = await fetch(`${sdUrl.replace(/\/$/, '')}/view?${paramsObj.toString()}`);
                                 const blob = await viewRes.blob();
