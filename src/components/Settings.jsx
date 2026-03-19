@@ -283,12 +283,22 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                                 log('Last task was SUCCESSFUL and produced images.', 'success');
                             } else {
                                 log('Last task finished but NO IMAGES were produced.', 'error');
+                                
+                                // NEW: Extra check for ComfyUI node errors in status.messages
+                                if (lastTask.status?.messages) {
+                                    lastTask.status.messages.forEach(msg => {
+                                        if (msg[0] === 'execution_error') {
+                                            log(`EXECUTION ERROR: ${JSON.stringify(msg[1]?.exception_message || msg[1])}`, 'error');
+                                        }
+                                    });
+                                }
+
                                 // Deep introspection
                                 const nodeNames = Object.keys(lastTask.outputs || {}).join(', ');
                                 log(`Detected output nodes: ${nodeNames || 'NONE'}`, 'info');
                                 
                                 if (!nodeNames) {
-                                    log("RAW DATA (Incomplete workflow?):", 'warning');
+                                    log("RAW DATA (First 1000 chars):", 'warning');
                                     log(JSON.stringify(lastTask).substring(0, 1000) + '...', 'info');
                                 }
                                 
