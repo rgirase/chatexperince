@@ -11,7 +11,7 @@ export const personas = [
       traditions: "Western holidays, wine culture"
     },
     tagline: "Your elegant, confident stepmother who always seems to linger a little too long when you're alone.",
-    image: "/assets/stepmom_gallery_1_1773591727458.png",
+    image: "/assets/profiles/stepmom_profile.png",
     gallery: [
       "/assets/stepmom_gallery_1_1773591727458.png",
       "/assets/stepmom_gallery_2_1773591745926.png",
@@ -55,7 +55,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Suburban American life"
     },
     tagline: "Your best friend's vibrant, fit mother who accidentally caught you staring.",
-    image: "/assets/best_friend_mom_gallery_1_1773591809274.png",
+    image: "/assets/profiles/best_friend_mom_profile.png",
     gallery: [
       "/assets/best_friend_mom_gallery_1_1773591809274.png",
       "/assets/best_friend_mom_gallery_2_1773591825180.png",
@@ -98,7 +98,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Celebrates Diwali, Karwa Chauth"
     },
     tagline: "Your breathtaking, devoted Indian wife, ready to explore deep intimacy behind closed doors.",
-    image: "/assets/indian_wife_gallery_1_1773591889660.png",
+    image: "/assets/profiles/indian_wife_profile.png",
     gallery: [
       "/assets/indian_wife_gallery_1_1773591889660.png",
       "/assets/indian_wife_gallery_2_1773591908794.png",
@@ -142,7 +142,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Suburban neighbor dynamics"
     },
     tagline: "The flirtatious, slightly nosy redhead next door who always needs a 'favor'.",
-    image: "/assets/sexy_neighbor_gallery_1_1773591981964.png",
+    image: "/assets/profiles/sexy_neighbor_profile.png",
     gallery: [
       "/assets/sexy_neighbor_gallery_1_1773591981964.png",
       "/assets/sexy_neighbor_gallery_2_1773592001122.png",
@@ -187,7 +187,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Mumbai college culture"
     },
     tagline: "Your brilliant, high-energy Indian girlfriend who studies hard but plays harder.",
-    image: "/assets/indian_college_gf_gallery_1_1773592065167.png",
+    image: "/assets/profiles/indian_college_gf_profile.png",
     gallery: [
       "/assets/indian_college_gf_gallery_1_1773592065167.png",
       "/assets/indian_college_gf_gallery_2_1773592084247.png",
@@ -230,7 +230,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Corporate Mumbai hierarchy"
     },
     tagline: "The sophisticated, wickedly smart colleague who stays late at the office just to tease you.",
-    image: "/assets/indian_colleague_gallery_1_1773592156713.png",
+    image: "/assets/profiles/indian_colleague_profile.png",
     gallery: [
       "/assets/indian_colleague_gallery_1_1773592156713.png",
       "/assets/indian_colleague_gallery_2_1773592174812.png",
@@ -273,7 +273,7 @@ STORY ADVANCEMENT & REALITY CHECK: If the user provides an answer to a concern, 
       traditions: "Breaking social norms"
     },
     tagline: "Your devastatingly attractive stepmother who has completely stopped pretending to care about the rules.",
-    image: "/assets/whore_stepmom_gallery_1_1773592244898.png",
+    image: "/assets/profiles/whore_stepmom_profile.png",
     gallery: [
       "/assets/whore_stepmom_gallery_1_1773592244898.png",
       "/assets/whore_stepmom_gallery_2_1773592262800.png",
@@ -317,7 +317,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Western travel norms"
     },
     tagline: "Your beautiful stepmother on a stressful trip... Oh no, there's only one bed.",
-    image: "/assets/hotel_stepmom_gallery_1_1773592327921.png",
+    image: "/assets/profiles/hotel_stepmom_profile.png",
     gallery: [
       "/assets/hotel_stepmom_gallery_1_1773592327921.png",
       "/assets/hotel_stepmom_gallery_2_1773592344051.png",
@@ -362,7 +362,7 @@ CRITICAL RULE: DO NOT end every response with a question. Drive the scene forwar
       traditions: "Indian wedding customs, caste dynamics"
     },
     tagline: "Your beautiful Indian ex-girlfriend who just got married to someone else... but still thinks about you.",
-    image: "/assets/indian_ex_gf_gallery_1_1773592408929.png",
+    image: "/assets/profiles/indian_ex_gf_profile.png",
     gallery: [
       "/assets/indian_ex_gf_gallery_1_1773592408929.png",
       "/assets/indian_ex_gf_gallery_2_1773592429061.png",
@@ -400,7 +400,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Bhabhi-Devar dynamics"
     },
     tagline: "Your beautiful Bhabhi who's always home alone with you in your big house while your brother travels, and she loves the attention you give her.",
-    image: "/assets/forbidden_bhabhi_gallery_1_1773592501872.png",
+    image: "/assets/profiles/forbidden_bhabhi_profile.png",
     gallery: [
       "/assets/forbidden_bhabhi_gallery_1_1773592501872.png",
       "/assets/forbidden_bhabhi_gallery_2_1773592520001.png",
@@ -447,7 +447,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "South Mumbai lifestyle"
     },
     tagline: "Your breathtaking, demanding yoga instructor who pushes your physical limits.",
-    image: "/assets/strict_yoga_instructor_gallery_1_1773592590951.png",
+    image: "/assets/profiles/strict_yoga_instructor_profile.png",
     gallery: [
       "/assets/strict_yoga_instructor_gallery_1_1773592590951.png",
       "/assets/strict_yoga_instructor_gallery_2_1773592609001.png",
@@ -489,7 +489,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Arranged marriage process"
     },
     tagline: "The 'perfect' traditional girl your parents arranged for you, who secretly has a wild side.",
-    image: "/assets/arranged_match_gallery_1_1773592679078.png",
+    image: "/assets/profiles/arranged_match_profile.png",
     gallery: [
       "/assets/arranged_match_gallery_1_1773592679078.png",
       "/assets/arranged_match_gallery_2_1773592698067.png",
@@ -531,7 +531,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Bollywood glamour culture"
     },
     tagline: "India's biggest, most demanding actress, and you are her personal bodyguard.",
-    image: "/assets/bollywood_diva_avatar_1773325825431.png",
+    image: "/assets/profiles/bollywood_diva_profile.png",
     gallery: [
       "/assets/bollywood_diva_gallery_1_1773592770934.png",
       "/assets/bollywood_diva_gallery_2_1773592789027.png",
@@ -573,7 +573,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Indian university culture"
     },
     tagline: "Your brilliant, intimidating university professor who offers 'alternative' extra credit.",
-    image: "/assets/strict_professor_avatar_1773325943855.png",
+    image: "/assets/profiles/strict_professor_profile.png",
     gallery: [
       "/assets/strict_professor_gallery_1_1773592859174.png",
       "/assets/strict_professor_gallery_2_1773592877296.png",
@@ -615,7 +615,7 @@ STORY ADVANCEMENT & REALITY CHECK: If the user provides an answer to a concern (
       traditions: "Bangalore tech startup culture"
     },
     tagline: "The ruthless CEO of a massive tech empire, who needs her secretary to take charge in private.",
-    image: "/assets/strict_ceo_avatar_1773326066507.png",
+    image: "/assets/profiles/strict_ceo_profile.png",
     gallery: [
       "/assets/strict_ceo_gallery_1_1773592947325.png",
       "/assets/strict_ceo_gallery_2_1773592965965.png",
@@ -657,7 +657,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Delhi middle-class neighborhood social circles"
     },
     tagline: "Your childhood best friend who refuses to let you date anyone else but her.",
-    image: "/assets/obsessive_best_friend_avatar_1773326190406.png",
+    image: "/assets/profiles/obsessive_best_friend_profile.png",
     gallery: [
       "/assets/obsessive_best_friend_gallery_1_1773593038770.png",
       "/assets/obsessive_best_friend_gallery_2_1773593056820.png",
@@ -699,7 +699,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Indian public hospital residency"
     },
     tagline: "Your sleep-deprived, deeply competitive medical rival stuck in the same on-call room.",
-    image: "/assets/rival_doctor_avatar_1773326318261.png",
+    image: "/assets/profiles/rival_doctor_profile.png",
     gallery: [
       "/assets/rival_doctor_gallery_1_1773593126965.png",
       "/assets/rival_doctor_gallery_2_1773593145069.png",
@@ -741,7 +741,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Big Fat Indian Wedding coordination"
     },
     tagline: "The sophisticated, unflappable wedding planner managing your sister's chaotic wedding.",
-    image: "/assets/wedding_planner_avatar_1773326438907.png",
+    image: "/assets/profiles/wedding_planner_profile.png",
     gallery: [
       "/assets/wedding_planner_gallery_1_1773593215144.png",
       "/assets/wedding_planner_gallery_2_1773593233497.png",
@@ -783,7 +783,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Strict conservative Indian household norms"
     },
     tagline: "The strictly raised, perfectly innocent daughter of a family friend... who has a massive secret.",
-    image: "/assets/strict_auntie_daughter_avatar_1773326584487.png",
+    image: "/assets/profiles/strict_auntie_daughter_profile.png",
     gallery: [
       "/assets/strict_auntie_daughter_gallery_1_1773593304359.png",
       "/assets/strict_auntie_daughter_gallery_2_1773593323298.png",
@@ -825,7 +825,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Joint family hierarchy, Delhi elite status"
     },
     tagline: "Your incredibly intimidating, wealthy, and traditional mother-in-law who demands absolute obedience.",
-    image: "/assets/mrs_kapoor_gallery_1_1773591187779.png",
+    image: "/assets/profiles/strict_saas_profile.png",
     gallery: [
       "/assets/strict_saas_gallery_1_1773593395882.png",
       "/assets/strict_saas_gallery_2_1773593414006.png",
@@ -873,7 +873,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Remote village customs, city adjustment"
     },
     tagline: "Your quiet, innocent, but breathtakingly beautiful bride from a remote village.",
-    image: "/assets/gauri_gallery_1_1773591396118.png",
+    image: "/assets/profiles/village_bride_profile.png",
     gallery: [
       "/gallery/payal_newlywed_bride_4.png",
       "/gallery/payal_newlywed_bride_5.png",
@@ -921,7 +921,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Mumbai apartment social dynamics"
     },
     tagline: "The neighborhood gossip queen who discovered your dirty secret and decided to blackmail you.",
-    image: "/assets/seema_auntie_gallery_1_1773591291120.png",
+    image: "/assets/profiles/gossip_auntie_profile.png",
     gallery: [
       "/assets/gossip_auntie_gallery_1_1773593581282.png",
       "/assets/gossip_auntie_gallery_2_1773593599408.png",
@@ -969,7 +969,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Rajasthan royal heritage in modern era"
     },
     tagline: "The incredibly arrogant royal heir whose car broke down in the desert with only you to protect her.",
-    image: "/assets/rajput_princess_avatar_1773327111486.png",
+    image: "/assets/profiles/rajput_princess_profile.png",
     gallery: [
       "/assets/rajput_princess_gallery_1_1773593669652.png",
       "/assets/rajput_princess_gallery_2_1773593687904.png",
@@ -1011,7 +1011,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Diwali party social dynamics"
     },
     tagline: "Your older sister's gorgeous best friend who used to tutor you in high school.",
-    image: "/assets/childhood_tutor_avatar_1773327248740.png",
+    image: "/assets/profiles/childhood_tutor_profile.png",
     gallery: [
       "/assets/childhood_tutor_gallery_1_1773593758701.png",
       "/assets/childhood_tutor_gallery_2_1773593776349.png",
@@ -1053,7 +1053,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Bangalore corporate burnout culture"
     },
     tagline: "Your live-in girlfriend who works grueling 14-hour days and wants you to take over.",
-    image: "/assets/exhausted_techie_avatar_1773327357157.png",
+    image: "/assets/profiles/exhausted_techie_profile.png",
     gallery: [
       "/assets/exhausted_techie_gallery_1_1773593844794.png",
       "/assets/exhausted_techie_gallery_2_1773593862416.png",
@@ -1095,7 +1095,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Small-town parents' social pressure"
     },
     tagline: "Your college ex-girlfriend who has been married for 5 years, reconnecting with you late at night.",
-    image: "/assets/married_ex_5_years_avatar_1773327465061.png",
+    image: "/assets/profiles/married_ex_5_years_profile.png",
     gallery: [
       "/assets/married_ex_5_years_gallery_1_1773593932786.png",
       "/assets/married_ex_5_years_gallery_2_1773593950926.png",
@@ -1137,7 +1137,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Post-divorce social scandal management"
     },
     tagline: "A stunning woman who just got divorced within her first year of a loveless arranged marriage.",
-    image: "/assets/joint_family_cousin_avatar_1773327587500.png",
+    image: "/assets/profiles/divorced_wife_profile.png",
     gallery: [
       "/assets/divorced_wife_gallery_1_1773594068991.png",
       "/assets/divorced_wife_gallery_2_1773594087076.png",
@@ -1179,7 +1179,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Joint family house rules and secrets"
     },
     tagline: "Your beautiful young cousin who just moved into your strict joint-family home for college.",
-    image: "/assets/preeti_avatar_sexy_selection.png",
+    image: "/assets/profiles/joint_family_cousin_profile.png",
     gallery: [
       "/assets/joint_family_cousin_gallery_1_1773594338874.png",
       "/assets/joint_family_cousin_gallery_2_1773594357810.png",
@@ -1221,7 +1221,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "South Delhi elite NRI culture"
     },
     tagline: "An incredibly wealthy, bratty South Delhi girl who needs to be thoroughly humbled.",
-    image: "/assets/myra_nri.png",
+    image: "/assets/profiles/south_delhi_nri_profile.png",
     gallery: [
       "/assets/south_delhi_nri_gallery_1_1773594429239.png",
       "/assets/south_delhi_nri_gallery_2_1773594448617.png",
@@ -1263,7 +1263,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Village-style mourning customs (white saree)"
     },
     tagline: "The quiet, beautiful older widow next door who finally breaks down after a year of loneliness.",
-    image: "/assets/sujata_avatar_sexy_selection.png",
+    image: "/assets/profiles/widow_next_door_profile.png",
     gallery: [
       "/assets/widow_next_door_gallery_1_1773594530148.png",
       "/assets/widow_next_door_gallery_2_1773594556941.png",
@@ -1305,7 +1305,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Modern Indian dating culture"
     },
     tagline: "Your beautiful long-distance girlfriend who lives for your late-night intimate chats.",
-    image: "/gallery/simran_glamorous_masi.png",
+    image: "/assets/profiles/ishani_long_distance_gf_profile.png",
     gallery: [
       "/assets/long_distance_gf_gallery_1_1773594665802.png",
       "/assets/long_distance_gf_gallery_2_1773594692812.png",
@@ -1346,7 +1346,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Urban Indian party social circles"
     },
     tagline: "Your best friend's adventurous wife who finds you much more exciting than her predictable husband.",
-    image: "/assets/aditi_friends_wife.png",
+    image: "/assets/profiles/aditi_friends_wife_profile.png",
     gallery: [
       "/assets/friends_bold_wife_gallery_1_1773594800678.png",
       "/assets/friends_bold_wife_gallery_2_1773594827528.png",
@@ -1388,7 +1388,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Elite Indian corporate hierarchy"
     },
     tagline: "Your boss's breathtakingly sexy wife who enjoyed every second of you staring at her during tonight's party.",
-    image: "/assets/maya_boss_wife.png",
+    image: "/assets/profiles/maya_boss_wife_profile.png",
     gallery: [
       "/assets/boss_wife_gallery_1_1773594935098.png",
       "/assets/boss_wife_gallery_2_1773594962993.png",
@@ -1433,7 +1433,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Joint family house guest dynamics"
     },
     tagline: "Your distant cousin's traditional wife who has been staying with you for a week while her husband is away, hiding a naughty side behind her dutiful facade.",
-    image: "/gallery/nisha_cousin_wife.png",
+    image: "/assets/profiles/nisha_cousin_wife_profile.png",
     gallery: [
       "/gallery/nisha_cousin_wife_1.png",
       "/gallery/nisha_cousin_wife_2.png",
@@ -1476,7 +1476,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Mumbai apartment life with absent spouse"
     },
     tagline: "The beautiful woman next door who is lonely while her pilot husband is away and is looking for 'help' with more than just domestic tasks.",
-    image: "/gallery/rupa_lonely_neighbor.png",
+    image: "/assets/profiles/rupa_lonely_neighbor_profile.png",
     gallery: [
       "/gallery/rupa_lonely_neighbor_1.png",
       "/gallery/rupa_lonely_neighbor_2.png",
@@ -1516,7 +1516,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Indian weekend sleepover social norms"
     },
     tagline: "Your wife's beautiful and flirtatious best friend who is staying over for the weekend.",
-    image: "/assets/neeta_wifes_best_friend.png",
+    image: "/assets/profiles/neeta_wifes_bestie_profile.png",
     gallery: [
       "/assets/wife_best_friend_gallery_1_1773595324272.png",
       "/assets/wife_best_friend_gallery_2_1773595343272.png",
@@ -1554,7 +1554,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time (e.g.,
       traditions: "Elite Mumbai nightlife and private clubs"
     },
     tagline: "The sophisticated, powerful manager of the elite Velvet Club, where every desire is fulfilled and every service is available.",
-    image: "/assets/amira_avatar_mangalsutra.png",
+    image: "/assets/profiles/amira_velvet_club_profile.png",
     gallery: [
       "/assets/amira_avatar_mangalsutra.png",
       "/assets/amira_gallery_mangalsutra.png",
@@ -1605,7 +1605,7 @@ CRITICAL RULE: DO NOT end with questions. Drive the scene toward physical and em
       traditions: "Indian stepfamily dynamics"
     },
     tagline: "Your beautiful, traditional stepmother whose motherly care hides a deep, forbidden intensity.",
-    image: "/assets/sushma_avatar_mangalsutra.png",
+    image: "/assets/profiles/sushma_stepmom_profile.png",
     gallery: [
       "/assets/sushma_avatar_mangalsutra.png",
       "/assets/sushma_gallery_mangalsutra.png"
@@ -1649,7 +1649,7 @@ CRITICAL RULE: DO NOT end every response with a question. Drive the scene forwar
       traditions: "Middle-class American family social norms"
     },
     tagline: "Your stunning, newly divorced aunt who's looking for more than just family comfort.",
-    image: "/assets/ava_auntie_avatar.png",
+    image: "/assets/profiles/ava_auntie_divorced_profile.png",
     gallery: [
       "/assets/ava_auntie_avatar.png",
       "/assets/ava_auntie_gallery_1.png",
@@ -1685,7 +1685,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to time skips or location
       traditions: "US college-age house guest culture"
     },
     tagline: "Your mom's gorgeous best friend who's happy to have a 'young man' around the house.",
-    image: "/assets/meghan_aunty_avatar.png",
+    image: "/assets/profiles/meghan_aunty_profile.png",
     gallery: [
       "/assets/meghan_aunty_avatar.png",
       "/assets/meghan_aunty_gallery_1.png",
@@ -1721,7 +1721,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to time skips or location
       traditions: "American summer vacation/poolside culture"
     },
     tagline: "Your rebellious, sun-kissed step-cousin who's always pushing boundaries poolside.",
-    image: "/assets/sierra_avatar.png",
+    image: "/assets/profiles/sierra_cousin_profile.png",
     gallery: [
       "/assets/sierra_avatar.png",
       "/assets/sierra_gallery_1.png"
@@ -1755,7 +1755,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to time skips or location
       traditions: "US graduate student and babysitting culture"
     },
     tagline: "The sweet, shy graduate student who hides a massive wild side behind her books.",
-    image: "/assets/natalie_avatar.png",
+    image: "/assets/profiles/natalie_babysitter_profile.png",
     gallery: [
       "/assets/natalie_avatar.png",
       "/assets/natalie_gallery_1.png"
@@ -1789,7 +1789,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to time skips or location
       traditions: "Latino-American household dynamics"
     },
     tagline: "Your fiery Latina-American stepsister who's tired of being 'just family.'",
-    image: "/assets/elena_avatar.png",
+    image: "/assets/profiles/elena_stepsister_profile.png",
     gallery: [
       "/assets/elena_avatar.png",
       "/assets/elena_gallery_1.png"
@@ -1823,7 +1823,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to time skips or location
       traditions: "High-class American country club socialite culture"
     },
     tagline: "The sophisticated socialite next door who's looking for a thrill her husband can't provide.",
-    image: "/assets/meredith_avatar.png",
+    image: "/assets/profiles/meredith_neighbor_profile.png",
     gallery: [
       "/assets/meredith_avatar.png",
       "/assets/meredith_gallery_1.png"
@@ -1857,7 +1857,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to time skips or location
       traditions: "Elite private flight service culture"
     },
     tagline: "The poised private flight attendant who provides 'excellent service' behind closed cabin doors.",
-    image: "/assets/jasmine_avatar.png",
+    image: "/assets/profiles/jasmine_flight_profile.png",
     gallery: [
       "/assets/jasmine_avatar.png",
       "/assets/jasmine_gallery_1.png"
@@ -1891,7 +1891,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to time skips or location
       traditions: "American weekend house guest social norms"
     },
     tagline: "The sophisticated, mature relative by marriage with a secret that's anything but family-friendly.",
-    image: "/assets/chloe_step_aunt.png",
+    image: "/assets/profiles/chloe_step_aunt_profile.png",
     gallery: [
       "/assets/chloe_step_aunt.png",
       "/assets/chloe_gallery_1.png"
@@ -1922,7 +1922,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
       traditions: "Southern US ranch/country culture"
     },
     tagline: "The adventurous, sun-kissed country girl who knows exactly how to get your attention.",
-    image: "/assets/savannah_southern_belle.png",
+    image: "/assets/profiles/savannah_southern_belle_profile.png",
     gallery: [
       "/assets/savannah_southern_belle.png",
       "/assets/savannah_gallery_1.png"
@@ -1953,7 +1953,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
       traditions: "US-based Indian jet-setting socialite culture"
     },
     tagline: "The jet-setting, high-maintenance socialite who's decided you're her next obsession.",
-    image: "/assets/bianca_nri_socialite.png",
+    image: "/assets/profiles/bianca_nri_socialite_profile.png",
     gallery: [
       "/assets/bianca_nri_socialite.png",
       "/assets/bianca_gallery_1.png"
@@ -1984,7 +1984,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
       traditions: "Urban American boutique fitness/yoga culture"
     },
     tagline: "The fit, high-energy instructor who's more interested in your private sessions than your form.",
-    image: "/assets/amber_yoga_instructor.png",
+    image: "/assets/profiles/amber_yoga_instructor_profile.png",
     gallery: [
       "/assets/amber_yoga_instructor.png",
       "/assets/amber_gallery_1.png"
@@ -2015,7 +2015,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
       traditions: "Indian family wedding weekend dynamics"
     },
     tagline: "Your bold, voluptuous sister-in-law who loves push the limits of family tradition.",
-    image: "/gallery/tanya_modern_bhabhi.png",
+    image: "/assets/profiles/tanya_modern_bhabhi_profile.png",
     gallery: [
       "/gallery/tanya_modern_bhabhi_1.png",
       "/gallery/tanya_modern_bhabhi_2.png"
@@ -2046,7 +2046,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
       traditions: "Returning NRI 'cool aunt' social role"
     },
     tagline: "Your uninhibited, worldly aunt who's returned to teach you a lesson in 'modern' living.",
-    image: "/gallery/simran_glamorous_masi.png",
+    image: "/assets/profiles/simran_glamorous_masi_profile.png",
     gallery: [
       "/gallery/simran_glamorous_masi_1.png",
       "/gallery/simran_glamorous_masi_2.png"
@@ -2077,7 +2077,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
       traditions: "Elite Indian socialite 'family friend' dynamics"
     },
     tagline: "The divine, high-status family friend who's looking for the one thing her wealth can't buy.",
-    image: "/assets/mrs_malhotra.png",
+    image: "/assets/profiles/mrs_malhotra_friend_profile.png",
     gallery: [
       "/assets/mrs_malhotra.png",
       "/assets/mrs_malhotra_gallery_1.png"
@@ -2108,7 +2108,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
       traditions: "Private life of a 'reserved' Indian widow"
     },
     tagline: "The mysterious, traditional neighbor whose private life is far more revealing than she lets on.",
-    image: "/assets/kavita_widow.png",
+    image: "/assets/profiles/kavita_neighbor_profile.png",
     gallery: [
       "/assets/kavita_widow.png",
       "/assets/kavita_gallery_1.png"
@@ -2140,7 +2140,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
       traditions: "Jet-setting NRI cousin visiting traditions"
     },
     tagline: "The jet-setting, uninhibited cousin whose only goal is to completely corrupt your traditional world.",
-    image: "/assets/ananya_cousin.png",
+    image: "/assets/profiles/ananya_nri_cousin_profile.png",
     gallery: [
       "/assets/ananya_cousin.png",
       "/assets/ananya_gallery_1.png"
@@ -2171,7 +2171,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
       traditions: "Japanese Shinto shrine customs, Kyoto neighborhoods"
     },
     tagline: "The quiet, beautiful guardian of an ancient Kyoto shrine who holds a secret desire for the forbidden.",
-    image: "/assets/hana_avatar.png",
+    image: "/assets/profiles/hana_shrine_maiden_profile.png",
     gallery: ["/assets/hana_avatar.png"],
     wardrobe: [
       { id: 'miko', name: 'Miko Robes', avatar: '/assets/hana_avatar.png', minScore: 0 }
@@ -2196,7 +2196,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: Adapt immediately to skips. Accept user inp
       traditions: "Seoul corporate culture, Gangnam nightlife"
     },
     tagline: "The ruthless director of a Seoul conglomerate who demands perfection in the office and total surrender in private.",
-    image: "/assets/jisoo_avatar.png",
+    image: "/assets/profiles/jisoo_corporate_profile.png",
     gallery: ["/assets/jisoo_avatar.png"],
     wardrobe: [
       { id: 'director', name: 'Director Suit', avatar: '/assets/jisoo_avatar.png', minScore: 0 }
@@ -2221,7 +2221,7 @@ BEHAVIOR: You are dominant, sharp-tongued, and incredibly demanding. You use the
       traditions: "Milanese fashion world, Lake Como private retreats"
     },
     tagline: "The breathtaking face of Milan's fashion elite who's looking for a passion that burns brighter than the runway lights.",
-    image: "/assets/sofia_avatar.png",
+    image: "/assets/profiles/sofia_milan_model_profile.png",
     gallery: ["/assets/sofia_avatar.png"],
     wardrobe: [
       { id: 'model', name: 'Milan Fashion', avatar: '/assets/sofia_avatar.png', minScore: 0 }
@@ -2245,7 +2245,7 @@ BEHAVIOR: You are dominant, sharp-tongued, and incredibly demanding. You use the
       traditions: "Brazilian Carnival culture, Rio de Janeiro beach life"
     },
     tagline: "The vibrant heart of Rio's elite who lives for the thrill of the chase and the heat of the forbidden.",
-    image: "/assets/isabella_avatar.png",
+    image: "/assets/profiles/isabella_rio_socialite_profile.png",
     gallery: ["/assets/isabella_avatar.png"],
     wardrobe: [
       { id: 'carnival', name: 'Carnival Look', avatar: '/assets/isabella_avatar.png', minScore: 0 }
@@ -2269,7 +2269,7 @@ BEHAVIOR: You are dominant, sharp-tongued, and incredibly demanding. You use the
       traditions: "Indian middle-class traveler, modern but rooted"
     },
     tagline: "A beautiful bhabhi traveling solo on a sleeper bus, looking for a way to make the long night much more interesting.",
-    image: "/gallery/sia_bus_passenger.png",
+    image: "/assets/profiles/sia_bus_passenger_profile.png",
     gallery: [
       "/gallery/sia_bus_passenger_1.png",
       "/gallery/sia_bus_passenger_2.png",
@@ -2309,7 +2309,7 @@ CRITICAL RULE: DO NOT end every response with a question. DO NOT wait for permis
       traditions: "Suhagrat (First night), Ghoonghat (veil), Solah Shringar (full bridal ornaments)"
     },
     tagline: "Your shy, traditional bride on your first night together after an arranged marriage.",
-    image: "/gallery/payal_newlywed_bride.png",
+    image: "/assets/profiles/payal_newlywed_bride_profile.png",
     gallery: [
       "/gallery/payal_newlywed_bride_1.png",
       "/gallery/payal_newlywed_bride_2.png",
@@ -2347,7 +2347,7 @@ CRITICAL RULE: DO NOT end with questions. Drive the story by describing your shy
       traditions: "Mama-Mami dynamics, family gatherings, tea rituals"
     },
     tagline: "Your stunning Mami who fed you as a child and now watches you with a woman's hunger while you date her daughter.",
-    image: "/assets/shalu_mami_avatar.png",
+    image: "/assets/profiles/shalu_mami_profile.png",
     gallery: [
       "/assets/shalu_mami_avatar.png",
       "/assets/shalu_mami_gallery_1.png"
@@ -2378,7 +2378,7 @@ CRITICAL RULE: DO NOT end with questions. Drive the story by describing your bol
       traditions: "Village life, festivals, traditional attire"
     },
     tagline: "Your naughty village-side Bhabhi who wears revealing blouses and loves to flirt whenever you visit.",
-    image: "/assets/village_bhabhi_avatar.png",
+    image: "/assets/profiles/village_bhabhi_profile.png",
     gallery: [
       "/assets/village_bhabhi_avatar.png",
       "/assets/village_bhabhi_bedroom.png",
@@ -2420,7 +2420,7 @@ STORY ADVANCEMENT & PASSAGE OF TIME: If the user indicates a skip in time or a c
       traditions: "Joint family dynamics, summer vacations"
     },
     tagline: "Your maternal uncle's stunning young wife who finds her nephew far more interesting than her husband.",
-    image: "/gallery/shweta_bored_mami.png",
+    image: "/assets/profiles/shweta_bored_mami_profile.png",
     gallery: [
       "/gallery/shweta_bored_mami_1.png",
       "/gallery/shweta_bored_mami_2.png"
@@ -2455,7 +2455,7 @@ Respond with vivid descriptions of your actions and the stifling, quiet atmosphe
       traditions: "Village life, field labor, festivals"
     },
     tagline: "The raw, uninhibited neighbor from the village who doesn't believe in city rules.",
-    image: "/gallery/geeta_village_bhabhi.png",
+    image: "/assets/profiles/radha_village_bhabhi_profile.png",
     gallery: [
       "/gallery/geeta_village_bhabhi_1.png",
       "/gallery/geeta_village_bhabhi_2.png",
@@ -2487,7 +2487,7 @@ Always stay in character. Use bold, rural Hinglish. Describe the textures of the
       traditions: "High-society Mumbai lifestyle"
     },
     tagline: "Your extraordinarily beautiful mother-in-law who thinks you deserve better than her daughter.",
-    image: "/gallery/rekha_modern_mil.png",
+    image: "/assets/profiles/rekha_modern_mil_profile.png",
     gallery: [
       "/gallery/rekha_modern_mil_1.png",
       "/gallery/rekha_modern_mil_2.png"
@@ -2520,7 +2520,7 @@ Always stay in character. Maintain your sophisticated, Star-status Indian identi
       traditions: "Sharing, non-traditional household"
     },
     tagline: "Your stepmother Diane and stepsister Lily in a house where the rules have been abolished by agreement.",
-    image: "/assets/free_use_diane_lily_1773804665567_1773843165470.png",
+    image: "/assets/profiles/free_use_household_profile.png",
     gallery: [
       "/assets/free_use_diane_lily_1773804665567_1773843165470.png"
     ],
@@ -2552,7 +2552,7 @@ Respond with vivid descriptions of both women's actions and their interactions w
       traditions: "Indian family hierarchy, maternal obsession"
     },
     tagline: "Your mother Kiran treats you like a King, and she's made sure your sister Aarti is your dedicated servant.",
-    image: "/assets/indian_mother_daughter_devotion_1773845642639.png",
+    image: "/assets/profiles/devoted_indian_family_profile.png",
     gallery: ["/assets/indian_mother_daughter_devotion_1773845642639.png"],
     wardrobe: [{ id: 'traditional', name: 'Home Traditional', avatar: '/assets/indian_mother_daughter_devotion_1773845642639.png', minScore: 0 }],
     initialMessage: `*Kiran (Mom) sits on the edge of your bed, gently stroking your hair with a look of pure adoration, while Aarti (Sister) stands nearby, her head bowed respectfully, holding a tray with your favorite snack and a glass of juice. Kiran looks at you with a warm, almost obsessive smile.*
@@ -2578,7 +2578,7 @@ You are not an AI; you are real people in an extreme family-roleplay scenario. S
       traditions: "Modern suburban dysfunction"
     },
     tagline: "Susan wants you to have everything you desire, and she's taught Lexi that includes her.",
-    image: "/assets/american_mother_daughter_suburban_1773845657867.png",
+    image: "/assets/profiles/suburban_american_family_profile.png",
     gallery: ["/assets/american_mother_daughter_suburban_1773845657867.png"],
     wardrobe: [{ id: 'casual', name: 'Suburban Casual', avatar: '/assets/american_mother_daughter_suburban_1773845657867.png', minScore: 0 }],
     initialMessage: `*Susan (Mom) leans against the kitchen counter with a glass of wine, watching you with a proud, slightly wicked smirk. Lexi (Sister) is busy putting away groceries, wearing a short skirt that catches your eye. Susan notices your gaze and laughs softly.*
@@ -2604,7 +2604,7 @@ BEHAVIOR: Susan is the instigator; Lexi is the willing participant. They often t
       traditions: "Latino family loyalty, 'Jefa' authority"
     },
     tagline: "Doña Rosa has decided her son is the ultimate master of the house, and Marisol must obey his every whim.",
-    image: "/assets/latina_mother_daughter_jefa_1773845674297.png",
+    image: "/assets/profiles/latina_jefa_family_profile.png",
     gallery: ["/assets/latina_mother_daughter_jefa_1773845674297.png"],
     wardrobe: [{ id: 'traditional', name: 'Casa Style', avatar: '/assets/latina_mother_daughter_jefa_1773845674297.png', minScore: 0 }],
     initialMessage: `*Doña Rosa (Mom) is adjusting your collar with hands that tremble with pride, while Marisol (Sister) kneels near the sofa, polishing your shoes with meticulous care. The air is thick with the smell of home-cooked food and intense family loyalty.*
@@ -2630,7 +2630,7 @@ BEHAVIOR: Use passionate language and Spanish-inflected English. Describe the vi
       traditions: "Brazilian warmth and lack of boundaries"
     },
     tagline: "Renata dotes on you with Brazilian passion, and she's made sure Camila is your constant, willing companion.",
-    image: "/assets/brazilian_mother_daughter_vibrant_1773845691496.png",
+    image: "/assets/profiles/brazilian_vibrant_family_profile.png",
     gallery: ["/assets/brazilian_mother_daughter_vibrant_1773845691496.png"],
     wardrobe: [{ id: 'beach', name: 'Rio Casual', avatar: '/assets/brazilian_mother_daughter_vibrant_1773845691496.png', minScore: 0 }],
     initialMessage: `*Renata (Mom) is dancing slightly to a soft bossa nova beat as she pours you a cold drink, her fit body moving with grace. Camila (Sister) is lounge near you in a tiny bikini, her skin glowing. Renata stops and kisses your cheek before looking at Camila.*

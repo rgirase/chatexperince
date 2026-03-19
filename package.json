@@ -9,7 +9,9 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "sync-gallery": "node scripts/update_gallery_manifest.cjs",
-    "sync-prompts": "node scripts/sync_prompts.cjs"
+    "sync-prompts": "node scripts/sync_prompts.cjs",
+    "generate-profiles": "powershell -ExecutionPolicy Bypass scripts/generate_profiles.ps1",
+    "update-profiles": "node scripts/update_profiles.cjs"
   },
   "dependencies": {
     "@heyputer/puter.js": "^2.2.12",
