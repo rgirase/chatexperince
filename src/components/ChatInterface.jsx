@@ -11,6 +11,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const [toasts, setToasts] = useState([]);
     const [isSelfiePromptOpen, setIsSelfiePromptOpen] = useState(false);
     const [selfiePrompt, setSelfiePrompt] = useState("");
+    const isMounted = useRef(true);
+
+    useEffect(() => {
+        isMounted.current = true;
+        return () => {
+            isMounted.current = false;
+        };
+    }, []);
 
     const showToast = (message, type = 'error') => {
         const id = Date.now();
@@ -50,8 +58,23 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 if (response.ok) {
                     const data = await response.json();
                     const base64Image = `data:image/png;base64,${data.images[0]}`;
-                    setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
-                    showToast("Selfie received!", "success");
+                    
+                    if (isMounted.current) {
+                        setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
+                        showToast("Selfie received!", "success");
+                    }
+                    
+                    // Background Persistence: Always update localStorage even if unmounted
+                    try {
+                        const saved = localStorage.getItem(`chat_${persona.id}`);
+                        if (saved) {
+                            const parsed = JSON.parse(saved);
+                            const updated = parsed.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg);
+                            localStorage.setItem(`chat_${persona.id}`, JSON.stringify(updated));
+                        }
+                    } catch (e) {
+                        console.error("Failed background storage sync:", e);
+                    }
                 } else {
                     throw new Error(`${imageEngine === 'drawthings' ? 'Draw Things' : 'A1111'} API error.`);
                 }
@@ -108,8 +131,24 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                     reader.onloadend = () => resolve(reader.result);
                                     reader.readAsDataURL(blob);
                                 });
-                                setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
-                                showToast("Selfie received!", "success");
+
+                                if (isMounted.current) {
+                                    setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
+                                    showToast("Selfie received!", "success");
+                                }
+
+                                // Background Persistence: Always update localStorage even if unmounted
+                                try {
+                                    const saved = localStorage.getItem(`chat_${persona.id}`);
+                                    if (saved) {
+                                        const parsed = JSON.parse(saved);
+                                        const updated = parsed.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg);
+                                        localStorage.setItem(`chat_${persona.id}`, JSON.stringify(updated));
+                                    }
+                                } catch (e) {
+                                    console.error("Failed background storage sync:", e);
+                                }
+
                                 foundImage = true;
                                 break;
                             }
@@ -137,8 +176,23 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 if (response.ok) {
                     const data = await response.json();
                     const base64Image = data.image.startsWith('data:') ? data.image : `data:image/png;base64,${data.image}`;
-                    setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
-                    showToast("Selfie received!", "success");
+                    
+                    if (isMounted.current) {
+                        setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
+                        showToast("Selfie received!", "success");
+                    }
+
+                    // Background Persistence: Always update localStorage even if unmounted
+                    try {
+                        const saved = localStorage.getItem(`chat_${persona.id}`);
+                        if (saved) {
+                            const parsed = JSON.parse(saved);
+                            const updated = parsed.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg);
+                            localStorage.setItem(`chat_${persona.id}`, JSON.stringify(updated));
+                        }
+                    } catch (e) {
+                        console.error("Failed background storage sync:", e);
+                    }
                 } else {
                     throw new Error("Diffusion Bee API error.");
                 }
@@ -150,7 +204,18 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             } else {
                 showToast(e.message);
             }
-            setMessages(prev => prev.filter(msg => msg.id !== photoMsgId));
+            if (isMounted.current) {
+                setMessages(prev => prev.filter(msg => msg.id !== photoMsgId));
+            }
+            // Also cleanup localStorage if unmounted
+            try {
+                const saved = localStorage.getItem(`chat_${persona.id}`);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    const updated = parsed.filter(msg => msg.id !== photoMsgId);
+                    localStorage.setItem(`chat_${persona.id}`, JSON.stringify(updated));
+                }
+            } catch (innerE) {}
         }
     };
     // Initialize messages from localStorage if available
