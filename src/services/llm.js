@@ -542,6 +542,61 @@ Return ONLY the summary sentence. No intros or outros.`;
     }
 };
 
+export const generateVisualPrompt = async (persona, messages) => {
+    const charName = getShortName(persona.name);
+    const url = getLmStudioUrl();
+    const recent = messages.slice(-10);
+    const transcript = recent.map(msg => `${msg.role === 'user' ? 'User' : charName}: ${msg.content}`).join('\n\n');
+
+    const prompt = `You are an AI image prompt engineer.
+Review the following recent roleplay interaction.
+
+Transcript (last 10 messages):
+${transcript}
+
+Task: Generate a high-quality visual prompt for an image that captures the CURRENT immediate scene.
+Focus on:
+1. Exact Poses and Physicality: (e.g., "sitting on the edge of the bed", "leaning against the counter", "naked with a sheet draped over her").
+2. Environment & Lighting: (e.g., "dimly lit bedroom", "warm golden hour light", "modern apartment background").
+3. Specific Clothing Status: (e.g., "wearing only a silk robe", "completely nude", "fully dressed in a business suit").
+4. Emotions & Facial Expression: (e.g., "seductive smirk", "breathless and wide-eyed", "looking away shyly").
+
+Format: Provide the prompt as a single comma-separated list of visual tags. 
+Rules:
+- NO full sentences. 
+- NO meta-talk or intros.
+- Include ONLY visual details.
+- Avoid abstract words; use concrete physical descriptions.
+
+Example Output: "sitting cross-legged on a plush bed, wearing a translucent black nightie, messy hair, looking at camera with a playful smile, soft ambient lighting, high contrast"
+
+Return ONLY the prompt string.`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: await ensureValidModel(),
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.7,
+                max_tokens: 100,
+                stream: false,
+            }),
+        });
+
+        if (!response.ok) return null;
+        const data = await response.json();
+        let content = data.choices?.[0]?.message?.content || "";
+        return cleanLeakage(content.trim());
+    } catch (error) {
+        console.error("Error generating visual prompt:", error);
+        return null;
+    }
+};
+
 export const generateDiaryEntry = async (persona, messages) => {
     const charName = getShortName(persona.name);
     const url = getLmStudioUrl();

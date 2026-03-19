@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift, Shirt, Book, History, Info, Save, Download, Sparkles } from 'lucide-react';
-import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage, generateDiaryEntry, extractSceneSummary } from '../services/llm';
+import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage, generateDiaryEntry, extractSceneSummary, generateVisualPrompt } from '../services/llm';
 import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_COMFY_WORKFLOW } from '../config';
 import { saveMilestone, getMemories, clearMemories, deleteMilestone } from '../services/memory';
 import { SCENES, detectSceneId } from '../data/scenes';
@@ -948,12 +948,20 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const handleGenerateSceneImage = async () => {
         if (isTyping || isSuggesting) return;
 
-        // Optionally refresh the situation if it's been a while, but for now we trust currentSituation
+        showToast("Consulting the muse for a visual scene...", "success");
+        
+        // Deep analysis of last 10 messages for a specific visual prompt
+        const visualContext = await generateVisualPrompt(persona, messages);
+        
         const charAppearance = (persona.systemPrompt || persona.prompt)?.match(/APPEARANCE:\s*([^\n.]*)/i)?.[1] || "";
         const charIdentity = persona.prompt?.match(/You are\s*(.*?)(?=\n|$)/i)?.[1] || persona.name;
         
         const sceneName = currentScene.name !== 'Generic Atmosphere' ? `at ${currentScene.name}` : "";
-        const finalPrompt = `masterpiece, photorealistic, 8k uhd, cinematic lighting, ${charIdentity}, ${charAppearance}, ${currentSituation}, ${sceneName}`;
+        
+        // Fallback to currentSituation if visualContext fails
+        const sceneDetails = visualContext || currentSituation;
+        
+        const finalPrompt = `masterpiece, photorealistic, 8k uhd, cinematic lighting, ${charIdentity}, ${charAppearance}, ${sceneDetails}, ${sceneName}`;
         
         const aiMessageId = Date.now().toString();
         generateSelfie(finalPrompt, persona, aiMessageId);
