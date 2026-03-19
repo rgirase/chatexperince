@@ -57,12 +57,21 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 let comfyWorkflow = localStorage.getItem('comfyWorkflow');
                 
                 // Fallback to central default if missing or invalid
-                if (!comfyWorkflow || !comfyWorkflow.includes('__PROMPT__')) {
+                if (!comfyWorkflow || !comfyWorkflow.includes('3')) { // Check for node 3 instead of __PROMPT__
                     comfyWorkflow = JSON.stringify(DEFAULT_COMFY_WORKFLOW);
                 }
 
-                let workflowStr = comfyWorkflow.replace(/__PROMPT__/g, fullPrompt);
-                const workflowObj = JSON.parse(workflowStr);
+                const workflowObj = JSON.parse(comfyWorkflow);
+
+                // Inject Prompt (Node 6)
+                if (workflowObj["6"]) {
+                    workflowObj["6"].inputs.text = fullPrompt;
+                }
+                
+                // Randomize Seed (Node 3)
+                if (workflowObj["3"]) {
+                    workflowObj["3"].inputs.seed = Math.floor(Math.random() * 1000000);
+                }
 
                 const queueRes = await fetch(`${sdUrl.replace(/\/$/, '')}/prompt`, {
                     method: 'POST',
@@ -819,12 +828,6 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         // Construct a prompt that matches the user's request for "sexy image"
         const appearanceMatch = persona.systemPrompt.match(/APPEARANCE:\s*([^\n.]*)/i);
         const appearanceStr = appearanceMatch ? appearanceMatch[1] : "";
-        const sexyPrompt = `${appearanceStr}, wearing a very sexy and revealing outfit, highly provocative pose, seductive gaze, bedroom setting, cinematic lighting`;
-        
-        generateSelfie(sexyPrompt, persona, aiMessageId);
-    };
-
-    const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSend();
