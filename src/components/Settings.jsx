@@ -201,12 +201,33 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
             // 1. Basic Reachability
             log(`Testing reachability for ${sdUrl}...`);
             const startTime = Date.now();
+            let isReachable = false;
             try {
-                const ping = await fetch(sdUrl, { mode: 'no-cors' });
+                // Try the main URL
+                await fetch(sdUrl, { mode: 'no-cors' });
+                isReachable = true;
                 log(`Reachability OK (${Date.now() - startTime}ms)`);
             } catch (e) {
-                log(`URL unreachable. Check if server is running or firewall is blocking.`, 'error');
-                if (sdUrl.includes('100.')) log('TIP: Tailscale detected. Ensure ComfyUI uses --listen 0.0.0.0', 'warning');
+                // If it's the 192/127 address, try the other common port 8188
+                if (sdUrl.includes(':8000')) {
+                    const altUrl = sdUrl.replace(':8000', ':8188');
+                    log(`8000 failed. Probing default ComfyUI port 8188...`);
+                    try {
+                        await fetch(altUrl, { mode: 'no-cors' });
+                        log(`PORT MISMATCH: Detected ComfyUI on 8188! Please update your URL above.`, 'warning');
+                        isReachable = true;
+                    } catch (e2) {}
+                }
+                
+                if (!isReachable) {
+                    log(`URL unreachable. Is ComfyUI running? Try 127.0.0.1:8000 or 127.0.0.1:8188.`, 'error');
+                    if (sdUrl.includes('192.168.')) log('TIP: You are using a local IP. If on PC, try 127.0.0.1.', 'info');
+                    if (sdUrl.includes('100.87') || sdUrl.includes('100.87.53.100')) {
+                        log('TIP: Tailscale detected. Use your PC\'s Tailnet IP in the URL field.', 'success');
+                    } else {
+                        log(`Your Tailscale IP is: 100.87.53.100`, 'info');
+                    }
+                }
             }
 
             // 2. ComfyUI API Check
