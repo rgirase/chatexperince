@@ -278,17 +278,20 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                             } else {
                                 log('Last task finished but NO IMAGES were produced.', 'error');
                                 // Deep introspection
-                                const nodeNames = Object.keys(lastTask.outputs).join(', ');
-                                log(`Detected output nodes: ${nodeNames}`, 'info');
+                                const nodeNames = Object.keys(lastTask.outputs || {}).join(', ');
+                                log(`Detected output nodes: ${nodeNames || 'NONE'}`, 'info');
                                 
-                                for(const nid in lastTask.outputs) {
+                                if (!nodeNames) {
+                                    log("RAW DATA (Please share this):", 'warning');
+                                    log(JSON.stringify(lastTask).substring(0, 1000) + '...', 'info');
+                                }
+                                
+                                for(const nid in lastTask.outputs || {}) {
                                     const nodeOut = lastTask.outputs[nid];
-                                    if(nodeOut.images) log(`Node ${nid} has 'images' key but length is ${nodeOut.images.length}`, 'warning');
-                                    if(nodeOut.gifs) log(`Node ${nid} has 'gifs' key. (Experimental support needed)`, 'warning');
+                                    if(nodeOut.images) log(`Node ${nid} has 'images' but length is ${nodeOut.images.length}`, 'warning');
                                     if(nodeOut.error) log(`Node ${nid} ERROR: ${JSON.stringify(nodeOut.error)}`, 'error');
                                 }
                                 
-                                log('Check browser console (F12) for raw history data.', 'info');
                                 console.log("COMFYUI_DIAGNOSTIC_HISTORY:", lastTask);
                             }
                         }
