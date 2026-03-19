@@ -88,7 +88,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
                 let isComplete = false;
                 let attempts = 0;
-                while (!isComplete && attempts < 60) {
+                while (!isComplete && attempts < 180) { // Increased to 6 minutes for XL models
                     await new Promise(r => setTimeout(r, 2000));
                     attempts++;
                     const histRes = await fetch(`${sdUrl.replace(/\/$/, '')}/history/${promptId}`);
