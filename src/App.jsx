@@ -408,6 +408,9 @@ function App() {
             onGoHome={handleGoHome}
             customPersonas={customPersonas}
             setCustomPersonas={setCustomPersonas}
+            savedServers={savedServers}
+            activeServerUrl={activeServerUrl}
+            onSwitchServer={handleSwitchServer}
           />
         ) : isGalleryOpen ? (
           <Gallery

@@ -5,9 +5,9 @@ import { fetchAvailableModels } from '../services/llm';
 const DEFAULT_LM_STUDIO = 'http://192.168.1.233:1234/v1';
 const DEFAULT_SD_URL = 'http://127.0.0.1:7860';
 
-const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
-    const [lmStudioUrl, setLmStudioUrl] = useState('');
-    const [savedServers, setSavedServers] = useState([]);
+const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, savedServers: serverProps, activeServerUrl: activeUrlProp, onSwitchServer }) => {
+    const [lmStudioUrl, setLmStudioUrl] = useState(activeUrlProp || '');
+    const [savedServers, setSavedServers] = useState(serverProps || []);
     const [newServerName, setNewServerName] = useState('');
     const [sdUrl, setSdUrl] = useState('');
     const [imageEngine, setImageEngine] = useState('a1111');
@@ -48,11 +48,11 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
         }
 
         // Fetch models if URL exists
-        const initialUrl = localStorage.getItem('lmStudioUrl') || DEFAULT_LM_STUDIO;
+        const initialUrl = activeUrlProp || localStorage.getItem('lmStudioUrl') || DEFAULT_LM_STUDIO;
         if (initialUrl) {
             loadModels(initialUrl);
         }
-    }, []);
+    }, [activeUrlProp, serverProps]);
 
     const loadModels = async (url) => {
         setIsLoadingModels(true);
@@ -270,6 +270,45 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas }) => {
 
             <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
                 <h2 style={{ marginBottom: '1.5rem', color: '#c084fc' }}>Backend Configuration</h2>
+
+                {/* Prominent Quick Switcher */}
+                {savedServers.length > 0 && (
+                    <div style={{ marginBottom: '2rem', background: 'rgba(192, 132, 252, 0.05)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(192, 132, 252, 0.2)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                            <div style={{ padding: '8px', background: 'rgba(192, 132, 252, 0.1)', borderRadius: '8px', color: '#c084fc' }}>
+                                <RefreshCw size={20} />
+                            </div>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '1rem', color: '#f8fafc' }}>Quick Switch Server</h3>
+                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8' }}>Select a preset LM Studio backend</p>
+                            </div>
+                        </div>
+                        <select 
+                            value={lmStudioUrl} 
+                            onChange={(e) => {
+                                handleConnectServer(e.target.value);
+                                if (onSwitchServer) onSwitchServer(e.target.value);
+                            }}
+                            style={{ 
+                                width: '100%', 
+                                padding: '0.75rem', 
+                                borderRadius: '8px', 
+                                background: '#1e1e2e', 
+                                border: '1px solid #c084fc', 
+                                color: 'white',
+                                fontSize: '0.95rem',
+                                outline: 'none',
+                                cursor: 'pointer',
+                                fontWeight: '500'
+                            }}
+                        >
+                            <option value="" disabled>Select Server...</option>
+                            {savedServers.map(s => (
+                                <option key={s.id} value={s.url}>{s.name} ({s.url})</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
 
                 <div style={{ marginBottom: '1.5rem' }}>
                     <label style={{ display: 'block', marginBottom: '0.5rem', color: '#a1a1aa' }}>LM Studio API URL</label>
