@@ -271,8 +271,14 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                         const lastId = promptIds[promptIds.length - 1];
                         const lastTask = data[lastId];
                         
+                        // Check if prompt has the required output nodes (9 or 14 typically)
+                        const promptNodes = Object.keys(lastTask.prompt?.[2] || {});
+                        if (!promptNodes.includes("9") && !promptNodes.includes("14")) {
+                            log('ERROR: Your workflow is missing the SaveImage node (ID 9). Click "Reset Workflow" below to fix!', 'error');
+                        }
+
                         if (lastTask.status?.completed) {
-                            const hasImages = Object.values(lastTask.outputs).some(o => o.images && o.images.length > 0);
+                            const hasImages = Object.values(lastTask.outputs || {}).some(o => o.images && o.images.length > 0);
                             if (hasImages) {
                                 log('Last task was SUCCESSFUL and produced images.', 'success');
                             } else {
@@ -282,7 +288,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                                 log(`Detected output nodes: ${nodeNames || 'NONE'}`, 'info');
                                 
                                 if (!nodeNames) {
-                                    log("RAW DATA (Please share this):", 'warning');
+                                    log("RAW DATA (Incomplete workflow?):", 'warning');
                                     log(JSON.stringify(lastTask).substring(0, 1000) + '...', 'info');
                                 }
                                 
@@ -609,10 +615,12 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                             Try Tailnet
                         </button>
                         <button 
-                            onClick={() => {
-                                if(window.confirm("Reset ComfyUI Workflow to factory default?")) {
-                                    setComfyWorkflow(JSON.stringify(DEFAULT_COMFY_WORKFLOW, null, 2));
-                                    setSaveToast('🔄 Workflow Reset!');
+                            onClick={async () => {
+                                if(window.confirm("Reset ComfyUI Workflow to factory default? This will SAVE immediately.")) {
+                                    const workflowStr = JSON.stringify(DEFAULT_COMFY_WORKFLOW, null, 2);
+                                    setComfyWorkflow(workflowStr);
+                                    localStorage.setItem('comfyWorkflow', workflowStr);
+                                    setSaveToast('🔄 Workflow Reset & SAVED!');
                                     setTimeout(() => setSaveToast(''), 3000);
                                 }
                             }}
