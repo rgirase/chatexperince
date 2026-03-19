@@ -824,10 +824,17 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
     const handleRequestPhoto = () => {
         if (isTyping || isSuggesting) return;
+
         const aiMessageId = Date.now().toString();
         // Construct a prompt that matches the user's request for "sexy image"
-        const appearanceMatch = persona.systemPrompt.match(/APPEARANCE:\s*([^\n.]*)/i);
+        const appearanceMatch = (persona.systemPrompt || persona.prompt).match(/APPEARANCE:\s*([^\n.]*)/i);
         const appearanceStr = appearanceMatch ? appearanceMatch[1] : "";
+        const sexyPrompt = `${appearanceStr}, wearing a very sexy and revealing outfit, highly provocative pose, seductive gaze, bedroom setting, cinematic lighting`;
+        
+        generateSelfie(sexyPrompt, persona, aiMessageId);
+    };
+
+    const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSend();
