@@ -183,9 +183,11 @@ ${injectThemeIntensity(persona, intensity)}
 Assume the role of ${charName} now. Show, don't tell.`;
 
     // DYNAMIC CONTEXT BUDGETING (Prevents "failed to find space in KV cache")
-    const totalBudget = 5000;
+    // Note: 1 token ≈ 4 characters. Most local models handle 2048-4096 tokens.
+    // We aim for a ~3000 token total request to stay safe on 4096-context models.
+    const totalBudget = 6000; // Total characters for (System + History)
     const promptLength = systemPrompt.length + primingContext.length;
-    const historyBudget = Math.max(1000, totalBudget - promptLength);
+    const historyBudget = Math.max(2000, totalBudget - promptLength);
 
     let rawHistory = trimHistory(messages, historyBudget);
     
@@ -226,7 +228,7 @@ Assume the role of ${charName} now. Show, don't tell.`;
             body: JSON.stringify({
                 model: await ensureValidModel(),
                 messages: formattedMessages,
-                max_tokens: 1200, 
+                max_tokens: 800, 
                 stream: true,
                 temperature: 0.8, // Slightly higher for more variety
                 top_p: 0.95,      // More stable than 0.9 for smaller models
