@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Plus, Trash2, Home, RefreshCw, Sparkles } from 'lucide-react';
-import { fetchAvailableModels } from '../services/llm';
+import { fetchAvailableModels, getLmStudioUrl, getSdUrl } from '../services/llm';
 
 import { DEFAULT_LM_STUDIO_URL, DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_LM_STUDIO_MODEL, DEFAULT_COMFY_WORKFLOW } from '../config';
 
@@ -169,9 +169,17 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
     const testEndpoint = async (type, url) => {
         setTestResults(prev => ({ ...prev, [url]: { status: 'loading' } }));
         const urlBase = url.replace(/\/$/, '');
-        let testUrl = type === 'lm' 
-            ? `${urlBase}/models` 
-            : (imageEngine === 'comfyui' ? `${urlBase}/system_stats` : `${urlBase}/sdapi/v1/options`);
+        
+        let testUrl;
+        if (type === 'lm') {
+            // Use the same proxy logic as the LLM service
+            const resolvedUrl = getLmStudioUrl(url);
+            testUrl = resolvedUrl.replace('/chat/completions', '/models');
+        } else {
+            // Use the proxy logic for SD as well
+            const resolvedUrl = getSdUrl(url);
+            testUrl = imageEngine === 'comfyui' ? `${resolvedUrl}/system_stats` : `${resolvedUrl}/sdapi/v1/options`;
+        }
 
         try {
             const res = await fetch(testUrl);
@@ -181,6 +189,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                 setTestResults(prev => ({ ...prev, [url]: { status: 'error', message: `Status ${res.status}` } }));
             }
         } catch (e) {
+            console.error(`Test failed for ${testUrl}:`, e);
             setTestResults(prev => ({ ...prev, [url]: { status: 'error', message: 'Offline' } }));
         }
     };
@@ -235,6 +244,27 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                     if (sdUrl.includes('192.168.')) log('TIP: You are using local IP. If on PC, try 127.0.0.1.', 'info');
                     log(`Your Tailscale IP is: 100.87.53.100`, 'info');
                 }
+            }
+
+            // 1.5 LM Studio Check
+            log(`Testing reachability for LM Studio at ${lmStudioUrl}...`);
+            const lmStartTime = Date.now();
+            let isLmReachable = false;
+            try {
+                // Try the proxied version
+                const resolvedUrl = getLmStudioUrl(lmStudioUrl);
+                const testUrl = resolvedUrl.replace('/chat/completions', '/models');
+                const lmRes = await fetchWithTimeout(testUrl, {}, 3000);
+                if (lmRes.ok) {
+                    isLmReachable = true;
+                    log(`LM Studio OK (${Date.now() - lmStartTime}ms) - Models found.`);
+                } else {
+                    log(`LM Studio answered with Status ${lmRes.status}.`, 'warning');
+                }
+            } catch (e) {
+                log(`LM Studio unreachable or CORS issue. Error: ${e.message}`, 'error');
+                if (lmStudioUrl.includes('192.168.')) log('TIP: If LM Studio is on the SAME PC, use "Try Localhost (LM)" button below.', 'info');
+                log('TIP: Ensure LM Studio server is started AND "CORS" is toggled ON in LM Studio settings.', 'warning');
             }
 
             // 2. ComfyUI API & Model Check
@@ -430,8 +460,23 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                             placeholder="http://192.168.86.28:1234/v1"
                             style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
                         />
-                        <button onClick={handleTestLmStudio} style={{ padding: '0.75rem', borderRadius: '8px', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid #22c55e', cursor: 'pointer' }}>
-                            Test
+                        <button 
+                            onClick={handleTestLmStudio} 
+                            disabled={testResults[lmStudioUrl]?.status === 'loading'}
+                            style={{ 
+                                padding: '0.75rem', borderRadius: '8px', 
+                                background: testResults[lmStudioUrl]?.status === 'success' ? 'rgba(34, 197, 94, 0.2)' : (testResults[lmStudioUrl]?.status === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)'), 
+                                color: testResults[lmStudioUrl]?.status === 'success' ? '#22c55e' : (testResults[lmStudioUrl]?.status === 'error' ? '#ef4444' : '#22c55e'), 
+                                border: `1px solid ${testResults[lmStudioUrl]?.status === 'success' ? '#22c55e' : (testResults[lmStudioUrl]?.status === 'error' ? '#ef4444' : '#22c55e')}`, 
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                minWidth: '80px',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            {testResults[lmStudioUrl]?.status === 'loading' ? <RefreshCw size={16} className="spin" /> : (testResults[lmStudioUrl]?.status === 'success' ? 'Online' : (testResults[lmStudioUrl]?.status === 'error' ? 'Offline' : 'Test'))}
                         </button>
                     </div>
                     
@@ -510,8 +555,23 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                             placeholder="http://192.168.86.28:8000"
                             style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
                         />
-                        <button onClick={handleTestSd} style={{ padding: '0.75rem', borderRadius: '8px', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid #22c55e', cursor: 'pointer' }}>
-                            Test
+                        <button 
+                            onClick={handleTestSd} 
+                            disabled={testResults[sdUrl]?.status === 'loading'}
+                            style={{ 
+                                padding: '0.75rem', borderRadius: '8px', 
+                                background: testResults[sdUrl]?.status === 'success' ? 'rgba(34, 197, 94, 0.2)' : (testResults[sdUrl]?.status === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)'), 
+                                color: testResults[sdUrl]?.status === 'success' ? '#22c55e' : (testResults[sdUrl]?.status === 'error' ? '#ef4444' : '#22c55e'), 
+                                border: `1px solid ${testResults[sdUrl]?.status === 'success' ? '#22c55e' : (testResults[sdUrl]?.status === 'error' ? '#ef4444' : '#22c55e')}`, 
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                minWidth: '80px',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            {testResults[sdUrl]?.status === 'loading' ? <RefreshCw size={16} className="spin" /> : (testResults[sdUrl]?.status === 'success' ? 'Online' : (testResults[sdUrl]?.status === 'error' ? 'Offline' : 'Test'))}
                         </button>
                     </div>
                     
@@ -613,16 +673,28 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                             {isTroubleshooting ? 'Running...' : '🔍 Launch Troubleshooter'}
                         </button>
                         <button 
-                            onClick={() => { setSdUrl('http://127.0.0.1:8188'); setSaveToast('📍 Switched to Localhost!'); setTimeout(() => setSaveToast(''), 3000); }}
+                            onClick={() => { setSdUrl('http://127.0.0.1:8188'); setSaveToast('📍 Switched SD to Localhost!'); setTimeout(() => setSaveToast(''), 3000); }}
                             style={{ flex: '1 1 100px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#a1a1aa', border: '1px solid #3f3f46', cursor: 'pointer', fontSize: '0.75rem' }}
                         >
-                            Try Localhost
+                            Try Localhost (SD)
                         </button>
                         <button 
-                            onClick={() => { setSdUrl('http://100.87.53.100:8188'); setSaveToast('🌐 Switched to Tailscale!'); setTimeout(() => setSaveToast(''), 3000); }}
+                            onClick={() => { setLmStudioUrl('http://localhost:1234/v1'); setSaveToast('📍 Switched LM to Localhost!'); setTimeout(() => setSaveToast(''), 3000); }}
+                            style={{ flex: '1 1 100px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(192, 132, 252, 0.1)', color: '#c084fc', border: '1px solid #c084fc', cursor: 'pointer', fontSize: '0.75rem' }}
+                        >
+                            Try Localhost (LM)
+                        </button>
+                        <button 
+                            onClick={() => { setSdUrl('http://100.87.53.100:8188'); setSaveToast('🌐 Switched SD to Tailscale!'); setTimeout(() => setSaveToast(''), 3000); }}
                             style={{ flex: '1 1 100px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#a1a1aa', border: '1px solid #3f3f46', cursor: 'pointer', fontSize: '0.75rem' }}
                         >
-                            Try Tailnet
+                            Try Tailnet (SD)
+                        </button>
+                        <button 
+                            onClick={() => { setLmStudioUrl('http://100.87.53.100:1234/v1'); setSaveToast('🌐 Switched LM to Tailscale!'); setTimeout(() => setSaveToast(''), 3000); }}
+                            style={{ flex: '1 1 100px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(192, 132, 252, 0.1)', color: '#c084fc', border: '1px solid #c084fc', cursor: 'pointer', fontSize: '0.75rem' }}
+                        >
+                            Try Tailnet (LM)
                         </button>
                         <button 
                             onClick={async () => {

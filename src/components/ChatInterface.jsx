@@ -308,6 +308,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             return { count: 0, lastLocation: 'Never', history: [] };
         }
     });
+    const [isAnalyzingIntimacy, setIsAnalyzingIntimacy] = useState(false);
     const currentScene = SCENES[currentSceneId] || SCENES.default;
 
     const getIntensityPrompt = (level) => {
@@ -886,7 +887,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     // SITUATIONAL AWARENESS TICK
                     setMessageCountForScene(prev => {
                         const newCount = prev + 1;
-                        if (newCount >= 8) {
+                        if (newCount >= 4) {
                             // Run both scene summary and encounter analysis
                             extractSceneSummary(persona, [...context, { role: 'ai', content: fullText }]).then(summary => {
                                 if (summary) {
@@ -943,6 +944,42 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         setIsTyping(false);
     }
 };
+
+    const handleScanIntimacy = async () => {
+        if (isAnalyzingIntimacy) return;
+        setIsAnalyzingIntimacy(true);
+        try {
+            // Scan last 15 messages for any missed intimacy
+            const result = await analyzeIntimateEncounter(persona, messages);
+            if (result && result.detected) {
+                // Check if this specific memory is already in history to avoid duplicates
+                const isDuplicate = encounterStats.history?.some(h => h.summary === result.summary);
+                if (!isDuplicate) {
+                    setEncounterStats(prev => ({
+                        count: prev.count + 1,
+                        lastLocation: result.location || prev.lastLocation,
+                        history: [
+                            {
+                                timestamp: new Date().toISOString(),
+                                location: result.location,
+                                summary: result.summary
+                            },
+                            ...(prev.history || [])
+                        ].slice(0, 10)
+                    }));
+                    showToast("Intimacy found and recorded!", "success");
+                } else {
+                    showToast("No new intimacy detected since last scan.", "info");
+                }
+            } else {
+                showToast("No intimacy detected in recent chat.", "info");
+            }
+        } catch (e) {
+            showToast("Scan failed. Try again later.");
+        } finally {
+            setIsAnalyzingIntimacy(false);
+        }
+    };
 
     const saveMemorableMoment = (persona, content, image) => {
         let moments = [];
@@ -1911,8 +1948,17 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                     <h3 style={{ margin: 0, fontSize: '0.9rem', color: '#ec4899', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <Flame size={18} /> Shared Intimacy
                                     </h3>
-                                    <div style={{ background: 'rgba(236, 72, 153, 0.2)', padding: '4px 12px', borderRadius: '20px', color: '#ec4899', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                                        {encounterStats.count} {encounterStats.count === 1 ? 'Encounter' : 'Encounters'}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <button 
+                                            onClick={handleScanIntimacy}
+                                            disabled={isAnalyzingIntimacy}
+                                            style={{ fontSize: '0.7rem', background: 'rgba(236, 72, 153, 0.1)', border: '1px solid rgba(236, 72, 153, 0.2)', color: '#ec4899', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        >
+                                            <RotateCcw size={10} className={isAnalyzingIntimacy ? "spin-animation" : ""} /> {isAnalyzingIntimacy ? "Scanning..." : "Scan Now"}
+                                        </button>
+                                        <div style={{ background: 'rgba(236, 72, 153, 0.2)', padding: '4px 12px', borderRadius: '20px', color: '#ec4899', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                                            {encounterStats.count} {encounterStats.count === 1 ? 'Encounter' : 'Encounters'}
+                                        </div>
                                     </div>
                                 </div>
                                 

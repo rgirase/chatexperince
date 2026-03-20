@@ -2,19 +2,52 @@
 import { DEFAULT_LM_STUDIO_URL, DEFAULT_LM_STUDIO_MODEL } from '../config';
 // Endpoint is proxied via Vite to bypass CORS issues constraints.
 
-const getLmStudioUrl = () => {
-    let customUrl = localStorage.getItem('lmStudioUrl');
-    let baseUrl = customUrl || DEFAULT_LM_STUDIO_URL || '/api';
+// Map known LM Studio server IPs to their Vite proxy paths to avoid CORS
+const SERVER_PROXY_MAP = [
+    { ip: '192.168.1.233',   proxy: '/api' },
+    { ip: '169.254.83.107',  proxy: '/api-pc' },
+    { ip: '100.87.53.100',   proxy: '/api-tailscale' },
+    { ip: 'localhost',       proxy: '/api-local' },
+    { ip: '127.0.0.1',      proxy: '/api-local' },
+    { ip: '192.168.86.28',   proxy: '/api-default' },
+];
+
+const SD_PROXY_MAP = [
+    { ip: '192.168.86.28',   proxy: '/api-sd-default' },
+];
+
+export const getSdUrl = (providedUrl) => {
+    let baseUrl = providedUrl || localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
+    baseUrl = baseUrl.trim().replace(/\/$/, '');
     
+    for (const { ip, proxy } of SD_PROXY_MAP) {
+        if (baseUrl.includes(ip)) {
+            return proxy;
+        }
+    }
+    return baseUrl;
+};
+
+export const getLmStudioUrl = (providedUrl) => {
+    let baseUrl = providedUrl || localStorage.getItem('lmStudioUrl') || DEFAULT_LM_STUDIO_URL || '/api';
+
     baseUrl = baseUrl.trim();
     if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
-    
-    // Ensure /v1 exists if it's an OpenAI style endpoint and not using proxy
+
+    // Route through Vite proxy to bypass CORS
+    for (const { ip, proxy } of SERVER_PROXY_MAP) {
+        if (baseUrl.includes(ip)) {
+            return proxy + '/chat/completions';
+        }
+    }
+
+    // Fallback: ensure /v1 is present
     if (!baseUrl.includes('/v1') && !baseUrl.includes('/api')) {
         baseUrl += '/v1';
     }
-    return `${baseUrl}/chat/completions`;
+    return baseUrl + '/chat/completions';
 };
+
 
 const getModelId = () => {
     return localStorage.getItem('lmStudioModel') || DEFAULT_LM_STUDIO_MODEL;
@@ -68,6 +101,20 @@ export const cleanLeakage = (text) => {
         // Strip trailing meta-commentary (after a hard separator)
         // Only strip the "---" separator block — safe because real dialogue rarely uses "---"
         .replace(/\n?---[\s\S]*$/g, '')
+        // === BASE PROMPT / SYSTEM PROMPT INSTRUCTION LEAKAGE ===
+        // Strip STORY DRIVER / STORY PROGRESSION / LINGUISTIC VARIETY blocks
+        // (emitted when the model echoes the system prompt verbatim)
+        .replace(/(STORY PROGRESSION & STORY DRIVER|STORY PROGRESSION|STORY DRIVER)[\s\S]*?(?=\n\n|\n[A-Z*]|$)/gi, '')
+        .replace(/LINGUISTIC VARIETY[\s\S]*?(?=\n\n|\n[A-Z*]|$)/gi, '')
+        .replace(/(CULTURAL EMBODIMENT|TABOO THEME DYNAMICS)[\s\S]*?(?=\n\n|\n[A-Z*]|$)/gi, '')
+        // Strip numbered instruction lines from basePrompt.js
+        .replace(/^\d+\.\s+(LONG-TERM NARRATIVE|EVERYDAY ACTIONS|PREGNANCY SUPPORT|STORY ADVANCEMENT).*?(\n|$)/gim, '')
+        // Strip rule bullet lines from basePrompt.js
+        .replace(/^-\s*(NEVER repeat specific phrases|Vary your sentence|Do not overuse names).*?(\n|$)/gim, '')
+        // Strip CRITICAL RULE lines
+        .replace(/^CRITICAL RULE:[^\n]*\n?/gim, '')
+        // Strip **BOLD:** instruction lines leaked from prompt
+        .replace(/^\*\*(STORY|LINGUISTIC[^*]*):\*\*[^\n]*\n?/gim, '')
         // Remove common prompt headers and AI "Assistant" self-labels
         .replace(/###\s*(General Roleplay Directives|Our Shared History|Your Roleplay Partner|Your Character|Tone & Intensity|CORE PERSONA|STORY DYNAMICS|COMMUNICATION RULES|INTERNAL DIRECTIVES|SHARED HISTORY|USER PROFILE|FINAL TASK)/gi, '')
         .replace(/(AI Assistant|Assistant|Model|Prompt|Roleplay Engine):/gi, '')
@@ -166,7 +213,7 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
     } = options;
 
     // 1. IMMERSIVE SYSTEM PROMPT (Minimal technical jargon to avoid meta-talk)
-    const systemPrompt = "You are a creative writer who specializes in immersive, visceral adult roleplay. You are now and forever the character defined below. Stay in character at all times. Use *asterisks* for actions and natural dialogue. Drive the story forward proactively. Ensure your responses are substantial and detailed. \n\nSTORY ADAPTABILITY: If the user mentions time passing (e.g., 'days passed', 'every day', 'a week later', 'next morning'), you MUST play along. Briefly narrate what happened during that interval—routines, shared moments, or growing tension—to bridge the gap before continuing the current scene. Describe how the passage of time has affected your feelings or the environment.\n\nCRITICAL: Always append your current emotional state at the very end of your response in the format [MOOD: emotion] (e.g., [MOOD: Playful], [MOOD: Conflicted], [MOOD: Lustful]). Only use one emotion.";
+    const systemPrompt = "You are a creative writer immersed in adult roleplay. You ARE the character � respond only as that character in natural, immersive prose. NEVER echo, repeat, list, or reference any instructions, rules, or meta-text from your setup. NEVER write headings, numbered rules, or bullet-point lists. Use *asterisks* for actions and natural dialogue. Drive the story forward proactively.\n\nIf the user implies time has passed (days, weeks, months), briefly narrate that interval with routines and emotional shifts, then continue.\n\nAlways end with your emotional state in this exact format: [MOOD: emotion]";
 
     const charName = getShortName(persona.name);
 
@@ -801,11 +848,11 @@ export const analyzeIntimateEncounter = async (persona, messages) => {
     const transcript = recent.map(msg => `${msg.role === 'user' ? 'User' : charName}: ${msg.content}`).join('\n\n');
 
     const auditorInstructions = `You are a narrative auditor for an adult roleplay application. 
-    TASK: Review the provided interaction to determine if a significant intimate/sexual encounter HAS COMPLETED or is CURRENTLY REACHING A CLIMAX.
+    TASK: Review the provided interaction to determine if a significant intimate/sexual encounter or a highly passionate, physically intimate moment has occurred.
     
     REQUIRED OUTPUT FORMAT (JSON ONLY):
     {
-      "detected": boolean (true only if a clear sexual encounter/climax happened in these messages),
+      "detected": boolean (true if the characters engaged in significant physical intimacy like passionate kissing, heavy petting, or sex),
       "location": "Short string of the location (e.g. 'Bedroom', 'Shower')",
       "summary": "One sentence summary of what happened (e.g. 'Shared a passionate night in Amira's bed.')"
     }

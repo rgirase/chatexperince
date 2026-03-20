@@ -58,8 +58,24 @@ function App() {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed)) {
-          setCustomPersonas(parsed);
-          loadedPersonas = [...loadedPersonas, ...parsed];
+          // MIGRATION: move large base64 images out of the persona object into separate keys
+          // This prevents the customPersonas JSON blob from hitting the ~5MB localStorage limit
+          let migrated = false;
+          const migratedPersonas = parsed.map(p => {
+            if (p.image && p.image.startsWith('data:image/') && p.image.length > 200) {
+              if (!localStorage.getItem(`persona_img_${p.id}`)) {
+                try { localStorage.setItem(`persona_img_${p.id}`, p.image); } catch(e) { console.warn('Could not store persona image separately', e); }
+              }
+              migrated = true;
+              return { ...p, image: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(p.name || p.id)}` };
+            }
+            return p;
+          });
+          if (migrated) {
+            try { localStorage.setItem('customPersonas', JSON.stringify(migratedPersonas)); } catch(e) {}
+          }
+          setCustomPersonas(migratedPersonas);
+          loadedPersonas = [...loadedPersonas, ...migratedPersonas];
         }
       }
     } catch (e) {
@@ -67,11 +83,14 @@ function App() {
       localStorage.removeItem('customPersonas');
     }
 
-    // Apply image overrides from localStorage
+    // Apply image overrides from localStorage (validate before using)
     loadedPersonas = loadedPersonas.map(p => {
       try {
         const savedImg = localStorage.getItem(`persona_img_${p.id}`);
-        if (savedImg) return { ...p, image: savedImg };
+        // Accept: data URLs, http/https URLs, reject blank or old /assets/ local path overrides
+        const isValid = savedImg && savedImg.length > 10 &&
+          (savedImg.startsWith('data:image/') || savedImg.startsWith('http'));
+        if (isValid) return { ...p, image: savedImg };
       } catch (e) { /* ignore */ }
       return p;
     });
@@ -225,10 +244,12 @@ function App() {
   const getProcessedPersonas = () => {
     let loadedPersonas = [...defaultPersonas, ...customPersonas];
     return loadedPersonas.map(p => {
-      const savedImg = localStorage.getItem(`persona_img_${p.id}`);
-      if (savedImg) {
-        return { ...p, image: savedImg };
-      }
+      try {
+        const savedImg = localStorage.getItem(`persona_img_${p.id}`);
+        const isValid = savedImg && savedImg.length > 10 &&
+          (savedImg.startsWith('data:image/') || savedImg.startsWith('http'));
+        if (isValid) return { ...p, image: savedImg };
+      } catch (e) { /* ignore */ }
       return p;
     });
   };

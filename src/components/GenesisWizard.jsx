@@ -51,10 +51,18 @@ const GenesisWizard = ({ onPersonaCreated, onGoHome }) => {
     const handleFinalize = () => {
         if (!generatedPersona) return;
         
+        const personaId = 'custom_' + Date.now();
+        const fallbackImage = `https://api.dicebear.com/7.x/initials/svg?seed=${generatedPersona.name}`;
+        
+        // Store the base64 image separately to avoid bloating the customPersonas JSON
+        if (profileImage && profileImage.startsWith('data:image/')) {
+            localStorage.setItem(`persona_img_${personaId}`, profileImage);
+        }
+        
         const newPersona = {
-            id: 'custom_' + Date.now(),
+            id: personaId,
             ...generatedPersona,
-            image: profileImage || `https://api.dicebear.com/7.x/initials/svg?seed=${generatedPersona.name}`,
+            image: profileImage || fallbackImage,
             gallery: profileImage ? [profileImage] : []
         };
         
