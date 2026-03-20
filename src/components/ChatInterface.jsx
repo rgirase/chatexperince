@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, Users, MoreVertical, FastForward, StopCircle, Home, Clipboard, Image as ImageIcon, Camera, RotateCcw, Gift, Shirt, Book, History, Info, Save, Download, Sparkles } from 'lucide-react';
-import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage, generateDiaryEntry, extractSceneSummary, generateVisualPrompt } from '../services/llm';
+import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage, generateDiaryEntry, extractSceneSummary, generateVisualPrompt, analyzeIntimateEncounter } from '../services/llm';
 import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_COMFY_WORKFLOW } from '../config';
 import { saveMilestone, getMemories, clearMemories, deleteMilestone } from '../services/memory';
 import { SCENES, detectSceneId } from '../data/scenes';
@@ -286,7 +286,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             return null;
         }
     });
-    const [currentSituation, setCurrentSituation] = useState(() => localStorage.getItem(`situation_${persona.id}`) || 'Starting a new conversation...');
+    const [currentSituation, setCurrentSituation] = useState(() => localStorage.getItem(`situation_${persona.id}`) || persona.tagline || 'Starting a new conversation...');
     const [isEditingSituation, setIsEditingSituation] = useState(false);
     const [situationInput, setSituationInput] = useState(currentSituation);
     const [messageCountForScene, setMessageCountForScene] = useState(0);
@@ -297,6 +297,15 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         } catch (e) {
             console.error(`Failed to parse traits for ${persona.id}`, e);
             return [];
+        }
+    });
+
+    const [encounterStats, setEncounterStats] = useState(() => {
+        try {
+            const saved = localStorage.getItem(`encounters_${persona.id}`);
+            return saved ? JSON.parse(saved) : { count: 0, lastLocation: 'Never', history: [] };
+        } catch (e) {
+            return { count: 0, lastLocation: 'Never', history: [] };
         }
     });
     const currentScene = SCENES[currentSceneId] || SCENES.default;
@@ -392,6 +401,10 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         localStorage.setItem(`traits_${persona.id}`, JSON.stringify(traits));
     }, [traits, persona.id]);
 
+    useEffect(() => {
+        localStorage.setItem(`encounters_${persona.id}`, JSON.stringify(encounterStats));
+    }, [encounterStats, persona.id]);
+
     // Extract traits from milestones
     useEffect(() => {
         if (milestones.length > 0) {
@@ -469,6 +482,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                      // 2. Distill into Narrative Memory
                      const newMemory = await summarizeMemory(persona, memory, messagesToDigest);
                      setMemory(newMemory);
+
+                     // 3. EVICT digested messages from active state to save context tokens.
+                     // We keep message index 0 (initial intro) and everything from index 11 onwards.
+                     setMessages(prev => [prev[0], ...prev.slice(11)]);
+                     console.log(`[MemoryEngine] Digested 10 messages into long-term memory. Context optimized.`);
                  } catch (err) {
                      console.error("Memory engine failed", err);
                  } finally {
@@ -480,10 +498,40 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
      }, [messages.length, isSummarizing, memory, persona.id]); // Added persona.id to deps
 
     const handleClearChat = () => {
-        if (window.confirm("Are you sure you want to clear your chat history with " + persona.name + "?")) {
-            const initialMessage = [{ id: Date.now().toString(), role: 'ai', content: persona.initialMessage || `*I look at you with a soft smile* Hello there... I'm glad you're here.` }];
-            setMessages(initialMessage);
-            localStorage.setItem(`chat_${persona.id}`, JSON.stringify(initialMessage));
+        if (window.confirm("Are you sure you want to clear EVERYTHING for " + persona.name + "? This resets chat history, memories, score, and all stats.")) {
+            const initialMsg = { 
+                id: Date.now().toString(), 
+                role: 'ai', 
+                content: persona.initialMessage || `*I look at you with a soft smile* Hello there... I'm glad you're here.` 
+            };
+            
+            // 1. Reset State
+            setMessages([initialMsg]);
+            setMemory('');
+            setRelationshipScore(50);
+            setIntensity(3);
+            setMilestones([]);
+            setTraits([]);
+            setEncounterStats({ count: 0, lastLocation: 'Never', history: [] });
+            const initialSituation = persona.tagline || 'Starting a new conversation...';
+            setCurrentSituation(initialSituation);
+            setSituationInput(initialSituation);
+            setCurrentSceneId('default');
+            if (typeof setInvitedPersona === 'function') setInvitedPersona(null);
+
+            // 2. Clear LocalStorage
+            localStorage.setItem(`chat_${persona.id}`, JSON.stringify([initialMsg]));
+            localStorage.removeItem(`memory_${persona.id}`);
+            localStorage.removeItem(`score_${persona.id}`);
+            localStorage.removeItem(`intensity_${persona.id}`);
+            localStorage.removeItem(`milestones_${persona.id}`);
+            localStorage.removeItem(`traits_${persona.id}`);
+            localStorage.removeItem(`encounters_${persona.id}`);
+            localStorage.removeItem(`situation_${persona.id}`);
+            localStorage.removeItem(`scene_${persona.id}`);
+            localStorage.removeItem(`invited_${persona.id}`);
+            
+            if (typeof showToast === 'function') showToast("Persona data completely reset.", "success");
         }
     };
 
@@ -511,9 +559,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
         abortControllerRef.current = new AbortController();
 
-        const personaWithMemory = {
-            ...persona
-        };
+        const personaWithMemory = { ...persona, systemPrompt: (invitedPersona ? `${persona.systemPrompt}\n\n[CRITICAL: ${invitedPersona.name} has joined.]` : persona.systemPrompt) + (traits.length > 0 ? `\n\n[RECENT PERSONALITY EVOLUTION: ${traits.join(", ")}]` : "") };
 
 
         const contextWindow = messages.slice(-20); // Balanced context window for stability
@@ -544,7 +590,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 milestones: milestones.slice(-5).map(m => m.content || m.text || m),
                 intensity: intensity,
                 memory: memory,
-                currentSituation: currentSituation
+                currentSituation: currentSituation,
+                encounterStats: encounterStats
             }
         );
 
@@ -623,7 +670,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
         const personaWithMemory = {
             ...persona,
-            systemPrompt: persona.systemPrompt + isolationPrompt
+            systemPrompt: (invitedPersona ? `${persona.systemPrompt}\n\n[CRITICAL: ${invitedPersona.name} has joined. You are now BOTH ${persona.name} AND ${invitedPersona.name}. Distinguish them with names. ${invitedPersona.name}'s identity: ${invitedPersona.systemPrompt.substring(0, 1500)}]` : persona.systemPrompt) + isolationPrompt + (traits.length > 0 ? `\n\n[RECENT PERSONALITY EVOLUTION: You have developed the following traits: ${traits.join(", ")}.]` : "")
         };
 
         await generateResponse(
@@ -686,7 +733,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 milestones: milestones.slice(-5).map(m => m.content || m.text || m),
                 intensity: intensity,
                 memory: memory,
-                currentSituation: currentSituation
+                currentSituation: currentSituation,
+                encounterStats: encounterStats
             }
         );
 
@@ -839,12 +887,33 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     setMessageCountForScene(prev => {
                         const newCount = prev + 1;
                         if (newCount >= 8) {
+                            // Run both scene summary and encounter analysis
                             extractSceneSummary(persona, [...context, { role: 'ai', content: fullText }]).then(summary => {
                                 if (summary) {
                                     setCurrentSituation(summary);
                                     setSituationInput(summary);
                                 }
                             });
+
+                            // Intimacy Detection
+                            analyzeIntimateEncounter(persona, [...context, { role: 'ai', content: fullText }]).then(result => {
+                                if (result && result.detected) {
+                                    setEncounterStats(prev => ({
+                                        count: prev.count + 1,
+                                        lastLocation: result.location || prev.lastLocation,
+                                        history: [
+                                            {
+                                                timestamp: new Date().toISOString(),
+                                                location: result.location,
+                                                summary: result.summary
+                                            },
+                                            ...(prev.history || [])
+                                        ].slice(0, 10) // Keep last 10
+                                    }));
+                                    showToast("New Intimate Memory Unlocked", "success");
+                                }
+                            });
+
                             return 0;
                         }
                         return newCount;
@@ -866,7 +935,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 milestones: milestones.slice(-5).map(m => m.content || m.text || m),
                 intensity: intensity,
                 memory: memory,
-                currentSituation: currentSituation
+                currentSituation: currentSituation,
+                encounterStats: encounterStats
             }
         );
     } catch (e) {
@@ -1833,6 +1903,34 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                 <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.7rem', color: '#71717a' }}>
                                     This summary is always sent to the AI, ensuring it never forgets the major plot points of your roleplay.
                                 </p>
+                            </div>
+
+                            {/* Shared Intimacy Section */}
+                            <div style={{ marginBottom: '2rem', padding: '1.25rem', background: 'rgba(236, 72, 153, 0.05)', border: '1px solid rgba(236, 72, 153, 0.2)', borderRadius: '16px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                    <h3 style={{ margin: 0, fontSize: '0.9rem', color: '#ec4899', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Flame size={18} /> Shared Intimacy
+                                    </h3>
+                                    <div style={{ background: 'rgba(236, 72, 153, 0.2)', padding: '4px 12px', borderRadius: '20px', color: '#ec4899', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                                        {encounterStats.count} {encounterStats.count === 1 ? 'Encounter' : 'Encounters'}
+                                    </div>
+                                </div>
+                                
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#d4d4d8', fontSize: '0.85rem', marginBottom: '1rem' }}>
+                                    <MapPin size={14} color="#71717a" />
+                                    <span>Last Location: <strong style={{ color: '#fff' }}>{encounterStats.lastLocation}</strong></span>
+                                </div>
+
+                                {encounterStats.history && encounterStats.history.length > 0 && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                                        <p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Recent Memories</p>
+                                        {encounterStats.history.slice(0, 3).map((h, i) => (
+                                            <div key={i} style={{ padding: '8px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', fontSize: '0.8rem', color: '#a1a1aa', borderLeft: '2px solid rgba(236, 72, 153, 0.3)' }}>
+                                                "{h.summary}" — <span style={{ fontSize: '0.7rem' }}>{new Date(h.timestamp).toLocaleDateString()}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             <h3 style={{ margin: '0 0 1rem 0', fontSize: '0.9rem', color: '#10b981', display: 'flex', alignItems: 'center', gap: '6px' }}>

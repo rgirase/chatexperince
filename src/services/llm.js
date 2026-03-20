@@ -22,10 +22,10 @@ const getModelId = () => {
 
 // --- CONTEXT BUDGETING ---
 // 1 token ≈ 4 characters. 
-// Standard local context is 4096 tokens (~16,000 chars).
-// We set a conservative budget to leave room for the response (max_tokens).
-const MAX_CONTEXT_CHARS = 8000; // Total (System + History) 
-const MAX_HISTORY_CHARS = 6000;  // Portion reserved for messages
+// Standard local context is 4096-8192 tokens.
+const MAX_CONTEXT_CHARS = 12000; // ~3000 tokens safe limit
+const MAX_HISTORY_CHARS = 8000;  // More history if available, but truncated safely
+const MAX_RESPONSE_TOKENS = 500; // Slightly smaller response to leave more context space
 
 // Internal helper to ensure we have a valid model
 const ensureValidModel = async () => {
@@ -80,6 +80,10 @@ export const cleanLeakage = (text) => {
         // Remove technical meta-talk phrases
         .replace(/Write your next (roleplay )?response now( based on the conversation)?\.?/gi, '')
         .replace(/Be immersive, visceral, and creative\.?/gi, '')
+        // === JSON/AUDITOR LEAKAGE CLEANUP ===
+        // Strip any background JSON auditor blocks (detected/location/summary)
+        .replace(/\{"detected":\s*(true|false),.*?\}/gi, '')
+        .replace(/\{"detected":\s*(true|false),.*?$/gi, '') // Truncated JSON
         // STRIP CONTROL CHARACTERS AND SPECIAL TOKENS (preserve newlines and tabs!)
         .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '') 
         .replace(/<SPECIAL_\d+>/gi, '') 
@@ -124,12 +128,16 @@ const injectCulturalTraits = (persona) => {
     const { origin, culturalTraits } = persona;
     const { languageHabits, values, traditions } = culturalTraits;
 
+    const isSouthAsian = origin.toLowerCase().includes('indian') || 
+                        origin.toLowerCase().includes('pakistani') || 
+                        origin.toLowerCase().includes('bangladeshi');
+
     return `
 CULTURAL EMBODIMENT:
 - Identity: ${origin} character who follows these habits: ${languageHabits}.
 - Core Values: ${values}.
 - Traditions: ${traditions}.
-- CRITICAL NARRATIVE RULE: Maintain full continuity of the current scene and environment. Use Hinglish/Hindi terms naturally for emotional flavor, but ensure the core narrative actions and dialogue remain clear and progress the story in English.
+- CRITICAL NARRATIVE RULE: Maintain full continuity of the current scene and environment. ${isSouthAsian ? 'Use Hinglish/Hindi terms naturally for emotional flavor, but ensure the core narrative actions and dialogue remain clear and progress the story in English.' : 'Ensure the core narrative actions and dialogue are clear and vivid.'}
 `;
 };
 
@@ -184,8 +192,9 @@ Current Dynamic:
 ${auraPrompt}${situationPrompt}
 
 Story Context:
-${memory ? "The story so far: " + memory : "The scene begins now."}
-${milestones.length > 0 ? "Shared Relationship Milestones: " + milestones.join(". ") : ""}
+${memory ? "The story so far: " + memory : "Initial Scenario: " + (persona.tagline || "The interaction begins now.") }
+${milestones.length > 0 ? "Shared Relationship Milestones: " + milestones.slice(-5).join(". ") : ""}
+${options.encounterStats?.count > 0 ? `Shared Intimacy: We have had ${options.encounterStats.count} intimate encounter(s). The last one was ${options.encounterStats.lastLocation ? "at " + options.encounterStats.lastLocation : "recently"}.` : ""}
 
 My Details:
 ${localStorage.getItem('userName') ? "My Name: " + localStorage.getItem('userName') : ""}
@@ -202,15 +211,24 @@ Assume the role of ${charName} now. Show, don't tell.`;
 
     let rawHistory = trimHistory(messages, historyBudget);
     
-    // Ensure history starts with a USER message for Jinja safety
-    while (rawHistory.length > 0 && rawHistory[0].role !== 'user') {
-        rawHistory.shift();
+    // Convert to simplified role format and ensure alternating roles for Jinja templates
+    let safeMessages = [];
+    for (let msg of rawHistory) {
+        const role = msg.role === 'user' ? 'user' : 'assistant';
+        const content = cleanLeakage(msg.content);
+        
+        if (safeMessages.length > 0 && safeMessages[safeMessages.length - 1].role === role) {
+            // Merge consecutive same-role messages
+            safeMessages[safeMessages.length - 1].content += "\n\n" + content;
+        } else {
+            safeMessages.push({ role, content });
+        }
     }
 
-    const safeMessages = rawHistory.map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'assistant',
-        content: cleanLeakage(msg.content)
-    }));
+    // Ensure it starts with a USER message to satisfy common model requirements
+    if (safeMessages.length > 0 && safeMessages[0].role !== 'user') {
+        safeMessages.unshift({ role: 'user', content: "[Starting the interaction.]" });
+    }
 
     const formattedMessages = [
         { 
@@ -240,7 +258,7 @@ Assume the role of ${charName} now. Show, don't tell.`;
             body: JSON.stringify({
                 model: await ensureValidModel(),
                 messages: formattedMessages,
-                max_tokens: 800, 
+                max_tokens: MAX_RESPONSE_TOKENS, 
                 stream: true,
                 temperature: 0.8,
                 top_p: 0.95,
@@ -635,6 +653,197 @@ export const generateDiaryEntry = async (persona, messages) => {
         return cleanLeakage(content.trim());
     } catch (error) {
         console.error("Error generating diary entry:", error);
+        return null;
+    }
+};
+
+export const generatePersonaGenesis = async (description) => {
+    const url = getLmStudioUrl();
+    
+    const prompt = `You are an expert AI persona architect.
+    Task: Transform the following brief idea into a fully fleshed-out, high-quality roleplay persona.
+    
+    User Idea: "${description}"
+    
+    REQUIRED OUTPUT JSON FORMAT:
+    {
+      "name": "Full Name (and title/role)",
+      "tagline": "A one-sentence captivating hook",
+      "initialMessage": "A vivid, first-person opening message using *asterisks* for actions",
+      "systemPrompt": "A deep, structured system prompt focusing on APPEARANCE, BACKSTORY, and BEHAVIOR. Aim for detailed, immersive roleplay quality (150-250 words).",
+      "visualPrompt": "A comma-separated list of visual tags for an AI image generator (e.g., 'blonde hair, wearing a lab coat, clinical office background, photorealistic')"
+    }
+    
+    RULES:
+    - Return ONLY the JSON. 
+    - No markdown formatting or extra text.
+    - Ensure the persona is roleplay-ready and adult-oriented.
+    - BE CONCISE BUT DESCRIPTIVE.`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: await ensureValidModel(),
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.8,
+                max_tokens: 2000,
+                stream: false,
+            }),
+        });
+
+        if (!response.ok) throw new Error("Failed to generate persona");
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content || "";
+        
+        try {
+            // Robust JSON extraction
+            const jsonMatch = content.match(/\{[\s\S]*\}/);
+            const jsonStr = jsonMatch ? jsonMatch[0] : content;
+            
+            // Basic cleanup for common AI JSON mistakes
+            const cleaned = jsonStr
+                .replace(/\\n/g, "\n")
+                .replace(/\\"/g, '"')
+                .trim();
+                
+            return JSON.parse(cleaned);
+        } catch (parseError) {
+            console.error("Genesis Parse Error. Raw content:", content);
+            // Fallback: try to manually extract fields if JSON.parse fails completely
+            // but for now, we'll just return null to trigger the retry UI
+            return null;
+        }
+    } catch (error) {
+        console.error("Genesis Connection Error:", error);
+        return null;
+    }
+};
+
+export const generateProfileImage = async (visualPrompt, personaName) => {
+    const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
+    const imageEngine = localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE;
+    
+    // Ensure we are getting a portrait mode image
+    const fullPrompt = `masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, portrait, headshot of ${personaName}, ${visualPrompt}`;
+    const negativePrompt = "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature";
+
+    try {
+        if (imageEngine === 'a1111' || imageEngine === 'drawthings') {
+            const response = await fetch(`${sdUrl.replace(/\/$/, '')}/sdapi/v1/txt2img`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: fullPrompt,
+                    negative_prompt: negativePrompt,
+                    steps: 25,
+                    width: 512,
+                    height: 768
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                return `data:image/png;base64,${data.images[0]}`;
+            }
+        } else if (imageEngine === 'comfyui') {
+            let comfyWorkflow = localStorage.getItem('comfyWorkflow');
+            if (!comfyWorkflow || !comfyWorkflow.includes('3')) {
+                comfyWorkflow = JSON.stringify(DEFAULT_COMFY_WORKFLOW);
+            }
+            const workflowObj = JSON.parse(comfyWorkflow);
+            if (workflowObj["6"]) workflowObj["6"].inputs.text = fullPrompt;
+            if (workflowObj["3"]) workflowObj["3"].inputs.seed = Math.floor(Math.random() * 1000000);
+
+            const queueRes = await fetch(`${sdUrl.replace(/\/$/, '')}/prompt`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: workflowObj })
+            });
+            const queueData = await queueRes.json();
+            const promptId = queueData.prompt_id;
+
+            let attempts = 0;
+            while (attempts < 60) {
+                await new Promise(r => setTimeout(r, 2000));
+                attempts++;
+                const histRes = await fetch(`${sdUrl.replace(/\/$/, '')}/history/${promptId}`);
+                const histData = await histRes.json();
+                if (histData[promptId]) {
+                    const outputs = histData[promptId].outputs;
+                    for (const nodeId in outputs) {
+                        if (outputs[nodeId].images && outputs[nodeId].images.length > 0) {
+                            const imgParams = outputs[nodeId].images[0];
+                            const viewRes = await fetch(`${sdUrl.replace(/\/$/, '')}/view?${new URLSearchParams(imgParams).toString()}`);
+                            const blob = await viewRes.blob();
+                            return await new Promise((resolve) => {
+                                const reader = new FileReader();
+                                reader.onloadend = () => resolve(reader.result);
+                                reader.readAsDataURL(blob);
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    } catch (e) {
+        console.error('Profile Image Generation Error:', e);
+        return null;
+    }
+};
+export const analyzeIntimateEncounter = async (persona, messages) => {
+    const charName = getShortName(persona.name);
+    const url = getLmStudioUrl();
+    // last 15 messages for full scene context
+    const recent = messages.slice(-15);
+    const transcript = recent.map(msg => `${msg.role === 'user' ? 'User' : charName}: ${msg.content}`).join('\n\n');
+
+    const auditorInstructions = `You are a narrative auditor for an adult roleplay application. 
+    TASK: Review the provided interaction to determine if a significant intimate/sexual encounter HAS COMPLETED or is CURRENTLY REACHING A CLIMAX.
+    
+    REQUIRED OUTPUT FORMAT (JSON ONLY):
+    {
+      "detected": boolean (true only if a clear sexual encounter/climax happened in these messages),
+      "location": "Short string of the location (e.g. 'Bedroom', 'Shower')",
+      "summary": "One sentence summary of what happened (e.g. 'Shared a passionate night in Amira's bed.')"
+    }
+    
+    RULES:
+    - Respond ONLY with the JSON.
+    - Be objective. If it's just flirting or heavy petting without a "completion," set detected to false.
+    - If detected is false, location and summary can be empty strings.`;
+
+    const interactionPrompt = `Transcript of recent interaction between the User and ${charName}:
+    ${transcript}
+    
+    Perform the audit now and return ONLY the JSON.`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: await ensureValidModel(),
+                messages: [
+                    { role: "system", content: auditorInstructions },
+                    { role: "user", content: interactionPrompt }
+                ],
+                temperature: 0.1,
+                max_tokens: 150,
+                stream: false,
+            }),
+        });
+
+        if (!response.ok) return null;
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content || "";
+        
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        return JSON.parse(jsonMatch ? jsonMatch[0] : content);
+    } catch (error) {
+        console.error("Encounter Analysis Error:", error);
         return null;
     }
 };

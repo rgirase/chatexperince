@@ -1,3 +1,23 @@
+/* Premium Animations */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 5px rgba(168, 85, 247, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.5); }
+  100% { box-shadow: 0 0 5px rgba(168, 85, 247, 0.2); }
+}
+
+.genesis-nav-icon.active {
+  animation: pulse-glow 2s infinite;
+}
+
 :root {
   --bg-color: #050507;
   --panel-bg: rgba(18, 18, 23, 0.6);

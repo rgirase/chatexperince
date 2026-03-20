@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Plus, Trash2, Home, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, Home, RefreshCw, Sparkles } from 'lucide-react';
 import { fetchAvailableModels } from '../services/llm';
 
 import { DEFAULT_LM_STUDIO_URL, DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_LM_STUDIO_MODEL, DEFAULT_COMFY_WORKFLOW } from '../config';
@@ -657,14 +657,29 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
 
             <div className="glass-panel" style={{ padding: '2rem', marginTop: '2rem' }}>
                 <h2 style={{ marginBottom: '1.5rem', color: '#c084fc' }}>Custom Personas</h2>
-                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '12px', border: '1px solid #27272a' }}>
-                    <div style={{ display: 'grid', gap: '1rem' }}>
-                        <input type="text" placeholder="Name" value={newPersona.name} onChange={(e) => setNewPersona({ ...newPersona, name: e.target.value })} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.4)', border: '1px solid #3f3f46', color: 'white' }} />
-                        <textarea placeholder="System Prompt" value={newPersona.systemPrompt} onChange={(e) => setNewPersona({ ...newPersona, systemPrompt: e.target.value })} rows={3} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.4)', border: '1px solid #3f3f46', color: 'white', resize: 'vertical' }} />
-                        <button onClick={handleAddPersona} style={{ background: 'rgba(192, 132, 252, 0.2)', color: '#c084fc', border: '1px solid #c084fc', padding: '0.75rem', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 'bold' }}>
-                            <Plus size={18} style={{ marginRight: '8px' }} /> Create Persona
-                        </button>
+                
+                <div style={{ 
+                    background: 'rgba(168, 85, 247, 0.05)', 
+                    padding: '1.5rem', 
+                    borderRadius: '16px', 
+                    border: '1px dashed rgba(168, 85, 247, 0.3)',
+                    textAlign: 'center',
+                    marginBottom: '2rem'
+                }}>
+                    <div style={{ background: 'rgba(168, 85, 247, 0.1)', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
+                        <Sparkles size={24} color="#a855f7" />
                     </div>
+                    <h3 style={{ margin: '0 0 0.5rem 0', color: 'white' }}>Genesis Studio</h3>
+                    <p style={{ color: '#a1a1aa', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                        Use the new Genesis Studio to create high-quality AI personas with generated prompts and profile pictures.
+                    </p>
+                    <button 
+                        onClick={onGoHome}
+                        className="premium-btn" 
+                        style={{ padding: '0.6rem 1.2rem', fontSize: '0.85rem' }}
+                    >
+                        Go to Genesis Studio
+                    </button>
                 </div>
                 
                 {customPersonas.length > 0 && (

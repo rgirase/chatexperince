@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Settings as SettingsIcon, Server, Shield, Smartphone, Zap, Image as ImageIcon } from 'lucide-react';
+import { Home, Settings as SettingsIcon, Server, Shield, Smartphone, Zap, Image as ImageIcon, Sparkles } from 'lucide-react';
 import { updateAura } from './services/reputation';
 import PersonaList from './components/PersonaList';
 import ChatInterface from './components/ChatInterface';
 import Settings from './components/Settings';
 import Gallery from './components/Gallery';
+import GenesisWizard from './components/GenesisWizard';
 import { personas as defaultPersonas } from './data/personas';
 
 let hasPushedHistory = false;
@@ -268,6 +269,27 @@ function App() {
     localStorage.setItem('activeView', 'gallery');
   };
 
+  const handleOpenGenesis = () => {
+    window.history.pushState({ view: 'genesis' }, '');
+    hasPushedHistory = true;
+    setSelectedPersona(null);
+    setIsGalleryOpen(false);
+    setIsSettingsOpen(false);
+    setActiveView('genesis');
+    localStorage.setItem('activeView', 'genesis');
+  };
+
+  const handlePersonaCreated = (newPersona) => {
+    const updatedCustom = [newPersona, ...customPersonas];
+    setCustomPersonas(updatedCustom);
+    localStorage.setItem('customPersonas', JSON.stringify(updatedCustom));
+    // Switch to the new persona's chat immediately
+    setSelectedPersona(newPersona);
+    setActiveView('chat'); 
+    localStorage.setItem('activeView', 'chat');
+    localStorage.setItem('lastPersonaId', newPersona.id);
+  };
+
   const handleBack = () => {
     if (activeView === 'chat') {
       localStorage.setItem('lastPersonaTab', 'active');
@@ -446,6 +468,11 @@ function App() {
             allPersonas={getProcessedPersonas()}
             onSelectImage={handleSelectImage}
           />
+        ) : activeView === 'genesis' ? (
+          <GenesisWizard 
+            onPersonaCreated={handlePersonaCreated}
+            onGoHome={handleGoHome}
+          />
         ) : (
           <PersonaList 
             onSelectPersona={handleSelectPersona} 
@@ -475,6 +502,21 @@ function App() {
           >
             <ImageIcon size={22} color={activeView === 'gallery' ? '#a855f7' : '#71717a'} />
             <span style={{ color: activeView === 'gallery' ? '#fff' : '#71717a' }}>Gallery</span>
+          </button>
+          <button 
+            className={`nav-item ${activeView === 'genesis' ? 'active' : ''}`}
+            onClick={handleOpenGenesis}
+          >
+            <div className="genesis-nav-icon" style={{ position: 'relative' }}>
+              <Sparkles size={22} color={activeView === 'genesis' ? '#a855f7' : '#71717a'} />
+              {activeView === 'genesis' && (
+                <motion.div 
+                  layoutId="nav-pill"
+                  style={{ position: 'absolute', inset: -4, background: 'rgba(168, 85, 247, 0.15)', borderRadius: '12px', zIndex: -1 }}
+                />
+              )}
+            </div>
+            <span style={{ color: activeView === 'genesis' ? '#fff' : '#71717a' }}>Genesis</span>
           </button>
           <button 
             className={`nav-item ${activeView === 'settings' ? 'active' : ''}`}

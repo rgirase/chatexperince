@@ -17,6 +17,7 @@ const SkeletonCard = () => (
 
 const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, itemVariants }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
+    const [imageError, setImageError] = useState(false);
     const hasDiary = localStorage.getItem(`diaries_${persona.id}`);
 
     return (
@@ -27,7 +28,7 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
             whileTap={{ scale: 0.98 }}
             onClick={() => onSelectPersona(persona)}
             style={{
-                backgroundImage: imageLoaded ? `url(${persona.image})` : 'none',
+                backgroundImage: (imageLoaded && !imageError) ? `url(${persona.image})` : 'linear-gradient(135deg, #27272a, #09090b)',
                 backgroundColor: '#111',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
@@ -45,17 +46,42 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
                 className="no-select"
                 style={{ display: 'none' }} 
                 onLoad={() => setImageLoaded(true)} 
+                onError={() => {
+                    setImageError(true);
+                    setImageLoaded(true);
+                }}
                 alt=""
             />
 
             <div style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 30%, transparent 60%)',
+                background: imageError 
+                    ? 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.2) 50%, rgba(255,255,255,0.02) 100%)'
+                    : 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 30%, transparent 60%)',
                 zIndex: 1,
                 opacity: imageLoaded ? 1 : 0,
                 transition: 'opacity 0.3s ease'
             }}></div>
+
+            {imageError && (
+                <div style={{
+                    position: 'absolute',
+                    top: '40%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 1,
+                    textAlign: 'center',
+                    width: '100%',
+                    padding: '0 2rem'
+                }}>
+                    <div style={{ 
+                        fontSize: '3rem', 
+                        marginBottom: '1rem',
+                        opacity: 0.3
+                    }}>✨</div>
+                </div>
+            )}
 
             <div className="persona-info" style={{ 
                 position: 'relative', 
