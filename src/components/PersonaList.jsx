@@ -4,7 +4,8 @@ import { Search, Book, X, History, Clock, Map as MapIcon, Trash2 } from 'lucide-
 import { personas } from '../data/personas';
 import { getRandomStatus } from '../data/statusUpdates';
 import StoryMap from './StoryMap';
-import { deleteDiaryEntry } from '../services/memory';
+import { deleteDiaryEntry, getDiaries } from '../services/memory';
+import * as db from '../services/db';
 
 const SkeletonCard = () => (
     <div className="persona-card full-bleed skeleton" style={{ height: '380px', borderRadius: '16px' }}>
@@ -18,7 +19,15 @@ const SkeletonCard = () => (
 const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, itemVariants }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageError, setImageError] = useState(false);
-    const hasDiary = localStorage.getItem(`diaries_${persona.id}`);
+    const [hasDiary, setHasDiary] = useState(false);
+    
+    useEffect(() => {
+        const checkDiary = async () => {
+            const diaries = await getDiaries(persona.id);
+            setHasDiary(diaries.length > 0);
+        };
+        checkDiary();
+    }, [persona.id]);
 
     return (
         <motion.div
@@ -225,35 +234,54 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     const categories = ['All', 'Family', 'Professional', 'Modern', 'Traditional', 'Taboo'];
     const regions = ['All', 'Indian', 'American', 'Latina-American', 'European', 'East Asian'];
 
-    const getInitialActiveChats = () => {
-        const chats = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith('chat_')) {
-                const id = key.replace('chat_', '');
-                // Verify the persona exists before adding to active chats
-                const personaExists = allPersonas.find(p => p.id === id);
-                if (personaExists) {
-                    try {
-                        const chatData = JSON.parse(localStorage.getItem(key));
-                        // Only count as active if there's more than just the initial message
-                        if (Array.isArray(chatData) && chatData.length > 2) {
-                            // Use timestamp from last message for sorting
-                            const lastMsg = chatData[chatData.length - 1];
-                            const timestamp = parseInt(lastMsg.id) || 0;
-                            chats.push({ id, timestamp });
-                        }
-                    } catch (e) {
-                        // If invalid JSON, treat as inactive
+    const [activeChatIds, setActiveChatIds] = useState([]);
+
+    useEffect(() => {
+        const fetchActiveChats = async () => {
+            const active = [];
+            
+            // 1. Check Legacy LocalStorage
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('chat_')) {
+                    const id = key.replace('chat_', '');
+                    if (allPersonas.find(p => p.id === id) && !active.includes(id)) {
+                        active.push(id);
                     }
                 }
             }
-        }
-        // Sort chats by timestamp descending (most recent first)
-        return chats.sort((a, b) => b.timestamp - a.timestamp).map(c => c.id);
-    };
 
-    const [activeChatIds, setActiveChatIds] = useState(getInitialActiveChats);
+            // 2. Check IndexedDB
+            try {
+                const database = await db.openDB();
+                const transaction = database.transaction('chats', 'readonly');
+                const store = transaction.objectStore('chats');
+                const request = store.getAllKeys();
+
+                await new Promise((resolve) => {
+                    request.onsuccess = () => {
+                        const keys = request.result || [];
+                        keys.forEach(key => {
+                            if (typeof key === 'string' && key.startsWith('chat_')) {
+                                const id = key.replace('chat_', '');
+                                if (allPersonas.find(p => p.id === id) && !active.includes(id)) {
+                                    active.push(id);
+                                }
+                            }
+                        });
+                        resolve();
+                    };
+                    request.onerror = () => resolve();
+                });
+            } catch (e) {
+                console.error("IndexedDB error in PersonaList", e);
+            }
+
+            setActiveChatIds(active);
+        };
+
+        fetchActiveChats();
+    }, [allPersonas]);
     
     const [activeTab, setActiveTab] = useState(() => {
         try {

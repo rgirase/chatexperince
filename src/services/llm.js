@@ -56,9 +56,9 @@ const getModelId = () => {
 // --- CONTEXT BUDGETING ---
 // 1 token ≈ 4 characters. 
 // Standard local context is 4096-8192 tokens.
-const MAX_CONTEXT_CHARS = 12000; // ~3000 tokens safe limit
-const MAX_HISTORY_CHARS = 8000;  // More history if available, but truncated safely
-const MAX_RESPONSE_TOKENS = 500; // Slightly smaller response to leave more context space
+const MAX_CONTEXT_CHARS = 64000; // ~16,000 tokens safe limit for modern local models
+const MAX_HISTORY_CHARS = 48000; // Allows for much deeper immediate history
+const MAX_RESPONSE_TOKENS = 800; // Slightly larger response allowance
 
 // Internal helper to ensure we have a valid model
 const ensureValidModel = async () => {
@@ -290,7 +290,7 @@ Assume the role of ${charName} now. Show, don't tell.`;
         formattedMessages.push({ role: "user", content: "Hello! Let's continue our story." });
     }
 
-    const fetchTimeout = 60000; // 60s initial timeout for slower local hardware
+    const fetchTimeout = 120000; // 120s timeout for larger context/slower hardware
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), fetchTimeout);
 

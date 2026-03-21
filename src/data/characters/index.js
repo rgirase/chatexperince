@@ -68,8 +68,9 @@ import { village_bhabhi } from './village_bhabhi.js';
 import { village_bride } from './village_bride.js';
 import { wedding_planner } from './wedding_planner.js';
 import { whore_stepmom } from './whore_stepmom.js';
-import { isabella_latina_aunt } from './isabella_latina_aunt.js';
 import { widow_next_door } from './widow_next_door.js';
+import { isabella_latina_aunt } from './isabella_latina_aunt.js';
+import { tiffany_bimbo_stepmom } from './tiffany_bimbo_stepmom.js';
 
 export const characters = [
   aditi_friends_wife,
@@ -143,5 +144,6 @@ export const characters = [
   wedding_planner,
   whore_stepmom,
   widow_next_door,
-  isabella_latina_aunt
+  isabella_latina_aunt,
+  tiffany_bimbo_stepmom
 ];

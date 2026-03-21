@@ -2,11 +2,61 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Lock, X, Maximize2, MessageSquare, UserCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import galleryManifest from '../data/gallery_manifest.json';
+import * as db from '../services/db';
 
 const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
     const [selectedImage, setSelectedImage] = useState(null);
     const [activeCategory, setActiveCategory] = useState('All');
+    const [profileOverrides, setProfileOverrides] = useState({});
+    const [moments, setMoments] = useState([]);
+    const [isLoaded, setIsLoaded] = useState(false);
     
+    useEffect(() => {
+        const loadGalleryData = async () => {
+            const overrides = {};
+            const allMoments = [];
+            
+            for (const persona of allPersonas) {
+                // 1. Load Profile Overrides
+                let override = await db.getItem('settings', `persona_img_${persona.id}`);
+                if (!override) {
+                    override = localStorage.getItem(`persona_img_${persona.id}`);
+                }
+                if (override) overrides[persona.id] = override;
+
+                // 2. Load Moments
+                let pMoments = await db.getItem('memories', `moments_${persona.id}`);
+                if (!pMoments) {
+                    const localMoments = localStorage.getItem(`moments_${persona.id}`);
+                    if (localMoments) {
+                        try {
+                            pMoments = JSON.parse(localMoments);
+                            await db.setItem('memories', `moments_${persona.id}`, pMoments);
+                        } catch (e) {}
+                    }
+                }
+                if (Array.isArray(pMoments)) {
+                    pMoments.forEach(m => {
+                        allMoments.push({
+                            ...m,
+                            personaId: persona.id,
+                            personaName: persona.name,
+                            category: 'Memories',
+                            isMoment: true,
+                            url: m.image
+                        });
+                    });
+                }
+            }
+            
+            setProfileOverrides(overrides);
+            setMoments(allMoments.sort((a, b) => b.id - a.id));
+            setIsLoaded(true);
+        };
+        
+        loadGalleryData();
+    }, [allPersonas]);
+
     // Flatten all images into a single list with metadata
     const allImages = allPersonas.flatMap(persona => {
         const extraGallery = galleryManifest[persona.id] || [];
@@ -16,7 +66,7 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
             personaId: persona.id,
             personaName: persona.name,
             category: persona.category || 'Modern',
-            isProfile: (localStorage.getItem(`persona_img_${persona.id}`) || persona.image) === img,
+            isProfile: (profileOverrides[persona.id] || persona.image) === img,
             id: `${persona.id}_${idx}`
         }));
     });
@@ -27,46 +77,19 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
         activeCategory === 'All' || img.category === activeCategory
     );
 
-    const handleSetProfile = (imgObj) => {
-        if (imgObj.isMoment) return; // Can't set moments as profile directly
-        localStorage.setItem(`persona_img_${imgObj.personaId}`, imgObj.url);
+    const handleSetProfile = async (imgObj) => {
+        if (imgObj.isMoment) return;
+        await db.setItem('settings', `persona_img_${imgObj.personaId}`, imgObj.url);
+        setProfileOverrides(prev => ({ ...prev, [imgObj.personaId]: imgObj.url }));
         if (onSelectImage) onSelectImage(imgObj.personaId, imgObj.url);
-        // Update local state to show 'Check' icon
         setSelectedImage({ ...imgObj, isProfile: true });
     };
 
-    const getMemorableMoments = () => {
-        const moments = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith('moments_')) {
-                const personaId = key.replace('moments_', '');
-                const persona = allPersonas.find(p => p.id === personaId);
-                if (persona) {
-                    try {
-                        const personaMoments = JSON.parse(localStorage.getItem(key));
-                        if (Array.isArray(personaMoments)) {
-                            personaMoments.forEach(m => {
-                                moments.push({
-                                    ...m,
-                                    personaId,
-                                    personaName: persona.name,
-                                    category: 'Memories',
-                                    isMoment: true,
-                                    url: m.image // Use the image stored with the moment
-                                });
-                            });
-                        }
-                    } catch (e) {}
-                }
-            }
-        }
-        return moments.sort((a, b) => b.id - a.id);
-    };
-
     const displayItems = activeCategory === 'Memories' 
-        ? getMemorableMoments()
+        ? moments
         : filteredImages;
+
+    if (!isLoaded) return <div style={{ background: '#09090b', minHeight: '100vh' }}></div>;
 
     return (
         <div className="gallery-layout" style={{ 
@@ -106,12 +129,11 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                         Visual Library
                     </h2>
                 </div>
-                <div style={{ width: '80px' }}></div> {/* Spacer */}
+                <div style={{ width: '80px' }}></div>
             </header>
 
             {/* Content */}
             <div style={{ padding: '1.5rem' }}>
-                {/* Category Pills */}
                 <div style={{ 
                     display: 'flex', 
                     gap: '0.6rem', 
@@ -142,7 +164,6 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                     ))}
                 </div>
 
-                {/* Grid */}
                 <motion.div 
                     layout
                     style={{ 
@@ -203,7 +224,6 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                 </motion.div>
             </div>
 
-            {/* Lightbox / Full Screen View */}
             <AnimatePresence>
                 {selectedImage && (
                     <motion.div
@@ -223,7 +243,6 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                             backdropFilter: 'blur(20px)'
                         }}
                     >
-                        {/* Header Controls */}
                         <div style={{
                             padding: '1.5rem',
                             display: 'flex',
@@ -249,7 +268,6 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                             </button>
                         </div>
 
-                        {/* Image Body */}
                         <div style={{
                             flex: 1,
                             display: 'flex',
@@ -300,7 +318,6 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                             )}
                         </div>
 
-                        {/* Footer Actions */}
                         <div style={{
                             padding: '2rem 1.5rem',
                             display: 'flex',
@@ -332,10 +349,8 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
 
                             <button
                                 onClick={() => {
-                                    // logic to start chat - close gallery first then trigger select
-                                    // Since we don't have direct onSelectPersona here, we'd need to go back or handle it in App
                                     setSelectedImage(null);
-                                    onBack(); // Go back home
+                                    onBack();
                                 }}
                                 style={{
                                     flex: 1,

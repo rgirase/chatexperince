@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Plus, Trash2, Home, RefreshCw, Sparkles } from 'lucide-react';
 import { fetchAvailableModels, getLmStudioUrl, getSdUrl } from '../services/llm';
+import * as db from '../services/db';
 
 import { DEFAULT_LM_STUDIO_URL, DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_LM_STUDIO_MODEL, DEFAULT_COMFY_WORKFLOW } from '../config';
 
@@ -73,7 +74,6 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
             const models = await fetchAvailableModels();
             setAvailableModels(models);
             
-            // Auto-select first model if current is default/invalid and models are available
             if (models.length > 0) {
                 const currentModel = localStorage.getItem('lmStudioModel');
                 if (!currentModel || currentModel === DEFAULT_LM_STUDIO_MODEL) {
@@ -96,12 +96,10 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
         localStorage.setItem('comfyWorkflow', comfyWorkflow);
         localStorage.setItem('preferredIndianLanguage', preferredLanguage);
         
-        // Save user profile
         localStorage.setItem('userName', userName);
         localStorage.setItem('userAppearance', userAppearance);
         localStorage.setItem('userBackground', userBackground);
         
-        // Save endpoints
         localStorage.setItem('lmSavedEndpoints', JSON.stringify(lmSavedEndpoints));
         localStorage.setItem('sdSavedEndpoints', JSON.stringify(sdSavedEndpoints));
         
@@ -109,9 +107,14 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
         setTimeout(() => setSaveToast(''), 3000);
     };
 
-    const handleResetToDefaults = () => {
-        if (window.confirm("Reset all settings to system defaults? This will clear your custom URLs and user profile.")) {
+    const handleResetToDefaults = async () => {
+        if (window.confirm("Reset all settings to system defaults? This will clear all chats, custom personas and user profile.")) {
             localStorage.clear();
+            // Clear IndexedDB
+            await db.clear('chats');
+            await db.clear('memories');
+            await db.clear('personas');
+            await db.clear('settings');
             window.location.reload();
         }
     };
@@ -168,18 +171,10 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
 
     const testEndpoint = async (type, url) => {
         setTestResults(prev => ({ ...prev, [url]: { status: 'loading' } }));
-        const urlBase = url.replace(/\/$/, '');
-        
-        let testUrl;
-        if (type === 'lm') {
-            // Use the same proxy logic as the LLM service
-            const resolvedUrl = getLmStudioUrl(url);
-            testUrl = resolvedUrl.replace('/chat/completions', '/models');
-        } else {
-            // Use the proxy logic for SD as well
-            const resolvedUrl = getSdUrl(url);
-            testUrl = imageEngine === 'comfyui' ? `${resolvedUrl}/system_stats` : `${resolvedUrl}/sdapi/v1/options`;
-        }
+        const resolvedUrl = type === 'lm' ? getLmStudioUrl(url) : getSdUrl(url);
+        const testUrl = type === 'lm' 
+            ? resolvedUrl.replace('/chat/completions', '/models')
+            : (imageEngine === 'comfyui' ? `${resolvedUrl}/system_stats` : `${resolvedUrl}/sdapi/v1/options`);
 
         try {
             const res = await fetch(testUrl);
@@ -189,201 +184,19 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                 setTestResults(prev => ({ ...prev, [url]: { status: 'error', message: `Status ${res.status}` } }));
             }
         } catch (e) {
-            console.error(`Test failed for ${testUrl}:`, e);
             setTestResults(prev => ({ ...prev, [url]: { status: 'error', message: 'Offline' } }));
         }
     };
 
-    const handleTestLmStudio = () => testEndpoint('lm', lmStudioUrl);
-    const handleTestSd = () => testEndpoint('sd', sdUrl);
-
-    const [isTroubleshooting, setIsTroubleshooting] = useState(false);
-    const [troubleshootLog, setTroubleshootLog] = useState([]);
-
-    const runTroubleshooter = async () => {
-        setIsTroubleshooting(true);
-        setTroubleshootLog([{ type: 'info', msg: 'Starting diagnostic...' }]);
-        
-        const log = (msg, type = 'info') => setTroubleshootLog(prev => [...prev, { type, msg }]);
-
-        const fetchWithTimeout = async (url, options = {}, timeout = 5000) => {
-            const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), timeout);
-            try {
-                const response = await fetch(url, { ...options, signal: controller.signal });
-                clearTimeout(id);
-                return response;
-            } catch (e) {
-                clearTimeout(id);
-                throw e;
-            }
-        };
-
-        try {
-            // 1. Basic Reachability
-            log(`Testing reachability for ${sdUrl}...`);
-            const startTime = Date.now();
-            let isReachable = false;
-            try {
-                await fetchWithTimeout(sdUrl, { mode: 'no-cors' }, 3000);
-                isReachable = true;
-                log(`Reachability OK (${Date.now() - startTime}ms)`);
-            } catch (e) {
-                if (sdUrl.includes(':8000')) {
-                    const altUrl = sdUrl.replace(':8000', ':8188');
-                    log(`8000 slow/failed. Probing 8188...`);
-                    try {
-                        await fetchWithTimeout(altUrl, { mode: 'no-cors' }, 3000);
-                        log(`PORT MISMATCH: Detected ComfyUI on 8188! Update your URL.`, 'warning');
-                        isReachable = true;
-                    } catch (e2) {}
-                }
-                
-                if (!isReachable) {
-                    log(`URL unreachable or timed out.`, 'error');
-                    if (sdUrl.includes('192.168.')) log('TIP: You are using local IP. If on PC, try 127.0.0.1.', 'info');
-                    log(`Your Tailscale IP is: 100.87.53.100`, 'info');
-                }
-            }
-
-            // 1.5 LM Studio Check
-            log(`Testing reachability for LM Studio at ${lmStudioUrl}...`);
-            const lmStartTime = Date.now();
-            let isLmReachable = false;
-            try {
-                // Try the proxied version
-                const resolvedUrl = getLmStudioUrl(lmStudioUrl);
-                const testUrl = resolvedUrl.replace('/chat/completions', '/models');
-                const lmRes = await fetchWithTimeout(testUrl, {}, 3000);
-                if (lmRes.ok) {
-                    isLmReachable = true;
-                    log(`LM Studio OK (${Date.now() - lmStartTime}ms) - Models found.`);
-                } else {
-                    log(`LM Studio answered with Status ${lmRes.status}.`, 'warning');
-                }
-            } catch (e) {
-                log(`LM Studio unreachable or CORS issue. Error: ${e.message}`, 'error');
-                if (lmStudioUrl.includes('192.168.')) log('TIP: If LM Studio is on the SAME PC, use "Try Localhost (LM)" button below.', 'info');
-                log('TIP: Ensure LM Studio server is started AND "CORS" is toggled ON in LM Studio settings.', 'warning');
-            }
-
-            // 2. ComfyUI API & Model Check
-            if (isReachable && imageEngine === 'comfyui') {
-                log('Checking ComfyUI API & Models...');
-                let availableCheckpoints = [];
-                try {
-                    const objInfo = await fetchWithTimeout(`${sdUrl.replace(/\/$/, '')}/object_info`, {}, 5000);
-                    if (objInfo.ok) {
-                        const data = await objInfo.json();
-                        availableCheckpoints = data.CheckpointLoaderSimple?.input?.required?.ckpt_name?.[0] || [];
-                        log(`ComfyUI Connected. Found ${availableCheckpoints.length} checkpoints.`);
-                        
-                        const targetModel = "Juggernaut-XL_v9.safetensors";
-                        if (availableCheckpoints.length > 0 && !availableCheckpoints.includes(targetModel)) {
-                            log(`MODEL MISSING: "${targetModel}" not found in your models/checkpoints folder.`, 'error');
-                            log(`Available: ${availableCheckpoints.slice(0, 3).join(', ')}...`, 'info');
-                            log(`TIP: Rename your SDXL model to "${targetModel}" or download it from CivitAI.`, 'warning');
-                        } else if (availableCheckpoints.length > 0) {
-                            log(`Verified model "${targetModel}" is available.`, 'success');
-                        }
-                    }
-                } catch (e) {
-                    log('API Check timed out or failed.', 'error');
-                }
-
-                // 3. History Deep Dive
-                log('Checking recent generation history...');
-                try {
-                    const hist = await fetchWithTimeout(`${sdUrl.replace(/\/$/, '')}/history?count=5`, {}, 5000);
-                    const data = await hist.json();
-                    const promptIds = Object.keys(data);
-                    if (promptIds.length > 0) {
-                        const lastId = promptIds[promptIds.length - 1];
-                        const lastTask = data[lastId];
-                        
-                        // Check if prompt has the required output nodes (9 or 14 typically)
-                        const promptNodes = Object.keys(lastTask.prompt?.[2] || {});
-                        if (!promptNodes.includes("9") && !promptNodes.includes("14")) {
-                            log('ERROR: Your workflow is missing the SaveImage node (ID 9). Click "Reset Workflow" below to fix!', 'error');
-                        }
-
-                        if (lastTask.status?.completed) {
-                            const hasImages = Object.values(lastTask.outputs || {}).some(o => o.images && o.images.length > 0);
-                            if (hasImages) {
-                                log('Last task was SUCCESSFUL and produced images.', 'success');
-                            } else {
-                                log('Last task finished but NO IMAGES were produced.', 'error');
-                                
-                                // NEW: Extra check for ComfyUI node errors in status.messages
-                                if (lastTask.status?.messages) {
-                                    lastTask.status.messages.forEach(msg => {
-                                        if (msg[0] === 'execution_error') {
-                                            log(`EXECUTION ERROR: ${JSON.stringify(msg[1]?.exception_message || msg[1])}`, 'error');
-                                        }
-                                    });
-                                }
-
-                                // Deep introspection
-                                const nodeNames = Object.keys(lastTask.outputs || {}).join(', ');
-                                log(`Detected output nodes: ${nodeNames || 'NONE'}`, 'info');
-                                
-                                if (!nodeNames) {
-                                    log("RAW DATA (First 5000 chars):", 'warning');
-                                    log(JSON.stringify(lastTask).substring(0, 5000), 'info');
-                                }
-                                
-                                for(const nid in lastTask.outputs || {}) {
-                                    const nodeOut = lastTask.outputs[nid];
-                                    if(nodeOut.images) log(`Node ${nid} has 'images' but length is ${nodeOut.images.length}`, 'warning');
-                                    if(nodeOut.error) log(`Node ${nid} ERROR: ${JSON.stringify(nodeOut.error)}`, 'error');
-                                }
-                                
-                                console.log("COMFYUI_DIAGNOSTIC_HISTORY:", lastTask);
-                            }
-                        }
-                    } else {
-                        log('No task history found. Try requesting a selfie first.', 'info');
-                    }
-                } catch (e) {
-                    log('Could not fetch history.', 'error');
-                }
-            }
-        } catch (globalErr) {
-            log(`Diagnostics interrupted: ${globalErr.message}`, 'error');
-        } finally {
-            setIsTroubleshooting(false);
-        }
-    };
-
-    const handleAddPersona = () => {
-        if (!newPersona.name || !newPersona.systemPrompt) {
-            alert("Name and System Prompt are required.");
-            return;
-        }
-
-        const id = 'custom_' + Date.now();
-        const persona = {
-            id,
-            name: newPersona.name,
-            tagline: newPersona.tagline || 'A custom persona',
-            image: `https://api.dicebear.com/7.x/initials/svg?seed=${newPersona.name}`,
-            systemPrompt: newPersona.systemPrompt,
-            initialMessage: newPersona.initialMessage || '*Looks at you* Hello...'
-        };
-
-        const updatedPersonas = [...customPersonas, persona];
-        setCustomPersonas(updatedPersonas);
-        localStorage.setItem('customPersonas', JSON.stringify(updatedPersonas));
-
-        setNewPersona({ name: '', tagline: '', systemPrompt: '', initialMessage: '' });
-        alert(`${persona.name} added to your roster!`);
-    };
-
-    const handleDeletePersona = (id) => {
+    const handleDeletePersona = async (id) => {
         const updated = customPersonas.filter(p => p.id !== id);
         setCustomPersonas(updated);
-        localStorage.setItem('customPersonas', JSON.stringify(updated));
-        localStorage.removeItem(`chat_${id}`);
+        await db.setItem('settings', 'customPersonas', updated);
+        await db.removeItem('chats', `chat_${id}`);
+        await db.removeItem('memories', `milestones_${id}`);
+        await db.removeItem('memories', `moments_${id}`);
+        await db.removeItem('settings', `persona_img_${id}`);
+        alert(`Deleted persona and all associated chat data.`);
     };
 
     const handleQuickSetupComfyUI = () => {
@@ -461,7 +274,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                             style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
                         />
                         <button 
-                            onClick={handleTestLmStudio} 
+                            onClick={() => testEndpoint('lm', lmStudioUrl)} 
                             disabled={testResults[lmStudioUrl]?.status === 'loading'}
                             style={{ 
                                 padding: '0.75rem', borderRadius: '8px', 
@@ -480,7 +293,6 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                         </button>
                     </div>
                     
-                    {/* LM Saved Endpoints */}
                     {lmSavedEndpoints.length > 0 && (
                         <div style={{ marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                             {lmSavedEndpoints.map(e => (
@@ -556,7 +368,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                             style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
                         />
                         <button 
-                            onClick={handleTestSd} 
+                            onClick={() => testEndpoint('sd', sdUrl)} 
                             disabled={testResults[sdUrl]?.status === 'loading'}
                             style={{ 
                                 padding: '0.75rem', borderRadius: '8px', 
@@ -575,7 +387,6 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                         </button>
                     </div>
                     
-                    {/* SD Saved Endpoints */}
                     {sdSavedEndpoints.length > 0 && (
                         <div style={{ marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                             {sdSavedEndpoints.map(e => (
@@ -648,86 +459,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                 </button>
             </div>
 
-            <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
-                <h2 style={{ marginBottom: '1.5rem', color: '#c084fc' }}>Mobile & Tailscale Connectivity</h2>
-                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '12px', border: '1px solid #27272a' }}>
-                    <ol style={{ color: '#a1a1aa', paddingLeft: '1.2rem', lineHeight: '1.8' }}>
-                        <li><strong>Local Wi-Fi</strong>: Ensure phone and PC are on the same SSID. PC IP: <code>192.168.86.28</code>.</li>
-                        <li><strong>Tailscale</strong>: If using Tailscale, use your <strong>Tailnet IP</strong> (100.x.x.x) in the URL fields above instead of the local IP.</li>
-                        <li><strong>ComfyUI Remote Access</strong>: You <u>must</u> start ComfyUI with the <code>--listen 0.0.0.0</code> flag to allow outside connections.</li>
-                        <li><strong>LM Studio CORS</strong>: Set <strong>CORS to ON</strong> in LM Studio's server settings.</li>
-                        <li><strong>Firewall</strong>: Allow inbound traffic on ports <strong>5173, 8000, 1234</strong> in Windows Defender.</li>
-                    </ol>
-                </div>
-            </div>
-
             <div className="glass-panel" style={{ padding: '2rem' }}>
-                <h2 style={{ marginBottom: '1.5rem', color: '#c084fc' }}>Connection Troubleshooter</h2>
-                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '12px', border: '1px solid #27272a' }}>
-                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-                        <button 
-                            onClick={runTroubleshooter} 
-                            disabled={isTroubleshooting}
-                            style={{ flex: '1 1 200px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(192, 132, 252, 0.2)', color: '#c084fc', border: '1px solid #c084fc', cursor: 'pointer', fontWeight: 'bold' }}
-                        >
-                            {isTroubleshooting ? 'Running...' : '🔍 Launch Troubleshooter'}
-                        </button>
-                        <button 
-                            onClick={() => { setSdUrl('http://127.0.0.1:8188'); setSaveToast('📍 Switched SD to Localhost!'); setTimeout(() => setSaveToast(''), 3000); }}
-                            style={{ flex: '1 1 100px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#a1a1aa', border: '1px solid #3f3f46', cursor: 'pointer', fontSize: '0.75rem' }}
-                        >
-                            Try Localhost (SD)
-                        </button>
-                        <button 
-                            onClick={() => { setLmStudioUrl('http://localhost:1234/v1'); setSaveToast('📍 Switched LM to Localhost!'); setTimeout(() => setSaveToast(''), 3000); }}
-                            style={{ flex: '1 1 100px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(192, 132, 252, 0.1)', color: '#c084fc', border: '1px solid #c084fc', cursor: 'pointer', fontSize: '0.75rem' }}
-                        >
-                            Try Localhost (LM)
-                        </button>
-                        <button 
-                            onClick={() => { setSdUrl('http://100.87.53.100:8188'); setSaveToast('🌐 Switched SD to Tailscale!'); setTimeout(() => setSaveToast(''), 3000); }}
-                            style={{ flex: '1 1 100px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#a1a1aa', border: '1px solid #3f3f46', cursor: 'pointer', fontSize: '0.75rem' }}
-                        >
-                            Try Tailnet (SD)
-                        </button>
-                        <button 
-                            onClick={() => { setLmStudioUrl('http://100.87.53.100:1234/v1'); setSaveToast('🌐 Switched LM to Tailscale!'); setTimeout(() => setSaveToast(''), 3000); }}
-                            style={{ flex: '1 1 100px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(192, 132, 252, 0.1)', color: '#c084fc', border: '1px solid #c084fc', cursor: 'pointer', fontSize: '0.75rem' }}
-                        >
-                            Try Tailnet (LM)
-                        </button>
-                        <button 
-                            onClick={async () => {
-                                if(window.confirm("AGGRESSIVE RESET: This will wipe your workflow and reload from config.js. Proceed?")) {
-                                    // Deep clone to ensure no references
-                                    const freshWorkflow = JSON.parse(JSON.stringify(DEFAULT_COMFY_WORKFLOW));
-                                    const workflowStr = JSON.stringify(freshWorkflow, null, 2);
-                                    setComfyWorkflow(workflowStr);
-                                    localStorage.setItem('comfyWorkflow', workflowStr);
-                                    setSaveToast('🔥 Aggressive Reset COMPLETE!');
-                                    setTimeout(() => setSaveToast(''), 3000);
-                                }
-                            }}
-                            style={{ flex: '1 1 120px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '1px solid #ef4444', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}
-                        >
-                            Aggressive Reset
-                        </button>
-                    </div>
-                    
-                    {troubleshootLog.length > 0 && (
-                        <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#09090b', borderRadius: '8px', border: '1px solid #3f3f46', maxHeight: '300px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '0.85rem' }}>
-                            {troubleshootLog.map((item, idx) => (
-                                <div key={idx} style={{ marginBottom: '0.4rem', color: item.type === 'error' ? '#ef4444' : (item.type === 'success' ? '#22c55e' : (item.type === 'warning' ? '#f59e0b' : '#a1a1aa')) }}>
-                                    {item.type === 'success' ? '✅ ' : (item.type === 'error' ? '❌ ' : (item.type === 'warning' ? '⚠️ ' : 'ℹ️ '))}
-                                    {item.msg}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            <div className="glass-panel" style={{ padding: '2rem', marginTop: '2rem' }}>
                 <h2 style={{ marginBottom: '1.5rem', color: '#c084fc' }}>Custom Personas</h2>
                 
                 <div style={{ 

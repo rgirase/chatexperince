@@ -4,6 +4,7 @@ import { ArrowLeft, Send, Trash2, Wand2, Heart, MapPin, Edit2, Check, X, Flame, 
 import { generateResponse, generateSuggestion, summarizeMemory, extractMilestones, cleanLeakage, generateDiaryEntry, extractSceneSummary, generateVisualPrompt, analyzeIntimateEncounter } from '../services/llm';
 import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_COMFY_WORKFLOW } from '../config';
 import { saveMilestone, getMemories, clearMemories, deleteMilestone } from '../services/memory';
+import * as db from '../services/db';
 import { SCENES, detectSceneId } from '../data/scenes';
 import FantasyGallery from './FantasyGallery';
 
@@ -30,8 +31,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     };
 
     const generateSelfie = async (prompt, persona, aiMessageId) => {
-        const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
-        const imageEngine = localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE;
+        const sdUrl = await db.getItem('settings', 'sdUrl') || DEFAULT_SD_URL;
+        const imageEngine = await db.getItem('settings', 'imageEngine') || DEFAULT_IMAGE_ENGINE;
 
         const photoMsgId = aiMessageId + "_photo";
         setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: '*Sends a photo*', url: null }]);
@@ -80,7 +81,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     throw new Error(`${imageEngine === 'drawthings' ? 'Draw Things' : 'A1111'} API error.`);
                 }
             } else if (imageEngine === 'comfyui') {
-                let comfyWorkflow = localStorage.getItem('comfyWorkflow');
+                let comfyWorkflow = await db.getItem('settings', 'comfyWorkflow');
                 
                 // Fallback to central default if missing or invalid
                 if (!comfyWorkflow || !comfyWorkflow.includes('3')) { // Check for node 3 instead of __PROMPT__
@@ -138,13 +139,12 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                     showToast("Selfie received!", "success");
                                 }
 
-                                // Background Persistence: Always update localStorage even if unmounted
+                                // Background Persistence: Always update IndexedDB even if unmounted
                                 try {
-                                    const saved = localStorage.getItem(`chat_${persona.id}`);
+                                    const saved = await db.getItem('chats', `chat_${persona.id}`);
                                     if (saved) {
-                                        const parsed = JSON.parse(saved);
-                                        const updated = parsed.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg);
-                                        localStorage.setItem(`chat_${persona.id}`, JSON.stringify(updated));
+                                        const updated = saved.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg);
+                                        await db.setItem('chats', `chat_${persona.id}`, updated);
                                     }
                                 } catch (e) {
                                     console.error("Failed background storage sync:", e);
@@ -264,7 +264,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const [isJournalOpen, setIsJournalOpen] = useState(false);
     const [isGiftsModalOpen, setIsGiftsModalOpen] = useState(false);
     const [isWardrobeOpen, setIsWardrobeOpen] = useState(false);
-    const [milestones, setMilestones] = useState(() => getMemories(persona.id));
+    const [milestones, setMilestones] = useState([]);
     const [newManualMemory, setNewManualMemory] = useState('');
     const [isPhotoGalleryOpen, setIsPhotoGalleryOpen] = useState(false);
     const [activePersonaImage, setActivePersonaImage] = useState(persona.image);
@@ -309,7 +309,65 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         }
     });
     const [isAnalyzingIntimacy, setIsAnalyzingIntimacy] = useState(false);
+    const [lastDigestIndex, setLastDigestIndex] = useState(1);
+    const [isDataLoaded, setIsDataLoaded] = useState(false);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    const [pastConversations, setPastConversations] = useState([]);
     const currentScene = SCENES[currentSceneId] || SCENES.default;
+
+    // --- DATABASE MIGRATION & LOADING ---
+    useEffect(() => {
+        const initData = async () => {
+            try {
+                // List of keys to migrate
+                const keys = [
+                    { key: `chat_${persona.id}`, store: 'chats', state: setMessages },
+                    { key: `memory_${persona.id}`, store: 'memories', state: setMemory },
+                    { key: `score_${persona.id}`, store: 'settings', state: setRelationshipScore },
+                    { key: `intensity_${persona.id}`, store: 'settings', state: setIntensity },
+                    { key: `milestones_${persona.id}`, store: 'memories', state: setMilestones },
+                    { key: `traits_${persona.id}`, store: 'memories', state: setTraits },
+                    { key: `encounters_${persona.id}`, store: 'memories', state: setEncounterStats },
+                    { key: `situation_${persona.id}`, store: 'settings', state: setCurrentSituation },
+                    { key: `scene_${persona.id}`, store: 'settings', state: setCurrentSceneId },
+                    { key: `digest_${persona.id}`, store: 'settings', state: setLastDigestIndex },
+                    { key: `invited_${persona.id}`, store: 'settings', state: setInvitedPersona },
+                ];
+
+                for (const item of keys) {
+                    let value = await db.getItem(item.store, item.key);
+                    
+                    // Migration Logic: Check localStorage if not in DB
+                    if (value === null || value === undefined) {
+                        const localValue = localStorage.getItem(item.key);
+                        if (localValue !== null) {
+                            try {
+                                value = JSON.parse(localValue);
+                            } catch (e) {
+                                value = localValue;
+                            }
+                            // Save to DB for next time
+                            await db.setItem(item.store, item.key, value);
+                            console.log(`[Storage] Migrated ${item.key} to IndexedDB.`);
+                        }
+                    }
+
+                    if (value !== null && value !== undefined) {
+                        item.state(value);
+                        if (item.key === `situation_${persona.id}`) setSituationInput(value);
+                    }
+                }
+                setIsDataLoaded(true);
+            } catch (e) {
+                console.error("Critical Storage Error:", e);
+                setIsDataLoaded(true); // Proceed anyway to avoid infinite loading
+            }
+        };
+
+        if (persona.id) {
+            initData();
+        }
+    }, [persona.id]);
 
     const getIntensityPrompt = (level) => {
         switch (level) {
@@ -332,79 +390,65 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         scrollToBottom();
     }, [messages, isTyping]);
 
-    // Sync messages to localStorage whenever they change
+    // --- DB PERSISTENCE EFFECTS ---
     useEffect(() => {
-        try {
-            // Scrub messages before saving to eliminate feedback loop in long-term storage
-            let cleanedMessages = messages.map(msg => ({
-                ...msg,
-                content: cleanLeakage(msg.content)
-            }));
-
-            // [QUOTA SAFEGUARD]: If total size is approaching 5MB limit (~5M characters), 
-            // prune the oldest Base64 images to stay functional.
-            let serialized = JSON.stringify(cleanedMessages);
-            if (serialized.length > 4000000) { // ~4MB threshold
-                console.warn("Chat history approaching LocalStorage limit. Pruning oldest images...");
-                for (let i = 0; i < cleanedMessages.length; i++) {
-                    if (cleanedMessages[i].isPhoto && cleanedMessages[i].url) {
-                        cleanedMessages[i].url = null; // Remove massive Base64
-                        serialized = JSON.stringify(cleanedMessages);
-                        if (serialized.length < 3500000) break; // Pruned enough
-                    }
-                }
-            }
-            
-            localStorage.setItem(`chat_${persona.id}`, serialized);
-        } catch (e) {
-            console.error("LocalStorage sync failed (Quota likely exceeded):", e);
-            // Fallback: If still failing, try to save without ANY photo URLs
-            try {
-                const ultraCleaned = messages.map(msg => ({ ...msg, url: msg.isPhoto ? null : msg.url, content: cleanLeakage(msg.content) }));
-                localStorage.setItem(`chat_${persona.id}`, JSON.stringify(ultraCleaned));
-            } catch (innerE) {
-                console.error("Critical storage failure:", innerE);
-            }
+        if (!isDataLoaded) return;
+        if (messages.length <= 2) {
+            db.removeItem('chats', `chat_${persona.id}`);
+            localStorage.removeItem(`chat_${persona.id}`);
+            return;
         }
-    }, [messages, persona.id]);
+        db.setItem('chats', `chat_${persona.id}`, messages);
+    }, [messages, persona.id, isDataLoaded]);
 
     useEffect(() => {
-        if (memory) {
-            localStorage.setItem(`memory_${persona.id}`, memory);
-        }
-    }, [memory, persona.id]);
+        if (!isDataLoaded) return;
+        db.setItem('memories', `memory_${persona.id}`, memory);
+    }, [memory, persona.id, isDataLoaded]);
 
     useEffect(() => {
-        localStorage.setItem(`score_${persona.id}`, relationshipScore);
-    }, [relationshipScore, persona.id]);
+        if (!isDataLoaded) return;
+        db.setItem('settings', `score_${persona.id}`, relationshipScore);
+    }, [relationshipScore, persona.id, isDataLoaded]);
 
     useEffect(() => {
-        localStorage.setItem(`intensity_${persona.id}`, intensity);
-    }, [intensity, persona.id]);
+        if (!isDataLoaded) return;
+        db.setItem('settings', `intensity_${persona.id}`, intensity);
+    }, [intensity, persona.id, isDataLoaded]);
 
     useEffect(() => {
+        if (!isDataLoaded) return;
         if (invitedPersona) {
-            localStorage.setItem(`invited_${persona.id}`, JSON.stringify(invitedPersona));
+            db.setItem('settings', `invited_${persona.id}`, invitedPersona);
         } else {
-            localStorage.removeItem(`invited_${persona.id}`);
+            db.removeItem('settings', `invited_${persona.id}`);
         }
-    }, [invitedPersona, persona.id]);
+    }, [invitedPersona, persona.id, isDataLoaded]);
 
     useEffect(() => {
-        localStorage.setItem(`scene_${persona.id}`, currentSceneId);
-    }, [currentSceneId, persona.id]);
+        if (!isDataLoaded) return;
+        db.setItem('settings', `scene_${persona.id}`, currentSceneId);
+    }, [currentSceneId, persona.id, isDataLoaded]);
 
     useEffect(() => {
-        localStorage.setItem(`situation_${persona.id}`, currentSituation);
-    }, [currentSituation, persona.id]);
+        if (!isDataLoaded) return;
+        db.setItem('settings', `situation_${persona.id}`, currentSituation);
+    }, [currentSituation, persona.id, isDataLoaded]);
 
     useEffect(() => {
-        localStorage.setItem(`traits_${persona.id}`, JSON.stringify(traits));
-    }, [traits, persona.id]);
+        if (!isDataLoaded) return;
+        db.setItem('memories', `traits_${persona.id}`, traits);
+    }, [traits, persona.id, isDataLoaded]);
 
     useEffect(() => {
-        localStorage.setItem(`encounters_${persona.id}`, JSON.stringify(encounterStats));
-    }, [encounterStats, persona.id]);
+        if (!isDataLoaded) return;
+        db.setItem('memories', `encounters_${persona.id}`, encounterStats);
+    }, [encounterStats, persona.id, isDataLoaded]);
+
+    useEffect(() => {
+        if (!isDataLoaded) return;
+        db.setItem('settings', `digest_${persona.id}`, lastDigestIndex);
+    }, [lastDigestIndex, persona.id, isDataLoaded]);
 
     // Extract traits from milestones
     useEffect(() => {
@@ -466,17 +510,18 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
      useEffect(() => {
          const runMemoryEngine = async () => {
              // If chat gets deep, summarize a chunk of messages to move into long-term memory
-             if (messages.length > 25 && !isSummarizing) {
+             // We trigger if there are more than 20 messages NOT yet summarized.
+             if (messages.length - lastDigestIndex > 20 && !isSummarizing) {
                  setIsSummarizing(true);
                  
-                 // We take messages 1 through 10 (keeping 0 as it's often the initial intro)
-                 const messagesToDigest = messages.slice(1, 11);
+                 // We take a block of 10 messages starting from the last summarized point
+                 const messagesToDigest = messages.slice(lastDigestIndex, lastDigestIndex + 10);
  
                  try {
                      // 1. Extract Milestones (Important Permanent Facts)
                      const milestone = await extractMilestones(persona, messagesToDigest);
                      if (milestone) {
-                         const updatedMilestones = saveMilestone(persona.id, milestone);
+                         const updatedMilestones = await saveMilestone(persona.id, milestone);
                          setMilestones(updatedMilestones);
                      }
  
@@ -484,10 +529,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                      const newMemory = await summarizeMemory(persona, memory, messagesToDigest);
                      setMemory(newMemory);
 
-                     // 3. EVICT digested messages from active state to save context tokens.
-                     // We keep message index 0 (initial intro) and everything from index 11 onwards.
-                     setMessages(prev => [prev[0], ...prev.slice(11)]);
-                     console.log(`[MemoryEngine] Digested 10 messages into long-term memory. Context optimized.`);
+                     // 3. NARRATIVE CONTINUITY: Update the index but keep messages in UI.
+                     setLastDigestIndex(prev => prev + 10);
+                     console.log(`[MemoryEngine] Digested messages ${lastDigestIndex} to ${lastDigestIndex + 10} into long-term memory. UI history preserved.`);
                  } catch (err) {
                      console.error("Memory engine failed", err);
                  } finally {
@@ -496,17 +540,50 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
              }
          };
          runMemoryEngine();
-     }, [messages.length, isSummarizing, memory, persona.id]); // Added persona.id to deps
+     }, [messages.length, isSummarizing, memory, persona.id, lastDigestIndex]); 
 
-    const handleClearChat = () => {
-        if (window.confirm("Are you sure you want to clear EVERYTHING for " + persona.name + "? This resets chat history, memories, score, and all stats.")) {
+    const fetchHistory = async () => {
+        try {
+            const allConv = await db.getAll('conversations');
+            const filtered = allConv
+                .filter(c => c.id.startsWith(`conv_${persona.id}_`))
+                .map(c => c.value)
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            setPastConversations(filtered);
+        } catch (e) {
+            console.error("Failed to fetch history", e);
+        }
+    };
+
+    useEffect(() => {
+        if (isDataLoaded) {
+            fetchHistory();
+        }
+    }, [isDataLoaded, persona.id]);
+
+    const handleClearChat = async () => {
+        if (window.confirm("Archive and clear current chat for " + persona.name + "? Your current history will be saved to History, and you will start fresh.")) {
+            // 1. Archive current chat if it has messages beyond the initial one
+            if (messages.length > 1) {
+                const archiveEntry = {
+                    id: Date.now(),
+                    personaId: persona.id,
+                    personaName: persona.name,
+                    timestamp: new Date().toISOString(),
+                    messages: [...messages],
+                    summary: memory || "No summary available."
+                };
+                await db.setItem('conversations', `conv_${persona.id}_${archiveEntry.id}`, archiveEntry);
+                await fetchHistory();
+            }
+
             const initialMsg = { 
                 id: Date.now().toString(), 
                 role: 'ai', 
                 content: persona.initialMessage || `*I look at you with a soft smile* Hello there... I'm glad you're here.` 
             };
             
-            // 1. Reset State
+            // 2. Reset State
             setMessages([initialMsg]);
             setMemory('');
             setRelationshipScore(50);
@@ -518,21 +595,46 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
             setCurrentSituation(initialSituation);
             setSituationInput(initialSituation);
             setCurrentSceneId('default');
+            setLastDigestIndex(1);
             if (typeof setInvitedPersona === 'function') setInvitedPersona(null);
 
-            // 2. Clear LocalStorage
-            localStorage.setItem(`chat_${persona.id}`, JSON.stringify([initialMsg]));
+            // 3. Explicitly remove current chat keys from DB
+            await db.removeItem('chats', `chat_${persona.id}`);
+            await db.removeItem('memories', `memory_${persona.id}`);
+            await db.removeItem('memories', `milestones_${persona.id}`);
+            await db.removeItem('settings', `score_${persona.id}`);
+            await db.removeItem('settings', `intensity_${persona.id}`);
+            
+            // Clear LocalStorage legacy
+            localStorage.removeItem(`chat_${persona.id}`);
             localStorage.removeItem(`memory_${persona.id}`);
+            localStorage.removeItem(`milestones_${persona.id}`);
             localStorage.removeItem(`score_${persona.id}`);
             localStorage.removeItem(`intensity_${persona.id}`);
-            localStorage.removeItem(`milestones_${persona.id}`);
             localStorage.removeItem(`traits_${persona.id}`);
             localStorage.removeItem(`encounters_${persona.id}`);
             localStorage.removeItem(`situation_${persona.id}`);
             localStorage.removeItem(`scene_${persona.id}`);
             localStorage.removeItem(`invited_${persona.id}`);
+            localStorage.removeItem(`digest_${persona.id}`);
             
-            if (typeof showToast === 'function') showToast("Persona data completely reset.", "success");
+            if (typeof showToast === 'function') showToast("Conversation archived and reset.", "success");
+        }
+    };
+
+    const handleRestoreConversation = async (conv) => {
+        if (window.confirm("Restore this conversation? Your current progress will be replaced (Archive first if you want to save it!)")) {
+            setMessages(conv.messages);
+            setMemory(conv.summary);
+            setIsHistoryOpen(false);
+            if (typeof showToast === 'function') showToast("Conversation restored.", "success");
+        }
+    };
+
+    const handleDeleteHistory = async (timestamp) => {
+        if (window.confirm("Permanently delete this archived conversation?")) {
+            await db.removeItem('conversations', `conv_${persona.id}_${timestamp}`);
+            await fetchHistory();
         }
     };
 
@@ -877,6 +979,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                             const newScore = Math.max(0, Math.min(100, prev + (scoreDelta * 5)));
                             // Detect Memorable Moment (Significant jump)
                             if (scoreDelta >= 2 && newScore >= prev + 10) {
+                                // Save moment asynchronously outside the updater
                                 saveMemorableMoment(persona, fullText, activePersonaImage);
                             }
                             return newScore;
@@ -981,13 +1084,17 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         }
     };
 
-    const saveMemorableMoment = (persona, content, image) => {
-        let moments = [];
-        try {
-            moments = JSON.parse(localStorage.getItem(`moments_${persona.id}`) || '[]');
-        } catch (e) {
-            console.error(`Failed to parse moments for ${persona.id}`, e);
+    const saveMemorableMoment = async (persona, content, image) => {
+        let moments = await db.getItem('memories', `moments_${persona.id}`);
+        if (!moments) {
+            // Migration check
+            const local = localStorage.getItem(`moments_${persona.id}`);
+            if (local) {
+                moments = JSON.parse(local);
+                await db.setItem('memories', `moments_${persona.id}`, moments);
+            }
         }
+        
         const cleanContent = content
             .replace(/\[MOOD:\s*.*?\]/gi, '')
             .replace(/\[SCORE:\s*[+-]\d+\]/gi, '')
@@ -1006,10 +1113,12 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         };
 
         // Don't save duplicates
-        if (moments.some(m => m.content === newMoment.content)) return;
+        const updatedMoments = moments || [];
+        if (updatedMoments.some(m => m.content === newMoment.content)) return;
 
-        moments.unshift(newMoment);
-        localStorage.setItem(`moments_${persona.id}`, JSON.stringify(moments.slice(0, 15)));
+        updatedMoments.unshift(newMoment);
+        const sliced = updatedMoments.slice(0, 15);
+        await db.setItem('memories', `moments_${persona.id}`, sliced);
     };
 
     const handleHotspotClick = (hotspot) => {
@@ -1199,21 +1308,24 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         // Trigger background diary generation before leaving
         if (messages.length > 5) {
             // We don't await this to keep UI snappy, but we fire and forget
-            generateDiaryEntry(persona, messages).then(entry => {
+            generateDiaryEntry(persona, messages).then(async entry => {
                 if (entry) {
-                    let diaries = [];
-                    try {
-                        diaries = JSON.parse(localStorage.getItem(`diaries_${persona.id}`) || '[]');
-                    } catch (e) {
-                        console.error(`Failed to parse diaries for ${persona.id}`, e);
+                    let diaries = await db.getItem('memories', `diaries_${persona.id}`);
+                    if (!diaries) {
+                        const local = localStorage.getItem(`diaries_${persona.id}`);
+                        if (local) {
+                            diaries = JSON.parse(local);
+                            await db.setItem('memories', `diaries_${persona.id}`, diaries);
+                        }
                     }
-                    diaries.unshift({
+                    const updated = diaries || [];
+                    updated.unshift({
                         id: Date.now(),
                         content: entry,
                         timestamp: new Date().toISOString()
                     });
                     // Keep only last 10 entries
-                    localStorage.setItem(`diaries_${persona.id}`, JSON.stringify(diaries.slice(0, 10)));
+                    await db.setItem('memories', `diaries_${persona.id}`, updated.slice(0, 10));
                 }
             }).catch(err => console.error("Diary generation failed", err));
         }
@@ -1338,17 +1450,35 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     <div style={{ position: 'absolute', bottom: -2, right: -2, width: '12px', height: '12px', background: '#22c55e', borderRadius: '50%', border: '2px solid #09090b', boxShadow: '0 0 8px #22c55e' }}></div>
                 </div>
 
-                <div className="chat-header-info" style={{ flex: 1, paddingLeft: '4px' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="chat-header-info" style={{ flex: 1, paddingLeft: '8px', minWidth: 0 }}>
+                    <h3 style={{ 
+                        fontSize: '1.25rem', 
+                        fontWeight: '800', 
+                        color: '#fff', 
+                        margin: 0,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                    }}>
                         {persona.name}
-                        {currentMood && (
-                            <span style={{ fontSize: '0.65rem', background: 'rgba(168, 85, 247, 0.2)', color: '#c084fc', padding: '2px 8px', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>{currentMood}</span>
-                        )}
                     </h3>
-                    <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', margin: 0, fontWeight: '500' }}>Active Now · {messages.length} messages</p>
                 </div>
 
                 <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                        className="back-btn" 
+                        onClick={() => setIsHistoryOpen(true)} 
+                        title="Conversation History"
+                        style={{ 
+                            background: pastConversations.length > 0 ? 'rgba(168, 85, 247, 0.15)' : 'rgba(255,255,255,0.05)', 
+                            borderRadius: '12px', 
+                            padding: '10px',
+                            border: pastConversations.length > 0 ? '1px solid rgba(168, 85, 247, 0.3)' : '1px solid rgba(255,255,255,0.1)'
+                        }}
+                    >
+                        <History size={20} color={pastConversations.length > 0 ? "#c084fc" : "#fafafa"} />
+                    </button>
+                    
                     {persona.id === 'amira_velvet_club' && (
                         <button 
                             className="back-btn" 
@@ -1410,8 +1540,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     <button onClick={() => { handleCopyChat(); setIsMobileMenuOpen(false); }}>
                         <Clipboard size={16} color="#22c55e" /> Copy Chat for Analysis
                     </button>
+                    <button onClick={() => { setIsHistoryOpen(true); setIsMobileMenuOpen(false); }}>
+                        <History size={16} color="#c084fc" /> Chat Archives ({pastConversations.length})
+                    </button>
                     <button onClick={() => { handleClearChat(); setIsMobileMenuOpen(false); }}>
-                        <Trash2 size={16} color="#ef4444" /> Clear Chat History
+                        <Trash2 size={16} color="#ef4444" /> Archive & Clear Current
                     </button>
                     <div style={{ padding: '0.75rem 0.5rem 0', marginTop: '0.25rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <span style={{ fontSize: '0.85rem', color: '#a1a1aa', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
@@ -1919,9 +2052,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                 </div>
                                 <textarea
                                     value={memory}
-                                    onChange={(e) => {
+                                    onChange={async (e) => {
                                         setMemory(e.target.value);
-                                        localStorage.setItem(`memory_${persona.id}`, e.target.value);
+                                        await db.setItem('memories', `memory_${persona.id}`, e.target.value);
                                     }}
                                     placeholder="The AI will automatically summarize your story here, but you can also write your own summary to keep the plot on track..."
                                     style={{ 
@@ -1990,18 +2123,18 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                     onChange={(e) => setNewManualMemory(e.target.value)}
                                     placeholder="Add a custom memory..."
                                     style={{ flex: 1, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '10px', borderRadius: '8px', fontSize: '0.9rem' }}
-                                    onKeyDown={(e) => {
+                                    onKeyDown={async (e) => {
                                         if (e.key === 'Enter' && newManualMemory.trim()) {
-                                            const updated = saveMilestone(persona.id, newManualMemory.trim());
+                                            const updated = await saveMilestone(persona.id, newManualMemory.trim());
                                             setMilestones(updated);
                                             setNewManualMemory('');
                                         }
                                     }}
                                 />
                                 <button 
-                                    onClick={() => {
+                                    onClick={async () => {
                                         if (newManualMemory.trim()) {
-                                            const updated = saveMilestone(persona.id, newManualMemory.trim());
+                                            const updated = await saveMilestone(persona.id, newManualMemory.trim());
                                             setMilestones(updated);
                                             setNewManualMemory('');
                                         }
@@ -2022,9 +2155,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                                     {milestones.slice().reverse().map((m) => (
                                         <div key={m.id} style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '1rem', borderRadius: '12px', position: 'relative' }}>
                                             <button 
-                                                onClick={() => {
+                                                onClick={async () => {
                                                     if (window.confirm("Remove this memory?")) {
-                                                        const updated = deleteMilestone(persona.id, m.id);
+                                                        const updated = await deleteMilestone(persona.id, m.id);
                                                         setMilestones(updated);
                                                     }
                                                 }}
@@ -2046,9 +2179,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
                         <div className="modal-footer">
                             <button 
-                                onClick={() => {
+                                onClick={async () => {
                                     if(window.confirm("Forget all special memories?")) {
-                                        clearMemories(persona.id);
+                                        await clearMemories(persona.id);
                                         setMilestones([]);
                                     }
                                 }}
@@ -2290,6 +2423,110 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     onClose={() => setIsFantasyGalleryOpen(false)}
                 />
             )}
+
+            {/* History Modal */}
+            <AnimatePresence>
+                {isHistoryOpen && (
+                    <div className="modal-overlay" onClick={() => setIsHistoryOpen(false)}>
+                        <motion.div 
+                            className="modal-content glass-panel" 
+                            onClick={(e) => e.stopPropagation()}
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            style={{ maxWidth: '600px', width: '90%' }}
+                        >
+                            <div className="modal-header">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ background: 'rgba(168, 85, 247, 0.1)', padding: '10px', borderRadius: '12px' }}>
+                                        <History size={24} color="#a855f7" />
+                                    </div>
+                                    <div>
+                                        <h2 style={{ margin: 0, fontSize: '1.25rem' }}>Chat Archives</h2>
+                                        <p style={{ margin: 0, fontSize: '0.8rem', color: '#a1a1aa' }}>Revisit your past stories with {persona.name}</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => setIsHistoryOpen(false)} style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}>
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto', padding: '1rem' }}>
+                                {pastConversations.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                                        <div style={{ opacity: 0.2, marginBottom: '1rem' }}>
+                                            <History size={48} />
+                                        </div>
+                                        <p style={{ color: '#71717a' }}>No archived conversations found for {persona.name}.</p>
+                                        <p style={{ fontSize: '0.8rem', color: '#52525b' }}>Use the "Archive & Clear" option to save your current session.</p>
+                                    </div>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                        {pastConversations.map((conv) => (
+                                            <div key={conv.id} style={{ 
+                                                background: 'rgba(255,255,255,0.03)', 
+                                                border: '1px solid rgba(255,255,255,0.08)',
+                                                borderRadius: '16px',
+                                                padding: '1.25rem',
+                                                transition: 'all 0.2s ease',
+                                                position: 'relative'
+                                            }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                                                    <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#e4e4e7' }}>
+                                                        {new Date(conv.timestamp).toLocaleDateString()} at {new Date(conv.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                    <span style={{ fontSize: '0.75rem', color: '#a855f7', background: 'rgba(168, 85, 247, 0.1)', padding: '2px 8px', borderRadius: '10px' }}>
+                                                        {conv.messages.length} messages
+                                                    </span>
+                                                </div>
+                                                
+                                                <p style={{ fontSize: '0.9rem', color: '#a1a1aa', fontStyle: 'italic', margin: '0 0 1rem 0', lineHeight: 1.5 }}>
+                                                    "{conv.summary && conv.summary.length > 120 ? conv.summary.substring(0, 120) + '...' : (conv.summary || "No summary available")}"
+                                                </p>
+
+                                                <div style={{ display: 'flex', gap: '12px' }}>
+                                                    <button 
+                                                        onClick={() => handleRestoreConversation(conv)}
+                                                        style={{
+                                                            flex: 1,
+                                                            background: 'rgba(168, 85, 247, 0.1)',
+                                                            border: '1px solid rgba(168, 85, 247, 0.3)',
+                                                            color: '#c084fc',
+                                                            padding: '10px',
+                                                            borderRadius: '10px',
+                                                            fontSize: '0.85rem',
+                                                            fontWeight: '600',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                        onMouseOver={(e) => e.currentTarget.style.background = 'rgba(168, 85, 247, 0.2)'}
+                                                        onMouseOut={(e) => e.currentTarget.style.background = 'rgba(168, 85, 247, 0.1)'}
+                                                    >
+                                                        Restore this Story
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDeleteHistory(conv.id)}
+                                                        style={{
+                                                            background: 'rgba(239, 68, 68, 0.05)',
+                                                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                                                            color: '#f87171',
+                                                            padding: '10px',
+                                                            borderRadius: '10px',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

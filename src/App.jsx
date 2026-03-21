@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Settings as SettingsIcon, Server, Shield, Smartphone, Zap, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { Home, Settings as SettingsIcon, Server, Shield, Smartphone, Zap, Image as ImageIcon, Sparkles, Heart } from 'lucide-react';
 import { updateAura } from './services/reputation';
 import PersonaList from './components/PersonaList';
 import ChatInterface from './components/ChatInterface';
@@ -8,6 +8,8 @@ import Settings from './components/Settings';
 import Gallery from './components/Gallery';
 import GenesisWizard from './components/GenesisWizard';
 import { personas as defaultPersonas } from './data/personas';
+import { personal_gf } from './data/characters/personal_gf';
+import * as db from './services/db';
 
 let hasPushedHistory = false;
 
@@ -52,114 +54,93 @@ function App() {
   });
 
   useEffect(() => {
-    let loadedPersonas = [...defaultPersonas];
-    try {
-      const stored = localStorage.getItem('customPersonas');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          // MIGRATION: move large base64 images out of the persona object into separate keys
-          // This prevents the customPersonas JSON blob from hitting the ~5MB localStorage limit
-          let migrated = false;
-          const migratedPersonas = parsed.map(p => {
-            if (p.image && p.image.startsWith('data:image/') && p.image.length > 200) {
-              if (!localStorage.getItem(`persona_img_${p.id}`)) {
-                try { localStorage.setItem(`persona_img_${p.id}`, p.image); } catch(e) { console.warn('Could not store persona image separately', e); }
-              }
-              migrated = true;
-              return { ...p, image: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(p.name || p.id)}` };
-            }
-            return p;
-          });
-          if (migrated) {
-            try { localStorage.setItem('customPersonas', JSON.stringify(migratedPersonas)); } catch(e) {}
-          }
-          setCustomPersonas(migratedPersonas);
-          loadedPersonas = [...loadedPersonas, ...migratedPersonas];
-        }
-      }
-    } catch (e) {
-      console.error('[App] Failed to parse customPersonas from localStorage, clearing.', e);
-      localStorage.removeItem('customPersonas');
-    }
-
-    // Apply image overrides from localStorage (validate before using)
-    loadedPersonas = loadedPersonas.map(p => {
+    const loadAllData = async () => {
+      let loadedPersonas = [...defaultPersonas];
+      
+      // 1. Load Custom Personas (Migration + Fetch)
       try {
-        const savedImg = localStorage.getItem(`persona_img_${p.id}`);
-        // Accept: data URLs, http/https URLs, reject blank or old /assets/ local path overrides
+        let custom = await db.getItem('settings', 'customPersonas');
+        if (!custom) {
+          const stored = localStorage.getItem('customPersonas');
+          if (stored) {
+            custom = JSON.parse(stored);
+            await db.setItem('settings', 'customPersonas', custom);
+            console.log("[Storage] Migrated customPersonas to IndexedDB.");
+          }
+        }
+        if (custom && Array.isArray(custom)) {
+          setCustomPersonas(custom);
+          loadedPersonas = [...loadedPersonas, ...custom];
+        }
+      } catch (e) {
+        console.error('[App] Failed to load customPersonas', e);
+      }
+
+      // 2. Load Image Overrides (Migration + Fetch)
+      const finalPersonas = [];
+      for (const p of loadedPersonas) {
+        let savedImg = await db.getItem('settings', `persona_img_${p.id}`);
+        if (!savedImg) {
+          const localImg = localStorage.getItem(`persona_img_${p.id}`);
+          if (localImg) {
+            savedImg = localImg;
+            await db.setItem('settings', `persona_img_${p.id}`, savedImg);
+          }
+        }
+        
         const isValid = savedImg && savedImg.length > 10 &&
           (savedImg.startsWith('data:image/') || savedImg.startsWith('http'));
-        if (isValid) return { ...p, image: savedImg };
-      } catch (e) { /* ignore */ }
-      return p;
-    });
-
-    // Load server info
-    let servers = [];
-    try {
-      const storedServers = localStorage.getItem('savedServers');
-      servers = storedServers ? JSON.parse(storedServers) : [];
-      if (!Array.isArray(servers)) servers = [];
-      
-      // Inject presets if they don't exist
-      const presets = [
-        { id: 'mac', name: 'Mac', url: 'http://192.168.1.233:1234/v1' },
-        { id: 'tailscale', name: 'Tailscale PC', url: 'http://100.87.53.100:1234/v1' },
-        { id: 'pc', name: 'PC', url: 'http://169.254.83.107:1234/v1' }
-      ];
-      
-      let modified = false;
-      presets.forEach(preset => {
-        if (!servers.find(s => s.url === preset.url)) {
-          servers.push(preset);
-          modified = true;
-        }
-      });
-      
-      if (modified) {
-        localStorage.setItem('savedServers', JSON.stringify(servers));
+        
+        finalPersonas.push(isValid ? { ...p, image: savedImg } : p);
       }
-    } catch (e) {
-      console.error('[App] Failed to parse savedServers, clearing.', e);
-      localStorage.removeItem('savedServers');
-      // Fallback to presets
-      servers = [
-        { id: 'mac', name: 'Mac', url: 'http://192.168.1.233:1234' },
-        { id: 'tailscale', name: 'Tailscale PC', url: 'http://100.87.53.100:1234' },
-        { id: 'pc', name: 'PC', url: 'http://169.254.83.107:1234' }
-      ];
-      localStorage.setItem('savedServers', JSON.stringify(servers));
-    }
-    setSavedServers(servers);
-    setActiveServerUrl(localStorage.getItem('lmStudioUrl') || '');
 
-    // Always ensure a 'home' entry exists at the base of the history stack.
-    // This prevents history.back() from ever navigating out of the app.
-    const savedView = localStorage.getItem('activeView') || 'home';
-    window.history.replaceState({ view: 'home' }, '');
-
-    if (savedView === 'settings') {
-      setIsSettingsOpen(true);
-    } else if (savedView === 'gallery') {
-      setIsGalleryOpen(true);
-    } else if (savedView === 'chat') {
-      const targetId = localStorage.getItem('lastPersonaId');
-      if (targetId) {
-        const found = loadedPersonas.find(p => p.id === targetId);
-        if (found) {
-          setSelectedPersona(found);
-        } else {
-          // Failsafe if persona deleted
-          setActiveView('home');
-          localStorage.setItem('activeView', 'home');
+      // 3. Load View State
+      const savedView = localStorage.getItem('activeView') || 'home';
+      if (savedView === 'chat') {
+        const targetId = localStorage.getItem('lastPersonaId');
+        if (targetId) {
+          const found = finalPersonas.find(p => p.id === targetId);
+          if (found) setSelectedPersona(found);
+          else setActiveView('home');
         }
+      } else if (savedView === 'settings') {
+        setIsSettingsOpen(true);
+      } else if (savedView === 'gallery') {
+        setIsGalleryOpen(true);
+      } else if (savedView === 'genesis') {
+        setActiveView('genesis');
       }
-    }
+
+      // Load server info (keep in localStorage as it's small)
+      let servers = [];
+      try {
+        const storedServers = localStorage.getItem('savedServers');
+        servers = storedServers ? JSON.parse(storedServers) : [];
+        if (!Array.isArray(servers)) servers = [];
+        const presets = [
+          { id: 'mac', name: 'Mac', url: 'http://192.168.1.233:1234/v1' },
+          { id: 'tailscale', name: 'Tailscale PC', url: 'http://100.87.53.100:1234/v1' },
+          { id: 'pc', name: 'PC', url: 'http://169.254.83.107:1234/v1' }
+        ];
+        let modified = false;
+        presets.forEach(preset => {
+          if (!servers.find(s => s.url === preset.url)) {
+            servers.push(preset);
+            modified = true;
+          }
+        });
+        if (modified) localStorage.setItem('savedServers', JSON.stringify(servers));
+      } catch (e) {
+        servers = [{ id: 'pc', name: 'PC', url: 'http://169.254.83.107:1234' }];
+      }
+      setSavedServers(servers);
+      setActiveServerUrl(localStorage.getItem('lmStudioUrl') || '');
+    };
+
+    loadAllData();
 
     const handlePopState = (e) => {
       const stateView = e.state?.view || 'home';
-      // Handle all possible pop states
       if (stateView === 'home') {
         if (localStorage.getItem('activeView') === 'chat') {
           localStorage.setItem('lastPersonaTab', 'active');
@@ -171,7 +152,6 @@ function App() {
         localStorage.setItem('activeView', 'home');
         hasPushedHistory = false;
       } else if (stateView === 'settings') {
-        // If somehow we pop back to settings state, just go home safely
         setIsSettingsOpen(false);
         setIsGalleryOpen(false);
         setSelectedPersona(null);
@@ -179,7 +159,6 @@ function App() {
         localStorage.setItem('activeView', 'home');
         hasPushedHistory = false;
       } else {
-        // Unknown state: go home as a fallback
         setIsSettingsOpen(false);
         setIsGalleryOpen(false);
         setSelectedPersona(null);
@@ -201,16 +180,15 @@ function App() {
     };
 
     let lastShake = 0;
-    const SHAKE_THRESHOLD = 20; // m/s^2
+    const SHAKE_THRESHOLD = 20;
     const handleMotion = (e) => {
       if (e.accelerationIncludingGravity) {
         const { x, y, z } = e.accelerationIncludingGravity;
         if (x !== null && y !== null && z !== null) {
           const acceleration = Math.sqrt(x * x + y * y + z * z);
-          // Earth gravity is ~9.8. Anything over 20 implies a strong shake.
           if (acceleration > SHAKE_THRESHOLD) {
             const now = Date.now();
-            if (now - lastShake > 1000) { // Debounce 1 second
+            if (now - lastShake > 1000) {
               setPanicMode(true);
               lastShake = now;
             }
@@ -222,15 +200,12 @@ function App() {
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('keydown', handleKeyDown);
     
-    // Enable Device Motion with safety check for mobile stability
     if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-      // iOS 13+ requires explicit permission
       console.log("DeviceMotion permission required");
     } else if (typeof DeviceMotionEvent !== 'undefined') {
       window.addEventListener('devicemotion', handleMotion);
     }
 
-    // Restore exact view state
     const aura = updateAura();
     setUserAura(aura);
 
@@ -242,25 +217,17 @@ function App() {
   }, []);
 
   const getProcessedPersonas = () => {
+    // Note: Since this is synchronous, it won't reflect the DB values immediately until the next render
+    // However, customPersonas and the overrides are already loaded into state via the useEffect
     let loadedPersonas = [...defaultPersonas, ...customPersonas];
-    return loadedPersonas.map(p => {
-      try {
-        const savedImg = localStorage.getItem(`persona_img_${p.id}`);
-        const isValid = savedImg && savedImg.length > 10 &&
-          (savedImg.startsWith('data:image/') || savedImg.startsWith('http'));
-        if (isValid) return { ...p, image: savedImg };
-      } catch (e) { /* ignore */ }
-      return p;
-    });
+    return loadedPersonas;
   };
 
   const handleSelectPersona = (persona) => {
     window.history.pushState({ view: 'chat' }, '');
     hasPushedHistory = true;
     
-    // Use the latest version with overrides
-    const processed = getProcessedPersonas().find(p => p.id === persona.id) || persona;
-    setSelectedPersona(processed);
+    setSelectedPersona(persona);
     setIsSettingsOpen(false);
     setIsGalleryOpen(false);
     
@@ -300,11 +267,21 @@ function App() {
     localStorage.setItem('activeView', 'genesis');
   };
 
+  const handleOpenGF = () => {
+    window.history.pushState({ view: 'gf' }, '');
+    hasPushedHistory = true;
+    setSelectedPersona(null);
+    setIsGalleryOpen(false);
+    setIsSettingsOpen(false);
+    setActiveView('gf');
+    localStorage.setItem('activeView', 'gf');
+    localStorage.setItem('lastPersonaId', personal_gf.id);
+  };
+
   const handlePersonaCreated = (newPersona) => {
     const updatedCustom = [newPersona, ...customPersonas];
     setCustomPersonas(updatedCustom);
-    localStorage.setItem('customPersonas', JSON.stringify(updatedCustom));
-    // Switch to the new persona's chat immediately
+    db.setItem('settings', 'customPersonas', updatedCustom);
     setSelectedPersona(newPersona);
     setActiveView('chat'); 
     localStorage.setItem('activeView', 'chat');
@@ -315,8 +292,6 @@ function App() {
     if (activeView === 'chat') {
       localStorage.setItem('lastPersonaTab', 'active');
     }
-    // For settings and gallery: always go directly home to avoid history stack issues
-    // For chat: use browser history so swipe-back works
     if (activeView === 'chat' && hasPushedHistory) {
       window.history.back();
       hasPushedHistory = false;
@@ -333,8 +308,6 @@ function App() {
     setActiveView('home');
     localStorage.setItem('activeView', 'home');
     hasPushedHistory = false;
-    
-    // Refresh Aura when returning home
     setUserAura(updateAura());
   };
 
@@ -344,21 +317,14 @@ function App() {
   };
 
   const handleSelectImage = (personaId, newImage) => {
-    // Update both default and custom personas in state
-    const updatePersonaList = (list) => 
-      list.map(p => p.id === personaId ? { ...p, image: newImage } : p);
-
-    // We also need to update the currently selected persona if it matches
     if (selectedPersona && selectedPersona.id === personaId) {
       setSelectedPersona({ ...selectedPersona, image: newImage });
     }
-
-    // Re-trigger the persona loading logic by updating state
-    setCustomPersonas(prev => updatePersonaList(prev));
+    setCustomPersonas(prev => prev.map(p => p.id === personaId ? { ...p, image: newImage } : p));
+    db.setItem('settings', `persona_img_${personaId}`, newImage);
     setImageUpdateKey(prev => prev + 1);
   };
 
-  // Re-sync server list when entering/leaving settings or on refresh
   useEffect(() => {
     if (!isSettingsOpen) {
       try {
@@ -375,7 +341,7 @@ function App() {
   const handleTouchStart = () => {
     longPressTimerRef.current = setTimeout(() => {
       setPanicMode(true);
-    }, 1500); // 1.5 second long press
+    }, 1500); 
   };
 
   const handleTouchEnd = () => {
@@ -392,7 +358,6 @@ function App() {
 
   return (
     <div className="app-container">
-        {/* Dynamic Immersive Background */}
         <AnimatePresence>
           {selectedPersona && (
             <motion.div
@@ -412,10 +377,9 @@ function App() {
             />
           )}
         </AnimatePresence>
-        {/* ... existing content ... */}
+
         {!selectedPersona && !isSettingsOpen && !isGalleryOpen && (
           <header className="header fade-in">
-            {/* ... */}
             <div
               className="header-title premium-gradient-text"
               onTouchStart={handleTouchStart}
@@ -425,9 +389,7 @@ function App() {
               Aura Roleplay
             </div>
 
-
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              {/* Server Quick Switcher */}
               {savedServers.length > 0 && (
                 <div style={{ 
                   display: 'flex', 
@@ -473,6 +435,15 @@ function App() {
             onGoHome={handleGoHome}
             onSelectImage={handleSelectImage}
           />
+        ) : activeView === 'gf' ? (
+          <ChatInterface
+            key={personal_gf.id}
+            persona={personal_gf}
+            allPersonas={getProcessedPersonas()}
+            onBack={handleBack}
+            onGoHome={handleGoHome}
+            onSelectImage={handleSelectImage}
+          />
         ) : isSettingsOpen ? (
           <Settings
             onBack={handleBack}
@@ -502,7 +473,6 @@ function App() {
           />
         )}
 
-        {/* Mobile Bottom Navigation */}
         <nav className="bottom-nav glass-panel" style={{ 
           borderBottom: 'none', 
           borderLeft: 'none', 
@@ -538,6 +508,21 @@ function App() {
               )}
             </div>
             <span style={{ color: activeView === 'genesis' ? '#fff' : '#71717a' }}>Genesis</span>
+          </button>
+          <button 
+            className={`nav-item ${activeView === 'gf' ? 'active' : ''}`}
+            onClick={handleOpenGF}
+          >
+            <div className="gf-nav-icon" style={{ position: 'relative' }}>
+              <Heart size={22} color={activeView === 'gf' ? '#ec4899' : '#71717a'} fill={activeView === 'gf' ? '#ec4899' : 'none'} />
+              {activeView === 'gf' && (
+                <motion.div 
+                  layoutId="nav-pill"
+                  style={{ position: 'absolute', inset: -4, background: 'rgba(236, 72, 153, 0.15)', borderRadius: '12px', zIndex: -1 }}
+                />
+              )}
+            </div>
+            <span style={{ color: activeView === 'gf' ? '#fff' : '#71717a' }}>GF</span>
           </button>
           <button 
             className={`nav-item ${activeView === 'settings' ? 'active' : ''}`}
