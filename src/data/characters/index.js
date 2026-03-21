@@ -68,6 +68,7 @@ import { village_bhabhi } from './village_bhabhi.js';
 import { village_bride } from './village_bride.js';
 import { wedding_planner } from './wedding_planner.js';
 import { whore_stepmom } from './whore_stepmom.js';
+import { isabella_latina_aunt } from './isabella_latina_aunt.js';
 import { widow_next_door } from './widow_next_door.js';
 
 export const characters = [
@@ -141,5 +142,6 @@ export const characters = [
   village_bride,
   wedding_planner,
   whore_stepmom,
-  widow_next_door
+  widow_next_door,
+  isabella_latina_aunt
 ];
