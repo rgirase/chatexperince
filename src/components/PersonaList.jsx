@@ -105,20 +105,22 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
             }}>
                 <div style={{ marginBottom: '0.5rem' }}>
                     <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                        <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '8px',
-                            background: 'rgba(255,255,255,0.1)',
-                            backdropFilter: 'blur(8px)',
-                            padding: '4px 8px',
-                            borderRadius: '12px',
-                            width: 'fit-content',
-                            border: '1px solid rgba(255,255,255,0.1)'
-                        }}>
-                            <span className="status-dot" style={{ width: '6px', height: '6px' }}></span>
-                            <span style={{ fontSize: '0.7rem', fontWeight: '600', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active Now</span>
-                        </div>
+                        {persona.isActive && (
+                            <div style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '8px',
+                                background: 'rgba(255,255,255,0.1)',
+                                backdropFilter: 'blur(8px)',
+                                padding: '4px 8px',
+                                borderRadius: '12px',
+                                width: 'fit-content',
+                                border: '1px solid rgba(255,255,255,0.1)'
+                            }}>
+                                <span className="status-dot" style={{ width: '6px', height: '6px' }}></span>
+                                <span style={{ fontSize: '0.7rem', fontWeight: '600', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active Now</span>
+                            </div>
+                        )}
 
                         {persona.isTrending && (
                             <div style={{ 
@@ -547,7 +549,10 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                     displayedPersonas.map((persona) => (
                         <CharacterCard 
                             key={persona.id}
-                            persona={persona}
+                            persona={{
+                                ...persona,
+                                isActive: activeChatIds.includes(persona.id)
+                            }}
                             onSelectPersona={onSelectPersona}
                             onOpenStoryMap={setStoryMapPersona}
                             onOpenDiary={setDiaryPersona}
