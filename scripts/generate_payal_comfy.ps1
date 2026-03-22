@@ -17,7 +17,13 @@ $photoTypes = @(
     @{ index = 2; type = "gallery"; name = "Reception Balcony"; target = "$OUTPUT_DIR\$($charId)_2.png"; prompt = "wearing an emerald green silk saree, standing on a balcony at night, city lights background, confident expression" },
     @{ index = 3; type = "gallery"; name = "Net Saree"; target = "$OUTPUT_DIR\$($charId)_3.png"; prompt = "wearing a translucent black net saree, leaning against a wall, naughty playful smile, touching neck with hennaed hands" },
     @{ index = 4; type = "gallery"; name = "Morning Satin"; target = "$OUTPUT_DIR\$($charId)_4.png"; prompt = "morning-after look, wearing a white satin dressing gown, sitting by a window, soft natural light, hair slightly messy" },
-    @{ index = 5; type = "gallery"; name = "Private Desire"; target = "$OUTPUT_DIR\$($charId)_5.png"; prompt = "intimate close-up, wearing a sheer red silk dupatta, bold passionate desire in eyes, reaching towards camera" }
+    @{ index = 5; type = "gallery"; name = "Private Desire"; target = "$OUTPUT_DIR\$($charId)_5.png"; prompt = "intimate close-up, wearing a sheer red silk dupatta, bold passionate desire in eyes, reaching towards camera" },
+    # Wardrobe Avatars
+    @{ index = 1; type = "wardrobe"; name = "Bridal Avatar"; target = "$PROFILE_DIR\$($charId)_wardrobe_1.png"; prompt = "square avatar shot, focusing on the intricate gold embroidery and vibrant red of her bridal lehenga, close-up" },
+    @{ index = 2; type = "wardrobe"; name = "Emerald Avatar"; target = "$PROFILE_DIR\$($charId)_wardrobe_2.png"; prompt = "square avatar shot, focusing on the deep green silk and elegant drape of her emerald saree" },
+    @{ index = 3; type = "wardrobe"; name = "Net Avatar"; target = "$PROFILE_DIR\$($charId)_wardrobe_3.png"; prompt = "square avatar shot, focusing on the translucent black net fabric and her naughty expression" },
+    @{ index = 4; type = "wardrobe"; name = "Satin Avatar"; target = "$PROFILE_DIR\$($charId)_wardrobe_4.png"; prompt = "square avatar shot, focusing on the soft white satin texture and her relaxed morning look" },
+    @{ index = 5; type = "wardrobe"; name = "Sheer Avatar"; target = "$PROFILE_DIR\$($charId)_wardrobe_5.png"; prompt = "square avatar shot, focusing on the provocative sheer red silk dupatta and her bold passionate gaze" }
 )
 
 Write-Host "🚀 Starting Consistent Photo Generation for Payal..." -ForegroundColor Cyan

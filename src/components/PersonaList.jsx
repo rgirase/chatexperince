@@ -217,6 +217,21 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
     );
 };
 
+const getInitialActiveChats = () => {
+    const active = [];
+    try {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('chat_')) {
+                active.push(key.replace('chat_', ''));
+            }
+        }
+    } catch (e) {
+        console.error("Failed to get initial active chats", e);
+    }
+    return active;
+};
+
 const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('All');
@@ -301,14 +316,16 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
         localStorage.setItem('lastPersonaTab', activeTab);
     }, [activeTab]);
 
-    const displayedPersonas = (activeTab === 'all'
-        ? allPersonas
-        : activeChatIds.map(id => allPersonas.find(p => p.id === id)).filter(Boolean)
+    // Ensure uniqueness by ID to avoid React key warnings
+    const uniquePersonas = Array.from(new Map(allPersonas.map(p => [p.id, p])).values());
+
+    const displayedPersonas = (activeTab === 'active' 
+        ? uniquePersonas.filter(p => activeChatIds.includes(p.id))
+        : uniquePersonas
     ).filter(p => {
         const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                              p.tagline.toLowerCase().includes(searchTerm.toLowerCase());
         
-        // Handle Taboo category (based on tabooRating > 0)
         let matchesCategory = false;
         if (activeCategory === 'All') {
             matchesCategory = true;
@@ -321,6 +338,12 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
         const matchesRegion = activeRegion === 'All' || p.origin === activeRegion;
         
         return matchesSearch && matchesCategory && matchesRegion;
+    }).sort((a, b) => {
+        const aActive = activeChatIds.includes(a.id);
+        const bActive = activeChatIds.includes(b.id);
+        if (aActive && !bActive) return -1;
+        if (!aActive && bActive) return 1;
+        return 0;
     });
 
     const containerVariants = {
