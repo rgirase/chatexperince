@@ -313,6 +313,43 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         setIsSuggesting(false);
     }, [persona, messages]);
 
+    const handleClearChat = useCallback(async () => {
+        if (messages.length > 1) {
+            // Archive current talk
+            const archiveId = `archive_${persona.id}_${Date.now()}`;
+            await db.setItem('conversations', archiveId, {
+                personaId: persona.id,
+                personaName: persona.name,
+                timestamp: new Date().toISOString(),
+                messages: messages
+            });
+            showToast("Conversation archived and reset", "success");
+        }
+        
+        // Reset to initial
+        setMessages([{
+            id: Date.now().toString(),
+            role: 'ai',
+            content: cleanLeakage(persona.initialMessage) || "*Smiles softly* Hello..."
+        }]);
+    }, [persona, messages, showToast]);
+
+    const handleResubmit = useCallback(async (messageId) => {
+        // Find the index of the message to resubmit (the user message)
+        const msgIndex = messages.findIndex(m => m.id === messageId);
+        if (msgIndex === -1 || isTyping) return;
+
+        // Remove everything after this message
+        const truncatedMessages = messages.slice(0, msgIndex + 1);
+        setMessages(truncatedMessages);
+        
+        setIsTyping(true);
+        const aiMessageId = (Date.now() + 1).toString();
+        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
+
+        await executeAiRequest(aiMessageId, truncatedMessages);
+    }, [messages, isTyping, executeAiRequest]);
+
     return {
         messages, setMessages,
         input, setInput,
@@ -337,6 +374,8 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         handleGenerateSceneImage,
         handleSceneChange,
         handleScenarioShuffle,
-        handleSelectFantasy
+        handleSelectFantasy,
+        handleClearChat,
+        handleResubmit
     };
 };

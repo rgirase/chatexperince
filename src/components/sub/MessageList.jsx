@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit2, Check, X, Trash2, FastForward, Image as ImageIcon } from 'lucide-react';
+import { Edit2, Check, X, Trash2, FastForward, Image as ImageIcon, RefreshCw } from 'lucide-react';
 
 const MessageList = ({ 
     messages, 
@@ -13,6 +13,7 @@ const MessageList = ({
     onEditCancel, 
     onDeleteMessage, 
     onContinue,
+    onResubmit,
     isTyping,
     messagesAreaRef
 }) => {
@@ -60,6 +61,9 @@ const MessageList = ({
                             <div className="message-meta-actions">
                                 <button onClick={() => onEditStart(msg)} title="Edit"><Edit2 size={12} /></button>
                                 <button onClick={() => onDeleteMessage(msg.id)} title="Delete"><Trash2 size={12} /></button>
+                                {msg.role === 'user' && (
+                                    <button onClick={() => onResubmit(msg.id)} title="Resubmit / Regenerate"><RefreshCw size={12} /></button>
+                                )}
                                 {msg.role === 'ai' && index === messages.length - 1 && (
                                     <button onClick={() => onContinue(msg)} title="Continue story"><FastForward size={12} /></button>
                                 )}

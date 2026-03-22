@@ -268,19 +268,22 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                 }
             }
 
-            // 2. Check IndexedDB
+            // 2. Check IndexedDB for chats with >= 2 messages
             try {
                 const database = await db.openDB();
                 const transaction = database.transaction('chats', 'readonly');
                 const store = transaction.objectStore('chats');
-                const request = store.getAllKeys();
+                const request = store.getAll(); // Get all chat objects to check message counts
 
                 await new Promise((resolve) => {
                     request.onsuccess = () => {
-                        const keys = request.result || [];
-                        keys.forEach(key => {
-                            if (typeof key === 'string' && key.startsWith('chat_')) {
-                                const id = key.replace('chat_', '');
+                        const chats = request.result || [];
+                        chats.forEach(chat => {
+                            // chat.id is usually 'chat_persona-id'
+                            const id = chat.id.startsWith('chat_') ? chat.id.replace('chat_', '') : chat.id;
+                            const messages = chat.value || []; // In this DB, messages are in the 'value' field (see db.setItem)
+                            
+                            if (messages.length >= 2) {
                                 if (allPersonas.find(p => p.id === id) && !active.includes(id)) {
                                     active.push(id);
                                 }

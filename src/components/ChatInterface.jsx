@@ -37,7 +37,16 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     };
 
     // --- CUSTOM HOOKS ---
-    const { generateSelfie } = useImageGeneration(persona, (updater) => setMessages(updater), showToast);
+    // We use a ref for setMessages to break the circular dependency between hooks
+    const setMessagesRef = useRef(null);
+
+    const { generateSelfie } = useImageGeneration(
+        persona, 
+        (updater) => {
+            if (setMessagesRef.current) setMessagesRef.current(updater);
+        }, 
+        showToast
+    );
 
     const {
         messages, setMessages,
@@ -62,8 +71,15 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         handleGenerateSceneImage,
         handleSceneChange,
         handleScenarioShuffle,
-        handleSelectFantasy
+        handleSelectFantasy,
+        handleClearChat: handleClearChatLogic,
+        handleResubmit
     } = useChatLogic(persona, showToast, generateSelfie);
+
+    // Update the ref whenever setMessages changes
+    useEffect(() => {
+        setMessagesRef.current = setMessages;
+    }, [setMessages]);
 
     // --- EVENT HANDLERS ---
     const scrollToBottom = () => {
@@ -94,12 +110,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
 
     const handleClearChat = () => {
         if (window.confirm("Are you sure you want to archive and clear this chat history? This cannot be undone.")) {
-            setMessages([{
-                id: Date.now().toString(),
-                role: 'ai',
-                content: persona.initialMessage || "*Looks at you* Hello..."
-            }]);
-            showToast("Chat archived and cleared", "success");
+            handleClearChatLogic();
         }
     };
 
@@ -167,6 +178,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 onEditCancel={() => setEditingMessageId(null)}
                 onDeleteMessage={handleDeleteMessage}
                 onContinue={(msg) => handleSendMessage("[Continue this thought...]")}
+                onResubmit={handleResubmit}
                 isTyping={isTyping}
                 messagesAreaRef={messagesAreaRef}
             />
