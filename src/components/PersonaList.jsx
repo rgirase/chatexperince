@@ -251,41 +251,55 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     const categories = ['All', 'Family', 'Professional', 'Modern', 'Traditional', 'Taboo'];
     const regions = ['All', 'Indian', 'American', 'Latina-American', 'European', 'East Asian'];
 
-    const [activeChatIds, setActiveChatIds] = useState([]);
+    const [activeChatsMetadata, setActiveChatsMetadata] = useState({});
 
     useEffect(() => {
         const fetchActiveChats = async () => {
-            const active = [];
+            const activeMetadata = {};
             
             // 1. Check Legacy LocalStorage
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && key.startsWith('chat_')) {
-                    const id = key.replace('chat_', '');
-                    if (allPersonas.find(p => p.id === id) && !active.includes(id)) {
-                        active.push(id);
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('chat_')) {
+                        const id = key.replace('chat_', '');
+                        if (allPersonas.find(p => p.id === id)) {
+                            try {
+                                const messages = JSON.parse(localStorage.getItem(key) || '[]');
+                                if (messages.length >= 2) {
+                                    const lastMsg = messages[messages.length - 1];
+                                    const timestamp = lastMsg && lastMsg.id ? parseInt(lastMsg.id) : 0;
+                                    activeMetadata[id] = { lastTimestamp: timestamp };
+                                }
+                            } catch (e) {}
+                        }
                     }
                 }
-            }
+            } catch (e) {}
 
             // 2. Check IndexedDB for chats with >= 2 messages
             try {
                 const database = await db.openDB();
                 const transaction = database.transaction('chats', 'readonly');
                 const store = transaction.objectStore('chats');
-                const request = store.getAll(); // Get all chat objects to check message counts
+                const request = store.getAll();
 
                 await new Promise((resolve) => {
                     request.onsuccess = () => {
                         const chats = request.result || [];
                         chats.forEach(chat => {
-                            // chat.id is usually 'chat_persona-id'
                             const id = chat.id.startsWith('chat_') ? chat.id.replace('chat_', '') : chat.id;
-                            const messages = chat.value || []; // In this DB, messages are in the 'value' field (see db.setItem)
+                            const messages = chat.value || [];
                             
                             if (messages.length >= 2) {
-                                if (allPersonas.find(p => p.id === id) && !active.includes(id)) {
-                                    active.push(id);
+                                if (allPersonas.find(p => p.id === id)) {
+                                    const lastMsg = messages[messages.length - 1];
+                                    const timestamp = lastMsg && lastMsg.id ? parseInt(lastMsg.id) : 0;
+                                    
+                                    // Prefer IndexedDB if it exists, or update if more recent
+                                    if (!activeMetadata[id] || timestamp > activeMetadata[id].lastTimestamp) {
+                                        activeMetadata[id] = { lastTimestamp: timestamp };
+                                    }
                                 }
                             }
                         });
@@ -297,7 +311,7 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                 console.error("IndexedDB error in PersonaList", e);
             }
 
-            setActiveChatIds(active);
+            setActiveChatsMetadata(activeMetadata);
         };
 
         fetchActiveChats();
@@ -306,7 +320,7 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     const [activeTab, setActiveTab] = useState(() => {
         try {
             const savedTab = localStorage.getItem('lastPersonaTab');
-            const initialActive = getInitialActiveChats();
+            const initialActive = Object.keys(activeChatsMetadata);
             
             if (savedTab === 'active' && initialActive.length > 0) {
                 return 'active';
@@ -325,7 +339,7 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     const uniquePersonas = Array.from(new Map(allPersonas.map(p => [p.id, p])).values());
 
     const displayedPersonas = (activeTab === 'active' 
-        ? uniquePersonas.filter(p => activeChatIds.includes(p.id))
+        ? uniquePersonas.filter(p => activeChatsMetadata[p.id])
         : uniquePersonas
     ).filter(p => {
         const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -344,10 +358,18 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
         
         return matchesSearch && matchesCategory && matchesRegion;
     }).sort((a, b) => {
-        const aActive = activeChatIds.includes(a.id);
-        const bActive = activeChatIds.includes(b.id);
-        if (aActive && !bActive) return -1;
-        if (!aActive && bActive) return 1;
+        const aMeta = activeChatsMetadata[a.id];
+        const bMeta = activeChatsMetadata[b.id];
+        
+        // Active chats first
+        if (aMeta && !bMeta) return -1;
+        if (!aMeta && bMeta) return 1;
+        
+        // If both are active, sort by recency (descending)
+        if (aMeta && bMeta) {
+            return bMeta.lastTimestamp - aMeta.lastTimestamp;
+        }
+        
         return 0;
     });
 
@@ -528,12 +550,12 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                 >
                     All Characters ({allPersonas.length})
                 </button>
-                {activeChatIds.length > 0 && (
+                {Object.keys(activeChatsMetadata).length > 0 && (
                     <button
                         className={`tab-btn ${activeTab === 'active' ? 'active' : ''}`}
                         onClick={() => setActiveTab('active')}
                     >
-                        Active Chats ({activeChatIds.length})
+                        Active Chats ({Object.keys(activeChatsMetadata).length})
                     </button>
                 )}
             </div>
@@ -554,7 +576,7 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                             key={persona.id}
                             persona={{
                                 ...persona,
-                                isActive: activeChatIds.includes(persona.id)
+                                isActive: !!activeChatsMetadata[persona.id]
                             }}
                             onSelectPersona={onSelectPersona}
                             onOpenStoryMap={setStoryMapPersona}
