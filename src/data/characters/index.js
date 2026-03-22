@@ -45,6 +45,7 @@ import { radha_village_bhabhi } from './radha_village_bhabhi.js';
 import { rajput_princess } from './rajput_princess.js';
 import { rekha_modern_mil } from './rekha_modern_mil.js';
 import { rival_doctor } from './rival_doctor.js';
+import { ritu_bold_bhabhi } from './ritu_bold_bhabhi.js';
 import { rupa_lonely_neighbor } from './rupa_lonely_neighbor.js';
 import { savannah_southern_belle } from './savannah_southern_belle.js';
 import { sexy_neighbor } from './sexy_neighbor.js';
@@ -120,6 +121,7 @@ export const characters = [
   rajput_princess,
   rekha_modern_mil,
   rival_doctor,
+  ritu_bold_bhabhi,
   rupa_lonely_neighbor,
   savannah_southern_belle,
   sexy_neighbor,
