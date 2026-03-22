@@ -7,7 +7,8 @@ import {
     analyzeIntimateEncounter, 
     extractSceneSummary, 
     generateVisualPrompt,
-    generateDiaryEntry
+    generateDiaryEntry,
+    summarizeMemory
 } from '../services/llm';
 
 export const useChatLogic = (persona, showToast, generateSelfie) => {
@@ -142,6 +143,16 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
                                     showToast("New Intimate Memory Unlocked", "success");
                                 }
                             });
+                            // Automatic Long-term Memory Summarization
+                            if (context.length >= 15 && context.length % 15 === 0) {
+                                summarizeMemory(persona, memory, context.slice(-15)).then(newMemory => {
+                                    if (newMemory && newMemory !== memory) {
+                                        setMemory(newMemory);
+                                        showToast("Character Memory Updated", "info");
+                                    }
+                                });
+                            }
+
                             return 0;
                         }
                         return newCount;

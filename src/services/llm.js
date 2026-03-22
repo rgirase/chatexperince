@@ -57,7 +57,7 @@ const getModelId = () => {
 // 1 token ≈ 4 characters. 
 // Standard local context is 4096-8192 tokens.
 const MAX_CONTEXT_CHARS = 64000; // ~16,000 tokens safe limit for modern local models
-const MAX_HISTORY_CHARS = 48000; // Allows for much deeper immediate history
+const MAX_HISTORY_CHARS = 16000; // Sufficient for ~20-30 messages of active history
 const MAX_RESPONSE_TOKENS = 800; // Slightly larger response allowance
 
 // Internal helper to ensure we have a valid model
@@ -239,7 +239,7 @@ Current Dynamic:
 ${auraPrompt}${situationPrompt}
 
 Story Context:
-${memory ? "The story so far: " + memory : "Initial Scenario: " + (persona.tagline || "The interaction begins now.") }
+${memory ? "Long-term Memory: " + memory : "Background Context: " + (persona.tagline || "The interaction begins now.") }
 ${milestones.length > 0 ? "Shared Relationship Milestones: " + milestones.slice(-5).join(". ") : ""}
 ${options.encounterStats?.count > 0 ? `Shared Intimacy: We have had ${options.encounterStats.count} intimate encounter(s). The last one was ${options.encounterStats.lastLocation ? "at " + options.encounterStats.lastLocation : "recently"}.` : ""}
 
