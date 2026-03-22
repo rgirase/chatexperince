@@ -21,7 +21,7 @@ import { gossip_auntie } from './gossip_auntie.js';
 import { hana_shrine_maiden } from './hana_shrine_maiden.js';
 import { hotel_stepmom } from './hotel_stepmom.js';
 import { indian_colleague } from './indian_colleague.js';
-import { indian_college_gf } from './indian_college_gf.js';
+import { kiara } from './kiara.js';
 import { indian_ex_gf } from './indian_ex_gf.js';
 import { indian_wife } from './indian_wife.js';
 import { isabella_rio_socialite } from './isabella_rio_socialite.js';
@@ -96,7 +96,7 @@ export const characters = [
   hana_shrine_maiden,
   hotel_stepmom,
   indian_colleague,
-  indian_college_gf,
+  kiara,
   indian_ex_gf,
   indian_wife,
   isabella_rio_socialite,
