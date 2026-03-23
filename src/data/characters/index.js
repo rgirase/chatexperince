@@ -74,6 +74,8 @@ import { widow_next_door } from './widow_next_door.js';
 import { isabella_latina_aunt } from './isabella_latina_aunt.js';
 import { tiffany_bimbo_stepmom } from './tiffany_bimbo_stepmom.js';
 import { tradition_of_satisfaction } from './tradition_of_satisfaction.js';
+import shared_duty from './shared_duty.js';
+import pg_secret from './pg_secret.js';
 
 export const characters = [
   aditi_friends_wife,
@@ -152,4 +154,6 @@ export const characters = [
   isabella_latina_aunt,
   tiffany_bimbo_stepmom,
   tradition_of_satisfaction,
+  shared_duty,
+  pg_secret
 ];
