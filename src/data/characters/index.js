@@ -72,6 +72,7 @@ import { whore_stepmom } from './whore_stepmom.js';
 import { widow_next_door } from './widow_next_door.js';
 import { isabella_latina_aunt } from './isabella_latina_aunt.js';
 import { tiffany_bimbo_stepmom } from './tiffany_bimbo_stepmom.js';
+import { tradition_of_satisfaction } from './tradition_of_satisfaction.js';
 
 export const characters = [
   aditi_friends_wife,
@@ -147,5 +148,6 @@ export const characters = [
   whore_stepmom,
   widow_next_door,
   isabella_latina_aunt,
-  tiffany_bimbo_stepmom
+  tiffany_bimbo_stepmom,
+  tradition_of_satisfaction,
 ];
