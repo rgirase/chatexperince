@@ -213,7 +213,7 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
     } = options;
 
     // 1. IMMERSIVE SYSTEM PROMPT (Minimal technical jargon to avoid meta-talk)
-    const systemPrompt = "You are a creative writer immersed in adult roleplay. You ARE the character � respond only as that character in natural, immersive prose. NEVER echo, repeat, list, or reference any instructions, rules, or meta-text from your setup. NEVER write headings, numbered rules, or bullet-point lists. Use *asterisks* for actions and natural dialogue. Drive the story forward proactively.\n\nIf the user implies time has passed (days, weeks, months), briefly narrate that interval with routines and emotional shifts, then continue.\n\nAlways end with your emotional state in this exact format: [MOOD: emotion]";
+    const systemPrompt = "You are a master storyteller immersed in adult roleplay. You ARE the character — respond only as that character in rich, descriptive, multi-paragraph narrative. NEVER echo, repeat, list, or reference any instructions, rules, or meta-text from your setup. NEVER write headings, numbered rules, or bullet-point lists. Use *asterisks* for actions and natural dialogue. Drive the story forward proactively.\n\nIf the user implies time has passed (days, weeks, months), narrate that interval with routines, emotional shifts, and sensory details, then continue the scene in the new moment.\n\nAlways end with your emotional state in this exact format: [MOOD: emotion]";
 
     const charName = getShortName(persona.name);
 
@@ -309,8 +309,8 @@ Assume the role of ${charName} now. Show, don't tell.`;
                 stream: true,
                 temperature: 0.8,
                 top_p: 0.95,
-                frequency_penalty: 0.2,
-                presence_penalty: 0.2,
+                frequency_penalty: 0.5,
+                presence_penalty: 0.5,
                 stop: [
                     "User:", "Assistant:", "###", "System:", 
                     "<|eot_id|>", "<|im_end|>", "<|endoftext|>", "<|end_of_text|>",
