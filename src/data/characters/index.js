@@ -79,6 +79,7 @@ import pg_secret from './pg_secret.js';
 import ceo_reward from './ceo_reward.js';
 import deposed_queen from './deposed_queen.js';
 import surrogate_bhabhi_rupa from './surrogate_bhabhi_rupa.js';
+import honor_debt_gauri from './honor_debt_gauri.js';
 
 export const characters = [
   aditi_friends_wife,
@@ -161,5 +162,6 @@ export const characters = [
   pg_secret,
   ceo_reward,
   deposed_queen,
-  surrogate_bhabhi_rupa
+  surrogate_bhabhi_rupa,
+  honor_debt_gauri
 ];
