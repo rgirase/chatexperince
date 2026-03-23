@@ -81,6 +81,7 @@ import deposed_queen from './deposed_queen.js';
 import surrogate_bhabhi_rupa from './surrogate_bhabhi_rupa.js';
 import honor_debt_gauri from './honor_debt_gauri.js';
 import isabella_noble from './isabella_noble.js';
+import exchange_program_sato from './exchange_program_sato.js';
 
 export const characters = [
   aditi_friends_wife,
@@ -165,5 +166,6 @@ export const characters = [
   deposed_queen,
   surrogate_bhabhi_rupa,
   honor_debt_gauri,
-  isabella_noble
+  isabella_noble,
+  exchange_program_sato
 ];
