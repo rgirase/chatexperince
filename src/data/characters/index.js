@@ -14,6 +14,7 @@ import { chloe_step_aunt } from './chloe_step_aunt.js';
 import { devoted_indian_family } from './devoted_indian_family.js';
 import { divorced_wife } from './divorced_wife.js';
 import { elena_stepsister } from './elena_stepsister.js';
+import { exchange_arrangement } from './exchange_arrangement.js';
 import { exhausted_techie } from './exhausted_techie.js';
 import { forbidden_bhabhi } from './forbidden_bhabhi.js';
 import { free_use_household } from './free_use_household.js';
@@ -91,6 +92,7 @@ export const characters = [
   devoted_indian_family,
   divorced_wife,
   elena_stepsister,
+  exchange_arrangement,
   exhausted_techie,
   forbidden_bhabhi,
   free_use_household,
