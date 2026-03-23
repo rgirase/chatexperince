@@ -83,6 +83,15 @@ import honor_debt_gauri from './honor_debt_gauri.js';
 import isabella_noble from './isabella_noble.js';
 import exchange_program_sato from './exchange_program_sato.js';
 import hostage_brat_valentina from './hostage_brat_valentina.js';
+import ritual_guardians from './ritual_guardians.js';
+import shanti_surrogate_mami from './shanti_surrogate_mami.js';
+import maria_anjali_honor_exchange from './maria_anjali_honor_exchange.js';
+import sienna_inherited_stepdaughter from './sienna_inherited_stepdaughter.js';
+import jia_substitution_ritual from './jia_substitution_ritual.js';
+import meera_maya_secret_twin from './meera_maya_secret_twin.js';
+import auntie_sarah_surrogate from './auntie_sarah_surrogate.js';
+import diane_lily_home_correction from './diane_lily_home_correction.js';
+import kiara_tiffany_family_swap from './kiara_tiffany_family_swap.js';
 
 export const characters = [
   aditi_friends_wife,
@@ -168,5 +177,15 @@ export const characters = [
   surrogate_bhabhi_rupa,
   honor_debt_gauri,
   isabella_noble,
-  exchange_program_sato
+  exchange_program_sato,
+  hostage_brat_valentina,
+  ritual_guardians,
+  shanti_surrogate_mami,
+  maria_anjali_honor_exchange,
+  sienna_inherited_stepdaughter,
+  jia_substitution_ritual,
+  meera_maya_secret_twin,
+  auntie_sarah_surrogate,
+  diane_lily_home_correction,
+  kiara_tiffany_family_swap
 ];
