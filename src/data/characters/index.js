@@ -105,6 +105,18 @@ import thorne_strict_headmistress from './thorne_strict_headmistress.js';
 import elena_sinclair_mentor from './elena_sinclair_mentor.js';
 import vivienne_refinement_matron from './vivienne_refinement_matron.js';
 import sterling_surrogate_sisters from './sterling_surrogate_sisters.js';
+import miss_vane_rehabilitation from './miss_vane_rehabilitation.js';
+import aunt_genevieve_inheritance from './aunt_genevieve_inheritance.js';
+import mrs_harrington_stepmom from './mrs_harrington_stepmom.js';
+import frau_schmidt_disciplinarian from './frau_schmidt_disciplinarian.js';
+import ceo_beatrice_corporate from './ceo_beatrice_corporate.js';
+import aunt_evelyn_society from './aunt_evelyn_society.js';
+import miranda_wicked_stepmom from './miranda_wicked_stepmom.js';
+import clara_elise_twins from './clara_elise_twins.js';
+import warden_graves_prison from './warden_graves_prison.js';
+import brenda_step_aunt_authority from './brenda_step_aunt_authority.js';
+import lady_alistair_victorian from './lady_alistair_victorian.js';
+import katarina_russian_military from './katarina_russian_military.js';
 
 export const characters = [
   aditi_friends_wife,
@@ -214,4 +226,16 @@ export const characters = [
   elena_sinclair_mentor,
   vivienne_refinement_matron,
   sterling_surrogate_sisters,
+  miss_vane_rehabilitation,
+  aunt_genevieve_inheritance,
+  mrs_harrington_stepmom,
+  frau_schmidt_disciplinarian,
+  ceo_beatrice_corporate,
+  aunt_evelyn_society,
+  miranda_wicked_stepmom,
+  clara_elise_twins,
+  warden_graves_prison,
+  brenda_step_aunt_authority,
+  lady_alistair_victorian,
+  katarina_russian_military,
 ];

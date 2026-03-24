@@ -17,35 +17,31 @@ const SD_PROXY_MAP = [
 ];
 
 export const getSdUrl = (providedUrl) => {
-    let baseUrl = providedUrl || localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
-    baseUrl = baseUrl.trim().replace(/\/$/, '');
+    let baseUrl = providedUrl || localStorage.getItem('sdUrl');
     
-    for (const { ip, proxy } of SD_PROXY_MAP) {
-        if (baseUrl.includes(ip)) {
-            return proxy;
-        }
+    // Default fallback
+    if (!baseUrl) {
+        baseUrl = DEFAULT_SD_URL;
     }
-    return baseUrl;
+
+    return baseUrl.trim().replace(/\/$/, '');
 };
 
 export const getLmStudioUrl = (providedUrl) => {
-    let baseUrl = providedUrl || localStorage.getItem('lmStudioUrl') || DEFAULT_LM_STUDIO_URL || '/api';
+    let baseUrl = providedUrl || localStorage.getItem('lmStudioUrl');
+
+    if (!baseUrl) {
+        baseUrl = DEFAULT_LM_STUDIO_URL;
+    }
 
     baseUrl = baseUrl.trim();
+    
+    // Ensure cleanup of trailing slashes and /v1
+    if (baseUrl.endsWith('/v1')) baseUrl = baseUrl.slice(0, -3);
     if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
 
-    // Route through Vite proxy to bypass CORS
-    for (const { ip, proxy } of SERVER_PROXY_MAP) {
-        if (baseUrl.includes(ip)) {
-            return proxy + '/chat/completions';
-        }
-    }
-
-    // Fallback: ensure /v1 is present
-    if (!baseUrl.includes('/v1') && !baseUrl.includes('/api')) {
-        baseUrl += '/v1';
-    }
-    return baseUrl + '/chat/completions';
+    // Default to /v1/chat/completions for LM Studio compatible servers
+    return baseUrl + '/v1/chat/completions';
 };
 
 
@@ -62,14 +58,16 @@ const MAX_RESPONSE_TOKENS = 800; // Slightly larger response allowance
 
 // Internal helper to ensure we have a valid model
 const ensureValidModel = async () => {
-    let currentModel = getModelId();
-    if (currentModel === 'local-model') {
-        console.log("[LLM] 'local-model' detected, attempting to auto-resolve...");
-        const models = await fetchAvailableModels();
-        if (models && models.length > 0) {
+    const models = await fetchAvailableModels();
+    let currentModel = localStorage.getItem('lmStudioModel') || DEFAULT_LM_STUDIO_MODEL;
+    
+    if (models && models.length > 0) {
+        // Check if current model is in the list
+        const isAvailable = models.some(m => m.id === currentModel);
+        if (!isAvailable || currentModel === 'local-model') {
+            console.log(`[LLM] Model "${currentModel}" not available or default. Switching to: ${models[0].id}`);
             currentModel = models[0].id;
             localStorage.setItem('lmStudioModel', currentModel);
-            console.log(`[LLM] Auto-resolved to model: ${currentModel}`);
         }
     }
     return currentModel;
@@ -79,12 +77,17 @@ export const fetchAvailableModels = async () => {
     try {
         const baseUrl = getLmStudioUrl().replace('/chat/completions', '');
         const url = `${baseUrl}/models`;
+        console.log(`[LLM] Fetching models from: ${url}`);
         const response = await fetch(url);
-        if (!response.ok) return [];
+        if (!response.ok) {
+            console.error(`[LLM] Model fetch failed: ${response.status}`);
+            return [];
+        }
         const data = await response.json();
+        console.log(`[LLM] Models detected:`, data.data?.map(m => m.id) || []);
         return data.data || [];
     } catch (e) {
-        console.error("Failed to fetch models", e);
+        console.error("[LLM] Failed to fetch models", e);
         return [];
     }
 };
@@ -391,21 +394,62 @@ Assume the role of ${charName} now. Show, don't tell.`;
 
         // Fallback for completion if loop ends without [DONE]
         const finalCleanResponse = cleanLeakage(fullResponse);
+        console.log(`[LLM] Stream Finished. Raw Length: ${fullResponse.length}, Cleaned: ${finalCleanResponse?.length || 0}`);
+        
         if (finalCleanResponse) {
             onComplete(finalCleanResponse);
+        } else if (fullResponse.trim()) {
+            console.warn("[LLM] cleanLeakage stripped everything. Using raw.");
+            onComplete(fullResponse.trim());
         } else {
-            throw new Error("Empty response from LM Studio.");
+            // IF STREAMING FAILED OR RETURNED NOTHING, TRY NON-STREAMING FALLBACK
+            console.warn("[LLM] Stream returned no content. Retrying without streaming...");
+            return generateResponse(persona, messages, onChunk, onComplete, onError, signal, { ...options, _isRetry: true });
         }
 
     } catch (err) {
         clearTimeout(timeoutId);
-        if (err.name === 'AbortError') {
-            if (!isFirstChunk) return; // User aborted or stream cut but we had data
-            onError("Connection timed out. Check if LM Studio is reachable.");
+        
+        // If we already tried non-streaming or if it's a confirmed hard error, fail
+        if (options._isRetry) {
+            console.error("[LLM] Multi-stage Generation Error:", err);
+            onError(err.message || "Failed to generate response.");
             return;
         }
-        console.error("LLM Generation Error:", err);
-        onError(err.message || "Failed to generate response.");
+
+        console.warn("[LLM] Streaming failed. Attempting non-streaming fallback...", err);
+        
+        // NON-STREAMING FALLBACK
+        try {
+            const url = getLmStudioUrl();
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: await ensureValidModel(),
+                    messages: formattedMessages,
+                    max_tokens: MAX_RESPONSE_TOKENS, 
+                    stream: false, // NO STREAMING
+                    temperature: 0.8,
+                    top_p: 0.95
+                }),
+                signal: signal || controller.signal,
+            });
+
+            if (!response.ok) throw new Error(`Non-streaming fallback failed: ${response.statusText}`);
+            
+            const data = await response.json();
+            const content = data.choices?.[0]?.message?.content || "";
+            const cleanContent = cleanLeakage(content);
+            
+            if (cleanContent) {
+                onComplete(cleanContent);
+            } else {
+                throw new Error("Model returned an empty response (non-streaming).");
+            }
+        } catch (retryErr) {
+            onError(retryErr.message);
+        }
     }
 };
 

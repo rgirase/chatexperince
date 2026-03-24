@@ -179,7 +179,16 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
         try {
             const res = await fetch(testUrl);
             if (res.ok) {
-                setTestResults(prev => ({ ...prev, [url]: { status: 'success', message: 'Online' } }));
+                const data = await res.json();
+                const modelCount = data.data?.length || 0;
+                const firstModel = data.data?.[0]?.id || 'Unknown';
+                setTestResults(prev => ({ 
+                    ...prev, 
+                    [url]: { 
+                        status: 'success', 
+                        message: modelCount > 0 ? `Online (${firstModel})` : 'Online (No models loaded)' 
+                    } 
+                }));
             } else {
                 setTestResults(prev => ({ ...prev, [url]: { status: 'error', message: `Status ${res.status}` } }));
             }
@@ -270,7 +279,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                             type="text"
                             value={lmStudioUrl}
                             onChange={(e) => setLmStudioUrl(e.target.value)}
-                            placeholder="http://192.168.86.28:1234/v1"
+                            placeholder="http://localhost:1234/v1"
                             style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
                         />
                         <button 
@@ -364,7 +373,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                             type="text"
                             value={sdUrl}
                             onChange={(e) => setSdUrl(e.target.value)}
-                            placeholder="http://192.168.86.28:8000"
+                            placeholder="http://localhost:8000"
                             style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #3f3f46', color: 'white' }}
                         />
                         <button 

@@ -248,8 +248,29 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     }, []);
     
     // Combined list of categories including the new Taboo theme
-    const categories = ['All', 'Family', 'Professional', 'Modern', 'Traditional', 'Taboo'];
+    // Simplified user-facing categories
+    const categories = ['All', 'Family', 'Professional', 'Traditional', 'Forbidden', 'Romance', 'Taboo'];
     const regions = ['All', 'Indian', 'American', 'Latina-American', 'European', 'East Asian'];
+
+    // Mapping internal data categories to user-facing groups
+    const categoryMapping = {
+        'Family': 'Family',
+        'Step Mom': 'Family',
+        'Professional': 'Professional',
+        'Service': 'Professional',
+        'Corporate': 'Professional',
+        'Business': 'Professional',
+        'Traditional': 'Traditional',
+        'Indian': 'Traditional',
+        'Noble': 'Traditional',
+        'Scandal': 'Forbidden',
+        'Secret': 'Forbidden',
+        'Collateral': 'Forbidden',
+        'Debt': 'Forbidden',
+        'Romance': 'Romance',
+        'Relationship': 'Romance',
+        'Other': 'Romance'
+    };
 
     const [activeChatsMetadata, setActiveChatsMetadata] = useState({});
 
@@ -351,7 +372,9 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
         } else if (activeCategory === 'Taboo') {
             matchesCategory = (p.tabooRating && p.tabooRating > 0);
         } else {
-            matchesCategory = p.category === activeCategory;
+            // Check mapped category
+            const mapped = categoryMapping[p.category] || 'Other';
+            matchesCategory = (mapped === activeCategory);
         }
 
         const matchesRegion = activeRegion === 'All' || p.origin === activeRegion;
