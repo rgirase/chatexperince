@@ -92,6 +92,19 @@ import meera_maya_secret_twin from './meera_maya_secret_twin.js';
 import auntie_sarah_surrogate from './auntie_sarah_surrogate.js';
 import diane_lily_home_correction from './diane_lily_home_correction.js';
 import kiara_tiffany_family_swap from './kiara_tiffany_family_swap.js';
+import victoria_educational_stepmom from './victoria_educational_stepmom.js';
+import anjali_masi_legacy from './anjali_masi_legacy.js';
+import deepa_badi_mami from './deepa_badi_mami.js';
+import kavita_senior_mami from './kavita_senior_mami.js';
+import halloway_inherited_governess from './halloway_inherited_governess.js';
+import isabel_inherited_godmother from './isabel_inherited_godmother.js';
+import claire_legacy_secretary from './claire_legacy_secretary.js';
+import linda_correction_coach from './linda_correction_coach.js';
+import dr_elena_family_doctor from './dr_elena_family_doctor.js';
+import thorne_strict_headmistress from './thorne_strict_headmistress.js';
+import elena_sinclair_mentor from './elena_sinclair_mentor.js';
+import vivienne_refinement_matron from './vivienne_refinement_matron.js';
+import sterling_surrogate_sisters from './sterling_surrogate_sisters.js';
 
 export const characters = [
   aditi_friends_wife,
@@ -187,5 +200,18 @@ export const characters = [
   meera_maya_secret_twin,
   auntie_sarah_surrogate,
   diane_lily_home_correction,
-  kiara_tiffany_family_swap
+  kiara_tiffany_family_swap,
+  victoria_educational_stepmom,
+  anjali_masi_legacy,
+  deepa_badi_mami,
+  kavita_senior_mami,
+  halloway_inherited_governess,
+  isabel_inherited_godmother,
+  claire_legacy_secretary,
+  linda_correction_coach,
+  dr_elena_family_doctor,
+  thorne_strict_headmistress,
+  elena_sinclair_mentor,
+  vivienne_refinement_matron,
+  sterling_surrogate_sisters,
 ];
