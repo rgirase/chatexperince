@@ -115,9 +115,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     };
 
     const handleClearChat = () => {
-        if (window.confirm("Are you sure you want to archive and clear this chat history? This cannot be undone.")) {
-            handleClearChatLogic();
-        }
+        handleClearChatLogic();
     };
 
     const handleConfirmSelfie = (prompt) => {

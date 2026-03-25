@@ -79,13 +79,22 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         db.setItem('settings', `active_image_${persona.id}`, activePersonaImage);
     }, [messages, memory, relationshipScore, intensity, milestones, traits, encounterStats, currentSceneId, invitedPersona, activePersonaImage, persona.id, isDataLoaded]);
 
-    const executeAiRequest = useCallback(async (aiMessageId, context) => {
+    const executeAiRequest = useCallback(async (aiMessageId, context, options = {}) => {
         abortControllerRef.current = new AbortController();
 
         const personaWithExtras = {
             ...persona,
             systemPrompt: (invitedPersona ? `${persona.systemPrompt}\n\n[CRITICAL: ${invitedPersona.name} has joined the scene and is interacting with you and the user.]` : persona.systemPrompt) + 
                           (traits.length > 0 ? `\n\n[RECENT PERSONALITY EVOLUTION: ${traits.join(", ")}]` : "")
+        };
+
+        const finalOptions = {
+            memory,
+            milestones,
+            intensity,
+            relationshipScore,
+            currentSituation,
+            ...options
         };
 
         try {
@@ -184,11 +193,11 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
                     setIsTyping(false);
                     showToast(errMessage);
                     setMessages(prev => prev.map(msg => 
-                        msg.id === aiMessageId ? { ...msg, content: "ΓÜá∩╕Å Generation failed. Check connection.", isError: true } : msg
+                        msg.id === aiMessageId ? { ...msg, content: "⚠️ Generation failed. Check connection.", isError: true } : msg
                     ));
                 },
                 abortControllerRef.current.signal,
-                { memory, intensity, milestones, encounterStats, currentSituation }
+                finalOptions
             );
         } catch (e) {
             setIsTyping(false);
@@ -351,37 +360,68 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
     }, [persona, messages]);
 
     const handleClearChat = useCallback(async () => {
+        const confirmClear = window.confirm("Are you sure you want to archive and clear this chat history? This cannot be undone.");
+        if (!confirmClear) return;
+
         if (messages.length > 1) {
-            // Archive current talk
-            const archiveId = `archive_${persona.id}_${Date.now()}`;
-            await db.setItem('conversations', archiveId, {
-                personaId: persona.id,
-                personaName: persona.name,
-                timestamp: new Date().toISOString(),
-                messages: messages
-            });
-            showToast("Conversation archived and reset", "success");
+            try {
+                // Archive current talk
+                const archiveId = `archive_${persona.id}_${Date.now()}`;
+                await db.setItem('conversations', archiveId, {
+                    personaId: persona.id,
+                    personaName: persona.name,
+                    timestamp: new Date().toISOString(),
+                    messages: messages
+                });
+            } catch (e) {
+                console.warn("[ChatLogic] Archiving failed during reset", e);
+            }
         }
         
-        // Reset to initial
+        // 1. CLEAR PERSISTENT STORAGE (IndexedDB)
+        try {
+            await Promise.all([
+                db.removeItem('chats', `chat_${persona.id}`),
+                db.removeItem('memories', `memory_${persona.id}`),
+                db.removeItem('memories', `milestones_${persona.id}`),
+                db.removeItem('memories', `traits_${persona.id}`),
+                db.removeItem('memories', `encounters_${persona.id}`),
+                db.removeItem('settings', `score_${persona.id}`),
+                db.removeItem('settings', `intensity_${persona.id}`),
+                db.removeItem('settings', `scene_${persona.id}`),
+                db.removeItem('settings', `active_image_${persona.id}`)
+            ]);
+        } catch (e) {
+            console.error("[ChatLogic] Failed to clear IndexedDB", e);
+        }
+
+        // 2. CLEAR LEGACY STORAGE (LocalStorage)
+        localStorage.removeItem(`chat_${persona.id}`);
+        localStorage.removeItem(`memory_${persona.id}`);
+        localStorage.removeItem(`milestones_${persona.id}`);
+        localStorage.removeItem(`encounters_${persona.id}`);
+        localStorage.removeItem(`score_${persona.id}`);
+        localStorage.removeItem(`intensity_${persona.id}`);
+
+        // 3. RESET COMPONENT STATE
         const initialMsg = {
             id: Date.now().toString(),
             role: 'ai',
             content: cleanLeakage(persona.initialMessage) || "*Smiles softly* Hello..."
         };
+        
         setMessages([initialMsg]);
-
-        // Clear all derived state for this persona
         setMemory("");
         setMilestones([]);
+        setTraits([]);
         setEncounterStats({ count: 0, lastLocation: "", history: [] });
         setCurrentSituation("");
+        setRelationshipScore(50);
+        setIntensity(3);
+        setCurrentSceneId('default');
+        setActivePersonaImage(persona.image);
         
-        localStorage.removeItem(`chat_${persona.id}`);
-        localStorage.removeItem(`memory_${persona.id}`);
-        localStorage.removeItem(`milestones_${persona.id}`);
-        localStorage.removeItem(`encounters_${persona.id}`);
-        localStorage.removeItem('lastPersonaId');
+        showToast("Conversation reset", "success");
     }, [persona, messages, showToast]);
 
     const handleResubmit = useCallback(async (messageId) => {
@@ -417,12 +457,8 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         const aiMessageId = (Date.now() + 1).toString();
         setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
 
-        const continueDirective = {
-            role: 'system',
-            content: `[SYSTEM DIRECTIVE: Continue your previous thought or action immediately. Do not reset or repeat yourself. Move the scene forward vividly.]`
-        };
-
-        await executeAiRequest(aiMessageId, [...messages, continueMsg, continueDirective]);
+        // We handle the continuation directive inside generateResponse (via isContinuation flag)
+        await executeAiRequest(aiMessageId, [...messages, continueMsg], { isContinuation: true });
     }, [messages, isTyping, executeAiRequest]);
 
     return {

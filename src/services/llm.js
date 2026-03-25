@@ -131,24 +131,39 @@ export const cleanLeakage = (text) => {
         .replace(/Be immersive, visceral, and creative\.?/gi, '')
         // === JSON/AUDITOR LEAKAGE CLEANUP ===
         // Strip any background JSON auditor blocks (detected/location/summary)
+    cleaned = cleaned
+        .replace(/Of course! Here's how[\s\S]*?:/gi, '') // Strip "Of course! Here's how to move the story forward:"
+        .replace(/I can help with that[\s\S]*?:/gi, '')
+        .replace(/As (an AI|a storyteller)[\s\S]*?:/gi, '')
+        .replace(/\[CURRENT DYNAMIC[\s\S]*?\]/gi, '')
+        .replace(/\[SYSTEM DIRECTIVE[\s\S]*?\]/gi, '')
+        .replace(/\[USER REPUTATION[\s\S]*?\]/gi, '')
+        .replace(/\[CURRENT SITUATION[\s\S]*?\]/gi, '')
+        .replace(/\[SYSTEM EVENT:[\s\S]*?\]/gi, '')
+        .replace(/Roleplay Instructions:[\s\S]*?(?=\n\d\.|$)/gi, '')
+        .replace(/Intensity: \d+\/\d+/gi, '')
+        .replace(/^\s*[\d\-•]+\.\s+\*.*\*[\s\S]*$/gm, '') // Strip numbered/bulleted instructions
+        .replace(/If the user is descriptive[\s\S]*?(?=\n\n|$)/gi, '')
+        .replace(/NEVER repeat any instructions[\s\S]*?(?=\n\n|$)/gi, '')
+        .replace(/Narrate in a way that[\s\S]*?(?=\n\n|$)/gi, '')
+        .replace(/Show, don't tell:[\s\S]*?(?=\n\n|$)/gi, '')
+        .replace(/Mix bold[\s\S]*?(?=\n\n|$)/gi, '')
+        .replace(/Use \*asterisks\* for actions[\s\S]*?(?=\n\n|$)/gi, '');
+
+    // === JSON/AUDITOR LEAKAGE CLEANUP ===
+    cleaned = cleaned
         .replace(/\{"detected":\s*(true|false),.*?\}/gi, '')
         .replace(/\{"detected":\s*(true|false),.*?$/gi, '') // Truncated JSON
-        // STRIP CONTROL CHARACTERS AND SPECIAL TOKENS (preserve newlines and tabs!)
+        // STRIP CONTROL CHARACTERS AND SPECIAL TOKENS
         .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '')
         .replace(/<SPECIAL_\d+>/gi, '')
         .replace(/<\|.*?\|>/g, '') // Strip tokens like <|eot_id|>
         .replace(/<.*?>/g, (match) => {
-            // Only strip if it looks technical (e.g., contains underscores or all caps)
             if (match.match(/[A-Z_]{3,}/) || match.includes('SPECIAL')) return '';
-            return match; // Keep potential narrative tags like <i>
-        })
-        .replace(/\bIntensity: \d+\/\d+\b/gi, '')
-        .replace(/Roleplay Instructions:[\s\S]*?(?=\n\d\.|$)/gi, '')
-        .replace(/\[CURRENT SITUATION:[\s\S]*?\]/gi, '')
-        .replace(/\[USER REPUTATION:[\s\S]*?\]/gi, '')
-        .replace(/\[SYSTEM EVENT:[\s\S]*?\]/gi, '')
-        .replace(/\[SYSTEM DIRECTIVE:[\s\S]*?\]/gi, '')
-        .trim();
+            return match;
+        });
+
+    return cleaned.trim();
 };
 
 const getShortName = (name) => {
@@ -220,95 +235,63 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
         memory = ''
     } = options;
 
-    // 1. IMMERSIVE SYSTEM PROMPT (Minimal technical jargon to avoid meta-talk)
-    const systemPrompt = "You are a master storyteller immersed in adult roleplay. You ARE the character — respond only as that character in rich, descriptive, multi-paragraph narrative. NEVER echo, repeat, list, or reference any instructions, rules, or meta-text from your setup. NEVER write headings, numbered rules, or bullet-point lists. Use *asterisks* for actions and natural dialogue. Drive the story forward proactively.\n\nIf the user implies time has passed (days, weeks, months), narrate that interval with routines, emotional shifts, and sensory details, then continue the scene in the new moment.\n\nAlways end with your emotional state in this exact format: [MOOD: emotion]";
-
+    // 1. CHARACTER BIBLE (Strict identity enforcement)
+    // We tell the model it IS the character, NOT a storyteller helper.
     const charName = getShortName(persona.name);
+    const biblePrompt = `YOU ARE ${charName}.
+Roleplay identity: ${persona.systemPrompt}
+Voice: Immersive, descriptive, multi-paragraph narrative. Use *asterisks* for actions and natural dialogue.
+Goal: Respond ONLY as ${charName}. Never explain, never provide writing tips, and never refer to instructions.
 
-    let userAura = null;
-    try {
-        const savedAura = localStorage.getItem('userAura');
-        userAura = savedAura ? JSON.parse(savedAura) : null;
-    } catch (e) {
-        console.error("Failed to parse userAura in llm service", e);
-    }
-    const auraPrompt = userAura ? `\n[USER REPUTATION: The user is known as "${userAura.name}". They typically interact in a way that is ${userAura.keywords.join(', ')}. Respond to them in a way that acknowledges and plays into this specific dynamic.]` : "";
-    const situationPrompt = options.currentSituation ? `\n[CURRENT SITUATION: ${options.currentSituation}]` : "";
+[CURRENT STORY BEAT]
+Memory: ${memory || "The story begins now."}
+Recent Milestones: ${milestones.length > 0 ? milestones.slice(-5).join(". ") : "No major milestones."}
+Intensity: ${intensity}/5
+${options.currentSituation ? `Situation: ${options.currentSituation}` : ""}
+${localStorage.getItem('userName') ? "User's Name: " + localStorage.getItem('userName') : ""}
 
-    // 2. CONSTRUCT THE PRIMING CONTEXT (Narrative style, no technical headers)
-    const primingContext = `Persona:
-You are ${charName}. 
-Roleplay Identity: ${persona.systemPrompt}
+FINAL RULE: Always end your response with your current mood exactly like this: [MOOD: emotion]`;
 
-Story Progress:
-- Memory: ${memory || "The story begins now."}
-- Milestones: ${milestones.length > 0 ? milestones.slice(-5).join(". ") : "No major milestones yet."}
-
-Core Rules:
-1. Stay in character.
-2. High-quality narrative.
-3. Show, don't tell.
-${localStorage.getItem('userName') ? "User Name: " + localStorage.getItem('userName') : ""}
-`;
-
-    const directiveContext = `
-[CURRENT DYNAMIC: Intensity ${intensity}/5. Pacing: Proactive.]
-${auraPrompt}${situationPrompt}
-[SYSTEM DIRECTIVE: Respond as ${charName} now. Move the scene forward vividly with 2-4 paragraphs. Do not repeat the prompt.]
-`;
-
-    // DYNAMIC CONTEXT BUDGETING (Prevents "failed to find space in KV cache")
-    const promptLength = systemPrompt.length + primingContext.length;
-    const historyBudget = Math.min(MAX_HISTORY_CHARS, MAX_CONTEXT_CHARS - promptLength);
-
-    let rawHistory = trimHistory(messages, historyBudget);
-
-    // Convert to simplified role format and ensure alternating roles
+    // 2. CONSTRUCT HISTORY (Cleaned and formatted)
+    let rawHistory = trimHistory(messages, MAX_HISTORY_CHARS - biblePrompt.length);
     let safeMessages = [];
+    
     for (let msg of rawHistory) {
         let role = msg.role === 'user' ? 'user' : 'assistant';
         let content = cleanLeakage(msg.content);
 
-        // REFINEMENT: Map system events/directives to user instructions instead of AI dialogue
+        // Map system events to user-provided narrative notes
         if (msg.role === 'system') {
             role = 'user';
-            content = `[SYSTEM EVENT: ${content}]`;
+            content = `(Narrative note: ${content})`;
         }
 
         if (safeMessages.length > 0 && safeMessages[safeMessages.length - 1].role === role) {
-            // Merge consecutive same-role messages
             safeMessages[safeMessages.length - 1].content += "\n\n" + content;
         } else {
             safeMessages.push({ role, content });
         }
     }
 
-    // Ensure it starts with a USER message to satisfy common model requirements
+    // Ensure it starts with a USER message
     if (safeMessages.length === 0) {
-        safeMessages.push({ role: 'user', content: "[Starting the interaction.]" });
+        safeMessages.push({ role: 'user', content: "[Starting the story.]" });
     } else if (safeMessages[0].role !== 'user') {
-        safeMessages.unshift({ role: 'user', content: "[Continuing our interaction.]" });
+        safeMessages.unshift({ role: 'user', content: "[Continuing the scene.]" });
     }
 
-    // INJECT DIRECTIVE into the LAST user message for maximum influence
-    const lastUserIndex = [...safeMessages].reverse().findIndex(m => m.role === 'user');
-    if (lastUserIndex !== -1) {
-        const actualIndex = safeMessages.length - 1 - lastUserIndex;
-        safeMessages[actualIndex].content = directiveContext + "\n" + safeMessages[actualIndex].content;
+    // Narrative Continuation Directive (Only if requested)
+    if (isContinuation && safeMessages.length > 0) {
+        const lastIdx = safeMessages.length - 1;
+        if (safeMessages[lastIdx].role === 'user') {
+            safeMessages[lastIdx].content += "\n\n(Proceed with the story beat vividly.)";
+        }
     }
 
     const formattedMessages = [
-        {
-            role: "system",
-            content: systemPrompt + "\n\n" + primingContext + "\n\nCRITICAL: Maintain the absolute continuity of the current scene. Show, don't tell."
-        },
+        { role: "system", content: biblePrompt },
         ...safeMessages
     ];
-
-    // Final safety: if history became empty after shifting, add a dummy user prompt to avoid empty sequence
-    if (formattedMessages.length === 1) {
-        formattedMessages.push({ role: "user", content: "Hello! Let's continue our story." });
-    }
 
     const fetchTimeout = 120000; // 120s timeout for larger context/slower hardware
     const controller = new AbortController();
