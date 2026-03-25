@@ -12,7 +12,7 @@ import StoryMap from './StoryMap';
 import ArchiveModal from './sub/ArchiveModal';
 import { useChatLogic } from '../hooks/useChatLogic';
 import { useImageGeneration } from '../hooks/useImageGeneration';
-import { locationService } from '../services/location';
+import { locationService } from '../services/LocationService';
 import * as db from '../services/db';
 import InviteModal from './sub/InviteModal';
 
