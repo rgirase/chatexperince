@@ -51,8 +51,8 @@ const getModelId = () => {
 // --- CONTEXT BUDGETING ---
 // 1 token ≈ 4 characters. 
 // Standard local context is 4096-8192 tokens.
-const MAX_CONTEXT_CHARS = 64000; // ~16,000 tokens safe limit for modern local models
-const MAX_HISTORY_CHARS = 16000; // Sufficient for ~20-30 messages of active history
+const MAX_CONTEXT_CHARS = 64000;
+const MAX_HISTORY_CHARS = 12000; // Reduced to preserve system prompt priority
 const MAX_RESPONSE_TOKENS = 800; // Slightly larger response allowance
 
 // Internal helper to ensure we have a valid model
@@ -240,19 +240,17 @@ Current Dynamic:
 - Pacing: Move the scene forward with bold, visceral actions.
 ${auraPrompt}${situationPrompt}
 
-Story Context:
-${memory ? "Long-term Memory: " + memory : "Background Context: " + (persona.tagline || "The interaction begins now.")}
-${milestones.length > 0 ? "Shared Relationship Milestones: " + milestones.slice(-5).join(". ") : ""}
-${options.encounterStats?.count > 0 ? `Shared Intimacy: We have had ${options.encounterStats.count} intimate encounter(s). The last one was ${options.encounterStats.lastLocation ? "at " + options.encounterStats.lastLocation : "recently"}.` : ""}
+Story Progress:
+- Memory: ${memory || "The story begins now."}
+- Milestones: ${milestones.length > 0 ? milestones.slice(-5).join(". ") : "No major milestones yet."}
+- Intimacy: ${options.encounterStats?.count > 0 ? options.encounterStats.count + " previous encounter(s)." : "First meeting."}
 
-My Details:
-${localStorage.getItem('userName') ? "My Name: " + localStorage.getItem('userName') : ""}
-${localStorage.getItem('userAppearance') ? "My Appearance: " + localStorage.getItem('userAppearance') : ""}
-
-${injectCulturalTraits(persona)}
-${injectThemeIntensity(persona, intensity)}
-
-Assume the role of ${charName} now. Show, don't tell.`;
+Roleplay Instructions:
+1. Always stay in character as ${charName}.
+2. Use sensory details and internal monologue where appropriate.
+3. Advance the story proactively. Show, don't tell.
+4. ${localStorage.getItem('userName') ? "The user's name is " + localStorage.getItem('userName') + "." : ""}
+`;
 
     // DYNAMIC CONTEXT BUDGETING (Prevents "failed to find space in KV cache")
     const promptLength = systemPrompt.length + primingContext.length;
@@ -260,11 +258,17 @@ Assume the role of ${charName} now. Show, don't tell.`;
 
     let rawHistory = trimHistory(messages, historyBudget);
 
-    // Convert to simplified role format and ensure alternating roles for Jinja templates
+    // Convert to simplified role format and ensure alternating roles
     let safeMessages = [];
     for (let msg of rawHistory) {
-        const role = msg.role === 'user' ? 'user' : 'assistant';
-        const content = cleanLeakage(msg.content);
+        let role = msg.role === 'user' ? 'user' : 'assistant';
+        let content = cleanLeakage(msg.content);
+
+        // REFINEMENT: Map system events/directives to user instructions instead of AI dialogue
+        if (msg.role === 'system') {
+            role = 'user';
+            content = `[SYSTEM EVENT: ${content}]`;
+        }
 
         if (safeMessages.length > 0 && safeMessages[safeMessages.length - 1].role === role) {
             // Merge consecutive same-role messages
@@ -275,14 +279,16 @@ Assume the role of ${charName} now. Show, don't tell.`;
     }
 
     // Ensure it starts with a USER message to satisfy common model requirements
-    if (safeMessages.length > 0 && safeMessages[0].role !== 'user') {
-        safeMessages.unshift({ role: 'user', content: "[Starting the interaction.]" });
+    if (safeMessages.length === 0) {
+        safeMessages.push({ role: 'user', content: "[Starting the interaction.]" });
+    } else if (safeMessages[0].role !== 'user') {
+        safeMessages.unshift({ role: 'user', content: "[Continuing our interaction.]" });
     }
 
     const formattedMessages = [
         {
             role: "system",
-            content: systemPrompt + "\n\n" + primingContext
+            content: systemPrompt + "\n\n" + primingContext + "\n\nCRITICAL: Maintain the absolute continuity of the current scene. Show, don't tell."
         },
         ...safeMessages
     ];

@@ -364,13 +364,23 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         }
         
         // Reset to initial
-        setMessages([{
+        const initialMsg = {
             id: Date.now().toString(),
             role: 'ai',
             content: cleanLeakage(persona.initialMessage) || "*Smiles softly* Hello..."
-        }]);
+        };
+        setMessages([initialMsg]);
 
-        // Remove from active tab fallback
+        // Clear all derived state for this persona
+        setMemory("");
+        setMilestones([]);
+        setEncounterStats({ count: 0, lastLocation: "", history: [] });
+        setCurrentSituation("");
+        
+        localStorage.removeItem(`chat_${persona.id}`);
+        localStorage.removeItem(`memory_${persona.id}`);
+        localStorage.removeItem(`milestones_${persona.id}`);
+        localStorage.removeItem(`encounters_${persona.id}`);
         localStorage.removeItem('lastPersonaId');
     }, [persona, messages, showToast]);
 
@@ -379,18 +389,40 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         const msgIndex = messages.findIndex(m => m.id === messageId);
         if (msgIndex === -1 || isTyping) return;
 
-        // Remove everything after this message
+        // Remove everything after this message (keeping the user message itself)
         const truncatedMessages = messages.slice(0, msgIndex + 1);
         setMessages(truncatedMessages);
         
-        // Ensure this persona is marked as last active for the Home tab
         localStorage.setItem('lastPersonaId', persona.id);
+        setIsTyping(true);
+        const aiMessageId = (Date.now() + 1).toString();
+        // Add a fresh empty AI bubble for the new response
+        setMessages(prev => [...prev.slice(0, msgIndex + 1), { id: aiMessageId, role: 'ai', content: '', isError: false }]);
 
+        await executeAiRequest(aiMessageId, truncatedMessages);
+    }, [messages, isTyping, executeAiRequest, persona.id]);
+
+    const handleContinue = useCallback(async () => {
+        if (isTyping || messages.length === 0) return;
+
+        // Add a subtle user directive to keep the flow going
+        const continueMsg = {
+            id: Date.now().toString(),
+            role: 'user',
+            content: "*Waits for you to continue...*" 
+        };
+        
+        setMessages(prev => [...prev, continueMsg]);
         setIsTyping(true);
         const aiMessageId = (Date.now() + 1).toString();
         setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
 
-        await executeAiRequest(aiMessageId, truncatedMessages);
+        const continueDirective = {
+            role: 'system',
+            content: `[SYSTEM DIRECTIVE: Continue your previous thought or action immediately. Do not reset or repeat yourself. Move the scene forward vividly.]`
+        };
+
+        await executeAiRequest(aiMessageId, [...messages, continueMsg, continueDirective]);
     }, [messages, isTyping, executeAiRequest]);
 
     return {
@@ -419,6 +451,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         handleScenarioShuffle,
         handleSelectFantasy,
         handleClearChat,
-        handleResubmit
+        handleResubmit,
+        handleContinue
     };
 };

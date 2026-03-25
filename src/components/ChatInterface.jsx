@@ -75,7 +75,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         handleScenarioShuffle,
         handleSelectFantasy,
         handleClearChat: handleClearChatLogic,
-        handleResubmit
+        handleResubmit,
+        handleContinue
     } = useChatLogic(persona, showToast, generateSelfie);
 
     // Update the ref whenever setMessages changes
@@ -194,7 +195,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 onEditSave={handleEditSave}
                 onEditCancel={() => setEditingMessageId(null)}
                 onDeleteMessage={handleDeleteMessage}
-                onContinue={(msg) => handleSendMessage("[Continue this thought...]")}
+                onContinue={handleContinue}
                 onResubmit={handleResubmit}
                 isTyping={isTyping}
                 messagesAreaRef={messagesAreaRef}
