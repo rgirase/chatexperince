@@ -24,24 +24,6 @@ export default defineConfig({
         target: 'http://100.87.53.100:1234',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api-tailscale/, '/v1')
-      },
-      // Local machine (same PC as dev server)
-      '/api-local': {
-        target: 'http://localhost:1234',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api-local/, '/v1')
-      },
-      // Default IP from config.js
-      '/api-default': {
-        target: 'http://192.168.86.28:1234',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api-default/, '/v1')
-      },
-      // Default SD IP from config.js
-      '/api-sd-default': {
-        target: 'http://192.168.86.28:8000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api-sd-default/, '/')
       }
     }
   }

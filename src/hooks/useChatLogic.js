@@ -184,7 +184,9 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
         setMessages(prev => [...prev, userMsg]);
+        setRelationshipScore(prev => Math.min(100, prev + 1)); // Interaction Reward
         setInput('');
+        localStorage.setItem('lastPersonaId', persona.id);
         setIsTyping(true);
 
         const aiMessageId = (Date.now() + 1).toString();
@@ -202,6 +204,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         setMessages(prev => [...prev, giftMsg]);
         setRelationshipScore(prev => Math.min(100, prev + gift.bonus));
         
+        localStorage.setItem('lastPersonaId', persona.id);
         setIsTyping(true);
         const aiMessageId = (Date.now() + 1).toString();
         setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
@@ -223,6 +226,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         };
         setMessages(prev => [...prev, outfitMsg]);
         
+        localStorage.setItem('lastPersonaId', persona.id);
         setIsTyping(true);
         const aiMessageId = (Date.now() + 1).toString();
         setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
@@ -343,6 +347,9 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
             role: 'ai',
             content: cleanLeakage(persona.initialMessage) || "*Smiles softly* Hello..."
         }]);
+
+        // Remove from active tab fallback
+        localStorage.removeItem('lastPersonaId');
     }, [persona, messages, showToast]);
 
     const handleResubmit = useCallback(async (messageId) => {
@@ -354,6 +361,9 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         const truncatedMessages = messages.slice(0, msgIndex + 1);
         setMessages(truncatedMessages);
         
+        // Ensure this persona is marked as last active for the Home tab
+        localStorage.setItem('lastPersonaId', persona.id);
+
         setIsTyping(true);
         const aiMessageId = (Date.now() + 1).toString();
         setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
@@ -374,7 +384,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         encounterStats,
         currentSituation,
         activePersonaImage,
-        currentSuggestions,
+        currentSuggestions, setCurrentSuggestions,
         invitedPersona, setInvitedPersona,
         handleSendMessage,
         handleStopGeneration,

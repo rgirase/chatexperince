@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { ArrowLeft, MoreVertical, Heart, Gift, Shirt, Book, History, Trash2, Home, Sparkles, Zap, Flame, UserPlus, Wand2, MapPin } from 'lucide-react';
 
 const ChatHeader = ({ 
@@ -24,6 +24,24 @@ const ChatHeader = ({
     setIntensity,
     invitedPersona
 }) => {
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setIsMobileMenuOpen(false);
+            }
+        };
+
+        if (isMobileMenuOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isMobileMenuOpen, setIsMobileMenuOpen]);
+
     return (
         <header className="chat-header">
             <button onClick={onBack} className="back-btn" title="Back to Personas">
@@ -63,7 +81,7 @@ const ChatHeader = ({
                     <Heart size={16} fill="#a855f7" />
                 </button>
                 
-                <div style={{ position: 'relative' }}>
+                <div ref={menuRef} style={{ position: 'relative' }}>
                     <button 
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         className="header-action-btn"

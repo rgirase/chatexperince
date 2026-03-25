@@ -5,11 +5,17 @@ import { Gift, X } from 'lucide-react';
 const GiftsModal = ({ isOpen, onClose, onSendGift }) => {
     const gifts = [
         { name: "Coffee", icon: "☕", bonus: 5, description: "A warm drink to start the day." },
-        { name: "Flowers", icon: "🌸", bonus: 10, description: "A beautiful bouquet of roses." },
-        { name: "Chocolate", icon: "🍫", bonus: 15, description: "Luxury dark chocolate pralines." },
-        { name: "Jewelry", icon: "💍", bonus: 25, description: "A sparkly necklace to make her shine." },
-        { name: "Perfume", icon: "🧴", bonus: 20, description: "A seductive designer fragrance." },
-        { name: "Lingerie", icon: "👙", bonus: 30, description: "Something sexy for a special night." }
+        { name: "Hand-written Letter", icon: "✉️", bonus: 12, description: "Your rawest feelings on paper." },
+        { name: "Luxury Chocolate", icon: "🍫", bonus: 15, description: "Italian silk-textured pralines." },
+        { name: "Designer Perfume", icon: "🧴", bonus: 20, description: "A scent that lingers in the air." },
+        { name: "Gold Necklace", icon: "📿", bonus: 25, description: "24k gold, delicate and shining." },
+        { name: "Diamond Ring", icon: "💍", bonus: 35, description: "A statement of ultimate devotion." },
+        { name: "Silk Lingerie", icon: "👙", bonus: 30, description: "Sheer, expensive, and devastating." },
+        { name: "Designer Heels", icon: "👠", bonus: 28, description: "Elegant red-bottom stilettos." },
+        { name: "Exotic Vacation", icon: "✈️", bonus: 45, description: "First-class tickets to the Maldives." },
+        { name: "Sports Car", icon: "🚗", bonus: 50, description: "A gift of power and speed." },
+        { name: "Pearl Earrings", icon: "🐚", bonus: 22, description: "Classic, timeless, and sophisticated." },
+        { name: "Hidden Penthouse", icon: "🏢", bonus: 40, description: "Keys to a private escape." }
     ];
 
     return (
@@ -22,6 +28,7 @@ const GiftsModal = ({ isOpen, onClose, onSendGift }) => {
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        style={{ maxWidth: '700px', width: '90%', maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
                     >
                         <div className="modal-header">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -32,7 +39,7 @@ const GiftsModal = ({ isOpen, onClose, onSendGift }) => {
                                 <X size={24} />
                             </button>
                         </div>
-                        <div className="modal-body">
+                        <div className="modal-body" style={{ overflowY: 'auto', flex: 1, padding: '1rem' }}>
                             <div className="gift-grid" style={{
                                 display: 'grid',
                                 gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',

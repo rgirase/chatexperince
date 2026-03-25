@@ -2,46 +2,21 @@
 import { DEFAULT_LM_STUDIO_URL, DEFAULT_LM_STUDIO_MODEL } from '../config';
 // Endpoint is proxied via Vite to bypass CORS issues constraints.
 
-// Map known LM Studio server IPs to their Vite proxy paths to avoid CORS
-const SERVER_PROXY_MAP = [
-    { ip: '192.168.1.233',   proxy: '/api' },
-    { ip: '169.254.83.107',  proxy: '/api-pc' },
-    { ip: '100.87.53.100',   proxy: '/api-tailscale' },
-    { ip: 'localhost',       proxy: '/api-local' },
-    { ip: '127.0.0.1',      proxy: '/api-local' },
-    { ip: '192.168.86.28',   proxy: '/api-default' },
-];
-
-const SD_PROXY_MAP = [
-    { ip: '192.168.86.28',   proxy: '/api-sd-default' },
-];
-
 export const getSdUrl = (providedUrl) => {
-    let baseUrl = providedUrl || localStorage.getItem('sdUrl');
-    
-    // Default fallback
-    if (!baseUrl) {
-        baseUrl = DEFAULT_SD_URL;
-    }
-
+    let baseUrl = providedUrl || localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
     return baseUrl.trim().replace(/\/$/, '');
 };
 
 export const getLmStudioUrl = (providedUrl) => {
-    let baseUrl = providedUrl || localStorage.getItem('lmStudioUrl');
-
-    if (!baseUrl) {
-        baseUrl = DEFAULT_LM_STUDIO_URL;
-    }
-
+    let baseUrl = providedUrl || localStorage.getItem('lmStudioUrl') || DEFAULT_LM_STUDIO_URL;
     baseUrl = baseUrl.trim();
     
     // Ensure cleanup of trailing slashes and /v1
-    if (baseUrl.endsWith('/v1')) baseUrl = baseUrl.slice(0, -3);
-    if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
-
-    // Default to /v1/chat/completions for LM Studio compatible servers
-    return baseUrl + '/v1/chat/completions';
+    let cleanUrl = baseUrl;
+    if (cleanUrl.endsWith('/v1')) cleanUrl = cleanUrl.slice(0, -3);
+    if (cleanUrl.endsWith('/')) cleanUrl = cleanUrl.slice(0, -1);
+    
+    return cleanUrl + '/v1/chat/completions';
 };
 
 
@@ -60,7 +35,7 @@ const MAX_RESPONSE_TOKENS = 800; // Slightly larger response allowance
 const ensureValidModel = async () => {
     const models = await fetchAvailableModels();
     let currentModel = localStorage.getItem('lmStudioModel') || DEFAULT_LM_STUDIO_MODEL;
-    
+
     if (models && models.length > 0) {
         // Check if current model is in the list
         const isAvailable = models.some(m => m.id === currentModel);
@@ -135,8 +110,8 @@ export const cleanLeakage = (text) => {
         .replace(/\{"detected":\s*(true|false),.*?\}/gi, '')
         .replace(/\{"detected":\s*(true|false),.*?$/gi, '') // Truncated JSON
         // STRIP CONTROL CHARACTERS AND SPECIAL TOKENS (preserve newlines and tabs!)
-        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '') 
-        .replace(/<SPECIAL_\d+>/gi, '') 
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '')
+        .replace(/<SPECIAL_\d+>/gi, '')
         .replace(/<\|.*?\|>/g, '') // Strip tokens like <|eot_id|>
         .replace(/<.*?>/g, (match) => {
             // Only strip if it looks technical (e.g., contains underscores or all caps)
@@ -155,15 +130,15 @@ const getShortName = (name) => {
 const trimHistory = (messages, maxChars = MAX_HISTORY_CHARS) => {
     let currentChars = 0;
     const trimmed = [];
-    
+
     // Work backwards to get the most recent messages first
     for (let i = messages.length - 1; i >= 0; i--) {
         const msg = messages[i];
         if (!msg || !msg.content || msg.isPhoto) continue;
-        
+
         const content = msg.content;
         if (currentChars + content.length > maxChars) break;
-        
+
         trimmed.unshift(msg);
         currentChars += content.length;
     }
@@ -178,9 +153,9 @@ const injectCulturalTraits = (persona) => {
     const { origin, culturalTraits } = persona;
     const { languageHabits, values, traditions } = culturalTraits;
 
-    const isSouthAsian = origin.toLowerCase().includes('indian') || 
-                        origin.toLowerCase().includes('pakistani') || 
-                        origin.toLowerCase().includes('bangladeshi');
+    const isSouthAsian = origin.toLowerCase().includes('indian') ||
+        origin.toLowerCase().includes('pakistani') ||
+        origin.toLowerCase().includes('bangladeshi');
 
     return `
 CULTURAL EMBODIMENT:
@@ -208,8 +183,8 @@ TABOO THEME DYNAMICS (Intensity: ${effectiveTaboo}/10):
 
 export const generateResponse = async (persona, messages, onChunk, onComplete, onError, signal, options = {}) => {
 
-    const { 
-        milestones = [], 
+    const {
+        milestones = [],
         isContinuation = false,
         intensity = 3,
         memory = ''
@@ -242,7 +217,7 @@ Current Dynamic:
 ${auraPrompt}${situationPrompt}
 
 Story Context:
-${memory ? "Long-term Memory: " + memory : "Background Context: " + (persona.tagline || "The interaction begins now.") }
+${memory ? "Long-term Memory: " + memory : "Background Context: " + (persona.tagline || "The interaction begins now.")}
 ${milestones.length > 0 ? "Shared Relationship Milestones: " + milestones.slice(-5).join(". ") : ""}
 ${options.encounterStats?.count > 0 ? `Shared Intimacy: We have had ${options.encounterStats.count} intimate encounter(s). The last one was ${options.encounterStats.lastLocation ? "at " + options.encounterStats.lastLocation : "recently"}.` : ""}
 
@@ -260,13 +235,13 @@ Assume the role of ${charName} now. Show, don't tell.`;
     const historyBudget = Math.min(MAX_HISTORY_CHARS, MAX_CONTEXT_CHARS - promptLength);
 
     let rawHistory = trimHistory(messages, historyBudget);
-    
+
     // Convert to simplified role format and ensure alternating roles for Jinja templates
     let safeMessages = [];
     for (let msg of rawHistory) {
         const role = msg.role === 'user' ? 'user' : 'assistant';
         const content = cleanLeakage(msg.content);
-        
+
         if (safeMessages.length > 0 && safeMessages[safeMessages.length - 1].role === role) {
             // Merge consecutive same-role messages
             safeMessages[safeMessages.length - 1].content += "\n\n" + content;
@@ -281,9 +256,9 @@ Assume the role of ${charName} now. Show, don't tell.`;
     }
 
     const formattedMessages = [
-        { 
-            role: "system", 
-            content: systemPrompt + "\n\n" + primingContext 
+        {
+            role: "system",
+            content: systemPrompt + "\n\n" + primingContext
         },
         ...safeMessages
     ];
@@ -308,14 +283,14 @@ Assume the role of ${charName} now. Show, don't tell.`;
             body: JSON.stringify({
                 model: await ensureValidModel(),
                 messages: formattedMessages,
-                max_tokens: MAX_RESPONSE_TOKENS, 
+                max_tokens: MAX_RESPONSE_TOKENS,
                 stream: true,
                 temperature: 0.8,
                 top_p: 0.95,
                 frequency_penalty: 0.5,
                 presence_penalty: 0.5,
                 stop: [
-                    "User:", "Assistant:", "###", "System:", 
+                    "User:", "Assistant:", "###", "System:",
                     "<|eot_id|>", "<|im_end|>", "<|endoftext|>", "<|end_of_text|>",
                     "<|end|>", "</s>"
                 ]
@@ -333,7 +308,7 @@ Assume the role of ${charName} now. Show, don't tell.`;
             } catch (e) {
                 errorText = response.statusText;
             }
-            
+
             if (errorText.toLowerCase().includes("context") || response.status === 400) {
                 throw new Error(`CONTEXT_SIZE_ERROR: ${errorText}`);
             }
@@ -353,14 +328,14 @@ Assume the role of ${charName} now. Show, don't tell.`;
 
                 buffer += decoder.decode(value, { stream: true });
                 const lines = buffer.split('\n');
-                
+
                 // Keep the last partial line in the buffer
                 buffer = lines.pop();
 
                 for (const line of lines) {
                     const trimmedLine = line.trim();
                     if (!trimmedLine) continue;
-                    
+
                     if (trimmedLine.includes('[DONE]')) {
                         const finalCleanResponse = cleanLeakage(fullResponse);
                         onComplete(finalCleanResponse);
@@ -395,7 +370,7 @@ Assume the role of ${charName} now. Show, don't tell.`;
         // Fallback for completion if loop ends without [DONE]
         const finalCleanResponse = cleanLeakage(fullResponse);
         console.log(`[LLM] Stream Finished. Raw Length: ${fullResponse.length}, Cleaned: ${finalCleanResponse?.length || 0}`);
-        
+
         if (finalCleanResponse) {
             onComplete(finalCleanResponse);
         } else if (fullResponse.trim()) {
@@ -409,7 +384,7 @@ Assume the role of ${charName} now. Show, don't tell.`;
 
     } catch (err) {
         clearTimeout(timeoutId);
-        
+
         // If we already tried non-streaming or if it's a confirmed hard error, fail
         if (options._isRetry) {
             console.error("[LLM] Multi-stage Generation Error:", err);
@@ -418,7 +393,7 @@ Assume the role of ${charName} now. Show, don't tell.`;
         }
 
         console.warn("[LLM] Streaming failed. Attempting non-streaming fallback...", err);
-        
+
         // NON-STREAMING FALLBACK
         try {
             const url = getLmStudioUrl();
@@ -428,7 +403,7 @@ Assume the role of ${charName} now. Show, don't tell.`;
                 body: JSON.stringify({
                     model: await ensureValidModel(),
                     messages: formattedMessages,
-                    max_tokens: MAX_RESPONSE_TOKENS, 
+                    max_tokens: MAX_RESPONSE_TOKENS,
                     stream: false, // NO STREAMING
                     temperature: 0.8,
                     top_p: 0.95
@@ -437,11 +412,11 @@ Assume the role of ${charName} now. Show, don't tell.`;
             });
 
             if (!response.ok) throw new Error(`Non-streaming fallback failed: ${response.statusText}`);
-            
+
             const data = await response.json();
             const content = data.choices?.[0]?.message?.content || "";
             const cleanContent = cleanLeakage(content);
-            
+
             if (cleanContent) {
                 onComplete(cleanContent);
             } else {
@@ -750,7 +725,7 @@ export const generateDiaryEntry = async (persona, messages) => {
 
 export const generatePersonaGenesis = async (description) => {
     const url = getLmStudioUrl();
-    
+
     const prompt = `You are an expert AI persona architect.
     Task: Transform the following brief idea into a fully fleshed-out, high-quality roleplay persona.
     
@@ -787,18 +762,18 @@ export const generatePersonaGenesis = async (description) => {
         if (!response.ok) throw new Error("Failed to generate persona");
         const data = await response.json();
         const content = data.choices?.[0]?.message?.content || "";
-        
+
         try {
             // Robust JSON extraction
             const jsonMatch = content.match(/\{[\s\S]*\}/);
             const jsonStr = jsonMatch ? jsonMatch[0] : content;
-            
+
             // Basic cleanup for common AI JSON mistakes
             const cleaned = jsonStr
                 .replace(/\\n/g, "\n")
                 .replace(/\\"/g, '"')
                 .trim();
-                
+
             return JSON.parse(cleaned);
         } catch (parseError) {
             console.error("Genesis Parse Error. Raw content:", content);
@@ -813,9 +788,9 @@ export const generatePersonaGenesis = async (description) => {
 };
 
 export const generateProfileImage = async (visualPrompt, personaName) => {
-    const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
+    const sdUrl = getSdUrl();
     const imageEngine = localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE;
-    
+
     // Ensure we are getting a portrait mode image
     const fullPrompt = `masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, portrait, headshot of ${personaName}, ${visualPrompt}`;
     const negativePrompt = "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature";
@@ -930,7 +905,7 @@ export const analyzeIntimateEncounter = async (persona, messages) => {
         if (!response.ok) return null;
         const data = await response.json();
         const content = data.choices?.[0]?.message?.content || "";
-        
+
         const jsonMatch = content.match(/\{[\s\S]*\}/);
         return JSON.parse(jsonMatch ? jsonMatch[0] : content);
     } catch (error) {

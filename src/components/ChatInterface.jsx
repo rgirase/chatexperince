@@ -60,7 +60,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         encounterStats,
         currentSituation,
         activePersonaImage,
-        currentSuggestions,
+        currentSuggestions, setCurrentSuggestions,
         invitedPersona, setInvitedPersona,
         handleSendMessage,
         handleStopGeneration,
@@ -117,6 +117,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const handleConfirmSelfie = (prompt) => {
         setIsSelfiePromptOpen(false);
         generateSelfie(prompt, Date.now().toString());
+    };
+
+    const handleSelectSuggestion = (text) => {
+        handleSendMessage(text);
+        setCurrentSuggestions([]);
     };
 
     const handleFantasySelect = (fantasy) => {
@@ -187,6 +192,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 input={input}
                 setInput={setInput}
                 onSendMessage={() => handleSendMessage()}
+                onSelectSuggestion={handleSelectSuggestion}
                 onGenerateSuggestion={handleGenerateSuggestion}
                 onOpenSelfiePrompt={() => setIsSelfiePromptOpen(true)}
                 isTyping={isTyping}

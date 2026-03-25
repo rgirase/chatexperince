@@ -10,7 +10,8 @@ const ChatInput = ({
     isTyping, 
     isSuggesting, 
     onStopGeneration,
-    suggestions = []
+    suggestions = [],
+    onSelectSuggestion
 }) => {
     const textareaRef = useRef(null);
 
@@ -35,7 +36,7 @@ const ChatInput = ({
                     {suggestions.map((s, i) => (
                         <button 
                             key={i} 
-                            onClick={() => setInput(s)}
+                            onClick={() => onSelectSuggestion(s)}
                             className="suggestion-bubble"
                         >
                             {s}
