@@ -9,12 +9,14 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
     const [activeCategory, setActiveCategory] = useState('All');
     const [profileOverrides, setProfileOverrides] = useState({});
     const [moments, setMoments] = useState([]);
+    const [unlockedGallery, setUnlockedGallery] = useState({});
     const [isLoaded, setIsLoaded] = useState(false);
     
     useEffect(() => {
         const loadGalleryData = async () => {
             const overrides = {};
             const allMoments = [];
+            const unlocked = {};
             
             for (const persona of allPersonas) {
                 // 1. Load Profile Overrides
@@ -24,7 +26,11 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                 }
                 if (override) overrides[persona.id] = override;
 
-                // 2. Load Moments
+                // 2. Load Unlocked Gallery
+                const unlockedList = await db.getItem('unlocked_gallery', `unlocked_${persona.id}`) || [];
+                unlocked[persona.id] = unlockedList;
+
+                // 3. Load Moments
                 let pMoments = await db.getItem('memories', `moments_${persona.id}`);
                 if (!pMoments) {
                     const localMoments = localStorage.getItem(`moments_${persona.id}`);
@@ -50,6 +56,7 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
             }
             
             setProfileOverrides(overrides);
+            setUnlockedGallery(unlocked);
             setMoments(allMoments.sort((a, b) => b.id - a.id));
             setIsLoaded(true);
         };
@@ -71,9 +78,29 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
         }));
     });
 
-    const categories = ['All', 'Family', 'Professional', 'Modern', 'Traditional', 'Memories'];
+    const vaultImages = allPersonas.flatMap(persona => {
+        const milestones = [
+            { id: 'milestone_80', name: 'Intimate Portrait', score: 80 },
+            { id: 'milestone_90', name: 'Midnight Secret', score: 90 },
+            { id: 'milestone_100', name: 'Eternal Bond', score: 100 }
+        ];
+
+        return milestones.map(m => {
+            const isUnlocked = (unlockedGallery[persona.id] || []).includes(m.id);
+            return {
+                ...m,
+                personaId: persona.id,
+                personaName: persona.name,
+                category: 'Secret Vault',
+                url: isUnlocked ? persona.image : '/assets/ui/locked_placeholder.jpg', // Placeholder for now
+                isLocked: !isUnlocked
+            };
+        });
+    });
+
+    const categories = ['All', 'Family', 'Professional', 'Modern', 'Traditional', 'Memories', 'Secret Vault'];
     
-    const filteredImages = allImages.filter(img => 
+    const filteredImages = [...allImages, ...vaultImages].filter(img => 
         activeCategory === 'All' || img.category === activeCategory
     );
 
@@ -193,15 +220,25 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                                     boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                                 }}
                             >
-                                <img 
-                                    src={img.url} 
-                                    alt={img.personaName} 
-                                    style={{ 
-                                        width: '100%', 
-                                        height: '100%', 
-                                        objectFit: 'cover'
-                                    }} 
-                                />
+                                    {img.isLocked && (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md">
+                                            <div className="flex flex-col items-center gap-2">
+                                                <Lock className="text-pink-500" size={24} />
+                                                <span className="text-[10px] text-white/50 uppercase font-black">Level {img.score}</span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <img 
+                                        src={img.url} 
+                                        alt={img.personaName} 
+                                        style={{ 
+                                            width: '100%', 
+                                            height: '100%', 
+                                            objectFit: 'cover',
+                                            filter: img.isLocked ? 'blur(10px)' : 'none'
+                                        }} 
+                                    />
                                 <div style={{
                                     position: 'absolute',
                                     bottom: 0,

@@ -5,7 +5,7 @@
  */
 
 const DB_NAME = 'ChatExperienceDB';
-const DB_VERSION = 4; // Added 'wardrobe' store
+const DB_VERSION = 5; // Added engagement stores: logins, unlocked_gallery, rewards
 
 export const openDB = () => {
     return new Promise((resolve, reject) => {
@@ -27,6 +27,15 @@ export const openDB = () => {
             }
             if (!db.objectStoreNames.contains('wardrobe')) {
                 db.createObjectStore('wardrobe', { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains('logins')) {
+                db.createObjectStore('logins', { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains('unlocked_gallery')) {
+                db.createObjectStore('unlocked_gallery', { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains('rewards')) {
+                db.createObjectStore('rewards', { keyPath: 'id' });
             }
         };
 

@@ -51,9 +51,9 @@ const getModelId = () => {
 // --- CONTEXT BUDGETING ---
 // 1 token ≈ 4 characters. 
 // Standard local context is 4096-8192 tokens.
-const MAX_CONTEXT_CHARS = 64000;
-const MAX_HISTORY_CHARS = 12000; // Reduced to preserve system prompt priority
-const MAX_RESPONSE_TOKENS = 800; // Slightly larger response allowance
+const MAX_CONTEXT_CHARS = 32000; // Safer default for 8k+ models
+const MAX_HISTORY_CHARS = 8000; // Reduced to provide larger buffer for system prompt
+const MAX_RESPONSE_TOKENS = 500; // Safer response allowance for 4096 context
 
 // Internal helper to ensure we have a valid model
 const ensureValidModel = async () => {
@@ -91,10 +91,11 @@ export const fetchAvailableModels = async () => {
     }
 };
 
-// Helper to strip instructional patterns from AI output
+/// Helper to strip instructional patterns from AI output
 export const cleanLeakage = (text) => {
     if (!text) return text;
-    return text
+    
+    let cleaned = text
         // === THINKING MODEL CLEANUP ===
         // Strip entire <think>...</think> blocks (DeepSeek-R1, QwQ, etc.)
         .replace(/<think>[\s\S]*?<\/think>/gi, '')
@@ -127,12 +128,24 @@ export const cleanLeakage = (text) => {
         .replace(/^(I understand|Acknowledged|Ready to roleplay|Stay in character as|As an? (AI|artificial|language) model).*?(\.|\n)/gi, '')
         .replace(/(I cannot|I am unable to|My purpose is|I am an AI|advanced AI model|language model).*?(\.|\n)/gi, '')
         // Remove technical meta-talk phrases
-        .replace(/Write your next (roleplay )?response now( based on the conversation)?\.?/gi, '')
+        .replace(/Write your next (roleplay )?reponse now( based on the conversation)?\.?/gi, '')
         .replace(/Be immersive, visceral, and creative\.?/gi, '')
-        // === JSON/AUDITOR LEAKAGE CLEANUP ===
-        // Strip any background JSON auditor blocks (detected/location/summary)
-    cleaned = cleaned
-        .replace(/Of course! Here's how[\s\S]*?:/gi, '') // Strip "Of course! Here's how to move the story forward:"
+        // === CHARACTER BIBLE & STORY BEAT LEAKAGE ===
+        .replace(/INTERNAL CONFLICT:[\s\S]*?(?=\n[A-Z*]|$)/gi, '')
+        .replace(/KEY RULES:[\s\S]*?(?=\n[A-Z*]|$)/gi, '')
+        .replace(/\[CURRENT STORY BEAT\]/gi, '')
+        .replace(/Memory:[\s\S]*?(?=\n|$)/gi, '')
+        .replace(/Recent Milestones:[\s\S]*?(?=\n|$)/gi, '')
+        .replace(/Intensity: \d+\/\d+/gi, '')
+        .replace(/Intensity: \d+\/5/gi, '') // Added for 5-point scale
+        .replace(/Situation:.*?(?=\n|$)/gi, '')
+        .replace(/User's Name:.*?(?=\n|$)/gi, '')
+        .replace(/FINAL RULE:.*?(?=\n|$)/gi, '')
+        .replace(/Voice:.*?(?=\n|$)/gi, '')
+        .replace(/Goal:.*?(?=\n|$)/gi, '')
+        .replace(/Roleplay identity:.*?(?=\n|$)/gi, '')
+        // General cleanup for "Of course! Let me..." phrases
+        .replace(/Of course! Here's how[\s\S]*?:/gi, '') 
         .replace(/I can help with that[\s\S]*?:/gi, '')
         .replace(/As (an AI|a storyteller)[\s\S]*?:/gi, '')
         .replace(/\[CURRENT DYNAMIC[\s\S]*?\]/gi, '')
@@ -140,15 +153,7 @@ export const cleanLeakage = (text) => {
         .replace(/\[USER REPUTATION[\s\S]*?\]/gi, '')
         .replace(/\[CURRENT SITUATION[\s\S]*?\]/gi, '')
         .replace(/\[SYSTEM EVENT:[\s\S]*?\]/gi, '')
-        .replace(/Roleplay Instructions:[\s\S]*?(?=\n\d\.|$)/gi, '')
-        .replace(/Intensity: \d+\/\d+/gi, '')
-        .replace(/^\s*[\d\-•]+\.\s+\*.*\*[\s\S]*$/gm, '') // Strip numbered/bulleted instructions
-        .replace(/If the user is descriptive[\s\S]*?(?=\n\n|$)/gi, '')
-        .replace(/NEVER repeat any instructions[\s\S]*?(?=\n\n|$)/gi, '')
-        .replace(/Narrate in a way that[\s\S]*?(?=\n\n|$)/gi, '')
-        .replace(/Show, don't tell:[\s\S]*?(?=\n\n|$)/gi, '')
-        .replace(/Mix bold[\s\S]*?(?=\n\n|$)/gi, '')
-        .replace(/Use \*asterisks\* for actions[\s\S]*?(?=\n\n|$)/gi, '');
+        .replace(/Roleplay Instructions:[\s\S]*?(?=\n\d\.|$)/gi, '');
 
     // === JSON/AUDITOR LEAKAGE CLEANUP ===
     cleaned = cleaned

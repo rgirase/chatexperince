@@ -12,6 +12,7 @@ import {
     generateMemoryRecallQuestion
 } from '../services/llm';
 import { getDiaries } from '../services/memory';
+import { getLocation } from '../services/LocationService';
 
 export const useChatLogic = (persona, showToast, generateSelfie) => {
     const [messages, setMessages] = useState([]);
@@ -33,6 +34,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
     const [activePersonaImage, setActivePersonaImage] = useState(persona.image);
     const [currentSuggestions, setCurrentSuggestions] = useState([]);
     const [messageCountForScene, setMessageCountForScene] = useState(0);
+    const [currentLocationId, setCurrentLocationId] = useState('kitchen_morning');
 
     const abortControllerRef = useRef(null);
 
@@ -57,6 +59,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
             setTraits(await db.getItem('memories', `traits_${persona.id}`) || []);
             setEncounterStats(await db.getItem('memories', `encounters_${persona.id}`) || { count: 0, lastLocation: 'Never', history: [] });
             setCurrentSceneId(await db.getItem('settings', `scene_${persona.id}`) || 'default');
+            setCurrentLocationId(await db.getItem('settings', `location_${persona.id}`) || 'kitchen_morning');
             setInvitedPersona(await db.getItem('settings', `invited_${persona.id}`) || null);
             setActivePersonaImage(await db.getItem('settings', `active_image_${persona.id}`) || persona.image);
             setIsDataLoaded(true);
@@ -77,7 +80,36 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         db.setItem('settings', `scene_${persona.id}`, currentSceneId);
         db.setItem('settings', `invited_${persona.id}`, invitedPersona);
         db.setItem('settings', `active_image_${persona.id}`, activePersonaImage);
-    }, [messages, memory, relationshipScore, intensity, milestones, traits, encounterStats, currentSceneId, invitedPersona, activePersonaImage, persona.id, isDataLoaded]);
+        db.setItem('settings', `location_${persona.id}`, currentLocationId);
+
+        // Milestone Unlocking Logic
+        const checkMilestones = async () => {
+            const unlocked = await db.getItem('unlocked_gallery', `unlocked_${persona.id}`) || [];
+            let changed = false;
+            
+            if (relationshipScore >= 80 && !unlocked.includes('milestone_80')) {
+                unlocked.push('milestone_80');
+                showToast("Milestone Reached: Level 80! Secret image unlocked.", "success");
+                changed = true;
+            }
+            if (relationshipScore >= 90 && !unlocked.includes('milestone_90')) {
+                unlocked.push('milestone_90');
+                showToast("Milestone Reached: Level 90! Deep Intimacy unlocked.", "success");
+                changed = true;
+            }
+            if (relationshipScore >= 100 && !unlocked.includes('milestone_100')) {
+                unlocked.push('milestone_100');
+                showToast("MAX RELATIONSHIP! Eternal Bond unlocked.", "success");
+                changed = true;
+            }
+
+            if (changed) {
+                await db.setItem('unlocked_gallery', `unlocked_${persona.id}`, unlocked);
+            }
+        };
+        checkMilestones();
+
+    }, [messages, memory, relationshipScore, intensity, milestones, traits, encounterStats, currentSceneId, invitedPersona, activePersonaImage, currentLocationId, persona.id, isDataLoaded]);
 
     const executeAiRequest = useCallback(async (aiMessageId, context, options = {}) => {
         abortControllerRef.current = new AbortController();
@@ -461,6 +493,32 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         await executeAiRequest(aiMessageId, [...messages, continueMsg], { isContinuation: true });
     }, [messages, isTyping, executeAiRequest]);
 
+    const handleLocationChange = useCallback(async (locationId) => {
+        const location = getLocation(locationId);
+        if (!location) return;
+
+        setCurrentLocationId(locationId);
+        setCurrentSituation(location.situation);
+        
+        // Add a narrative marker so the AI knows we moved
+        const moveMsg = {
+            id: Date.now().toString(),
+            role: 'user',
+            content: `*We move together to the ${location.name}.*`,
+            isSystem: true 
+        };
+        
+        setMessages(prev => [...prev, moveMsg]);
+        showToast(`Moved to ${location.name}`, "info");
+
+        // Trigger an immediate AI reaction to the new environment
+        const aiMsgId = (Date.now() + 1).toString();
+        setMessages(prev => [...prev, { id: aiMsgId, role: 'ai', content: '', isTyping: true }]);
+        setIsTyping(true);
+        
+        await executeAiRequest(aiMsgId, [...messages, moveMsg], { currentSituation: location.situation });
+    }, [messages, executeAiRequest, showToast]);
+
     return {
         messages, setMessages,
         input, setInput,
@@ -476,6 +534,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         activePersonaImage,
         currentSuggestions, setCurrentSuggestions,
         invitedPersona, setInvitedPersona,
+        currentLocationId,
         handleSendMessage,
         handleStopGeneration,
         handleGenerateSuggestion,
@@ -484,6 +543,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         handleScanIntimacy,
         handleGenerateSceneImage,
         handleSceneChange,
+        handleLocationChange,
         handleScenarioShuffle,
         handleSelectFantasy,
         handleClearChat,

@@ -12,7 +12,8 @@ import StoryMap from './StoryMap';
 import ArchiveModal from './sub/ArchiveModal';
 import { useChatLogic } from '../hooks/useChatLogic';
 import { useImageGeneration } from '../hooks/useImageGeneration';
-import { locationService } from '../services/LocationService';
+import { getLocation } from '../services/LocationService';
+import LocationSwitcher from './sub/LocationSwitcher';
 import * as db from '../services/db';
 import InviteModal from './sub/InviteModal';
 
@@ -28,6 +29,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const [isFantasyGalleryOpen, setIsFantasyGalleryOpen] = useState(false);
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const [isArchiveOpen, setIsArchiveOpen] = useState(false);
+    const [isLocationSwitcherOpen, setIsLocationSwitcherOpen] = useState(false);
     
     // --- EDITING STATE ---
     const [editingMessageId, setEditingMessageId] = useState(null);
@@ -64,6 +66,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         milestones,
         encounterStats,
         currentSituation,
+        currentLocationId,
         activePersonaImage,
         currentSuggestions, setCurrentSuggestions,
         invitedPersona, setInvitedPersona,
@@ -75,6 +78,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         handleScanIntimacy,
         handleGenerateSceneImage,
         handleSceneChange,
+        handleLocationChange,
         handleScenarioShuffle,
         handleSelectFantasy,
         handleClearChat: handleClearChatLogic,
@@ -133,13 +137,13 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         handleSelectFantasy(fantasy);
     };
 
-    const bgImage = locationService.getBackground(persona.id);
+    const currentBg = getLocation(currentLocationId)?.image || '/assets/locations/home_morning.jpg';
 
     return (
         <div 
             className="chat-container"
             style={{ 
-                backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${bgImage})`,
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${currentBg})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundAttachment: 'fixed'
@@ -174,7 +178,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 onOpenHistory={() => setIsArchiveOpen(true)}
                 onOpenStoryMap={() => setIsStoryMapOpen(true)}
                 onGenerateSceneImage={handleGenerateSceneImage}
-                onSceneChange={handleSceneChange}
+                onSceneChange={() => setIsLocationSwitcherOpen(true)}
                 onScenarioShuffle={handleScenarioShuffle}
                 onOpenFantasyLibrary={() => setIsFantasyGalleryOpen(true)}
                 onOpenInvite={() => setIsInviteModalOpen(true)}
@@ -279,6 +283,17 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                         invitedPersona={invitedPersona}
                         onInvite={setInvitedPersona}
                         onRemove={() => setInvitedPersona(null)}
+                    />
+                )}
+
+                {isLocationSwitcherOpen && (
+                    <LocationSwitcher 
+                        currentLocationId={currentLocationId}
+                        onSelect={(id) => {
+                            handleLocationChange(id);
+                            setIsLocationSwitcherOpen(false);
+                        }}
+                        onClose={() => setIsLocationSwitcherOpen(false)}
                     />
                 )}
                 {isArchiveOpen && (

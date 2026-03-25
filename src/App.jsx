@@ -9,6 +9,7 @@ import Gallery from './components/Gallery';
 import GenesisWizard from './components/GenesisWizard';
 import { personas as defaultPersonas } from './data/personas';
 import { personal_gf } from './data/characters/personal_gf';
+import StreakBonus from './components/sub/StreakBonus';
 import * as db from './services/db';
 
 let hasPushedHistory = false;
@@ -25,6 +26,10 @@ function App() {
   const [activeServerUrl, setActiveServerUrl] = React.useState('');
   const [savedServers, setSavedServers] = React.useState([]);
   const [imageUpdateKey, setImageUpdateKey] = React.useState(0);
+  
+  // Streak State
+  const [streak, setStreak] = useState(0);
+  const [lastLoginDate, setLastLoginDate] = useState('');
 
   const [userAura, setUserAura] = React.useState(() => {
     try {
@@ -135,6 +140,35 @@ function App() {
       }
       setSavedServers(servers);
       setActiveServerUrl(localStorage.getItem('lmStudioUrl') || '');
+
+      // 4. Load & Update Streak
+      try {
+        const today = new Date().toDateString();
+        const loginData = await db.getItem('logins', 'current_streak') || { count: 0, lastDate: '' };
+        
+        let newCount = loginData.count;
+        let lastDate = loginData.lastDate;
+
+        if (lastDate !== today) {
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = yesterday.toDateString();
+
+          if (lastDate === yesterdayStr) {
+            newCount += 1;
+          } else {
+            newCount = 1;
+          }
+          
+          await db.setItem('logins', 'current_streak', { count: newCount, lastDate: today });
+          setLastLoginDate(lastDate); // Store previous date to check for "Claim"
+        } else {
+          setLastLoginDate(today);
+        }
+        setStreak(newCount);
+      } catch (e) {
+        console.error("[App] Failed to update streak", e);
+      }
     };
 
     loadAllData();
@@ -311,6 +345,20 @@ function App() {
     setUserAura(updateAura());
   };
 
+  const handleClaimStreak = async () => {
+    const today = new Date().toDateString();
+    await db.setItem('logins', 'last_claimed_date', today);
+    setLastLoginDate(today);
+    
+    // Add a reward to the rewards store
+    const rewardId = `reward_${Date.now()}`;
+    await db.setItem('rewards', rewardId, {
+      type: 'gift',
+      item: streak >= 7 ? 'Vintage Wine' : 'Box of Chocolates',
+      date: today
+    });
+  };
+
   const handleSwitchServer = (url) => {
     setActiveServerUrl(url);
     localStorage.setItem('lmStudioUrl', url);
@@ -470,6 +518,15 @@ function App() {
             onSelectPersona={handleSelectPersona} 
             customPersonas={customPersonas}
             allPersonas={getProcessedPersonas()}
+          />
+        )}
+
+        {/* STREAK BONUS NOTIFICATION */}
+        {activeView === 'home' && streak > 0 && (
+          <StreakBonus 
+            streak={streak}
+            lastRewardDate={lastLoginDate}
+            onClaim={handleClaimStreak}
           />
         )}
 

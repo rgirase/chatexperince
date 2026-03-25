@@ -1,77 +1,46 @@
 /**
- * LocationService
- * Manages character positions and provides associated background assets.
+ * LocationService manages the available roleplay environments.
+ * Each location has a name, a background image, and a 'situation' prompt for the AI.
  */
 
 export const LOCATIONS = {
-    HOME: {
-        id: 'home',
-        name: 'Home',
-        backgrounds: {
-            morning: '/assets/backgrounds/home_morning.jpg',
-            afternoon: '/assets/backgrounds/home_afternoon.jpg',
-            evening: '/assets/backgrounds/home_evening.jpg',
-            night: '/assets/backgrounds/home_night.jpg'
-        }
+    'kitchen_morning': {
+        name: 'Kitchen',
+        mood: 'Cozy Morning',
+        sensory: 'Smell of coffee & sunlight',
+        image: '/assets/locations/home_morning.jpg',
+        situation: 'It is a bright morning in the kitchen. The sun is streaming through the windows, and the smell of fresh coffee is in the air.'
     },
-    OFFICE: {
-        id: 'office',
-        name: 'Office',
-        backgrounds: {
-            day: '/assets/backgrounds/office_day.jpg',
-            night: '/assets/backgrounds/office_night.jpg'
-        }
+    'living_room_night': {
+        name: 'Living Room',
+        mood: 'Quiet Evening',
+        sensory: 'Soft lamplight & silence',
+        image: '/assets/locations/home_night.jpg',
+        situation: 'The house is quiet and dimly lit, with only the soft glow of the television and a few lamps. A cozy, intimate atmosphere.'
     },
-    OUTDOORS: {
-        id: 'outdoors',
-        name: 'Outdoors',
-        backgrounds: {
-            sunny: '/assets/backgrounds/park_sunny.jpg',
-            rainy: '/assets/backgrounds/park_rainy.jpg',
-            night: '/assets/backgrounds/park_night.jpg'
-        }
+    'poolside_day': {
+        name: 'Poolside',
+        mood: 'Sunny & Refreshing',
+        sensory: 'Sparkling water & warm breeze',
+        image: '/assets/locations/poolside_day.jpg',
+        situation: 'Out by the pool on a hot, sunny day. The water is sparkling, and there is a gentle breeze.'
     },
-    VIP_LOUNGE: {
-        id: 'vip_lounge',
-        name: 'VIP Lounge',
-        backgrounds: {
-            default: '/assets/backgrounds/vip_lounge.jpg'
-        }
+    'bedroom_intimate': {
+        name: 'Bedroom',
+        mood: 'Deeply Intimate',
+        sensory: 'Soft silk & warm shadows',
+        image: '/assets/locations/bedroom_intimate.jpg',
+        situation: 'Inside the private bedroom. The lighting is soft and warm, creating a very personal and focused environment.'
+    },
+    'office_late': {
+        name: 'Home Office',
+        mood: 'Late Night Focus',
+        sensory: 'Desk lamp glow & solitude',
+        image: '/assets/locations/office_late.jpg',
+        situation: 'Late at night in the home office. A single desk lamp illuminates the workspace, surrounded by shadows and silence.'
     }
 };
 
-class LocationService {
-    constructor() {
-        this.characterLocations = {}; // characterId -> locationId
-    }
+export const getLocation = (id) => LOCATIONS[id] || LOCATIONS['kitchen_morning'];
 
-    setLocation(characterId, locationId) {
-        if (LOCATIONS[locationId]) {
-            this.characterLocations[characterId] = locationId;
-            localStorage.setItem(`location_${characterId}`, locationId);
-        }
-    }
-
-    getLocation(characterId) {
-        return this.characterLocations[characterId] || localStorage.getItem(`location_${characterId}`) || 'HOME';
-    }
-
-    getTimeOfDay() {
-        const hour = new Date().getHours();
-        if (hour >= 5 && hour < 12) return 'morning';
-        if (hour >= 12 && hour < 17) return 'afternoon';
-        if (hour >= 17 && hour < 21) return 'evening';
-        return 'night';
-    }
-
-    getBackground(characterId, timeOfDay) {
-        const t = timeOfDay || this.getTimeOfDay();
-        const locationId = this.getLocation(characterId);
-        const location = LOCATIONS[locationId] || LOCATIONS.HOME;
-        
-        // Return time-specific background or default
-        return location.backgrounds[t] || location.backgrounds.default || Object.values(location.backgrounds)[0];
-    }
-}
-
-export const locationService = new LocationService();
+export const getAllLocations = () => Object.entries(LOCATIONS).map(([id, data]) => ({ id, ...data }));

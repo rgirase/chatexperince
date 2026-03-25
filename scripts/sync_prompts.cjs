@@ -1,33 +1,38 @@
 const fs = require('fs');
 const path = require('path');
 
-const PERSONAS_PATH = path.join(__dirname, '../src/data/personas.js');
+const CHARACTERS_DIR = path.join(__dirname, '../src/data/characters');
 const PROMPTS_PATH = path.join(__dirname, '../character_prompts.json');
 
 function sync() {
-    console.log('Reading personas from:', PERSONAS_PATH);
-    const content = fs.readFileSync(PERSONAS_PATH, 'utf8');
+    console.log('Reading personas from directory:', CHARACTERS_DIR);
+    const files = fs.readdirSync(CHARACTERS_DIR);
     
     const personas = [];
     
     // Look for objects containing id, name, and systemPrompt
-    // This regex looks for the start of an object and captures relevant fields until the next possible object start
-    const personaRegex = /id:\s*["']([^"']+)["'][\s\S]+?name:\s*["']([^"']+)["'][\s\S]+?systemPrompt:\s*`([\s\S]+?)`/g;
-    
-    let match;
-    while ((match = personaRegex.exec(content)) !== null) {
-        // Only add if it's not a sub-object (like wardrobe items which also have IDs but not names/systemPrompts)
-        const id = match[1];
-        const name = match[2];
-        const prompt = match[3].trim();
-        
-        // Basic check to avoid duplicates or sub-objects
-        if (id && name && prompt && !personas.find(p => p.id === id)) {
-            personas.push({ id, name, prompt });
-        }
-    }
+    const personaRegex = /const\s+([a-zA-Z0-9_]+)\s*=\s*\{[\s\S]+?id:\s*["']([^"']+)["'][\s\S]+?name:\s*["']([^"']+)["'][\s\S]+?systemPrompt:\s*`([\s\S]+?)`/g;
 
-    console.log(`Found ${personas.length} personas in personas.js`);
+    files.forEach(file => {
+        if (file === 'index.js' || file === 'basePrompt.js' || !file.endsWith('.js')) return;
+        
+        const filePath = path.join(CHARACTERS_DIR, file);
+        const content = fs.readFileSync(filePath, 'utf8');
+        
+        personaRegex.lastIndex = 0; // Reset regex
+        let match;
+        while ((match = personaRegex.exec(content)) !== null) {
+            const id = match[2];
+            const name = match[3];
+            const prompt = match[4].trim();
+            
+            if (id && name && prompt && !personas.find(p => p.id === id)) {
+                personas.push({ id, name, prompt });
+            }
+        }
+    });
+
+    console.log(`Found ${personas.length} personas in characters directory`);
     
     if (personas.length === 0) {
         console.error('No personas found! Check the regex/parsing logic.');
