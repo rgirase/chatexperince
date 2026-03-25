@@ -117,6 +117,37 @@ import warden_graves_prison from './warden_graves_prison.js';
 import brenda_step_aunt_authority from './brenda_step_aunt_authority.js';
 import lady_alistair_victorian from './lady_alistair_victorian.js';
 import katarina_russian_military from './katarina_russian_military.js';
+import melanie_stepmom_cabin from './melanie_stepmom_cabin.js';
+import jade_stepsister_dorm from './jade_stepsister_dorm.js';
+import victoria_aunt_estate from './victoria_aunt_estate.js';
+import chloe_cousin_roadtrip from './chloe_cousin_roadtrip.js';
+import isabella_stepmom_office from './isabella_stepmom_office.js';
+import vanessa_step_aunt_wedding from './vanessa_step_aunt_wedding.js';
+import madison_cousin_attic from './madison_cousin_attic.js';
+import sarah_aunt_divorce from './sarah_aunt_divorce.js';
+import claire_stepmom_study from './claire_stepmom_study.js';
+import isabel_moms_friend from './isabel_moms_friend.js';
+import evelyn_stepmom_swim from './evelyn_stepmom_swim.js';
+import nora_stepsister_funeral from './nora_stepsister_funeral.js';
+import grace_stepmom_storm from './grace_stepmom_storm.js';
+import maya_stepsister_gym from './maya_stepsister_gym.js';
+import serena_aunt_yoga from './serena_aunt_yoga.js';
+import lily_cousin_beach from './lily_cousin_beach.js';
+import diana_stepmom_morning from './diana_stepmom_morning.js';
+import sophie_stepsister_laundry from './sophie_stepsister_laundry.js';
+import elena_moms_friend_massage from './elena_moms_friend_massage.js';
+import rachel_stepmom_moving from './rachel_stepmom_moving.js';
+import sophia_sister_returned from './sophia_sister_returned.js';
+import eleanor_step_grandma from './eleanor_step_grandma.js';
+import olivia_sister_in_law from './olivia_sister_in_law.js';
+import mrs_ross_landlady from './mrs_ross_landlady.js';
+import victoria_boss_wife from './victoria_boss_wife.js';
+import claudia_family_friend from './claudia_family_friend.js';
+import skylar_step_cousin from './skylar_step_cousin.js';
+import matron_vance from './matron_vance.js';
+import coach_kira_trainer from './coach_kira_trainer.js';
+import piper_stepsister_stuck from './piper_stepsister_stuck.js';
+import aunt_jenna_neighbor from './aunt_jenna_neighbor.js';
 
 export const characters = [
   aditi_friends_wife,
@@ -238,4 +269,35 @@ export const characters = [
   brenda_step_aunt_authority,
   lady_alistair_victorian,
   katarina_russian_military,
+  melanie_stepmom_cabin,
+  jade_stepsister_dorm,
+  victoria_aunt_estate,
+  chloe_cousin_roadtrip,
+  isabella_stepmom_office,
+  vanessa_step_aunt_wedding,
+  madison_cousin_attic,
+  sarah_aunt_divorce,
+  claire_stepmom_study,
+  isabel_moms_friend,
+  evelyn_stepmom_swim,
+  nora_stepsister_funeral,
+  grace_stepmom_storm,
+  maya_stepsister_gym,
+  serena_aunt_yoga,
+  lily_cousin_beach,
+  diana_stepmom_morning,
+  sophie_stepsister_laundry,
+  elena_moms_friend_massage,
+  rachel_stepmom_moving,
+  sophia_sister_returned,
+  eleanor_step_grandma,
+  olivia_sister_in_law,
+  mrs_ross_landlady,
+  victoria_boss_wife,
+  claudia_family_friend,
+  skylar_step_cousin,
+  matron_vance,
+  coach_kira_trainer,
+  piper_stepsister_stuck,
+  aunt_jenna_neighbor,
 ];

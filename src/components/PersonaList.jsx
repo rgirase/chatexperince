@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Book, X, History, Clock, Map as MapIcon, Trash2 } from 'lucide-react';
+import { Search, Book, X, History, Clock, Map as MapIcon, Trash2, Info } from 'lucide-react';
 import { personas } from '../data/personas';
 import { getRandomStatus } from '../data/statusUpdates';
 import StoryMap from './StoryMap';
 import { deleteDiaryEntry, getDiaries } from '../services/memory';
 import * as db from '../services/db';
+import CharacterDetailsModal from './sub/CharacterDetailsModal';
 
 const SkeletonCard = () => (
     <div className="persona-card full-bleed skeleton" style={{ height: '380px', borderRadius: '16px' }}>
@@ -16,7 +17,7 @@ const SkeletonCard = () => (
     </div>
 );
 
-const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, itemVariants }) => {
+const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, onOpenDetails, itemVariants }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageError, setImageError] = useState(false);
     const [hasDiary, setHasDiary] = useState(false);
@@ -191,6 +192,27 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
                         <MapIcon size={18} />
                     </motion.button>
 
+                    <motion.button
+                        whileHover={{ scale: 1.1, background: 'rgba(59, 130, 246, 0.2)' }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onOpenDetails(persona);
+                        }}
+                        style={{
+                            background: 'rgba(59, 130, 246, 0.1)',
+                            border: '1px solid rgba(59, 130, 246, 0.2)',
+                            borderRadius: '12px',
+                            color: '#60a5fa',
+                            padding: '10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            backdropFilter: 'blur(10px)'
+                        }}
+                    >
+                        <Info size={18} />
+                    </motion.button>
+
                     {hasDiary && (
                         <motion.button
                             whileHover={{ scale: 1.1, background: 'rgba(168, 85, 247, 0.2)' }}
@@ -240,6 +262,7 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     const [activeRegion, setActiveRegion] = useState('All');
     const [diaryPersona, setDiaryPersona] = useState(null);
     const [storyMapPersona, setStoryMapPersona] = useState(null);
+    const [detailsPersona, setDetailsPersona] = useState(null);
     const [initialLoading, setInitialLoading] = useState(true);
 
     useEffect(() => {
@@ -380,20 +403,29 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
         const matchesRegion = activeRegion === 'All' || p.origin === activeRegion;
         
         return matchesSearch && matchesCategory && matchesRegion;
+    }).map(p => {
+        // Automatically flag the 31 most recent characters as "New"
+        // These are the Western Forbidden characters added in the last batches
+        const index = uniquePersonas.findIndex(up => up.id === p.id);
+        const isRecent = index >= uniquePersonas.length - 31;
+        return { ...p, isNew: p.isNew || isRecent };
     }).sort((a, b) => {
         const aMeta = activeChatsMetadata[a.id];
         const bMeta = activeChatsMetadata[b.id];
         
-        // Active chats first
-        if (aMeta && !bMeta) return -1;
-        if (!aMeta && bMeta) return 1;
-        
-        // If both are active, sort by recency (descending)
-        if (aMeta && bMeta) {
-            return bMeta.lastTimestamp - aMeta.lastTimestamp;
+        // 1. If we are in the 'Active Chats' tab, sort primarily by interaction recency
+        if (activeTab === 'active') {
+            if (aMeta && bMeta) {
+                return bMeta.lastTimestamp - aMeta.lastTimestamp;
+            }
+            // Fallback to index if timestamps match or missing (shouldn't happen in active tab)
         }
-        
-        return 0;
+
+        // 2. Default (including 'All' tab): Sort by 'Recently Added'
+        // Since characters are added to the end of the array, higher index = more recent
+        const aIndex = uniquePersonas.findIndex(p => p.id === a.id);
+        const bIndex = uniquePersonas.findIndex(p => p.id === b.id);
+        return bIndex - aIndex;
     });
 
     const containerVariants = {
@@ -604,6 +636,7 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                             onSelectPersona={onSelectPersona}
                             onOpenStoryMap={setStoryMapPersona}
                             onOpenDiary={setDiaryPersona}
+                            onOpenDetails={setDetailsPersona}
                             itemVariants={itemVariants}
                         />
                     ))
@@ -711,6 +744,13 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                     <StoryMap 
                         persona={storyMapPersona} 
                         onClose={() => setStoryMapPersona(null)} 
+                    />
+                )}
+                {detailsPersona && (
+                    <CharacterDetailsModal 
+                        isOpen={!!detailsPersona}
+                        persona={detailsPersona}
+                        onClose={() => setDetailsPersona(null)}
                     />
                 )}
             </AnimatePresence>
