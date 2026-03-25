@@ -142,6 +142,12 @@ export const cleanLeakage = (text) => {
             if (match.match(/[A-Z_]{3,}/) || match.includes('SPECIAL')) return '';
             return match; // Keep potential narrative tags like <i>
         })
+        .replace(/\bIntensity: \d+\/\d+\b/gi, '')
+        .replace(/Roleplay Instructions:[\s\S]*?(?=\n\d\.|$)/gi, '')
+        .replace(/\[CURRENT SITUATION:[\s\S]*?\]/gi, '')
+        .replace(/\[USER REPUTATION:[\s\S]*?\]/gi, '')
+        .replace(/\[SYSTEM EVENT:[\s\S]*?\]/gi, '')
+        .replace(/\[SYSTEM DIRECTIVE:[\s\S]*?\]/gi, '')
         .trim();
 };
 
@@ -234,22 +240,21 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
 You are ${charName}. 
 Roleplay Identity: ${persona.systemPrompt}
 
-Current Dynamic:
-- Intensity: ${intensity}/5.
-- Language: Strictly adhere to the specified cultural traits. Avoid mixing dialects or using honorifics from other cultures.
-- Pacing: Move the scene forward with bold, visceral actions.
-${auraPrompt}${situationPrompt}
-
 Story Progress:
 - Memory: ${memory || "The story begins now."}
 - Milestones: ${milestones.length > 0 ? milestones.slice(-5).join(". ") : "No major milestones yet."}
-- Intimacy: ${options.encounterStats?.count > 0 ? options.encounterStats.count + " previous encounter(s)." : "First meeting."}
 
-Roleplay Instructions:
-1. Always stay in character as ${charName}.
-2. Use sensory details and internal monologue where appropriate.
-3. Advance the story proactively. Show, don't tell.
-4. ${localStorage.getItem('userName') ? "The user's name is " + localStorage.getItem('userName') + "." : ""}
+Core Rules:
+1. Stay in character.
+2. High-quality narrative.
+3. Show, don't tell.
+${localStorage.getItem('userName') ? "User Name: " + localStorage.getItem('userName') : ""}
+`;
+
+    const directiveContext = `
+[CURRENT DYNAMIC: Intensity ${intensity}/5. Pacing: Proactive.]
+${auraPrompt}${situationPrompt}
+[SYSTEM DIRECTIVE: Respond as ${charName} now. Move the scene forward vividly with 2-4 paragraphs. Do not repeat the prompt.]
 `;
 
     // DYNAMIC CONTEXT BUDGETING (Prevents "failed to find space in KV cache")
@@ -283,6 +288,13 @@ Roleplay Instructions:
         safeMessages.push({ role: 'user', content: "[Starting the interaction.]" });
     } else if (safeMessages[0].role !== 'user') {
         safeMessages.unshift({ role: 'user', content: "[Continuing our interaction.]" });
+    }
+
+    // INJECT DIRECTIVE into the LAST user message for maximum influence
+    const lastUserIndex = [...safeMessages].reverse().findIndex(m => m.role === 'user');
+    if (lastUserIndex !== -1) {
+        const actualIndex = safeMessages.length - 1 - lastUserIndex;
+        safeMessages[actualIndex].content = directiveContext + "\n" + safeMessages[actualIndex].content;
     }
 
     const formattedMessages = [

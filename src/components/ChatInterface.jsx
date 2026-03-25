@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import ChatHeader from './sub/ChatHeader';
 import MessageList from './sub/MessageList';
 import ChatInput from './sub/ChatInput';
@@ -9,9 +9,13 @@ import WardrobeModal from './sub/WardrobeModal';
 import SelfiePromptModal from './sub/SelfiePromptModal';
 import FantasyGallery from './FantasyGallery';
 import StoryMap from './StoryMap';
+import ArchiveModal from './sub/ArchiveModal';
 import { useChatLogic } from '../hooks/useChatLogic';
 import { useImageGeneration } from '../hooks/useImageGeneration';
-import { locationService } from '../services/LocationService';
+import { useRelationship } from '../hooks/useRelationship';
+import { locationService } from '../services/location';
+import { generateResponse, cleanLeakage } from '../services/llm';
+import * as db from '../services/db';
 import InviteModal from './sub/InviteModal';
 
 const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }) => {
@@ -25,6 +29,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const [isSelfiePromptOpen, setIsSelfiePromptOpen] = useState(false);
     const [isFantasyGalleryOpen, setIsFantasyGalleryOpen] = useState(false);
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+    const [isArchiveOpen, setIsArchiveOpen] = useState(false);
     
     // --- EDITING STATE ---
     const [editingMessageId, setEditingMessageId] = useState(null);
@@ -170,7 +175,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 onOpenJournal={() => setIsMemoryViewerOpen(true)}
                 onOpenGifts={() => setIsGiftsModalOpen(true)}
                 onOpenWardrobe={() => setIsWardrobeOpen(true)}
-                onOpenHistory={() => showToast("Loading archives...", "info")}
+                onOpenHistory={() => setIsArchiveOpen(true)}
                 onOpenStoryMap={() => setIsStoryMapOpen(true)}
                 onGenerateSceneImage={handleGenerateSceneImage}
                 onSceneChange={handleSceneChange}
@@ -278,6 +283,13 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                         invitedPersona={invitedPersona}
                         onInvite={setInvitedPersona}
                         onRemove={() => setInvitedPersona(null)}
+                    />
+                )}
+                {isArchiveOpen && (
+                    <ArchiveModal 
+                        isOpen={isArchiveOpen}
+                        onClose={() => setIsArchiveOpen(false)}
+                        currentPersonaId={persona.id}
                     />
                 )}
             </AnimatePresence>
