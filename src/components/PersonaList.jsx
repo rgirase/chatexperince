@@ -9,6 +9,7 @@ import StoryMap from './StoryMap';
 import { getDiaries, deleteDiaryEntry } from '../services/memory';
 import * as relationshipService from '../services/relationship';
 import * as db from '../services/db';
+import StatusInteraction from './sub/StatusInteraction';
 
 const SkeletonCard = () => (
     <div className="persona-card full-bleed skeleton" style={{ height: '380px', borderRadius: '16px' }}>
@@ -286,38 +287,11 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
             {/* Bubble Overlay - Outside the overflow:hidden card */}
             <AnimatePresence>
                 {isStatusExpanded && (
-                    <motion.div
-                        ref={statusBubbleRef}
-                        id="status-bubble"
-                        initial={{ opacity: 0, scale: 0.8, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.8, y: 10 }}
-                        onClick={(e) => { e.stopPropagation(); setIsStatusExpanded(false); }}
-                        style={{
-                            position: 'absolute',
-                            bottom: '120px',
-                            left: '20px',
-                            width: '240px',
-                            background: 'rgba(15, 15, 20, 0.98)',
-                            backdropFilter: 'blur(20px)',
-                            padding: '16px',
-                            borderRadius: '20px',
-                            border: '1px solid #f472b6',
-                            zIndex: 1000,
-                            boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
-                            color: '#fff',
-                            pointerEvents: 'auto'
-                        }}
-                    >
-                        <div style={{ color: '#f472b6', fontSize: '0.65rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '8px' }}>
-                            Recent Status • {statusUpdates[persona.id].timestamp}
-                        </div>
-                        <div style={{ fontStyle: 'italic', fontSize: '0.85rem', lineHeight: '1.5' }}>
-                            "{statusUpdates[persona.id].status}"
-                        </div>
-                        {/* Arrow */}
-                        <div style={{ position: 'absolute', bottom: '-20px', left: '25px', width: 0, height: 0, borderLeft: '10px solid transparent', borderRight: '10px solid transparent', borderTop: '10px solid #f472b6' }}></div>
-                    </motion.div>
+                    <StatusInteraction 
+                        persona={persona}
+                        status={statusUpdates[persona.id]}
+                        onClose={() => setIsStatusExpanded(false)}
+                    />
                 )}
             </AnimatePresence>
         </motion.div>

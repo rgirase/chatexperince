@@ -11,6 +11,8 @@ import FantasyGallery from './FantasyGallery';
 import StoryMap from './StoryMap';
 import { useChatLogic } from '../hooks/useChatLogic';
 import { useImageGeneration } from '../hooks/useImageGeneration';
+import { locationService } from '../services/LocationService';
+import InviteModal from './sub/InviteModal';
 
 const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }) => {
     // --- UI VIEW STATE ---
@@ -129,8 +131,18 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         handleSelectFantasy(fantasy);
     };
 
+    const bgImage = locationService.getBackground(persona.id);
+
     return (
-        <div className="chat-container">
+        <div 
+            className="chat-container"
+            style={{ 
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${bgImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundAttachment: 'fixed'
+            }}
+        >
             {/* TOASTS */}
             <div className="toast-container">
                 <AnimatePresence>
@@ -257,41 +269,15 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 )}
 
                 {isInviteModalOpen && (
-                    <div className="modal-overlay" onClick={() => setIsInviteModalOpen(false)}>
-                        <motion.div 
-                            className="modal-content glass-panel" 
-                            onClick={(e) => e.stopPropagation()}
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            style={{ maxWidth: '400px' }}
-                        >
-                            <div className="modal-header">
-                                <h3 style={{ margin: 0, color: '#38bdf8' }}>Invite to Scene</h3>
-                                <button onClick={() => setIsInviteModalOpen(false)} style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}>X</button>
-                            </div>
-                            <div className="modal-body">
-                                {invitedPersona ? (
-                                    <div style={{ textAlign: 'center' }}>
-                                        <p style={{ marginBottom: '1rem', color: '#d4d4d8' }}>{invitedPersona.name} is currently in the scene.</p>
-                                        <button
-                                            onClick={() => { setInvitedPersona(null); setIsInviteModalOpen(false); }}
-                                            style={{ padding: '0.8rem 1rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '12px', cursor: 'pointer', width: '100%', fontWeight: 'bold' }}
-                                        >Remove {invitedPersona.name}</button>
-                                    </div>
-                                ) : (
-                                    <div style={{ display: 'grid', gap: '0.75rem' }}>
-                                        {allPersonas && allPersonas.filter(p => p.id !== persona.id).map(p => (
-                                            <div key={p.id} onClick={() => { setInvitedPersona(p); setIsInviteModalOpen(false); }} style={{ display: 'flex', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', transition: 'all 0.2s ease' }}>
-                                                <img src={p.image} alt={p.name} style={{ width: '40px', height: '40px', borderRadius: '50%', marginRight: '12px', objectFit: 'cover' }} />
-                                                <span style={{ color: '#f3f4f6', fontWeight: '600' }}>{p.name}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </motion.div>
-                    </div>
+                    <InviteModal 
+                        isOpen={isInviteModalOpen}
+                        onClose={() => setIsInviteModalOpen(false)}
+                        allPersonas={allPersonas}
+                        currentPersona={persona}
+                        invitedPersona={invitedPersona}
+                        onInvite={setInvitedPersona}
+                        onRemove={() => setInvitedPersona(null)}
+                    />
                 )}
             </AnimatePresence>
         </div>

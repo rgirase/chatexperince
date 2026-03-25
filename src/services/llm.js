@@ -7,6 +7,30 @@ export const getSdUrl = (providedUrl) => {
     return baseUrl.trim().replace(/\/$/, '');
 };
 
+/**
+ * Generates a reflective memory recall question ("Moment of Truth")
+ */
+export async function generateMemoryRecallQuestion(persona, milestones, diaryEntries) {
+    const prompt = `
+[CONTEXT]
+Character: ${persona.name}
+Recent Milestones: ${milestones.join(", ")}
+Private Diary Thoughts: ${diaryEntries.slice(0, 3).join(" | ")}
+
+[TASK]
+As ${persona.name}, generate a short, slightly intimate or nostalgic message that asks the user if they remember a specific detail from your shared history.
+The question should feel natural, like a "Do you remember when..." or "I was just thinking about..."
+Keep it under 30 words.
+Do not use placeholders.
+
+[FORMAT]
+"*Smiles softly* Hey, do you remember when we...?"
+`;
+
+    const response = await callLMStudio(prompt, 0.7);
+    return cleanLeakage(response.trim());
+}
+
 export const getLmStudioUrl = (providedUrl) => {
     let baseUrl = providedUrl || localStorage.getItem('lmStudioUrl') || DEFAULT_LM_STUDIO_URL;
     baseUrl = baseUrl.trim();

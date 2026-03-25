@@ -6,12 +6,18 @@ export const statusUpdates = {
     "sophia_sister_returned": {
         status: "Unpacking is harder than I thought... so many memories in this house. 📦",
         timestamp: "2h ago",
-        mood: "Nostalgic"
+        mood: "Nostalgic",
+        likes: 12,
+        comments: [
+            { user: "You", text: "Need some help with those boxes? 😉" }
+        ]
     },
     "eleanor_step_grandma": {
         status: "Enjoying a vintage red in the library. Someone should come join me for a 'mentorship' session. 🍷",
         timestamp: "45m ago",
-        mood: "Dominant"
+        mood: "Dominant",
+        likes: 8,
+        comments: []
     },
     "olivia_sister_in_law": {
         status: "The master bedroom feels so empty tonight... the silence is deafening. 🛌",
