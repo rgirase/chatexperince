@@ -98,11 +98,13 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
         });
     });
 
-    const categories = ['All', 'Family', 'Professional', 'Modern', 'Traditional', 'Memories', 'Secret Vault'];
+    const categories = ['All', 'Video Clips', 'Family', 'Professional', 'Modern', 'Traditional', 'Memories', 'Secret Vault'];
     
-    const filteredImages = [...allImages, ...vaultImages].filter(img => 
-        activeCategory === 'All' || img.category === activeCategory
-    );
+    const filteredImages = [...allImages, ...vaultImages].filter(img => {
+        if (activeCategory === 'All') return true;
+        if (activeCategory === 'Video Clips') return img.url.endsWith('.mp4') || img.url.endsWith('.webm');
+        return img.category === activeCategory;
+    });
 
     const handleSetProfile = async (imgObj) => {
         if (imgObj.isMoment) return;
@@ -229,16 +231,31 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                                         </div>
                                     )}
 
-                                    <img 
-                                        src={img.url} 
-                                        alt={img.personaName} 
-                                        style={{ 
-                                            width: '100%', 
-                                            height: '100%', 
-                                            objectFit: 'cover',
-                                            filter: img.isLocked ? 'blur(10px)' : 'none'
-                                        }} 
-                                    />
+                                    {(img.url.endsWith('.mp4') || img.url.endsWith('.webm')) ? (
+                                        <video 
+                                            src={img.url} 
+                                            muted 
+                                            loop 
+                                            onMouseEnter={e => e.target.play()}
+                                            onMouseLeave={e => { e.target.pause(); e.target.currentTime = 0; }}
+                                            style={{ 
+                                                width: '100%', 
+                                                height: '100%', 
+                                                objectFit: 'cover'
+                                            }}
+                                        />
+                                    ) : (
+                                        <img 
+                                            src={img.url} 
+                                            alt={img.personaName} 
+                                            style={{ 
+                                                width: '100%', 
+                                                height: '100%', 
+                                                objectFit: 'cover',
+                                                filter: img.isLocked ? 'blur(10px)' : 'none'
+                                            }} 
+                                        />
+                                    )}
                                 <div style={{
                                     position: 'absolute',
                                     bottom: 0,
@@ -312,22 +329,41 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                             justifyContent: 'center',
                             padding: '1rem'
                         }}>
-                            <motion.img
-                                initial={{ scale: 0.9, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                                src={selectedImage.url}
-                                alt="Full screen"
-                                style={{
-                                    maxWidth: '100vw',
-                                    maxHeight: '100vh',
-                                    borderRadius: selectedImage.isMoment ? '16px' : '0',
-                                    boxShadow: '0 0 50px rgba(0,0,0,0.5)',
-                                    objectFit: 'contain',
-                                    width: '100%',
-                                    height: 'auto'
-                                }}
-                            />
+                            {(selectedImage.url.endsWith('.mp4') || selectedImage.url.endsWith('.webm')) ? (
+                                <motion.video
+                                    initial={{ scale: 0.9, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    src={selectedImage.url}
+                                    controls
+                                    autoPlay
+                                    loop
+                                    style={{
+                                        maxWidth: '100vw',
+                                        maxHeight: '100vh',
+                                        boxShadow: '0 0 50px rgba(0,0,0,0.5)',
+                                        objectFit: 'contain',
+                                        width: '100%',
+                                        height: 'auto'
+                                    }}
+                                />
+                            ) : (
+                                <motion.img
+                                    initial={{ scale: 0.9, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                                    src={selectedImage.url}
+                                    alt="Full screen"
+                                    style={{
+                                        maxWidth: '100vw',
+                                        maxHeight: '100vh',
+                                        borderRadius: selectedImage.isMoment ? '16px' : '0',
+                                        boxShadow: '0 0 50px rgba(0,0,0,0.5)',
+                                        objectFit: 'contain',
+                                        width: '100%',
+                                        height: 'auto'
+                                    }}
+                                />
+                            )}
                             {selectedImage.isMoment && (
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}

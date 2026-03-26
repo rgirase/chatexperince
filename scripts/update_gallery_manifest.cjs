@@ -16,32 +16,26 @@ function generateManifest() {
     const manifest = {};
 
     files.forEach(file => {
-        if (!file.match(/\.(png|jpg|jpeg|webp|gif)$/i)) return;
+        if (!file.match(/\.(png|jpg|jpeg|webp|gif|mp4|webm)$/i)) return;
 
-        // Pattern 1: id.png
-        // Pattern 2: id_n.png
-        // Pattern 3: id_gallery_n.png
-        
         let personaId = "";
-        const parts = file.split('_');
         
-        // This logic is a bit tricky because persona IDs can have underscores (e.g., best_friend_mom)
-        // We'll try to find the longest matching ID from the filenames.
-        // But for now, let's assume the ID is everything before the last underscore if it's a number, 
-        // or the whole filename if there's no underscore.
-        
-        const lastPart = parts[parts.length - 1].split('.')[0];
-        if (!isNaN(lastPart)) {
-            // It ends in a number (e.g., _1, _2)
-            // Check if there's a "gallery" keyword
-            if (parts.length > 2 && parts[parts.length - 2] === 'gallery') {
-                 personaId = parts.slice(0, parts.length - 2).join('_');
-            } else {
-                 personaId = parts.slice(0, parts.length - 1).join('_');
-            }
+        if (file.includes('_shower.png')) {
+            personaId = file.replace('_shower.png', '');
+        } else if (file.includes('_clip.')) {
+            personaId = file.split('_clip.')[0];
         } else {
-            // No number (e.g., stepmom.png)
-            personaId = file.split('.')[0];
+            const parts = file.split('_');
+            const lastPart = parts[parts.length - 1].split('.')[0];
+            if (!isNaN(lastPart)) {
+                if (parts.length > 2 && parts[parts.length - 2] === 'gallery') {
+                    personaId = parts.slice(0, parts.length - 2).join('_');
+                } else {
+                    personaId = parts.slice(0, parts.length - 1).join('_');
+                }
+            } else {
+                personaId = file.split('.')[0];
+            }
         }
 
         if (personaId) {
