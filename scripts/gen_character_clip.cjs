@@ -106,9 +106,15 @@ async function run() {
         while (!finished) {
             const history = await checkStatus(promptId);
             if (history) {
-                const outputFilename = history.outputs["13"].gifs[0].filename; // Video nodes often return in gifs key but filename is .mp4
-                const outPath = path.join(OUTPUT_DIR, `${info.id}_clip.mp4`);
-                await downloadVideo(outputFilename, outPath);
+                const output = history.outputs["13"];
+                const filename = (output.gifs && output.gifs[0]) ? output.gifs[0].filename : 
+                               (output.images && output.images[0]) ? output.images[0].filename : null;
+                
+                if (!filename) throw new Error("No output filename found in history.");
+                
+                const ext = filename.split('.').pop();
+                const outPath = path.join(OUTPUT_DIR, `${info.id}_clip.${ext}`);
+                await downloadVideo(filename, outPath);
                 console.log(`✅ Saved Clip: ${outPath}`);
                 finished = true;
             } else {

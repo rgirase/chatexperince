@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const galleryDir = path.join(__dirname, '../public/gallery');
+const galleryDir = path.join(__dirname, '../public/gallery-assets');
 const outputManifest = path.join(__dirname, '../src/data/gallery_manifest.json');
 
 function generateManifest() {
@@ -40,7 +40,7 @@ function generateManifest() {
 
         if (personaId) {
             if (!manifest[personaId]) manifest[personaId] = [];
-            manifest[personaId].push(`/gallery/${file}`);
+            manifest[personaId].push(`/gallery-assets/${file}`);
         }
     });
 

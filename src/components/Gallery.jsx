@@ -11,6 +11,15 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
     const [moments, setMoments] = useState([]);
     const [unlockedGallery, setUnlockedGallery] = useState({});
     const [isLoaded, setIsLoaded] = useState(false);
+    const [hoveredItem, setHoveredItem] = useState(null);
+
+    const fixUrl = (url) => {
+        if (typeof url !== 'string') return url;
+        if (url.startsWith('/gallery/')) {
+            return url.replace('/gallery/', '/gallery-assets/');
+        }
+        return url;
+    };
     
     useEffect(() => {
         const loadGalleryData = async () => {
@@ -231,22 +240,36 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                                         </div>
                                     )}
 
-                                    {(img.url.endsWith('.mp4') || img.url.endsWith('.webm')) ? (
-                                        <video 
-                                            src={img.url} 
-                                            muted 
-                                            loop 
-                                            onMouseEnter={e => e.target.play()}
-                                            onMouseLeave={e => { e.target.pause(); e.target.currentTime = 0; }}
-                                            style={{ 
-                                                width: '100%', 
-                                                height: '100%', 
-                                                objectFit: 'cover'
-                                            }}
-                                        />
+                                    {(img.url.endsWith('.mp4') || img.url.endsWith('.webm') || img.url.endsWith('.webp')) ? (
+                                        img.url.endsWith('.webp') ? (
+                                            <img
+                                                src={hoveredItem === img.id ? fixUrl(img.url) : fixUrl(img.url).replace('_clip.webp', '_shower.png')}
+                                                onMouseEnter={() => setHoveredItem(img.id)}
+                                                onMouseLeave={() => setHoveredItem(null)}
+                                                style={{ 
+                                                    width: '100%', 
+                                                    height: '100%', 
+                                                    objectFit: 'cover'
+                                                }}
+                                                alt={img.personaName}
+                                            />
+                                        ) : (
+                                            <video 
+                                                src={fixUrl(img.url)} 
+                                                muted 
+                                                loop 
+                                                onMouseEnter={e => e.target.play()}
+                                                onMouseLeave={e => { e.target.pause(); e.target.currentTime = 0; }}
+                                                style={{ 
+                                                    width: '100%', 
+                                                    height: '100%', 
+                                                    objectFit: 'cover'
+                                                }}
+                                            />
+                                        )
                                     ) : (
                                         <img 
-                                            src={img.url} 
+                                            src={fixUrl(img.url)} 
                                             alt={img.personaName} 
                                             style={{ 
                                                 width: '100%', 
@@ -329,29 +352,46 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                             justifyContent: 'center',
                             padding: '1rem'
                         }}>
-                            {(selectedImage.url.endsWith('.mp4') || selectedImage.url.endsWith('.webm')) ? (
-                                <motion.video
-                                    initial={{ scale: 0.9, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    src={selectedImage.url}
-                                    controls
-                                    autoPlay
-                                    loop
-                                    style={{
-                                        maxWidth: '100vw',
-                                        maxHeight: '100vh',
-                                        boxShadow: '0 0 50px rgba(0,0,0,0.5)',
-                                        objectFit: 'contain',
-                                        width: '100%',
-                                        height: 'auto'
-                                    }}
-                                />
+                            {(selectedImage.url.endsWith('.mp4') || selectedImage.url.endsWith('.webm') || selectedImage.url.endsWith('.webp')) ? (
+                                selectedImage.url.endsWith('.webp') ? (
+                                    <motion.img
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        src={fixUrl(selectedImage.url)}
+                                        alt="Full screen animated"
+                                        style={{
+                                            maxWidth: '100vw',
+                                            maxHeight: '100vh',
+                                            boxShadow: '0 0 50px rgba(0,0,0,0.5)',
+                                            objectFit: 'contain',
+                                            width: '100%',
+                                            height: 'auto'
+                                        }}
+                                    />
+                                ) : (
+                                    <motion.video
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        src={fixUrl(selectedImage.url)}
+                                        controls
+                                        autoPlay
+                                        loop
+                                        style={{
+                                            maxWidth: '100vw',
+                                            maxHeight: '100vh',
+                                            boxShadow: '0 0 50px rgba(0,0,0,0.5)',
+                                            objectFit: 'contain',
+                                            width: '100%',
+                                            height: 'auto'
+                                        }}
+                                    />
+                                )
                             ) : (
                                 <motion.img
                                     initial={{ scale: 0.9, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                                    src={selectedImage.url}
+                                    src={fixUrl(selectedImage.url)}
                                     alt="Full screen"
                                     style={{
                                         maxWidth: '100vw',
