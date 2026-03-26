@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Lock, X, Maximize2, MessageSquare, UserCheck } from 'lucide-react';
+import { ArrowLeft, Lock, X, Maximize2, MessageSquare, UserCheck, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import galleryManifest from '../data/gallery_manifest.json';
 import * as db from '../services/db';
@@ -12,6 +12,7 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
     const [unlockedGallery, setUnlockedGallery] = useState({});
     const [isLoaded, setIsLoaded] = useState(false);
     const [hoveredItem, setHoveredItem] = useState(null);
+    const [visibleCount, setVisibleCount] = useState(window.innerWidth < 768 ? 12 : 24);
 
     const fixUrl = (url) => {
         if (typeof url !== 'string') return url;
@@ -72,6 +73,22 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
         
         loadGalleryData();
     }, [allPersonas]);
+
+    // Reset visible count when category changes
+    useEffect(() => {
+        setVisibleCount(24);
+    }, [activeCategory]);
+
+    // Infinite scroll logic
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 500) {
+                setVisibleCount(prev => prev + 24);
+            }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     // Flatten all images into a single list with metadata
     const allImages = allPersonas.flatMap(persona => {
@@ -211,16 +228,24 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                     }}
                 >
                     <AnimatePresence mode='popLayout'>
-                        {displayItems.map((img) => (
+                        {displayItems.slice(0, visibleCount).map((img) => (
                             <motion.div
                                 key={img.id || `${img.personaId}_${img.timestamp}`}
                                 layout
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
-                                whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
-                                onClick={() => setSelectedImage(img)}
+                                onClick={() => {
+                                    const isVideo = img.url.endsWith('.mp4') || img.url.endsWith('.webm') || img.url.endsWith('.webp');
+                                    const isMobile = window.innerWidth < 768;
+                                    
+                                    if (isMobile && isVideo && hoveredItem !== img.id) {
+                                        setHoveredItem(img.id);
+                                    } else {
+                                        setSelectedImage(img);
+                                    }
+                                }}
                                 style={{
                                     position: 'relative',
                                     aspectRatio: '2/3',
@@ -246,6 +271,7 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                                                 src={hoveredItem === img.id ? fixUrl(img.url) : fixUrl(img.url).replace('_clip.webp', '_shower.png')}
                                                 onMouseEnter={() => setHoveredItem(img.id)}
                                                 onMouseLeave={() => setHoveredItem(null)}
+                                                loading="lazy"
                                                 style={{ 
                                                     width: '100%', 
                                                     height: '100%', 
@@ -254,23 +280,50 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                                                 alt={img.personaName}
                                             />
                                         ) : (
-                                            <video 
-                                                src={fixUrl(img.url)} 
-                                                muted 
-                                                loop 
-                                                onMouseEnter={e => e.target.play()}
-                                                onMouseLeave={e => { e.target.pause(); e.target.currentTime = 0; }}
-                                                style={{ 
-                                                    width: '100%', 
-                                                    height: '100%', 
-                                                    objectFit: 'cover'
-                                                }}
-                                            />
+                                            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                                                <video 
+                                                    src={fixUrl(img.url)} 
+                                                    poster={fixUrl(img.url).replace(/_clip\.(mp4|webm|webp)$/, '_shower.png')}
+                                                    muted 
+                                                    loop 
+                                                    playsInline
+                                                    preload="metadata"
+                                                    autoPlay={window.innerWidth < 768 && hoveredItem === img.id}
+                                                    onMouseEnter={e => e.target.play()}
+                                                    onMouseLeave={e => { e.target.pause(); e.target.currentTime = 0; }}
+                                                    style={{ 
+                                                        width: '100%', 
+                                                        height: '100%', 
+                                                        objectFit: 'cover'
+                                                    }}
+                                                />
+                                                {(!hoveredItem || hoveredItem !== img.id) && (
+                                                    <div style={{
+                                                        position: 'absolute',
+                                                        inset: 0,
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        background: 'rgba(0,0,0,0.2)',
+                                                        pointerEvents: 'none'
+                                                    }}>
+                                                        <div style={{
+                                                            background: 'rgba(236, 72, 153, 0.6)',
+                                                            borderRadius: '50%',
+                                                            padding: '0.5rem',
+                                                            backdropFilter: 'blur(4px)'
+                                                        }}>
+                                                            <Play size={20} fill="white" color="white" />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
                                         )
                                     ) : (
                                         <img 
                                             src={fixUrl(img.url)} 
                                             alt={img.personaName} 
+                                            loading="lazy"
                                             style={{ 
                                                 width: '100%', 
                                                 height: '100%', 
@@ -373,9 +426,12 @@ const Gallery = ({ onBack, allPersonas = [], onSelectImage }) => {
                                         initial={{ scale: 0.9, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         src={fixUrl(selectedImage.url)}
+                                        poster={fixUrl(selectedImage.url).replace(/_clip\.(mp4|webm|webp)$/, '_shower.png')}
                                         controls
                                         autoPlay
+                                        muted
                                         loop
+                                        playsInline
                                         style={{
                                             maxWidth: '100vw',
                                             maxHeight: '100vh',
