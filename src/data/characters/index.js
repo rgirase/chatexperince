@@ -147,7 +147,13 @@ import skylar_step_cousin from './skylar_step_cousin.js';
 import matron_vance from './matron_vance.js';
 import coach_kira_trainer from './coach_kira_trainer.js';
 import piper_stepsister_stuck from './piper_stepsister_stuck.js';
+import { natalie_reunion } from './natalie_reunion.js';
+import { brooke_guardian } from './brooke_guardian.js';
+import { skylar_quasi_sibling } from './skylar_quasi_sibling.js';
+import { elena_rival_cousin } from './elena_rival_cousin.js';
+import { vanderbilt_widow_aunt } from './vanderbilt_widow_aunt.js';
 import aunt_jenna_neighbor from './aunt_jenna_neighbor.js';
+
 
 export const characters = [
   aditi_friends_wife,
@@ -300,4 +306,10 @@ export const characters = [
   coach_kira_trainer,
   piper_stepsister_stuck,
   aunt_jenna_neighbor,
+  natalie_reunion,
+  brooke_guardian,
+  skylar_quasi_sibling,
+  elena_rival_cousin,
+  vanderbilt_widow_aunt,
 ];
+
