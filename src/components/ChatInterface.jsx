@@ -83,6 +83,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         handleSelectFantasy,
         handleClearChat: handleClearChatLogic,
         handleResubmit,
+        handleRepair,
         handleContinue
     } = useChatLogic(persona, showToast, generateSelfie);
 
@@ -202,6 +203,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 onDeleteMessage={handleDeleteMessage}
                 onContinue={handleContinue}
                 onResubmit={handleResubmit}
+                onRepair={handleRepair}
                 isTyping={isTyping}
                 messagesAreaRef={messagesAreaRef}
             />

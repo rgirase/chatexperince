@@ -126,7 +126,8 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
             intensity,
             relationshipScore,
             currentSituation,
-            ...options
+            ...options,
+            systemOverride: options.isRepair ? `[SYSTEM OVERRIDE: Your last response was invalid or contained metadata. This is a REPAIR ATTEMPT. You MUST respond ONLY with character dialogue and physical actions in pure narrative roleplay. NO JSON, NO MOOD TAGS, NO CODE, NO METADATA.]` : null
         };
 
         try {
@@ -139,19 +140,28 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
                         msg.id === aiMessageId ? { ...msg, content: chunkText, isError: false } : msg
                     ));
                 },
-                async (fullText) => {
+                async (cleanedText, rawText) => {
+                    // Update message with final cleaned version
+                    setMessages(prev => prev.map(msg =>
+                        msg.id === aiMessageId ? { ...msg, content: cleanedText, isError: false } : msg
+                    ));
+
                     let scoreDelta = 0;
                     let photoPrompt = null;
 
-                    // Parse scoring and autonomous actions
-                    const scoreMatch = fullText.match(/\[SCORE:\s*([+-]\d+)\]/i);
+                    // Parse scoring and autonomous actions FROM RAW TEXT
+                    const scoreMatch = rawText.match(/\[SCORE:\s*([+-]\d+)\]/i);
                     if (scoreMatch) scoreDelta = parseInt(scoreMatch[1]);
 
-                    const photoMatch = fullText.match(/\[PHOTO:\s*(.*?)\]/i);
+                    const photoMatch = rawText.match(/\[PHOTO:\s*(.*?)\]/i);
                     if (photoMatch) photoPrompt = photoMatch[1];
 
-                    const avatarMatch = fullText.match(/\[AVATAR:\s*(.*?)\]/i);
+                    const avatarMatch = rawText.match(/\[AVATAR:\s*(.*?)\]/i);
                     if (avatarMatch) setActivePersonaImage(avatarMatch[1].trim());
+
+                    // Mood log for debug
+                    const moodMatch = rawText.match(/\[MOOD:\s*(.*?)\]/i);
+                    if (moodMatch) console.log(`[ChatLogic] Persona Mood: ${moodMatch[1]}`);
 
                     if (scoreDelta !== 0) {
                         setRelationshipScore(prev => Math.max(0, Math.min(100, prev + (scoreDelta * 5))));
@@ -161,15 +171,16 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
                         generateSelfie(photoPrompt, aiMessageId);
                     }
 
-                    // Background situational awareness
+                    // Background situational awareness (pass RAW for analysis)
+                    const contextWithRaw = [...context, { role: 'ai', content: rawText }];
                     setMessageCountForScene(prev => {
                         const newCount = prev + 1;
                         if (newCount >= 4) {
-                            extractSceneSummary(persona, [...context, { role: 'ai', content: fullText }]).then(summary => {
+                            extractSceneSummary(persona, [...context, { role: 'ai', content: rawText }]).then(summary => {
                                 if (summary) setCurrentSituation(summary);
                             });
 
-                            analyzeIntimateEncounter(persona, [...context, { role: 'ai', content: fullText }]).then(result => {
+                            analyzeIntimateEncounter(persona, [...context, { role: 'ai', content: rawText }]).then(result => {
                                 if (result && result.detected) {
                                     setEncounterStats(prev => ({
                                         count: prev.count + 1,
@@ -222,6 +233,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
                     });
                 },
                 (errMessage) => {
+                    console.error(`[ChatLogic] onError called: ${errMessage}`);
                     setIsTyping(false);
                     showToast(errMessage);
                     setMessages(prev => prev.map(msg => 
@@ -240,6 +252,10 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         const text = customInput || input;
         if (!text.trim() || isTyping) return;
 
+        // Detect Time-Skip keywords
+        const timeSkipRegex = /\b(days? pass|weeks? pass|months? pass|next (morning|day|week|month)|every day|passed by|a long time|later that)\b/gi;
+        const isTimeSkip = timeSkipRegex.test(text);
+
         const userMsg = { 
             id: Date.now().toString(), 
             role: 'user', 
@@ -255,7 +271,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         const aiMessageId = (Date.now() + 1).toString();
         setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
 
-        await executeAiRequest(aiMessageId, [...messages, userMsg]);
+        await executeAiRequest(aiMessageId, [...messages, userMsg], { isTimeSkip });
     }, [input, isTyping, messages, executeAiRequest]);
 
     const handleSendGift = useCallback(async (gift) => {
@@ -473,6 +489,23 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
 
         await executeAiRequest(aiMessageId, truncatedMessages);
     }, [messages, isTyping, executeAiRequest, persona.id]);
+    const handleRepair = useCallback(async (messageId) => {
+        const msgIndex = messages.findIndex(m => m.id === messageId);
+        if (msgIndex === -1 || isTyping) return;
+
+        // Find the User message that preceded this AI message
+        const userMsgIndex = msgIndex - 1;
+        if (userMsgIndex < 0) return;
+
+        const truncatedMessages = messages.slice(0, userMsgIndex + 1);
+        const userMsg = messages[userMsgIndex];
+
+        setIsTyping(true);
+        const aiMessageId = Date.now().toString() + "_repair";
+        setMessages(prev => [...prev.slice(0, userMsgIndex + 1), { id: aiMessageId, role: 'ai', content: 'Repairing response...', isError: false }]);
+
+        await executeAiRequest(aiMessageId, truncatedMessages, { isRepair: true });
+    }, [messages, isTyping, executeAiRequest]);
 
     const handleContinue = useCallback(async () => {
         if (isTyping || messages.length === 0) return;
@@ -548,6 +581,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         handleSelectFantasy,
         handleClearChat,
         handleResubmit,
+        handleRepair,
         handleContinue
     };
 };

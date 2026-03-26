@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit2, Check, X, Trash2, FastForward, Image as ImageIcon, RefreshCw } from 'lucide-react';
+import { Edit2, Check, X, Trash2, FastForward, Image as ImageIcon, RefreshCw, Hammer } from 'lucide-react';
 
 const MessageList = ({ 
     messages, 
@@ -14,6 +14,7 @@ const MessageList = ({
     onDeleteMessage, 
     onContinue,
     onResubmit,
+    onRepair,
     isTyping,
     messagesAreaRef
 }) => {
@@ -65,7 +66,10 @@ const MessageList = ({
                                     <button onClick={() => onResubmit(msg.id)} title="Resubmit / Regenerate"><RefreshCw size={12} /></button>
                                 )}
                                 {msg.role === 'ai' && index === messages.length - 1 && (
-                                    <button onClick={() => onContinue(msg)} title="Continue story"><FastForward size={12} /></button>
+                                    <>
+                                        <button onClick={() => onRepair(msg.id)} title="Repair response (Force Narrative)"><Hammer size={12} /></button>
+                                        <button onClick={() => onContinue(msg)} title="Continue story"><FastForward size={12} /></button>
+                                    </>
                                 )}
                             </div>
                         )}

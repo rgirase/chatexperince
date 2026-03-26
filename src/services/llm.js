@@ -144,6 +144,8 @@ export const cleanLeakage = (text) => {
         .replace(/Voice:.*?(?=\n|$)/gi, '')
         .replace(/Goal:.*?(?=\n|$)/gi, '')
         .replace(/Roleplay identity:.*?(?=\n|$)/gi, '')
+        // Clean up bracketed metadata tags (MOOD, SCORE, PHOTO, AVATAR, etc.)
+        .replace(/\[[A-Z_]+:[\s\S]*?\]/gi, '')
         // General cleanup for "Of course! Let me..." phrases
         .replace(/Of course! Here's how[\s\S]*?:/gi, '') 
         .replace(/I can help with that[\s\S]*?:/gi, '')
@@ -157,8 +159,11 @@ export const cleanLeakage = (text) => {
 
     // === JSON/AUDITOR LEAKAGE CLEANUP ===
     cleaned = cleaned
-        .replace(/\{"detected":\s*(true|false),.*?\}/gi, '')
-        .replace(/\{"detected":\s*(true|false),.*?$/gi, '') // Truncated JSON
+        // Universal Ironclad JSON stripping - matches any braced object that looks like metadata
+        // Matches { "any_key": ... } with optional leading/trailing content
+        .replace(/\{[\s\n]*"[a-z0-9_]+":[\s\S]*?\}/gi, '')
+        // Catch truncated JSON at the end of a message
+        .replace(/\{[\s\n]*"[a-z0-9_]+":[\s\S]*$/gi, '')
         // STRIP CONTROL CHARACTERS AND SPECIAL TOKENS
         .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '')
         .replace(/<SPECIAL_\d+>/gi, '')
@@ -167,6 +172,13 @@ export const cleanLeakage = (text) => {
             if (match.match(/[A-Z_]{3,}/) || match.includes('SPECIAL')) return '';
             return match;
         });
+
+    // === FINAL POST-PROCESSING ===
+    cleaned = cleaned
+        .replace(/[^\S\r\n]{2,}/g, ' ') // Collapse multiple spaces (preserve newlines)
+        .replace(/\n\s+\n/g, '\n\n')    // Clean up whitespace-only lines between paragraphs
+        .replace(/\s+\n/g, '\n')        // Remove trailing spaces on lines
+        .replace(/\n\s+/g, '\n');       // Remove leading spaces on lines
 
     return cleaned.trim();
 };
@@ -237,14 +249,19 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
         milestones = [],
         isContinuation = false,
         intensity = 3,
-        memory = ''
+        memory = '',
+        isTimeSkip = false
     } = options;
 
     // 1. CHARACTER BIBLE (Strict identity enforcement)
-    // We tell the model it IS the character, NOT a storyteller helper.
     const charName = getShortName(persona.name);
+    
+    // Time-Skip Adaptation Directive
+    const timeSkipDirective = isTimeSkip ? 
+        `\n\n[TIME_SKIP_EVENT: A significant amount of time has passed (narratively). Acknowledge this jump naturally in your dialogue. Reflect on how your relationship or the situation might have matured or changed during this gap. Start your response by acknowledging the passage of time.]` : "";
+
     const biblePrompt = `YOU ARE ${charName}.
-Roleplay identity: ${persona.systemPrompt}
+Roleplay identity: ${persona.systemPrompt}${timeSkipDirective}
 Voice: Immersive, descriptive, multi-paragraph narrative. Use *asterisks* for actions and natural dialogue.
 Goal: Respond ONLY as ${charName}. Never explain, never provide writing tips, and never refer to instructions.
 
@@ -295,6 +312,7 @@ FINAL RULE: Always end your response with your current mood exactly like this: [
 
     const formattedMessages = [
         { role: "system", content: biblePrompt },
+        ...(options.systemOverride ? [{ role: "system", content: options.systemOverride }] : []),
         ...safeMessages
     ];
 
@@ -368,7 +386,7 @@ FINAL RULE: Always end your response with your current mood exactly like this: [
 
                     if (trimmedLine.includes('[DONE]')) {
                         const finalCleanResponse = cleanLeakage(fullResponse);
-                        onComplete(finalCleanResponse);
+                        onComplete(finalCleanResponse, fullResponse); // Pass BOTH
                         return;
                     }
 
@@ -383,7 +401,11 @@ FINAL RULE: Always end your response with your current mood exactly like this: [
                                     isFirstChunk = false;
                                 }
                                 fullResponse += content;
-                                onChunk(cleanLeakage(fullResponse));
+                                const cleaned = cleanLeakage(fullResponse);
+                                if (fullResponse && !cleaned) {
+                                    console.warn(`[LLM] cleanLeakage returned empty for non-empty fullResponse (length ${fullResponse.length})`);
+                                }
+                                onChunk(cleaned);
                             }
                         } catch (e) {
                             // Partial JSON, will be handled by buffer in next read
@@ -402,10 +424,10 @@ FINAL RULE: Always end your response with your current mood exactly like this: [
         console.log(`[LLM] Stream Finished. Raw Length: ${fullResponse.length}, Cleaned: ${finalCleanResponse?.length || 0}`);
 
         if (finalCleanResponse) {
-            onComplete(finalCleanResponse);
+            onComplete(finalCleanResponse, fullResponse);
         } else if (fullResponse.trim()) {
             console.warn("[LLM] cleanLeakage stripped everything. Using raw.");
-            onComplete(fullResponse.trim());
+            onComplete(fullResponse.trim(), fullResponse);
         } else {
             // IF STREAMING FAILED OR RETURNED NOTHING, TRY NON-STREAMING FALLBACK
             console.warn("[LLM] Stream returned no content. Retrying without streaming...");
@@ -448,7 +470,7 @@ FINAL RULE: Always end your response with your current mood exactly like this: [
             const cleanContent = cleanLeakage(content);
 
             if (cleanContent) {
-                onComplete(cleanContent);
+                onComplete(cleanContent, content);
             } else {
                 throw new Error("Model returned an empty response (non-streaming).");
             }
@@ -531,7 +553,8 @@ ${transcript}
 
 Task: Write a concise, bulleted summary of key facts, events, and relationship developments from these messages. Combine it with the existing memory to create a single, unified, updated memory block. 
 Keep it extremely brief, intimate, and factual. Focus on details like names mentioned, specific promises made, and feelings shared.
-Return ONLY the new memory block. Do not include extra commentary or intro/outro.`;
+Return ONLY the new memory block. 
+[CRITICAL: DO NOT include JSON, code, metadata tags, or any character stats in your response. Return ONLY plain narrative text.]`;
 
     try {
         const response = await fetch(url, {
@@ -582,7 +605,8 @@ Examples:
 If something important happened, describe it in one short, impactful sentence starting with "Remember that...".
 If multiple things happened, combine them into one sentence.
 If nothing significantly new happened, return ONLY the word "NONE".
-Return ONLY the sentence or "NONE". Do not include extra dialogue.`;
+Return ONLY the sentence or "NONE". Do not include extra dialogue.
+[CRITICAL: DO NOT include JSON, code, or metadata tags. Return ONLY plain narrative text.]`;
 
     try {
         const response = await fetch(url, {
@@ -630,7 +654,8 @@ Focus on:
 3. Immediate Mood/Goal (e.g. "Tension is high", "They are relaxing").
 
 Example: "Currently in the kitchen; the user is helping ${charName} cook while flirting heavily."
-Return ONLY the summary sentence. No intros or outros.`;
+Return ONLY the summary sentence. No intros or outros.
+[CRITICAL: DO NOT include JSON, code, or metadata tags. Return ONLY plain narrative text.]`;
 
     try {
         const response = await fetch(url, {
@@ -908,6 +933,7 @@ export const analyzeIntimateEncounter = async (persona, messages) => {
     
     RULES:
     - Respond ONLY with the JSON.
+    - [CRITICAL: ENSURE your response starts with '{' and ends with '}']
     - Be objective. If it's just flirting or heavy petting without a "completion," set detected to false.
     - If detected is false, location and summary can be empty strings.`;
 

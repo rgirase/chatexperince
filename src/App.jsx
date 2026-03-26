@@ -19,8 +19,6 @@ function App() {
   
   // Hyper-safe state initialization
   const [selectedPersona, setSelectedPersona] = React.useState(null);
-  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
-  const [isGalleryOpen, setIsGalleryOpen] = React.useState(false);
   const [customPersonas, setCustomPersonas] = React.useState([]);
   const [panicMode, setPanicMode] = React.useState(false);
   const [activeServerUrl, setActiveServerUrl] = React.useState('');
@@ -101,6 +99,8 @@ function App() {
 
       // 3. Load View State
       const savedView = localStorage.getItem('activeView') || 'home';
+      setActiveView(savedView);
+      
       if (savedView === 'chat') {
         const targetId = localStorage.getItem('lastPersonaId');
         if (targetId) {
@@ -108,12 +108,14 @@ function App() {
           if (found) setSelectedPersona(found);
           else setActiveView('home');
         }
+      } else if (savedView === 'gf') {
+        // Handled by activeView state
       } else if (savedView === 'settings') {
-        setIsSettingsOpen(true);
+        // Handled by activeView state
       } else if (savedView === 'gallery') {
-        setIsGalleryOpen(true);
+        // Handled by activeView state
       } else if (savedView === 'genesis') {
-        setActiveView('genesis');
+        // Handled by activeView state
       }
 
       // Load server info (keep in localStorage as it's small)
@@ -175,29 +177,19 @@ function App() {
 
     const handlePopState = (e) => {
       const stateView = e.state?.view || 'home';
+      setActiveView(stateView);
+      localStorage.setItem('activeView', stateView);
+      
       if (stateView === 'home') {
         if (localStorage.getItem('activeView') === 'chat') {
           localStorage.setItem('lastPersonaTab', 'active');
         }
         setSelectedPersona(null);
-        setIsSettingsOpen(false);
-        setIsGalleryOpen(false);
-        setActiveView('home');
-        localStorage.setItem('activeView', 'home');
         hasPushedHistory = false;
-      } else if (stateView === 'settings') {
-        setIsSettingsOpen(false);
-        setIsGalleryOpen(false);
-        setSelectedPersona(null);
-        setActiveView('home');
-        localStorage.setItem('activeView', 'home');
-        hasPushedHistory = false;
+      } else if (stateView === 'chat') {
+          // Keep current selected persona if possible
       } else {
-        setIsSettingsOpen(false);
-        setIsGalleryOpen(false);
         setSelectedPersona(null);
-        setActiveView('home');
-        localStorage.setItem('activeView', 'home');
         hasPushedHistory = false;
       }
     };
@@ -262,9 +254,6 @@ function App() {
     hasPushedHistory = true;
     
     setSelectedPersona(persona);
-    setIsSettingsOpen(false);
-    setIsGalleryOpen(false);
-    
     setActiveView('chat');
     localStorage.setItem('activeView', 'chat');
     localStorage.setItem('lastPersonaId', persona.id);
@@ -272,41 +261,37 @@ function App() {
   };
 
   const handleOpenSettings = () => {
+    console.log('[App] handleOpenSettings called');
     window.history.pushState({ view: 'settings' }, '');
     hasPushedHistory = true;
     setSelectedPersona(null);
-    setIsGalleryOpen(false);
-    setIsSettingsOpen(true);
     setActiveView('settings');
     localStorage.setItem('activeView', 'settings');
   };
 
   const handleOpenGallery = () => {
+    console.log('[App] handleOpenGallery called');
     window.history.pushState({ view: 'gallery' }, '');
     hasPushedHistory = true;
     setSelectedPersona(null);
-    setIsSettingsOpen(false);
-    setIsGalleryOpen(true);
     setActiveView('gallery');
     localStorage.setItem('activeView', 'gallery');
   };
 
   const handleOpenGenesis = () => {
+    console.log('[App] handleOpenGenesis called');
     window.history.pushState({ view: 'genesis' }, '');
     hasPushedHistory = true;
     setSelectedPersona(null);
-    setIsGalleryOpen(false);
-    setIsSettingsOpen(false);
     setActiveView('genesis');
     localStorage.setItem('activeView', 'genesis');
   };
 
   const handleOpenGF = () => {
+    console.log('[App] handleOpenGF called');
     window.history.pushState({ view: 'gf' }, '');
     hasPushedHistory = true;
     setSelectedPersona(null);
-    setIsGalleryOpen(false);
-    setIsSettingsOpen(false);
     setActiveView('gf');
     localStorage.setItem('activeView', 'gf');
     localStorage.setItem('lastPersonaId', personal_gf.id);
@@ -337,8 +322,6 @@ function App() {
   const handleGoHome = () => {
     window.history.replaceState({ view: 'home' }, '');
     setSelectedPersona(null);
-    setIsSettingsOpen(false);
-    setIsGalleryOpen(false);
     setActiveView('home');
     localStorage.setItem('activeView', 'home');
     hasPushedHistory = false;
@@ -374,7 +357,7 @@ function App() {
   };
 
   useEffect(() => {
-    if (!isSettingsOpen) {
+    if (activeView !== 'settings') {
       try {
         const servers = JSON.parse(localStorage.getItem('savedServers') || '[]');
         setSavedServers(Array.isArray(servers) ? servers : []);
@@ -383,7 +366,7 @@ function App() {
         console.error('[App] Failed to re-sync servers', e);
       }
     }
-  }, [isSettingsOpen]);
+  }, [activeView]);
 
   const longPressTimerRef = useRef(null);
   const handleTouchStart = () => {
@@ -426,7 +409,7 @@ function App() {
           )}
         </AnimatePresence>
 
-        {!selectedPersona && !isSettingsOpen && !isGalleryOpen && (
+        {!selectedPersona && activeView === 'home' && (
           <header className="header fade-in">
             <div
               className="header-title premium-gradient-text"
@@ -492,7 +475,7 @@ function App() {
             onGoHome={handleGoHome}
             onSelectImage={handleSelectImage}
           />
-        ) : isSettingsOpen ? (
+        ) : activeView === 'settings' ? (
           <Settings
             onBack={handleBack}
             onGoHome={handleGoHome}
@@ -502,7 +485,7 @@ function App() {
             activeServerUrl={activeServerUrl}
             onSwitchServer={handleSwitchServer}
           />
-        ) : isGalleryOpen ? (
+        ) : activeView === 'gallery' ? (
           <Gallery
             onBack={handleBack}
             allPersonas={getProcessedPersonas()}
@@ -530,12 +513,13 @@ function App() {
           />
         )}
 
-        <nav className="bottom-nav glass-panel" style={{ 
+        <nav className="bottom-nav-v2 glass-panel" style={{ 
           borderBottom: 'none', 
           borderLeft: 'none', 
           borderRight: 'none', 
           borderRadius: '24px 24px 0 0',
-          paddingBottom: 'env(safe-area-inset-bottom)'
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          zIndex: 999999 // Ultra-high z-index to stay above everything
         }}>
           <button 
             className={`nav-item ${activeView === 'home' ? 'active' : ''}`}
@@ -544,6 +528,7 @@ function App() {
             <Home size={22} color={activeView === 'home' ? '#a855f7' : '#71717a'} />
             <span style={{ color: activeView === 'home' ? '#fff' : '#71717a' }}>Home</span>
           </button>
+          
           <button 
             className={`nav-item ${activeView === 'gallery' ? 'active' : ''}`}
             onClick={handleOpenGallery}
@@ -551,36 +536,23 @@ function App() {
             <ImageIcon size={22} color={activeView === 'gallery' ? '#a855f7' : '#71717a'} />
             <span style={{ color: activeView === 'gallery' ? '#fff' : '#71717a' }}>Gallery</span>
           </button>
+          
           <button 
             className={`nav-item ${activeView === 'genesis' ? 'active' : ''}`}
             onClick={handleOpenGenesis}
           >
-            <div className="genesis-nav-icon" style={{ position: 'relative' }}>
-              <Sparkles size={22} color={activeView === 'genesis' ? '#a855f7' : '#71717a'} />
-              {activeView === 'genesis' && (
-                <motion.div 
-                  layoutId="nav-pill"
-                  style={{ position: 'absolute', inset: -4, background: 'rgba(168, 85, 247, 0.15)', borderRadius: '12px', zIndex: -1 }}
-                />
-              )}
-            </div>
+            <Sparkles size={22} color={activeView === 'genesis' ? '#a855f7' : '#71717a'} />
             <span style={{ color: activeView === 'genesis' ? '#fff' : '#71717a' }}>Genesis</span>
           </button>
+          
           <button 
             className={`nav-item ${activeView === 'gf' ? 'active' : ''}`}
             onClick={handleOpenGF}
           >
-            <div className="gf-nav-icon" style={{ position: 'relative' }}>
-              <Heart size={22} color={activeView === 'gf' ? '#ec4899' : '#71717a'} fill={activeView === 'gf' ? '#ec4899' : 'none'} />
-              {activeView === 'gf' && (
-                <motion.div 
-                  layoutId="nav-pill"
-                  style={{ position: 'absolute', inset: -4, background: 'rgba(236, 72, 153, 0.15)', borderRadius: '12px', zIndex: -1 }}
-                />
-              )}
-            </div>
+            <Heart size={22} color={activeView === 'gf' ? '#ec4899' : '#71717a'} fill={activeView === 'gf' ? '#ec4899' : 'none'} />
             <span style={{ color: activeView === 'gf' ? '#fff' : '#71717a' }}>GF</span>
           </button>
+          
           <button 
             className={`nav-item ${activeView === 'settings' ? 'active' : ''}`}
             onClick={handleOpenSettings}
