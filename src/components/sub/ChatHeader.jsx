@@ -100,7 +100,7 @@ const ChatHeader = ({
                             <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
                             
                             <button onClick={onScenarioShuffle} className="menu-item"><Wand2 size={18} color="#eab308" /> Shuffle Scenario</button>
-                            <button onClick={onSceneChange} className="menu-item"><MapPin size={18} color="#a855f7" /> Change Scene</button>
+                            <button onClick={() => { onSceneChange(); setIsMobileMenuOpen(false); }} className="menu-item"><MapPin size={18} color="#a855f7" /> Change Scene</button>
                             <button onClick={onGenerateSceneImage} className="menu-item"><Sparkles size={18} color="#f472b6" /> Magic Lens</button>
                             
                             {persona.id === 'amira_velvet_club' && (

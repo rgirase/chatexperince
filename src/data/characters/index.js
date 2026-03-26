@@ -153,6 +153,12 @@ import { skylar_quasi_sibling } from './skylar_quasi_sibling.js';
 import { elena_rival_cousin } from './elena_rival_cousin.js';
 import { vanderbilt_widow_aunt } from './vanderbilt_widow_aunt.js';
 import aunt_jenna_neighbor from './aunt_jenna_neighbor.js';
+import jade_ex_sister_in_law from './jade_ex_sister_in_law.js';
+import brianna_stepsister_friend from './brianna_stepsister_friend.js';
+import mrs_sterling_step_aunt from './mrs_sterling_step_aunt.js';
+import catherine_mom_friend from './catherine_mom_friend.js';
+import alexis_older_stepsister from './alexis_older_stepsister.js';
+import victoria_business_stepmom from './victoria_business_stepmom.js';
 
 
 export const characters = [
@@ -311,5 +317,11 @@ export const characters = [
   skylar_quasi_sibling,
   elena_rival_cousin,
   vanderbilt_widow_aunt,
+  jade_ex_sister_in_law,
+  brianna_stepsister_friend,
+  mrs_sterling_step_aunt,
+  catherine_mom_friend,
+  alexis_older_stepsister,
+  victoria_business_stepmom,
 ];
 

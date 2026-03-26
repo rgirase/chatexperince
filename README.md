@@ -1,16 +1,29 @@
-# React + Vite
+# Chat Experience
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A high-fidelity AI roleplay application with dynamic persona generation, memory systems, and image generation.
 
-Currently, two official plugins are available:
+## 🚀 Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Local Development
+1. Install dependencies: `npm install`
+2. Run development server: `npm run dev`
+3. Ensure **LM Studio** and **ComfyUI** are running locally.
 
-## React Compiler
+### 🌐 Deploying to NAS
+This project includes full support for deployment on specialized NAS hardware like the **Ugreen DXP 4800 Plus**.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- [NAS Deployment Guide](./DOCS/NAS_DEPLOYMENT.md)
+- [Dockerfile](./Dockerfile)
+- [Docker Compose](./docker-compose.yml)
 
-## Expanding the ESLint configuration
+## 🛠️ Technology Stack
+- **Frontend**: React, Vite, Framer Motion
+- **Icons**: Lucide React
+- **AI**: LM Studio (LLM), ComfyUI (SDXL)
+- **Database**: IndexedDB (Local)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📁 Project Structure
+- `src/data/characters`: Persona definitions
+- `src/components`: UI components
+- `src/services/llm.js`: AI integration layer
+- `scripts/`: Maintenance and asset generation tools

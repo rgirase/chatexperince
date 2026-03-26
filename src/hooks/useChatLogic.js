@@ -12,7 +12,7 @@ import {
     generateMemoryRecallQuestion
 } from '../services/llm';
 import { getDiaries } from '../services/memory';
-import { getLocation } from '../services/LocationService';
+import { getLocation, getAllLocations } from '../services/LocationService';
 
 export const useChatLogic = (persona, showToast, generateSelfie) => {
     const [messages, setMessages] = useState([]);
@@ -231,6 +231,20 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
                         }
                         return newCount;
                     });
+
+                    // Automatic Scene Detection
+                    const allLocs = getAllLocations();
+                    const textToScan = cleanedText.toLowerCase();
+                    const matchedLoc = allLocs.find(loc => 
+                        loc.keywords?.some(kw => textToScan.includes(kw.toLowerCase()))
+                    );
+
+                    if (matchedLoc && matchedLoc.id !== currentLocationId) {
+                        console.log(`[ChatLogic] Auto-detected scene transition to: ${matchedLoc.name}`);
+                        setCurrentLocationId(matchedLoc.id);
+                        setCurrentSituation(matchedLoc.situation);
+                        showToast(`Scene changed to ${matchedLoc.name}`, "info");
+                    }
                 },
                 (errMessage) => {
                     console.error(`[ChatLogic] onError called: ${errMessage}`);
@@ -272,7 +286,20 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
 
         await executeAiRequest(aiMessageId, [...messages, userMsg], { isTimeSkip });
-    }, [input, isTyping, messages, executeAiRequest]);
+
+        // User-side Scene Detection
+        const allLocs = getAllLocations();
+        const textToScan = text.toLowerCase();
+        const matchedLoc = allLocs.find(loc => 
+            loc.keywords?.some(kw => textToScan.includes(kw.toLowerCase()))
+        );
+        if (matchedLoc && matchedLoc.id !== currentLocationId) {
+            console.log(`[ChatLogic] User-triggered scene transition: ${matchedLoc.name}`);
+            setCurrentLocationId(matchedLoc.id);
+            setCurrentSituation(matchedLoc.situation);
+            showToast(`Heading to ${matchedLoc.name}...`, "info");
+        }
+    }, [input, isTyping, messages, executeAiRequest, currentLocationId]);
 
     const handleSendGift = useCallback(async (gift) => {
         const giftMsg = { 
