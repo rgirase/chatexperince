@@ -1406,3 +1406,118 @@ body {
 .message-meta-actions button:hover {
     color: var(--text-main);
 }
+
+/* --- Aura Pulse & Premium UI Effects --- */
+.aura-pulse-wrapper {
+    transition: all 0.5s ease;
+}
+
+/* --- Flashback UI (Polaroid Style) --- */
+.flashback-bubble {
+    background: #fdfaf0 !important; /* Aged paper color */
+    color: #4a3728 !important; /* Sepia text */
+    padding: 1rem !important;
+    border-radius: 4px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 0 10px #fff inset !important;
+    border: 1px solid #d4c5b3 !important;
+    transform: rotate(-1deg);
+    margin: 1.5rem 0.5rem !important;
+    font-family: 'Satisfy', cursive, sans-serif;
+    position: relative;
+}
+
+.flashback-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 30px;
+    background: #fff;
+    z-index: -1;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.flashback-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+    color: #8b5cf6;
+}
+
+.flashback-body {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.flashback-footer {
+    font-size: 0.7rem;
+    text-align: right;
+    opacity: 0.6;
+    border-top: 1px dashed rgba(74, 55, 40, 0.2);
+    padding-top: 0.5rem;
+}
+
+/* --- Scenario Spotlight --- */
+.scenario-spotlight {
+    position: relative;
+    z-index: 10;
+}
+
+.scenario-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.scenario-card:hover .scenario-image {
+    transform: scale(1.1);
+}
+
+/* --- Quick-Action Chips --- */
+.quick-action-chip:hover {
+    background: rgba(168, 85, 247, 0.15) !important;
+    border-color: rgba(168, 85, 247, 0.3) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.quick-action-chip:active {
+    transform: scale(0.95);
+}
+
+.quick-actions-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* --- Animations --- */
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeInSlideUp 0.4s ease-out forwards;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}

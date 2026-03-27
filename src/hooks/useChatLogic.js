@@ -14,7 +14,7 @@ import {
 import { getDiaries } from '../services/memory';
 import { getLocation, getAllLocations } from '../services/LocationService';
 
-export const useChatLogic = (persona, showToast, generateSelfie) => {
+export const useChatLogic = (persona, showToast, initialScenario, generateSelfie) => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -39,55 +39,120 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
 
     const abortControllerRef = useRef(null);
 
+    const [sessionId, setSessionId] = useState('default');
+    const [allSessions, setAllSessions] = useState([]);
+
     // Load initial data
     useEffect(() => {
         const load = async () => {
-            const chat = await db.getItem('chats', `chat_${persona.id}`) || [];
+            // 1. Get the current active sessionId for this persona
+            let currentSid = await db.getItem('settings', `active_session_${persona.id}`) || 'default';
+            setSessionId(currentSid);
+
+            // 2. Load the list of all sessions for this persona
+            const sessions = await db.getItem('settings', `sessions_list_${persona.id}`) || ['default'];
+            setAllSessions(sessions);
+
+            // 3. Load chat and state with sessionId suffix
+            let chatKey = `chat_${persona.id}_${currentSid}`;
+            let chat = await db.getItem('chats', chatKey) || [];
+            
+            // Check for scenario prompt: prioritize prop, then localStorage
+            const scenarioPrompt = initialScenario?.prompt || localStorage.getItem(`scenarioPrompt_${persona.id}`);
+
+            if (scenarioPrompt && chat.length > 0) {
+                // FORCE a new session if we're picking a specific scenario but the current session isn't fresh
+                const newSid = `session_${Date.now()}`;
+                const newList = [...sessions, newSid];
+                await db.setItem('settings', `active_session_${persona.id}`, newSid);
+                await db.setItem('settings', `sessions_list_${persona.id}`, newList);
+                
+                currentSid = newSid;
+                setSessionId(newSid);
+                setAllSessions(newList);
+                chat = []; // Start with an empty chat for the new session
+            }
+            
             if (chat.length > 0) {
                 setMessages(chat.map(m => ({ ...m, content: cleanLeakage(m.content) })));
             } else {
+                const initialContent = scenarioPrompt || persona.initialMessage || "*Smiles softly* Hello...";
+                
                 setMessages([{
                     id: Date.now().toString(),
                     role: 'ai',
-                    content: cleanLeakage(persona.initialMessage) || "*Smiles softly* Hello..."
+                    content: cleanLeakage(initialContent)
                 }]);
+                
+                // Cleanup localStorage if it was used
+                if (!initialScenario && scenarioPrompt) {
+                    localStorage.removeItem(`scenarioPrompt_${persona.id}`);
+                }
             }
 
-            setMemory(await db.getItem('memories', `memory_${persona.id}`) || '');
-            setRelationshipScore(await db.getItem('settings', `score_${persona.id}`) || 50);
-            setIntensity(await db.getItem('settings', `intensity_${persona.id}`) || 3);
-            setMilestones(await db.getItem('memories', `milestones_${persona.id}`) || []);
-            setTraits(await db.getItem('memories', `traits_${persona.id}`) || []);
-            setEncounterStats(await db.getItem('memories', `encounters_${persona.id}`) || { count: 0, lastLocation: 'Never', history: [] });
-            setCurrentSceneId(await db.getItem('settings', `scene_${persona.id}`) || 'default');
-            setCurrentLocationId(await db.getItem('settings', `location_${persona.id}`) || 'kitchen_morning');
-            setInvitedPersona(await db.getItem('settings', `invited_${persona.id}`) || null);
-            setActivePersonaImage(await db.getItem('settings', `active_image_${persona.id}`) || persona.image);
-            setCustomRelation(await db.getItem('settings', `relation_${persona.id}`) || '');
+            const suffix = `_${persona.id}_${currentSid}`;
+            setMemory(await db.getItem('memories', `memory${suffix}`) || '');
+            setRelationshipScore(await db.getItem('settings', `score${suffix}`) || 50);
+            setIntensity(await db.getItem('settings', `intensity${suffix}`) || 3);
+            setMilestones(await db.getItem('memories', `milestones${suffix}`) || []);
+            setTraits(await db.getItem('memories', `traits${suffix}`) || []);
+            setEncounterStats(await db.getItem('memories', `encounters${suffix}`) || { count: 0, lastLocation: 'Never', history: [] });
+            setCurrentSceneId(await db.getItem('settings', `scene${suffix}`) || 'default');
+            setCurrentLocationId(await db.getItem('settings', `location${suffix}`) || 'kitchen_morning');
+            setInvitedPersona(await db.getItem('settings', `invited${suffix}`) || null);
+            setActivePersonaImage(await db.getItem('settings', `active_image${suffix}`) || persona.image);
+            setCustomRelation(await db.getItem('settings', `relation${suffix}`) || '');
+            setIsAvatarManual(await db.getItem('settings', `avatar_manual${suffix}`) || false);
+            
             setIsDataLoaded(true);
         };
         load();
-    }, [persona]);
+    }, [persona, sessionId, initialScenario]); // Reload if persona, session, or scenario changes
+
+    const [isAvatarManual, setIsAvatarManual] = useState(false);
+    const [lastIntensity, setLastIntensity] = useState(intensity);
 
     // Save data
     useEffect(() => {
         if (!isDataLoaded) return;
-        db.setItem('chats', `chat_${persona.id}`, messages);
-        db.setItem('memories', `memory_${persona.id}`, memory);
-        db.setItem('settings', `score_${persona.id}`, relationshipScore);
-        db.setItem('settings', `intensity_${persona.id}`, intensity);
-        db.setItem('memories', `milestones_${persona.id}`, milestones);
-        db.setItem('memories', `traits_${persona.id}`, traits);
-        db.setItem('memories', `encounters_${persona.id}`, encounterStats);
-        db.setItem('settings', `scene_${persona.id}`, currentSceneId);
-        db.setItem('settings', `invited_${persona.id}`, invitedPersona);
-        db.setItem('settings', `active_image_${persona.id}`, activePersonaImage);
-        db.setItem('settings', `location_${persona.id}`, currentLocationId);
-        db.setItem('settings', `relation_${persona.id}`, customRelation);
+        
+        // Auto-Avatar Logic
+        if (!isAvatarManual && persona.wardrobe && persona.wardrobe.length > 0) {
+            let targetImage = persona.image;
+            const score = relationshipScore;
+            
+            // Logic: High score + High intensity = more intimate/flirty looks
+            if (score >= 90 && intensity >= 4) {
+                targetImage = persona.wardrobe[persona.wardrobe.length - 1].avatar;
+            } else if (score >= 70) {
+                targetImage = persona.wardrobe[Math.min(2, persona.wardrobe.length - 1)].avatar;
+            } else if (score >= 40) {
+                targetImage = persona.wardrobe[Math.min(1, persona.wardrobe.length - 1)].avatar;
+            }
+
+            if (targetImage !== activePersonaImage) {
+                setActivePersonaImage(targetImage);
+            }
+        }
+
+        const suffix = `_${persona.id}_${sessionId}`;
+        db.setItem('chats', `chat${suffix}`, messages);
+        db.setItem('memories', `memory${suffix}`, memory);
+        db.setItem('settings', `score${suffix}`, relationshipScore);
+        db.setItem('settings', `intensity${suffix}`, intensity);
+        db.setItem('memories', `milestones${suffix}`, milestones);
+        db.setItem('memories', `traits${suffix}`, traits);
+        db.setItem('memories', `encounters${suffix}`, encounterStats);
+        db.setItem('settings', `scene${suffix}`, currentSceneId);
+        db.setItem('settings', `invited${suffix}`, invitedPersona);
+        db.setItem('settings', `active_image${suffix}`, activePersonaImage);
+        db.setItem('settings', `location${suffix}`, currentLocationId);
+        db.setItem('settings', `relation${suffix}`, customRelation);
+        db.setItem('settings', `avatar_manual${suffix}`, isAvatarManual);
 
         // Milestone Unlocking Logic
         const checkMilestones = async () => {
-            const unlocked = await db.getItem('unlocked_gallery', `unlocked_${persona.id}`) || [];
+            const unlocked = await db.getItem('unlocked_gallery', `unlocked${suffix}`) || [];
             let changed = false;
             
             if (relationshipScore >= 80 && !unlocked.includes('milestone_80')) {
@@ -107,12 +172,39 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
             }
 
             if (changed) {
-                await db.setItem('unlocked_gallery', `unlocked_${persona.id}`, unlocked);
+                await db.setItem('unlocked_gallery', `unlocked${suffix}`, unlocked);
             }
         };
         checkMilestones();
 
-    }, [messages, memory, relationshipScore, intensity, milestones, traits, encounterStats, currentSceneId, invitedPersona, activePersonaImage, currentLocationId, persona.id, isDataLoaded]);
+    }, [messages, memory, relationshipScore, intensity, milestones, traits, encounterStats, currentSceneId, invitedPersona, activePersonaImage, currentLocationId, persona.id, sessionId, isDataLoaded]);
+
+    const startNewSession = async () => {
+        const newSid = `session_${Date.now()}`;
+        const newList = [...allSessions, newSid];
+        
+        await db.setItem('settings', `active_session_${persona.id}`, newSid);
+        await db.setItem('settings', `sessions_list_${persona.id}`, newList);
+        
+        setSessionId(newSid);
+        setAllSessions(newList);
+        // This will trigger the effect to reload data for the new session
+    };
+
+    const switchSession = async (sid) => {
+        await db.setItem('settings', `active_session_${persona.id}`, sid);
+        setSessionId(sid);
+    };
+
+    const deleteSession = async (sid) => {
+        if (sid === 'default') return; // Protect default
+        const newList = allSessions.filter(s => s !== sid);
+        await db.setItem('settings', `sessions_list_${persona.id}`, newList);
+        if (sessionId === sid) {
+            await switchSession('default');
+        }
+        setAllSessions(newList);
+    };
 
     const executeAiRequest = useCallback(async (aiMessageId, context, options = {}) => {
         abortControllerRef.current = new AbortController();
@@ -328,6 +420,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
     }, [messages, executeAiRequest]);
 
     const handleSetOutfit = useCallback(async (outfit) => {
+        setIsAvatarManual(true);
         setActivePersonaImage(outfit.avatar);
         const outfitMsg = { 
             id: Date.now().toString(), 
@@ -616,6 +709,12 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         currentSituation,
         activePersonaImage,
         currentSuggestions, setCurrentSuggestions,
+        messageCountForScene,
+        startNewSession,
+        switchSession,
+        deleteSession,
+        sessionId,
+        allSessions,
         invitedPersona, setInvitedPersona,
         currentLocationId,
         handleSendMessage,

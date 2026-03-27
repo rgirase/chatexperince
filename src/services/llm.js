@@ -43,6 +43,34 @@ export const getLmStudioUrl = (providedUrl) => {
     return cleanUrl + '/v1/chat/completions';
 };
 
+/**
+ * Internal helper to call LM Studio for simple, non-streaming completions
+ */
+async function callLMStudio(prompt, temperature = 0.7, jsonMode = false) {
+    const url = getLmStudioUrl();
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: await ensureValidModel(),
+                messages: [{ role: "user", content: prompt }],
+                temperature,
+                max_tokens: 2000,
+                stream: false,
+                ...(jsonMode ? { response_format: { type: "json_object" } } : {})
+            }),
+        });
+
+        if (!response.ok) throw new Error(`LM Studio Error: ${response.status}`);
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content || "";
+    } catch (e) {
+        console.error("[LLM] callLMStudio failed", e);
+        throw e;
+    }
+}
+
 
 const getModelId = () => {
     return localStorage.getItem('lmStudioModel') || DEFAULT_LM_STUDIO_MODEL;
@@ -975,3 +1003,56 @@ export const analyzeIntimateEncounter = async (persona, messages) => {
         return null;
     }
 };
+
+/**
+ * Generates 5 unique featured scenarios for a given set of personas.
+ */
+export async function generateFeaturedScenarios(allPersonas) {
+    const personaPool = allPersonas.slice(0, 20); // Focus on top characters
+    const personaNames = personaPool.map(p => `${p.name} (ID: ${p.id})`).join(", ");
+    
+    const prompt = `
+[CONTEXT]
+Available Characters: ${personaNames}
+
+[TASK]
+Generate 5 random, diverse, and highly creative roleplay scenarios.
+Each scenario must be for ONE of the characters listed above.
+Mix different themes: romance, emotional, everyday routine, high-tension, forbidden, or mystery.
+
+[FORMAT]
+Return ONLY a VALID JSON array of exactly 5 objects:
+[
+  {
+    "id": "scenario_unique_id",
+    "personaId": "EXACT_PERSONA_ID_FROM_LIST",
+    "title": "Thrilling Title",
+    "description": "Short 1-sentence hook.",
+    "prompt": "Vivid first-person opening message (40-60 words) using *asterisks* for actions.",
+    "image": "/assets/locations/suitable_image.jpg"
+  }
+]
+
+[AVAILABLE ASSETS]
+Use only these generic image paths: 
+/assets/locations/bedroom_night.jpg, /assets/locations/living_room_evening.jpg, /assets/locations/kitchen_morning.jpg, /assets/locations/public_park.jpg, /assets/locations/office_meeting.jpg, /assets/locations/cabin_winter.jpg, /assets/locations/city_rain.jpg
+
+[RULES]
+1. Return ONLY the JSON array. NO introduction.
+2. Ensure personaId matches EXACTLY one from the provided list.
+3. Be descriptive and visceral in the "prompt" field.
+`;
+
+    try {
+        const response = await callLMStudio(prompt, 0.82);
+        const cleaned = response.trim();
+        // Robust JSON extraction
+        const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
+        const jsonStr = jsonMatch ? jsonMatch[0] : cleaned;
+        return JSON.parse(jsonStr);
+    } catch (e) {
+        console.error("[LLM] Failed to generate featured scenarios. Falling back to default list.", e);
+        // We'll return empty to let the caller handle the fallback to scenarios.js
+        return [];
+    }
+}

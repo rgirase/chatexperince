@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit2, Check, X, Trash2, FastForward, Image as ImageIcon, RefreshCw, Hammer } from 'lucide-react';
+import { Edit2, Check, X, Trash2, FastForward, Image as ImageIcon, RefreshCw, Hammer, Sparkles } from 'lucide-react';
 
 const MessageList = ({ 
     messages, 
@@ -29,7 +29,7 @@ const MessageList = ({
                             </div>
                         )}
                         
-                        <div className={`message-bubble ${msg.role} ${msg.isPhoto ? 'photo-bubble' : ''}`}>
+                        <div className={`message-bubble ${msg.role} ${msg.isPhoto ? 'photo-bubble' : ''} ${msg.isMoment ? 'flashback-bubble' : ''}`}>
                             {msg.isPhoto ? (
                                 <div className="photo-container">
                                     {msg.url ? (
@@ -37,6 +37,19 @@ const MessageList = ({
                                     ) : (
                                         <div className="photo-loading">Generating selfie...</div>
                                     )}
+                                </div>
+                            ) : msg.isMoment ? (
+                                <div className="flashback-content">
+                                    <div className="flashback-header">
+                                        <Sparkles size={14} className="premium-gradient-text" />
+                                        <span>Moment of Truth</span>
+                                    </div>
+                                    <div className="flashback-body">
+                                        {msg.content}
+                                    </div>
+                                    <div className="flashback-footer">
+                                        A shared memory that lingers...
+                                    </div>
                                 </div>
                             ) : msg.isSystem ? (
                                 <div className="system-message">{msg.content}</div>

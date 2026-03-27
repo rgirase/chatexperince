@@ -1,5 +1,7 @@
 import React, { useRef, useEffect } from 'react';
-import { ArrowLeft, MoreVertical, Heart, Gift, Shirt, Book, History, Trash2, Home, Sparkles, Zap, Flame, UserPlus, Wand2, MapPin } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, MoreVertical, Heart, Gift, Shirt, Book, History, Trash2, Home, Sparkles, Zap, Flame, UserPlus, Wand2, MapPin, Image as ImageIcon } from 'lucide-react';
+import AuraPulse from './AuraPulse';
 
 const ChatHeader = ({ 
     persona, 
@@ -12,6 +14,7 @@ const ChatHeader = ({
     onOpenWardrobe, 
     onOpenHistory,
     onOpenStoryMap,
+    onOpenGallery,
     onGenerateSceneImage,
     onSceneChange,
     onScenarioShuffle,
@@ -48,6 +51,7 @@ const ChatHeader = ({
                 <ArrowLeft size={24} />
             </button>
             <div className="chat-avatar-wrapper" style={{ position: 'relative' }}>
+                <AuraPulse score={relationshipScore} intensity={intensity} />
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <img src={activePersonaImage || persona.image} alt={persona.name} className="chat-avatar" />
                     {invitedPersona && (
@@ -81,6 +85,24 @@ const ChatHeader = ({
                     <Heart size={16} fill="#a855f7" />
                 </button>
                 
+                <button 
+                    onClick={onOpenHistory}
+                    className="header-action-btn"
+                    style={{ background: 'rgba(161, 161, 170, 0.1)', color: '#a1a1aa', border: '1px solid rgba(161, 161, 170, 0.2)', padding: '6px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}
+                    title="Archives"
+                >
+                    <History size={18} />
+                </button>
+
+                <button 
+                    onClick={onOpenGallery}
+                    className="header-action-btn"
+                    style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid rgba(59, 130, 246, 0.2)', padding: '6px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}
+                    title="Gallery"
+                >
+                    <ImageIcon size={18} />
+                </button>
+
                 <div ref={menuRef} style={{ position: 'relative' }}>
                     <button 
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -90,47 +112,56 @@ const ChatHeader = ({
                         <MoreVertical size={24} />
                     </button>
                     
-                    {isMobileMenuOpen && (
-                        <div className="glass-panel" style={{ position: 'absolute', top: '100%', right: 0, width: '220px', zIndex: 1000, padding: '0.5rem', marginTop: '0.5rem', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-                            <button onClick={onOpenHistory} className="menu-item"><History size={18} /> Chat History</button>
-                            <button onClick={onOpenJournal} className="menu-item"><Book size={18} /> Diary / Journal</button>
-                            <button onClick={onOpenGifts} className="menu-item"><Gift size={18} /> Send Gift</button>
-                            <button onClick={onOpenWardrobe} className="menu-item"><Shirt size={18} /> Wardrobe</button>
-                            
-                            <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
-                            
-                            <button onClick={onScenarioShuffle} className="menu-item"><Wand2 size={18} color="#eab308" /> Shuffle Scenario</button>
-                            <button onClick={() => { onSceneChange(); setIsMobileMenuOpen(false); }} className="menu-item"><MapPin size={18} color="#a855f7" /> Change Scene</button>
-                            <button onClick={onGenerateSceneImage} className="menu-item"><Sparkles size={18} color="#f472b6" /> Magic Lens</button>
-                            
-                            {persona.id === 'amira_velvet_club' && (
-                                <button onClick={onOpenFantasyLibrary} className="menu-item" style={{ color: '#f472b6' }}><Sparkles size={18} /> Fantasy Library</button>
-                            )}
-                            
-                            <button onClick={onOpenInvite} className="menu-item"><UserPlus size={18} /> {invitedPersona ? 'Manage Scene' : 'Invite Character'}</button>
-                            
-                            <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
-                            
-                            <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <span style={{ fontSize: '0.75rem', color: '#a1a1aa', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <Flame size={14} color={intensity > 3 ? '#f43f5e' : '#a1a1aa'} /> Heat Level: {intensity}
-                                </span>
-                                <input 
-                                    type="range" 
-                                    min="1" 
-                                    max="5" 
-                                    value={intensity} 
-                                    onChange={(e) => setIntensity(parseInt(e.target.value))}
-                                    style={{ width: '100%', height: '4px', borderRadius: '2px', appearance: 'none', background: 'rgba(255,255,255,0.1)', outline: 'none' }}
-                                />
-                            </div>
+                    <AnimatePresence>
+                        {isMobileMenuOpen && (
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                                className="glass-panel header-menu-dropdown" 
+                                style={{ position: 'absolute', top: '100%', right: 0, width: '220px', zIndex: 1000, padding: '0.5rem', marginTop: '0.5rem', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
+                            >
+                                <button onClick={() => { onOpenHistory(); setIsMobileMenuOpen(false); }} className="menu-item"><History size={18} /> Chat Archives</button>
+                                <button onClick={() => { onOpenGallery(); setIsMobileMenuOpen(false); }} className="menu-item"><ImageIcon size={18} color="#3b82f6" /> View Photos</button>
+                                <button onClick={() => { onOpenJournal(); setIsMobileMenuOpen(false); }} className="menu-item"><Book size={18} /> Diary / Journal</button>
+                                <button onClick={() => { onOpenGifts(); setIsMobileMenuOpen(false); }} className="menu-item"><Gift size={18} /> Send Gift</button>
+                                <button onClick={() => { onOpenWardrobe(); setIsMobileMenuOpen(false); }} className="menu-item"><Shirt size={18} /> Wardrobe</button>
+                                
+                                <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
+                                
+                                <button onClick={() => { onScenarioShuffle(); setIsMobileMenuOpen(false); }} className="menu-item"><Wand2 size={18} color="#eab308" /> Shuffle Scenario</button>
+                                <button onClick={() => { onSceneChange(); setIsMobileMenuOpen(false); }} className="menu-item"><MapPin size={18} color="#a855f7" /> Change Scene</button>
+                                <button onClick={() => { onGenerateSceneImage(); setIsMobileMenuOpen(false); }} className="menu-item"><Sparkles size={18} color="#f472b6" /> Magic Lens</button>
+                                
+                                {persona.id === 'amira_velvet_club' && (
+                                    <button onClick={() => { onOpenFantasyLibrary(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#f472b6' }}><Sparkles size={18} /> Fantasy Library</button>
+                                )}
+                                
+                                <button onClick={() => { onOpenInvite(); setIsMobileMenuOpen(false); }} className="menu-item"><UserPlus size={18} /> {invitedPersona ? 'Manage Scene' : 'Invite Character'}</button>
+                                
+                                <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
+                                
+                                <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <span style={{ fontSize: '0.75rem', color: '#a1a1aa', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <Flame size={14} color={intensity > 3 ? '#f43f5e' : '#a1a1aa'} /> Heat Level: {intensity}
+                                    </span>
+                                    <input 
+                                        type="range" 
+                                        min="1" 
+                                        max="5" 
+                                        value={intensity} 
+                                        onChange={(e) => setIntensity(parseInt(e.target.value))}
+                                        style={{ width: '100%', height: '4px', borderRadius: '2px', appearance: 'none', background: 'rgba(255,255,255,0.1)', outline: 'none' }}
+                                    />
+                                </div>
 
-                            <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
-                            
-                            <button onClick={onClearChat} className="menu-item" style={{ color: '#f43f5e' }}><Trash2 size={18} /> Reset Chat</button>
-                            <button onClick={onGoHome} className="menu-item"><Home size={18} /> Exit to Home</button>
-                        </div>
-                    )}
+                                <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
+                                
+                                <button onClick={() => { onClearChat(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#f43f5e' }}><Trash2 size={18} /> Reset Chat</button>
+                                <button onClick={() => { onGoHome(); setIsMobileMenuOpen(false); }} className="menu-item"><Home size={18} /> Exit to Home</button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
         </header>

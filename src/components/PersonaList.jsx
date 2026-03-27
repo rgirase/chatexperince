@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, History, Trash2 } from 'lucide-react';
 import { personas } from '../data/personas';
@@ -14,6 +14,9 @@ import StatusInteraction from './sub/StatusInteraction';
 import CharacterCard from './sub/CharacterCard';
 import DiscoverFilters from './sub/DiscoverFilters';
 import SkeletonCard from './sub/SkeletonCard';
+import { scenarios } from '../data/scenarios';
+import { Sparkles as SparklesIcon, ChevronRight, RefreshCw } from 'lucide-react';
+import { generateFeaturedScenarios } from '../services/llm';
 
 const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -24,11 +27,21 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     const [detailsPersona, setDetailsPersona] = useState(null);
     const [wardrobePersona, setWardrobePersona] = useState(null);
     const [initialLoading, setInitialLoading] = useState(true);
+    const [isShuffling, setIsShuffling] = useState(false);
 
     useEffect(() => {
         const timer = setTimeout(() => setInitialLoading(false), 800);
         return () => clearTimeout(timer);
     }, []);
+
+    const handleSelectScenario = (scenario) => {
+        const targetPersona = allPersonas.find(p => p.id === scenario.personaId);
+        if (targetPersona) {
+            // We'll store the scenario prompt in localStorage for useChatLogic to pick up if it's a new chat
+            localStorage.setItem(`scenarioPrompt_${scenario.personaId}`, scenario.prompt);
+            onSelectPersona(targetPersona, scenario);
+        }
+    };
     
     // Combined list of categories including the new Taboo theme
     // Simplified user-facing categories
@@ -143,6 +156,58 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
         return 'all';
     });
 
+    const [featuredScenarios, setFeaturedScenarios] = useState([]);
+
+    const shuffleScenarios = useCallback(async () => {
+        setIsShuffling(true);
+        try {
+            // 1. Try AI Generation
+            let selected = await generateFeaturedScenarios(allPersonas);
+            
+            // 2. Fallback to static if AI fails
+            if (!selected || selected.length === 0) {
+                console.log("[Scenarios] AI Generation failed, falling back to static list...");
+                const shuffled = [...scenarios].sort(() => 0.5 - Math.random());
+                selected = shuffled.slice(0, 5);
+            }
+            
+            setFeaturedScenarios(selected);
+            localStorage.setItem('featuredScenarios', JSON.stringify(selected));
+            localStorage.setItem('lastScenarioShuffle', Date.now().toString());
+        } catch (e) {
+            console.error("[Scenarios] Critical shuffle error", e);
+        } finally {
+            setIsShuffling(false);
+        }
+    }, [allPersonas]);
+
+    useEffect(() => {
+        const lastShuffle = localStorage.getItem('lastScenarioShuffle');
+        const savedScenarios = localStorage.getItem('featuredScenarios');
+        const threeHours = 3 * 60 * 60 * 1000;
+
+        const initScenarios = async () => {
+            if (!lastShuffle || !savedScenarios || (Date.now() - parseInt(lastShuffle)) > threeHours) {
+                await shuffleScenarios();
+            } else {
+                try {
+                    const parsed = JSON.parse(savedScenarios);
+                    // If the saved list is less than 5, re-shuffle to fill it up
+                    if (parsed.length < 5) {
+                        await shuffleScenarios();
+                    } else {
+                        setFeaturedScenarios(parsed);
+                    }
+                } catch (e) {
+                    await shuffleScenarios();
+                }
+            }
+        };
+
+        initScenarios();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); 
+
     useEffect(() => {
         localStorage.setItem('lastPersonaTab', activeTab);
     }, [activeTab]);
@@ -227,6 +292,104 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     return (
         <div className="persona-container" style={{ paddingBottom: '4rem' }}>
             
+
+            {/* Scenario Spotlight Section */}
+            {!searchTerm && activeCategory === 'All' && activeRegion === 'All' && activeTab === 'all' && (
+                <div className="scenario-spotlight fade-in" style={{ marginBottom: '2rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', padding: '0 0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <SparklesIcon size={20} className="premium-gradient-text" />
+                            <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800' }}>Featured Scenarios</h2>
+                        </div>
+                        <button 
+                            onClick={shuffleScenarios}
+                            disabled={isShuffling}
+                            className={`header-action-btn ${isShuffling ? 'btn-loading' : ''}`}
+                            style={{ 
+                                background: 'rgba(255,255,255,0.05)', 
+                                border: '1px solid rgba(255,255,255,0.1)', 
+                                borderRadius: '12px', 
+                                padding: '6px 12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                cursor: isShuffling ? 'not-allowed' : 'pointer',
+                                transition: 'all 0.2s',
+                                color: '#a1a1aa',
+                                fontSize: '0.8rem',
+                                fontWeight: '600',
+                                opacity: isShuffling ? 0.7 : 1
+                            }}
+                        >
+                            <RefreshCw size={14} className={isShuffling ? 'spin' : ''} />
+                            {isShuffling ? 'Rolling...' : 'Shuffle'}
+                        </button>
+                    </div>
+                    
+                    <div className="scenario-scroll" style={{ 
+                        display: 'flex', 
+                        gap: '1rem', 
+                        overflowX: 'auto', 
+                        padding: '0.5rem',
+                        paddingBottom: '1rem',
+                        scrollbarWidth: 'none',
+                        WebkitOverflowScrolling: 'touch'
+                    }}>
+                        {featuredScenarios.map((scenario) => {
+                            const persona = allPersonas.find(p => p.id === scenario.personaId);
+                            if (!persona) return null;
+                            
+                            return (
+                                <motion.div
+                                    key={scenario.id}
+                                    className="glass-panel"
+                                    onClick={() => handleSelectScenario(scenario)}
+                                    whileHover={{ y: -5, scale: 1.02, background: 'rgba(255,255,255,0.06)' }}
+                                    whileTap={{ scale: 0.98 }}
+                                    style={{
+                                        flex: '0 0 280px',
+                                        height: '160px',
+                                        borderRadius: '24px',
+                                        overflow: 'hidden',
+                                        cursor: 'pointer',
+                                        position: 'relative',
+                                        border: '1px solid rgba(168, 85, 247, 0.2)',
+                                        background: 'rgba(255,255,255,0.03)'
+                                    }}
+                                >
+                                    <div style={{ 
+                                        position: 'absolute', 
+                                        inset: 0, 
+                                        backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.9)), url(${scenario.image})`,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                        zIndex: 0
+                                    }} />
+                                    
+                                    <div style={{ 
+                                        position: 'absolute', 
+                                        bottom: 0, 
+                                        left: 0, 
+                                        right: 0, 
+                                        padding: '1rem', 
+                                        zIndex: 1 
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                            <img src={persona.image} style={{ width: '20px', height: '20px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #fff' }} alt={persona.name} />
+                                            <span style={{ fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', letterSpacing: '0.05em' }}>{persona.name} Scene</span>
+                                        </div>
+                                        <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '800', color: '#fff' }}>{scenario.title}</h3>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+                                            <span style={{ fontSize: '0.75rem', color: '#a1a1aa', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{scenario.description}</span>
+                                            <ChevronRight size={14} color="#a855f7" />
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
             <DiscoverFilters 
                 searchTerm={searchTerm}

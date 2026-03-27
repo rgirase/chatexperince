@@ -9,17 +9,20 @@ import WardrobeModal from './sub/WardrobeModal';
 import SelfiePromptModal from './sub/SelfiePromptModal';
 import FantasyGallery from './FantasyGallery';
 import StoryMap from './StoryMap';
-import ArchiveModal from './sub/ArchiveModal';
+import SessionManager from './sub/SessionManager';
 import { useChatLogic } from '../hooks/useChatLogic';
 import { useImageGeneration } from '../hooks/useImageGeneration';
 import { getLocation } from '../services/LocationService';
 import LocationSwitcher from './sub/LocationSwitcher';
 import * as db from '../services/db';
+import ParticleEffect from './sub/ParticleEffect';
 import InviteModal from './sub/InviteModal';
+import GalleryModal from './sub/GalleryModal';
 
-const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }) => {
+const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, scenario }) => {
     // --- UI VIEW STATE ---
     const [toasts, setToasts] = useState([]);
+    const [activeEffect, setActiveEffect] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isMemoryViewerOpen, setIsMemoryViewerOpen] = useState(false);
     const [isStoryMapOpen, setIsStoryMapOpen] = useState(false);
@@ -28,6 +31,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
     const [isSelfiePromptOpen, setIsSelfiePromptOpen] = useState(false);
     const [isFantasyGalleryOpen, setIsFantasyGalleryOpen] = useState(false);
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+    const [isGalleryOpen, setIsGalleryOpen] = useState(false);
     const [isArchiveOpen, setIsArchiveOpen] = useState(false);
     const [isLocationSwitcherOpen, setIsLocationSwitcherOpen] = useState(false);
     
@@ -89,8 +93,13 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         handleUpdateRelation,
         handleUpdateMilestones,
         handleUpdateEncounters,
-        customRelation
-    } = useChatLogic(persona, showToast, generateSelfie);
+        customRelation,
+        allSessions,
+        sessionId,
+        startNewSession,
+        switchSession,
+        deleteSession
+    } = useChatLogic(persona, showToast, scenario, generateSelfie);
 
     // Update the ref whenever setMessages changes
     useEffect(() => {
@@ -138,6 +147,15 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         setCurrentSuggestions([]);
     };
 
+    const handleSendGiftWithEffect = (gift) => {
+        let type = 'hearts';
+        if (gift.name.toLowerCase().includes('diamond') || gift.name.toLowerCase().includes('gold')) type = 'sparkles';
+        if (gift.name.toLowerCase().includes('vacation') || gift.name.toLowerCase().includes('car')) type = 'confetti';
+        
+        setActiveEffect({ type, id: Date.now() });
+        handleSendGift(gift);
+    };
+
     const handleFantasySelect = (fantasy) => {
         setIsFantasyGalleryOpen(false);
         handleSelectFantasy(fantasy);
@@ -172,6 +190,15 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 </AnimatePresence>
             </div>
 
+            {/* PARTICLE EFFECTS OVERLAY */}
+            {activeEffect && (
+                <ParticleEffect 
+                    key={activeEffect.id} 
+                    type={activeEffect.type} 
+                    onComplete={() => setActiveEffect(null)} 
+                />
+            )}
+
             <ChatHeader 
                 persona={persona}
                 activePersonaImage={activePersonaImage}
@@ -182,6 +209,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                 onOpenGifts={() => setIsGiftsModalOpen(true)}
                 onOpenWardrobe={() => setIsWardrobeOpen(true)}
                 onOpenHistory={() => setIsArchiveOpen(true)}
+                onOpenGallery={() => setIsGalleryOpen(true)}
                 onOpenStoryMap={() => setIsStoryMapOpen(true)}
                 onGenerateSceneImage={handleGenerateSceneImage}
                 onSceneChange={() => setIsLocationSwitcherOpen(true)}
@@ -257,7 +285,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     <GiftsModal 
                         isOpen={isGiftsModalOpen}
                         onClose={() => setIsGiftsModalOpen(false)}
-                        onSendGift={handleSendGift}
+                        onSendGift={handleSendGiftWithEffect}
                     />
                 )}
 
@@ -290,11 +318,35 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                     <InviteModal 
                         isOpen={isInviteModalOpen}
                         onClose={() => setIsInviteModalOpen(false)}
+                        onInvite={setInvitedPersona}
                         allPersonas={allPersonas}
                         currentPersona={persona}
                         invitedPersona={invitedPersona}
-                        onInvite={setInvitedPersona}
                         onRemove={() => setInvitedPersona(null)}
+                    />
+                )}
+
+                {isGalleryOpen && (
+                    <GalleryModal 
+                        isOpen={isGalleryOpen}
+                        onClose={() => setIsGalleryOpen(false)}
+                        persona={persona}
+                    />
+                )}
+
+                {isArchiveOpen && (
+                    <SessionManager
+                        isOpen={isArchiveOpen}
+                        onClose={() => setIsArchiveOpen(false)}
+                        sessions={allSessions}
+                        currentSessionId={sessionId}
+                        onSwitch={switchSession}
+                        onStartNew={() => {
+                            startNewSession();
+                            setIsArchiveOpen(false);
+                        }}
+                        onDelete={deleteSession}
+                        personaName={persona.name}
                     />
                 )}
 
@@ -306,13 +358,6 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                             setIsLocationSwitcherOpen(false);
                         }}
                         onClose={() => setIsLocationSwitcherOpen(false)}
-                    />
-                )}
-                {isArchiveOpen && (
-                    <ArchiveModal 
-                        isOpen={isArchiveOpen}
-                        onClose={() => setIsArchiveOpen(false)}
-                        currentPersonaId={persona.id}
                     />
                 )}
             </AnimatePresence>

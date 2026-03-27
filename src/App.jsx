@@ -19,6 +19,7 @@ function App() {
   
   // Hyper-safe state initialization
   const [selectedPersona, setSelectedPersona] = React.useState(null);
+  const [selectedScenario, setSelectedScenario] = React.useState(null);
   const [customPersonas, setCustomPersonas] = React.useState([]);
   const [panicMode, setPanicMode] = React.useState(false);
   const [activeServerUrl, setActiveServerUrl] = React.useState('');
@@ -242,18 +243,16 @@ function App() {
     };
   }, []);
 
-  const getProcessedPersonas = () => {
-    // Note: Since this is synchronous, it won't reflect the DB values immediately until the next render
-    // However, customPersonas and the overrides are already loaded into state via the useEffect
-    let loadedPersonas = [...defaultPersonas, ...customPersonas];
-    return loadedPersonas;
-  };
+  const processedPersonas = React.useMemo(() => {
+    return [...defaultPersonas, ...customPersonas];
+  }, [customPersonas]);
 
-  const handleSelectPersona = (persona) => {
+  const handleSelectPersona = (persona, scenario = null) => {
     window.history.pushState({ view: 'chat' }, '');
     hasPushedHistory = true;
     
     setSelectedPersona(persona);
+    setSelectedScenario(scenario);
     setActiveView('chat');
     localStorage.setItem('activeView', 'chat');
     localStorage.setItem('lastPersonaId', persona.id);
@@ -314,6 +313,8 @@ function App() {
     if (activeView === 'chat' && hasPushedHistory) {
       window.history.back();
       hasPushedHistory = false;
+      setSelectedPersona(null);
+      setSelectedScenario(null);
     } else {
       handleGoHome();
     }
@@ -322,6 +323,7 @@ function App() {
   const handleGoHome = () => {
     window.history.replaceState({ view: 'home' }, '');
     setSelectedPersona(null);
+    setSelectedScenario(null);
     setActiveView('home');
     localStorage.setItem('activeView', 'home');
     hasPushedHistory = false;
@@ -461,7 +463,8 @@ function App() {
           <ChatInterface
             key={selectedPersona.id}
             persona={selectedPersona}
-            allPersonas={getProcessedPersonas()}
+            scenario={selectedScenario}
+            allPersonas={processedPersonas}
             onBack={handleBack}
             onGoHome={handleGoHome}
             onSelectImage={handleSelectImage}
@@ -470,7 +473,7 @@ function App() {
           <ChatInterface
             key={personal_gf.id}
             persona={personal_gf}
-            allPersonas={getProcessedPersonas()}
+            allPersonas={processedPersonas}
             onBack={handleBack}
             onGoHome={handleGoHome}
             onSelectImage={handleSelectImage}
@@ -488,7 +491,7 @@ function App() {
         ) : activeView === 'gallery' ? (
           <Gallery
             onBack={handleBack}
-            allPersonas={getProcessedPersonas()}
+            allPersonas={processedPersonas}
             onSelectImage={handleSelectImage}
           />
         ) : activeView === 'genesis' ? (
@@ -500,7 +503,7 @@ function App() {
           <PersonaList 
             onSelectPersona={handleSelectPersona} 
             customPersonas={customPersonas}
-            allPersonas={getProcessedPersonas()}
+            allPersonas={processedPersonas}
           />
         )}
 

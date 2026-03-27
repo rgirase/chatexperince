@@ -29,8 +29,51 @@ const ChatInput = ({
         }
     };
 
+    const quickActions = [
+        { label: 'Hug', icon: '🤗', prompt: "*I pull you into a warm, tight hug, holding you close.*" },
+        { label: 'Tease', icon: '😏', prompt: "*I give you a playful, lingering look, a mischievous smirk on my lips.*" },
+        { label: 'Gift', icon: '🎁', prompt: "I have something special for you..." },
+        { label: 'Scene', icon: '🗺️', prompt: "I was thinking we could go somewhere else..." },
+        { label: 'Memory', icon: '💭', prompt: "Do you remember when we..." }
+    ];
+
     return (
         <div className="input-area">
+            <div className="quick-actions-container" style={{ display: 'flex', gap: '8px', marginBottom: '8px', overflowX: 'auto', padding: '4px 0', scrollbarWidth: 'none' }}>
+                {quickActions.map((action, i) => (
+                    <button 
+                        key={i} 
+                        onClick={() => {
+                            if (action.label === 'Gift') {
+                                // This could trigger the gift modal, but for now we'll just send text
+                                setInput(action.prompt);
+                            } else {
+                                setInput(action.prompt);
+                                // We don't auto-send so the user can edit if they want
+                            }
+                        }}
+                        className="quick-action-chip"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '6px 12px',
+                            borderRadius: '16px',
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            color: '#fff',
+                            fontSize: '0.75rem',
+                            whiteSpace: 'nowrap',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        <span>{action.icon}</span>
+                        <span>{action.label}</span>
+                    </button>
+                ))}
+            </div>
+
             {suggestions.length > 0 && (
                 <div className="suggestions-container" style={{ display: 'flex', gap: '8px', marginBottom: '12px', overflowX: 'auto', paddingBottom: '8px' }}>
                     {suggestions.map((s, i) => (
