@@ -1,56 +1,51 @@
 {
   "3": {
     "inputs": {
-      "seed": 999,"steps": 1,"cfg": 8,"sampler_name": "euler","scheduler": "normal","denoise": 1,
-      "model": ["4",0],"positive": ["6",0],"negative": ["7",0],"latent_image": ["5",0]
+      "seed": 999, "steps": 20, "cfg": 8, "sampler_name": "euler", "scheduler": "normal", "denoise": 1,
+      "model": ["12", 0], "positive": ["6", 0], "negative": ["7", 0], "latent_image": ["5", 0]
     },
-    "class_type": "KSampler",
-    "_meta": {"title": "KSampler"}
+    "class_type": "KSampler"
   },
   "4": {
-    "inputs": {"ckpt_name": "v1-5-pruned-emaonly.safetensors"},
-    "class_type": "CheckpointLoaderSimple",
-    "_meta": {"title": "Load Checkpoint"}
+    "inputs": { "ckpt_name": "v1-5-pruned-emaonly.safetensors" },
+    "class_type": "CheckpointLoaderSimple"
   },
   "5": {
-    "inputs": {"width": 128,"height": 128,"batch_size": 2},
-    "class_type": "EmptyLatentImage",
-    "_meta": {"title": "Empty Latent Image"}
+    "inputs": { "width": 512, "height": 512, "batch_size": 16 },
+    "class_type": "EmptyLatentImage"
   },
   "6": {
-    "inputs": {"text": "A stunning Indian woman, showering, heavy falling water, water droplets on skin, wet hair, steam, sensual, cinematic, high quality, 4k, masterpiece","clip": ["4",1]},
-    "class_type": "CLIPTextEncode",
-    "_meta": {"title": "Prompt"}
+    "inputs": { "text": "Masterpiece, best quality, ultra-realistic, 8k, highly detailed. A stunning 28-year-old Indian woman (Ritu) with an hourglass figure, showering under a heavy stream of water. Wet hair, water droplets on skin, thick steam and mist filling the glass shower. Cinematic lighting, intimate atmosphere, blissful expression, skin texture, pores, wet look.", "clip": ["4", 1] },
+    "class_type": "CLIPTextEncode"
   },
   "7": {
-    "inputs": {"text": "text, watermark, low quality, blurry, deformed, bad anatomy","clip": ["4",1]},
-    "class_type": "CLIPTextEncode",
-    "_meta": {"title": "Negative"}
+    "inputs": { "text": "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry", "clip": ["4", 1] },
+    "class_type": "CLIPTextEncode"
   },
   "8": {
-    "inputs": {"samples": ["3",0],"vae": ["4",2]},
-    "class_type": "VAEDecode",
-    "_meta": {"title": "VAE Decode"}
+    "inputs": { "samples": ["3", 0], "vae": ["4", 2] },
+    "class_type": "VAEDecode"
   },
   "12": {
     "inputs": {
       "model_name": "mm_sd_v15_v2.ckpt",
-      "model": ["4",0]
+      "beta_schedule": "sqrt_linear (AnimateDiff)",
+      "motion_scale": 1,
+      "apply_v2_models_properly": true,
+      "model": ["4", 0]
     },
-    "class_type": "AnimateDiffLoaderV1",
-    "_meta": {"title": "AnimateDiff Loader V1"}
+    "class_type": "ADE_AnimateDiffLoaderV1Advanced"
   },
   "13": {
     "inputs": {
-      "images": ["8",0],
-      "frame_rate": 10,
+      "images": ["8", 0],
+      "frame_rate": 8,
       "loop_count": 0,
-      "filename_prefix": "ritu_clip",
-      "format": "video/h264-mp4",
+      "filename_prefix": "ritu_gif_test",
+      "format": "image/gif",
       "pingpong": false,
       "save_output": true
     },
-    "class_type": "VHS_VideoCombine",
-    "_meta": {"title": "Video Combine 🎥🅥🅗🅢"}
+    "class_type": "VHS_VideoCombine"
   }
 }

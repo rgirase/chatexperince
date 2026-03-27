@@ -84,7 +84,12 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
         handleClearChat: handleClearChatLogic,
         handleResubmit,
         handleRepair,
-        handleContinue
+        handleContinue,
+        handleUpdateMemory,
+        handleUpdateRelation,
+        handleUpdateMilestones,
+        handleUpdateEncounters,
+        customRelation
     } = useChatLogic(persona, showToast, generateSelfie);
 
     // Update the ref whenever setMessages changes
@@ -232,6 +237,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage }
                         milestones={milestones}
                         encounterStats={encounterStats}
                         onScanIntimacy={handleScanIntimacy}
+                        onUpdateMemory={handleUpdateMemory}
+                        onUpdateRelation={handleUpdateRelation}
+                        onUpdateMilestones={handleUpdateMilestones}
+                        onUpdateEncounters={handleUpdateEncounters}
+                        customRelation={customRelation}
                     />
                 )}
                 

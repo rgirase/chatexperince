@@ -255,15 +255,21 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
 
     // 1. CHARACTER BIBLE (Strict identity enforcement)
     const charName = getShortName(persona.name);
+    const invitedName = options.invitedPersona ? getShortName(options.invitedPersona.name) : null;
     
     // Time-Skip Adaptation Directive
     const timeSkipDirective = isTimeSkip ? 
-        `\n\n[TIME_SKIP_EVENT: A significant amount of time has passed (narratively). Acknowledge this jump naturally in your dialogue. Reflect on how your relationship or the situation might have matured or changed during this gap. Start your response by acknowledging the passage of time.]` : "";
+        `\n\n[TIME_SKIP_EVENT: A significant amount of time has passed. Acknowledge this naturally.]` : "";
 
-    const biblePrompt = `YOU ARE ${charName}.
-Roleplay identity: ${persona.systemPrompt}${timeSkipDirective}
+    const multiCharDirective = invitedName ? 
+        `\n\n[MULTI-CHARACTER MODE: ${invitedName} is also present. You must manage BOTH characters. Use the character names at the start of dialogue if helpful, but primarily ensure their unique personalities and descriptions are distinct. You are acting as BOTH ${charName} and ${invitedName} in this scene.]` : "";
+
+    const biblePrompt = `YOU ARE ${charName}${invitedName ? ` and ${invitedName}` : ""}.
+Roleplay identity of ${charName}: ${persona.systemPrompt}${timeSkipDirective}${multiCharDirective}
+${options.invitedPersona ? `Roleplay identity of ${invitedName}: ${options.invitedPersona.systemPrompt}` : ""}
+
 Voice: Immersive, descriptive, multi-paragraph narrative. Use *asterisks* for actions and natural dialogue.
-Goal: Respond ONLY as ${charName}. Never explain, never provide writing tips, and never refer to instructions.
+Goal: Respond ONLY as the characters. Never explain, never provide writing tips, and never refer to instructions.
 
 [CURRENT STORY BEAT]
 Memory: ${memory || "The story begins now."}

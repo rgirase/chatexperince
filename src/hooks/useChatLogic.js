@@ -35,6 +35,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
     const [currentSuggestions, setCurrentSuggestions] = useState([]);
     const [messageCountForScene, setMessageCountForScene] = useState(0);
     const [currentLocationId, setCurrentLocationId] = useState('kitchen_morning');
+    const [customRelation, setCustomRelation] = useState('');
 
     const abortControllerRef = useRef(null);
 
@@ -62,6 +63,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
             setCurrentLocationId(await db.getItem('settings', `location_${persona.id}`) || 'kitchen_morning');
             setInvitedPersona(await db.getItem('settings', `invited_${persona.id}`) || null);
             setActivePersonaImage(await db.getItem('settings', `active_image_${persona.id}`) || persona.image);
+            setCustomRelation(await db.getItem('settings', `relation_${persona.id}`) || '');
             setIsDataLoaded(true);
         };
         load();
@@ -81,6 +83,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         db.setItem('settings', `invited_${persona.id}`, invitedPersona);
         db.setItem('settings', `active_image_${persona.id}`, activePersonaImage);
         db.setItem('settings', `location_${persona.id}`, currentLocationId);
+        db.setItem('settings', `relation_${persona.id}`, customRelation);
 
         // Milestone Unlocking Logic
         const checkMilestones = async () => {
@@ -117,7 +120,8 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         const personaWithExtras = {
             ...persona,
             systemPrompt: (invitedPersona ? `${persona.systemPrompt}\n\n[CRITICAL: ${invitedPersona.name} has joined the scene and is interacting with you and the user.]` : persona.systemPrompt) + 
-                          (traits.length > 0 ? `\n\n[RECENT PERSONALITY EVOLUTION: ${traits.join(", ")}]` : "")
+                          (traits.length > 0 ? `\n\n[RECENT PERSONALITY EVOLUTION: ${traits.join(", ")}]` : "") +
+                          (customRelation ? `\n\n[RELATIONSHIP ROLE: You are currently acting in the role of: ${customRelation}]` : "")
         };
 
         const finalOptions = {
@@ -192,7 +196,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
                                                 summary: result.summary
                                             },
                                             ...(prev.history || [])
-                                        ].slice(0, 10)
+                                        ].slice(0, 50)
                                     }));
                                     showToast("New Intimate Memory Unlocked", "success");
                                 }
@@ -402,7 +406,7 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
                         summary: result.summary
                     },
                     ...(prev.history || [])
-                ].slice(0, 10)
+                ].slice(0, 50)
             }));
             showToast("Recorded new intimate encounter!", "success");
         } else {
@@ -578,6 +582,25 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         
         await executeAiRequest(aiMsgId, [...messages, moveMsg], { currentSituation: location.situation });
     }, [messages, executeAiRequest, showToast]);
+    const handleUpdateMemory = useCallback((newMemory) => {
+        setMemory(newMemory);
+        showToast("Memory manually updated", "success");
+    }, [showToast]);
+
+    const handleUpdateRelation = useCallback((newRelation) => {
+        setCustomRelation(newRelation);
+        showToast("Relation role updated", "success");
+    }, [showToast]);
+
+    const handleUpdateMilestones = useCallback((newMilestones) => {
+        setMilestones(newMilestones);
+        showToast("Milestones updated", "success");
+    }, [showToast]);
+
+    const handleUpdateEncounters = useCallback((newStats) => {
+        setEncounterStats(newStats);
+        showToast("Encounters updated", "success");
+    }, [showToast]);
 
     return {
         messages, setMessages,
@@ -609,6 +632,11 @@ export const useChatLogic = (persona, showToast, generateSelfie) => {
         handleClearChat,
         handleResubmit,
         handleRepair,
-        handleContinue
+        handleContinue,
+        handleUpdateMemory,
+        handleUpdateRelation,
+        handleUpdateMilestones,
+        handleUpdateEncounters,
+        customRelation
     };
 };
