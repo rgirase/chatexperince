@@ -433,12 +433,16 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
 
         // DEEP MEMORY RETRIEVAL (RAG-lite)
         let recalledMemory = null;
-        if (detectRecallIntent(text)) {
-            console.log(`[ChatLogic] Recall intent detected. Searching history...`);
-            recalledMemory = await searchHistory(persona.id, text);
-            if (recalledMemory && recalledMemory.length > 0) {
-                showToast(`${persona.name} is remembering something...`, "success");
+        try {
+            if (detectRecallIntent(text)) {
+                console.log(`[ChatLogic] Recall intent detected. Searching history...`);
+                recalledMemory = await searchHistory(persona.id, text);
+                if (recalledMemory && recalledMemory.length > 0) {
+                    showToast(`${persona.name} is remembering something...`, "success");
+                }
             }
+        } catch (memErr) {
+            console.error("[ChatLogic] Memory search failed", memErr);
         }
 
         await executeAiRequest(aiMessageId, [...messages, userMsg], { isTimeSkip, recalledMemory });
