@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     ArrowLeft, Heart, Gift, Shirt, Book, History, Trash2, Home, Sparkles, 
     Flame, UserPlus, Wand2, MapPin, Image as ImageIcon, MessageSquare, 
-    Users, MoreVertical 
+    Users, MoreVertical, Map as MapIcon
 } from 'lucide-react';
 import AuraPulse from './AuraPulse';
 import MoodOverlay from './MoodOverlay';
@@ -141,6 +141,7 @@ const ChatHeader = ({
                                     <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
                                     
                                     <button onClick={() => { onGenerateSceneImage(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#a855f7' }}><Wand2 size={18} /> Generate Scene Look</button>
+                                    <button onClick={() => { onOpenStoryMap(); setIsMobileMenuOpen(false); }} className="menu-item"><MapIcon size={18} /> Story Progression Map</button>
                                     <button onClick={() => { onSceneChange(); setIsMobileMenuOpen(false); }} className="menu-item"><MapPin size={18} /> Change Location</button>
                                     <button onClick={() => { onScenarioShuffle(); setIsMobileMenuOpen(false); }} className="menu-item"><Sparkles size={18} /> Shuffle Scenario</button>
                                     

@@ -281,19 +281,11 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
         isTimeSkip = false
     } = options;
 
-    // 1. CHARACTER BIBLE (Strict identity enforcement)
-    const charName = getShortName(persona.name);
-    const invitedName = options.invitedPersona ? getShortName(options.invitedPersona.name) : null;
-    
-    // Time-Skip Adaptation Directive
-    const timeSkipDirective = isTimeSkip ? 
-        `\n\n[TIME_SKIP_EVENT: A significant amount of time has passed. Acknowledge this naturally.]` : "";
-
-    const multiCharDirective = invitedName ? 
-        `\n\n[MULTI-CHARACTER MODE: ${invitedName} is also present. You must manage BOTH characters. Use the character names at the start of dialogue if helpful, but primarily ensure their unique personalities and descriptions are distinct. You are acting as BOTH ${charName} and ${invitedName} in this scene.]` : "";
+    const recalledMemoryDirective = options.recalledMemory && options.recalledMemory.length > 0 ?
+        `\n\n[RECALLED HISTORY: You specifically remember these details from previous conversations: ${options.recalledMemory.map(m => `"${m.user}" (Your response: "${m.ai}")`).join(" | ")}]` : "";
 
     const biblePrompt = `YOU ARE ${charName}${invitedName ? ` and ${invitedName}` : ""}.
-Roleplay identity of ${charName}: ${persona.systemPrompt}${timeSkipDirective}${multiCharDirective}
+Roleplay identity of ${charName}: ${persona.systemPrompt}${timeSkipDirective}${multiCharDirective}${recalledMemoryDirective}
 ${options.invitedPersona ? `Roleplay identity of ${invitedName}: ${options.invitedPersona.systemPrompt}` : ""}
 
 Voice: Immersive, descriptive, multi-paragraph narrative. Use *asterisks* for actions and natural dialogue.

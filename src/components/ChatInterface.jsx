@@ -8,9 +8,9 @@ import GiftsModal from './sub/GiftsModal';
 import WardrobeModal from './sub/WardrobeModal';
 import SelfiePromptModal from './sub/SelfiePromptModal';
 import FantasyGallery from './FantasyGallery';
-import StoryMap from './StoryMap';
 import SessionManager from './sub/SessionManager';
 import { useChatLogic } from '../hooks/useChatLogic';
+import StoryMap from './sub/StoryMap';
 import { useImageGeneration } from '../hooks/useImageGeneration';
 import { getLocation } from '../services/LocationService';
 import LocationSwitcher from './sub/LocationSwitcher';
@@ -365,6 +365,16 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                             setIsLocationSwitcherOpen(false);
                         }}
                         onClose={() => setIsLocationSwitcherOpen(false)}
+                    />
+                )}
+
+                {isStoryMapOpen && (
+                    <StoryMap 
+                        isOpen={isStoryMapOpen}
+                        onClose={() => setIsStoryMapOpen(false)}
+                        sessions={allSessions}
+                        persona={persona}
+                        currentSessionId={sessionId}
                     />
                 )}
             </AnimatePresence>

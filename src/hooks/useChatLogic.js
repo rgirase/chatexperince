@@ -13,6 +13,7 @@ import {
 } from '../services/llm';
 import { getDiaries } from '../services/memory';
 import { getLocation, getAllLocations } from '../services/LocationService';
+import { searchHistory, detectRecallIntent } from '../services/memorySearch';
 
 export const useChatLogic = (persona, showToast, initialScenario, generateSelfie) => {
     const [messages, setMessages] = useState([]);
@@ -230,6 +231,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     };
 
     const executeAiRequest = useCallback(async (aiMessageId, context, options = {}) => {
+        const { recalledMemory, ...restOptions } = options;
         abortControllerRef.current = new AbortController();
 
         const personaWithExtras = {
@@ -245,6 +247,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             intensity,
             relationshipScore,
             currentSituation,
+            recalledMemory,
             ...options,
             systemOverride: options.isRepair ? `[SYSTEM OVERRIDE: Your last response was invalid or contained metadata. This is a REPAIR ATTEMPT. You MUST respond ONLY with character dialogue and physical actions in pure narrative roleplay. NO JSON, NO MOOD TAGS, NO CODE, NO METADATA.]` : null
         };
@@ -428,7 +431,17 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         const aiMessageId = (Date.now() + 1).toString();
         setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
 
-        await executeAiRequest(aiMessageId, [...messages, userMsg], { isTimeSkip });
+        // DEEP MEMORY RETRIEVAL (RAG-lite)
+        let recalledMemory = null;
+        if (detectRecallIntent(text)) {
+            console.log(`[ChatLogic] Recall intent detected. Searching history...`);
+            recalledMemory = await searchHistory(persona.id, text);
+            if (recalledMemory && recalledMemory.length > 0) {
+                showToast(`${persona.name} is remembering something...`, "success");
+            }
+        }
+
+        await executeAiRequest(aiMessageId, [...messages, userMsg], { isTimeSkip, recalledMemory });
 
         // User-side Scene Detection
         const allLocs = getAllLocations();
