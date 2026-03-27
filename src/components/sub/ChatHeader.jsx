@@ -53,7 +53,16 @@ const ChatHeader = ({
             <div className="chat-avatar-wrapper" style={{ position: 'relative' }}>
                 <AuraPulse score={relationshipScore} intensity={intensity} />
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <img src={activePersonaImage || persona.image} alt={persona.name} className="chat-avatar" />
+                    <img 
+                        src={activePersonaImage || persona.image} 
+                        alt={persona.name} 
+                        className="chat-avatar" 
+                        onError={(e) => {
+                            if (e.target.src !== persona.image) {
+                                e.target.src = persona.image;
+                            }
+                        }}
+                    />
                     {invitedPersona && (
                         <img 
                             src={invitedPersona.image} 

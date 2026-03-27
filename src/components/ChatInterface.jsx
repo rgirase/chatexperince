@@ -340,7 +340,10 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                         onClose={() => setIsArchiveOpen(false)}
                         sessions={allSessions}
                         currentSessionId={sessionId}
-                        onSwitch={switchSession}
+                        onSwitch={(sid) => {
+                            switchSession(sid);
+                            setIsArchiveOpen(false);
+                        }}
                         onStartNew={() => {
                             startNewSession();
                             setIsArchiveOpen(false);

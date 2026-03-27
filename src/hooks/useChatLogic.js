@@ -45,9 +45,15 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     // Load initial data
     useEffect(() => {
         const load = async () => {
-            // 1. Get the current active sessionId for this persona
-            let currentSid = await db.getItem('settings', `active_session_${persona.id}`) || 'default';
-            setSessionId(currentSid);
+            setIsDataLoaded(false);
+            // 1. Get the current active sessionId for this persona (Double-redundant)
+            let currentSid = await db.getItem('settings', `active_session_${persona.id}`) || 
+                             localStorage.getItem(`active_session_fallback_${persona.id}`) || 
+                             'default';
+            if (currentSid !== sessionId) {
+                setSessionId(currentSid);
+                return; // Let the next cycle handle the data loading with the correct ID
+            }
 
             // 2. Load the list of all sessions for this persona
             const sessions = await db.getItem('settings', `sessions_list_${persona.id}`) || ['default'];
@@ -100,7 +106,12 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             setCurrentSceneId(await db.getItem('settings', `scene${suffix}`) || 'default');
             setCurrentLocationId(await db.getItem('settings', `location${suffix}`) || 'kitchen_morning');
             setInvitedPersona(await db.getItem('settings', `invited${suffix}`) || null);
-            setActivePersonaImage(await db.getItem('settings', `active_image${suffix}`) || persona.image);
+            const savedImg = await db.getItem('settings', `active_image${suffix}`);
+            if (savedImg && savedImg.length > 10) {
+                setActivePersonaImage(savedImg);
+            } else {
+                setActivePersonaImage(persona.image);
+            }
             setCustomRelation(await db.getItem('settings', `relation${suffix}`) || '');
             setIsAvatarManual(await db.getItem('settings', `avatar_manual${suffix}`) || false);
             
@@ -146,6 +157,10 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         db.setItem('settings', `scene${suffix}`, currentSceneId);
         db.setItem('settings', `invited${suffix}`, invitedPersona);
         db.setItem('settings', `active_image${suffix}`, activePersonaImage);
+        // Force leading slash for local assets if missing
+        if (activePersonaImage && activePersonaImage.startsWith('assets/')) {
+            setActivePersonaImage('/' + activePersonaImage);
+        }
         db.setItem('settings', `location${suffix}`, currentLocationId);
         db.setItem('settings', `relation${suffix}`, customRelation);
         db.setItem('settings', `avatar_manual${suffix}`, isAvatarManual);
@@ -180,10 +195,12 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     }, [messages, memory, relationshipScore, intensity, milestones, traits, encounterStats, currentSceneId, invitedPersona, activePersonaImage, currentLocationId, persona.id, sessionId, isDataLoaded]);
 
     const startNewSession = async () => {
+        setIsDataLoaded(false);
         const newSid = `session_${Date.now()}`;
         const newList = [...allSessions, newSid];
         
         await db.setItem('settings', `active_session_${persona.id}`, newSid);
+        localStorage.setItem(`active_session_fallback_${persona.id}`, newSid);
         await db.setItem('settings', `sessions_list_${persona.id}`, newList);
         
         setSessionId(newSid);
@@ -192,7 +209,9 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     };
 
     const switchSession = async (sid) => {
+        setIsDataLoaded(false);
         await db.setItem('settings', `active_session_${persona.id}`, sid);
+        localStorage.setItem(`active_session_fallback_${persona.id}`, sid);
         setSessionId(sid);
     };
 
