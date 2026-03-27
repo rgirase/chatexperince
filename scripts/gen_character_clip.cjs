@@ -3,7 +3,7 @@ const path = require('path');
 const http = require('http');
 
 const CHARACTERS_DIR = path.join(__dirname, '../src/data/characters');
-const OUTPUT_DIR = path.join(__dirname, '../public/gallery');
+const OUTPUT_DIR = path.join(__dirname, '../public/gallery-assets');
 const WORKFLOW_PATH = path.join(__dirname, '../comfy_workflow_animatediff.json');
 
 const COMFY_HOST = '127.0.0.1';
@@ -14,6 +14,8 @@ async function queuePrompt(workflow, promptText) {
     // Inject character appearance
     currentWorkflow["6"].inputs.text = currentWorkflow["6"].inputs.text.replace('{appearance}', promptText);
     currentWorkflow["3"].inputs.seed = Math.floor(Math.random() * 1000000);
+    // Ensure Node 12 uses the correct model if it was accidentally changed
+    currentWorkflow["12"].inputs.model_name = "mm_sd_v15_v2.ckpt";
 
     const postData = JSON.stringify({ prompt: currentWorkflow });
 
@@ -107,8 +109,9 @@ async function run() {
             const history = await checkStatus(promptId);
             if (history) {
                 const output = history.outputs["13"];
-                const filename = (output.gifs && output.gifs[0]) ? output.gifs[0].filename : 
-                               (output.images && output.images[0]) ? output.images[0].filename : null;
+                const filename = (output.videos && output.videos[0]) ? output.videos[0].filename : 
+                               (output.images && output.images[0]) ? output.images[0].filename : 
+                               (output.gifs && output.gifs[0]) ? output.gifs[0].filename : null;
                 
                 if (!filename) throw new Error("No output filename found in history.");
                 

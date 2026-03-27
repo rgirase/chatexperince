@@ -1,8 +1,8 @@
 {
   "3": {
     "inputs": {
-      "seed": 888,"steps": 20,"cfg": 8,"sampler_name": "euler","scheduler": "normal","denoise": 1,
-      "model": ["12",0],"positive": ["6",0],"negative": ["7",0],"latent_image": ["5",0]
+      "seed": 999,"steps": 1,"cfg": 8,"sampler_name": "euler","scheduler": "normal","denoise": 1,
+      "model": ["4",0],"positive": ["6",0],"negative": ["7",0],"latent_image": ["5",0]
     },
     "class_type": "KSampler",
     "_meta": {"title": "KSampler"}
@@ -13,12 +13,12 @@
     "_meta": {"title": "Load Checkpoint"}
   },
   "5": {
-    "inputs": {"width": 512,"height": 512,"batch_size": 16},
+    "inputs": {"width": 128,"height": 128,"batch_size": 2},
     "class_type": "EmptyLatentImage",
     "_meta": {"title": "Empty Latent Image"}
   },
   "6": {
-    "inputs": {"text": "A stunning Indian woman with hourglass figure, wearing an expensive saree, playing with herself, intense expression, detailed skin, 4k, cinematic","clip": ["4",1]},
+    "inputs": {"text": "A stunning Indian woman, showering, heavy falling water, water droplets on skin, wet hair, steam, sensual, cinematic, high quality, 4k, masterpiece","clip": ["4",1]},
     "class_type": "CLIPTextEncode",
     "_meta": {"title": "Prompt"}
   },
@@ -35,20 +35,22 @@
   "12": {
     "inputs": {
       "model_name": "mm_sd_v15_v2.ckpt",
-      "beta_schedule": "sqrt_linear (AnimateDiff)",
       "model": ["4",0]
     },
-    "class_type": "ADE_AnimateDiffLoaderGen1",
-    "_meta": {"title": "AnimateDiff Loader"}
-  },
-  "14": {
-    "inputs": {"images": ["8",0],"fps": 8},
-    "class_type": "CreateVideo",
-    "_meta": {"title": "Create Video"}
+    "class_type": "AnimateDiffLoaderV1",
+    "_meta": {"title": "AnimateDiff Loader V1"}
   },
   "13": {
-    "inputs": {"video": ["14",0],"filename_prefix": "ritu_clip", "format": "mp4", "codec": "h264"},
-    "class_type": "SaveVideo",
-    "_meta": {"title": "Save Video"}
+    "inputs": {
+      "images": ["8",0],
+      "frame_rate": 10,
+      "loop_count": 0,
+      "filename_prefix": "ritu_clip",
+      "format": "video/h264-mp4",
+      "pingpong": false,
+      "save_output": true
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {"title": "Video Combine 🎥🅥🅗🅢"}
   }
 }
