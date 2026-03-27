@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, Bookmark, History, X, Flame, MapPin, Zap, Edit2, Check, Trash2, Plus } from 'lucide-react';
+import { Brain, Bookmark, History, X, Flame, MapPin, Zap, Edit2, Check, Trash2, Plus, Lock, Unlock, Book } from 'lucide-react';
+import * as db from '../../services/db';
 
 const MemoryViewer = ({ 
     isOpen, 
@@ -14,13 +15,40 @@ const MemoryViewer = ({
     onUpdateRelation,
     onUpdateMilestones,
     onUpdateEncounters,
-    customRelation
+    customRelation,
+    relationshipScore,
+    sessionId
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editMemory, setEditMemory] = useState(memory || "");
     const [editRelation, setEditRelation] = useState(customRelation || "");
     const [editMilestones, setEditMilestones] = useState(milestones || []);
     const [editEncounters, setEditEncounters] = useState(encounterStats || { count: 0, history: [] });
+    
+    const [journals, setJournals] = useState([]);
+    const [isLoadingJournals, setIsLoadingJournals] = useState(true);
+
+    const isJournalUnlocked = relationshipScore >= 80;
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const loadJournals = async () => {
+            setIsLoadingJournals(true);
+            try {
+                const all = await db.getAll('journals');
+                // Filter for this persona and session
+                const filtered = all
+                    .filter(j => j.id.startsWith(`journal_${persona.id}_${sessionId}`))
+                    .sort((a, b) => new Date(b.value.timestamp) - new Date(a.value.timestamp));
+                setJournals(filtered.map(j => j.value));
+            } catch (e) {
+                console.error("Failed to load journals", e);
+            } finally {
+                setIsLoadingJournals(false);
+            }
+        };
+        loadJournals();
+    }, [isOpen, persona.id, sessionId]);
 
     const handleSave = () => {
         onUpdateMemory(editMemory);
@@ -129,6 +157,65 @@ const MemoryViewer = ({
                                             </div>
                                         )}
                                     </div>
+                                </section>
+
+                                {/* PRIVATE JOURNAL SECTION */}
+                                <section style={{ display: 'block', width: '100%' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fbbf24' }}>
+                                            <Book size={18} />
+                                            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>Private Journal</h3>
+                                        </div>
+                                        <div style={{ fontSize: '0.7rem', color: isJournalUnlocked ? '#4ade80' : '#f87171', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' }}>
+                                            {isJournalUnlocked ? <><Unlock size={12} /> Unlocked</> : <><Lock size={12} /> Unlock at 80%</>}
+                                        </div>
+                                    </div>
+
+                                    {!isJournalUnlocked ? (
+                                        <div style={{ 
+                                            background: 'rgba(0,0,0,0.4)', 
+                                            padding: '2rem 1rem', 
+                                            borderRadius: '16px', 
+                                            border: '1px dashed rgba(251, 191, 36, 0.2)', 
+                                            textAlign: 'center',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            gap: '12px'
+                                        }}>
+                                            <Lock size={32} color="rgba(251, 191, 36, 0.3)" />
+                                            <p style={{ margin: 0, fontSize: '0.85rem', color: '#71717a', maxWidth: '250px' }}>
+                                                Maintain a high Relationship Score to read {persona.name}'s inner thoughts...
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            {journals.length > 0 ? journals.map((j, i) => (
+                                                <div key={i} style={{ 
+                                                    background: 'linear-gradient(135deg, #fffbeb, #fef3c7)', 
+                                                    padding: '1rem', 
+                                                    borderRadius: '4px', 
+                                                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+                                                    color: '#1a1a1a',
+                                                    fontFamily: '"Caveat", cursive, serif',
+                                                    fontSize: '1.1rem',
+                                                    lineHeight: '1.4',
+                                                    position: 'relative',
+                                                    borderLeft: '4px solid #facc15'
+                                                }}>
+                                                    <div style={{ fontSize: '0.7rem', color: '#92400e', marginBottom: '4px', fontFamily: 'sans-serif', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between' }}>
+                                                        <span>Entry #{journals.length - i}</span>
+                                                        <span>{new Date(j.timestamp).toLocaleDateString()}</span>
+                                                    </div>
+                                                    "{j.content}"
+                                                </div>
+                                            )) : (
+                                                <p style={{ color: '#71717a', fontSize: '0.8rem', fontStyle: 'italic', textAlign: 'center', padding: '0.5rem' }}>
+                                                    The journal is empty. {persona.name} hasn't written her thoughts yet...
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </section>
 
                                 <section style={{ display: 'block', width: '100%' }}>

@@ -5,7 +5,7 @@
  */
 
 const DB_NAME = 'ChatExperienceDB';
-const DB_VERSION = 5; // Added engagement stores: logins, unlocked_gallery, rewards
+const DB_VERSION = 6; // Version 6 adds 'journals' for character-POV diary
 
 export const openDB = () => {
     return new Promise((resolve, reject) => {
@@ -36,6 +36,9 @@ export const openDB = () => {
             }
             if (!db.objectStoreNames.contains('rewards')) {
                 db.createObjectStore('rewards', { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains('journals')) {
+                db.createObjectStore('journals', { keyPath: 'id' });
             }
         };
 

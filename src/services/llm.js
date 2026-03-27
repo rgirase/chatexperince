@@ -1056,3 +1056,37 @@ Use only these generic image paths:
         return [];
     }
 }
+
+/**
+ * Generates a narrative "Story So Far" summary for a chat session.
+ */
+export async function generateChapterRecap(persona, messages) {
+    const charName = getShortName(persona.name);
+    const transcript = messages.map(msg => `${msg.role === 'user' ? 'User' : charName}: ${msg.content}`).slice(-30).join('\n\n');
+    
+    const prompt = `
+[CONTEXT]
+Character: ${persona.name}
+Recent Transcript:
+${transcript}
+
+[TASK]
+Write a beautiful, 2-sentence narrative summary of this chapter of the story. 
+Focus on the emotional tone, the major event that happened, and the current state of the relationship.
+Write in the third person, like a book blurb.
+Example: "After a tense encounter in the rain, the two finally found shelter and shared a moment of unexpected vulnerability. The air between them has shifted, leaving a lingering promise of something more."
+
+[RULES]
+1. Return ONLY the 2-sentence summary.
+2. Do not use placeholders.
+3. Keep it poetic and evocative.
+`;
+
+    try {
+        const response = await callLMStudio(prompt, 0.7);
+        return cleanLeakage(response.trim());
+    } catch (e) {
+        console.error("[LLM] Failed to generate chapter recap", e);
+        return "The story continues as the bond between you and " + charName + " deepens in unexpected ways.";
+    }
+}

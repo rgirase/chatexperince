@@ -31,6 +31,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     const [currentSituation, setCurrentSituation] = useState('Just starting the conversation...');
     const [currentSceneId, setCurrentSceneId] = useState('default');
     const [invitedPersona, setInvitedPersona] = useState(null);
+    const [chapterRecap, setChapterRecap] = useState("");
     const [activePersonaImage, setActivePersonaImage] = useState(persona.image);
     const [currentSuggestions, setCurrentSuggestions] = useState([]);
     const [messageCountForScene, setMessageCountForScene] = useState(0);
@@ -115,6 +116,9 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             setCustomRelation(await db.getItem('settings', `relation${suffix}`) || '');
             setIsAvatarManual(await db.getItem('settings', `avatar_manual${suffix}`) || false);
             
+            const savedRecap = await db.getItem('settings', `recap${suffix}`);
+            setChapterRecap(savedRecap || "");
+
             setIsDataLoaded(true);
         };
         load();
@@ -359,6 +363,30 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
                         setCurrentLocationId(matchedLoc.id);
                         setCurrentSituation(matchedLoc.situation);
                         showToast(`Scene changed to ${matchedLoc.name}`, "info");
+                    }
+
+                    // Periodic Chapter Recap & Diary (Every 5-8 messages)
+                    const msgCount = messages.length;
+                    if (msgCount > 0 && msgCount % 8 === 0) {
+                        generateChapterRecap(persona, [...messages, { role: 'ai', content: cleanedText }])
+                            .then(recap => {
+                                if (recap) setChapterRecap(recap);
+                            });
+                    }
+                    if (msgCount > 0 && msgCount % 5 === 0) {
+                        generateDiaryEntry(persona, [...messages, { role: 'ai', content: cleanedText }])
+                            .then(entry => {
+                                if (entry) {
+                                    const journalId = `journal_${persona.id}_${sessionId}_${Date.now()}`;
+                                    db.setItem('journals', journalId, {
+                                        personaId: persona.id,
+                                        sessionId: sessionId,
+                                        timestamp: new Date().toISOString(),
+                                        content: entry,
+                                        score: relationshipScore
+                                    });
+                                }
+                            });
                     }
                 },
                 (errMessage) => {
@@ -755,6 +783,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         handleUpdateRelation,
         handleUpdateMilestones,
         handleUpdateEncounters,
-        customRelation
+        customRelation,
+        chapterRecap
     };
 };

@@ -71,3 +71,17 @@ export const updateAura = () => {
     }
     return aura;
 };
+
+/**
+ * getRelationshipLabel
+ * Returns a human-readable label for the relationship progress percentage.
+ */
+export const getRelationshipLabel = (score = 0) => {
+    if (score < 10) return "Stranger";
+    if (score < 25) return "Acquaintance";
+    if (score < 45) return "Deepening Bond";
+    if (score < 65) return "Close Companion";
+    if (score < 85) return "Inseparable";
+    if (score <= 100) return "Soulmate";
+    return "Unknown";
+};

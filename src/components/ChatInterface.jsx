@@ -98,7 +98,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         sessionId,
         startNewSession,
         switchSession,
-        deleteSession
+        deleteSession,
+        chapterRecap
     } = useChatLogic(persona, showToast, scenario, generateSelfie);
 
     // Update the ref whenever setMessages changes
@@ -270,6 +271,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                         onUpdateMilestones={handleUpdateMilestones}
                         onUpdateEncounters={handleUpdateEncounters}
                         customRelation={customRelation}
+                        relationshipScore={relationshipScore}
+                        sessionId={sessionId}
                     />
                 )}
                 
@@ -350,6 +353,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                         }}
                         onDelete={deleteSession}
                         personaName={persona.name}
+                        currentRecap={chapterRecap}
                     />
                 )}
 
