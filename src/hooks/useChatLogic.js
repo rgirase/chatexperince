@@ -257,12 +257,12 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
                 personaWithExtras,
                 context,
                 (chunkText) => {
-                    setIsTyping(false);
                     setMessages(prev => prev.map(msg =>
                         msg.id === aiMessageId ? { ...msg, content: chunkText, isError: false } : msg
                     ));
                 },
                 async (cleanedText, rawText) => {
+                    setIsTyping(false);
                     // Update message with final cleaned version
                     setMessages(prev => prev.map(msg =>
                         msg.id === aiMessageId ? { ...msg, content: cleanedText, isError: false } : msg
