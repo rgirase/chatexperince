@@ -14,6 +14,9 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
     const [isStatusExpanded, setIsStatusExpanded] = useState(false);
     const [equippedImage, setEquippedImage] = useState(persona.image);
     const [refreshKey, setRefreshKey] = useState(0);
+    const isVideo = equippedImage?.toLowerCase().endsWith('.mp4');
+    const isGif = equippedImage?.toLowerCase().endsWith('.gif');
+    const isMediaLoop = isVideo || isGif;
     
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -65,7 +68,7 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
                 className="persona-card-inner"
                 onClick={() => onSelectPersona(persona)}
                 style={{
-                    backgroundImage: (imageLoaded && !imageError) ? `url(${equippedImage})` : 'linear-gradient(135deg, #27272a, #09090b)',
+                    backgroundImage: (imageLoaded && !imageError && !isMediaLoop) ? `url(${equippedImage})` : 'linear-gradient(135deg, #27272a, #09090b)',
                     backgroundColor: '#111',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
@@ -82,17 +85,64 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-10px) scale(1.02)'}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0) scale(1)'}
             >
-                <img 
-                    src={equippedImage} 
-                    className="no-select"
-                    style={{ display: 'none' }} 
-                    onLoad={() => setImageLoaded(true)} 
-                    onError={() => {
-                        setImageError(true);
-                        setImageLoaded(true);
-                    }}
-                    alt=""
-                />
+                {isVideo ? (
+                    <video
+                        src={equippedImage}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="no-select"
+                        onLoadedData={() => setImageLoaded(true)}
+                        onError={() => {
+                            setImageError(true);
+                            setImageLoaded(true);
+                        }}
+                        style={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            zIndex: 0,
+                            opacity: imageLoaded ? 1 : 0,
+                            transition: 'opacity 0.5s ease'
+                        }}
+                    />
+                ) : isGif ? (
+                    <img 
+                        src={equippedImage} 
+                        className="no-select"
+                        onLoad={() => setImageLoaded(true)} 
+                        onError={() => {
+                            setImageError(true);
+                            setImageLoaded(true);
+                        }}
+                        style={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            zIndex: 0,
+                            opacity: imageLoaded ? 1 : 0,
+                            transition: 'opacity 0.5s ease'
+                        }}
+                        alt=""
+                    />
+                ) : (
+                    <img 
+                        src={equippedImage} 
+                        className="no-select"
+                        style={{ display: 'none' }} 
+                        onLoad={() => setImageLoaded(true)} 
+                        onError={() => {
+                            setImageError(true);
+                            setImageLoaded(true);
+                        }}
+                        alt=""
+                    />
+                )}
 
                 <div style={{
                     position: 'absolute',
