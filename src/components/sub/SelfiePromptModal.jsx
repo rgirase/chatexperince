@@ -53,9 +53,19 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
     const [prompt, setPrompt] = useState("");
     const [aspectRatio, setAspectRatio] = useState('portrait');
     const [activeCategory, setActiveCategory] = useState("Positions");
+    const [selectedModel, setSelectedModel] = useState("0184PONYLordkamix_v10.safetensors");
+
+    const AVAILABLE_MODELS = [
+        { id: "0184PONYLordkamix_v10.safetensors", name: "Pony: LordKamix v10 (Default)" },
+        { id: "vendoPonyRealistic_v13Lora.safetensors", name: "Pony: Vendo Realistic v13" },
+        { id: "aimrimPonyIllusSDXL_v10ILLFP16.safetensors", name: "Pony: Aimrim Illustrious" },
+        { id: "getphatPonyMysticEast_v30.safetensors", name: "Pony: Mystic East" },
+        { id: "vendoPonyAnimated_v10.safetensors", name: "Pony: Vendo Animated" },
+        { id: "v1-5-pruned-emaonly.safetensors", name: "SD 1.5: Base (Not Recommended)" }
+    ];
 
     const handleSubmit = () => {
-        onConfirm(prompt, aspectRatio);
+        onConfirm(prompt, aspectRatio, selectedModel);
         setPrompt("");
         onClose();
     };
@@ -81,10 +91,40 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                 <X size={24} />
                             </button>
                         </div>
-                        <div className="modal-body">
+                        <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto', paddingBottom: '90px' }}>
                             <p style={{ color: '#ccc', fontSize: '0.9rem', marginBottom: '1rem' }}>
                                 Describe exactly what you want to see. The character's current appearance and location will be added automatically.
                             </p>
+
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <div style={{ color: '#fbbf24', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold' }}>Core Engine</div>
+                                <select 
+                                    value={selectedModel}
+                                    onChange={(e) => setSelectedModel(e.target.value)}
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px 12px',
+                                        borderRadius: '8px',
+                                        background: 'rgba(0,0,0,0.4)',
+                                        border: '1px solid #3f3f46',
+                                        color: 'white',
+                                        fontSize: '0.9rem',
+                                        outline: 'none',
+                                        cursor: 'pointer',
+                                        appearance: 'none',
+                                        backgroundImage: `url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a1a1aa%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")`,
+                                        backgroundRepeat: 'no-repeat',
+                                        backgroundPosition: 'right 12px top 50%',
+                                        backgroundSize: '12px auto'
+                                    }}
+                                >
+                                    {AVAILABLE_MODELS.map(model => (
+                                        <option key={model.id} value={model.id} style={{ background: '#1e1e2e', color: 'white' }}>
+                                            {model.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                             
                             <div style={{ marginBottom: '1.5rem' }}>
                                 <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.1)' }} className="hide-scrollbar">

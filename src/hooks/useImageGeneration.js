@@ -5,7 +5,7 @@ import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_COMFY_WORKFLOW } from '..
 export const useImageGeneration = (persona, setMessages, showToast) => {
     const isMounted = useRef(true);
 
-    const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait') => {
+    const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait', selectedModel = null) => {
         const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
         const imageEngine = localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE;
 
@@ -63,6 +63,13 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 }
 
                 const workflowObj = JSON.parse(comfyWorkflow);
+
+                if (selectedModel) {
+                    const ckptNodeId = Object.keys(workflowObj).find(k => workflowObj[k].class_type === 'CheckpointLoaderSimple' || workflowObj[k].class_type === 'CheckpointLoader');
+                    if (ckptNodeId) {
+                        workflowObj[ckptNodeId].inputs.ckpt_name = selectedModel;
+                    }
+                }
 
                 if (workflowObj["5"] && workflowObj["5"].class_type === "EmptyLatentImage") {
                     const isSD15 = workflowObj["5"].inputs.width === 512 || workflowObj["5"].inputs.height === 512 || workflowObj["5"].inputs.height === 768;
@@ -134,6 +141,8 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 if (!queueData.prompt_id) throw new Error("ComfyUI failure.");
 
                 const promptId = queueData.prompt_id;
+                setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, comfyPromptId: promptId } : msg));
+                
                 let isComplete = false;
                 let attempts = 0;
                 while (!isComplete && attempts < 180) {

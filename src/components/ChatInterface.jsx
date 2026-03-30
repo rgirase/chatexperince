@@ -138,9 +138,49 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         handleClearChatLogic();
     };
 
-    const handleConfirmSelfie = (prompt, aspectRatio) => {
+    const handleConfirmSelfie = (prompt, aspectRatio, selectedModel) => {
         setIsSelfiePromptOpen(false);
-        generateSelfie(prompt, Date.now().toString(), aspectRatio);
+        generateSelfie(prompt, Date.now().toString(), aspectRatio, selectedModel);
+    };
+
+    const handleCheckStatus = async (msgId, promptId) => {
+        try {
+            showToast("Checking ComfyUI status...", "info");
+            const sdUrl = localStorage.getItem('sdUrl') || 'http://127.0.0.1:8188';
+            const histRes = await fetch(`${sdUrl.replace(/\/$/, '')}/history/${promptId}`);
+            
+            if (!histRes.ok) {
+                showToast("Still generating, or prompt not found in history.", "info");
+                return;
+            }
+
+            const histData = await histRes.json();
+            
+            if (histData && histData[promptId]) {
+                const outputs = histData[promptId].outputs;
+                for (const nodeId in outputs) {
+                    if (outputs[nodeId].images && outputs[nodeId].images.length > 0) {
+                        const paramsObj = new URLSearchParams(outputs[nodeId].images[0]);
+                        const viewRes = await fetch(`${sdUrl.replace(/\/$/, '')}/view?${paramsObj.toString()}`);
+                        const blob = await viewRes.blob();
+                        const base64Image = await new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.readAsDataURL(blob);
+                        });
+                        
+                        setMessages(prev => prev.map(msg => msg.id === msgId ? { ...msg, url: base64Image } : msg));
+                        showToast("Selfie recovered successfully!", "success");
+                        return;
+                    }
+                }
+            } else {
+                showToast("Still processing in ComfyUI queue...", "warning");
+            }
+        } catch (error) {
+            console.error("Recovery check failed:", error);
+            showToast("Failed to connect to ComfyUI.", "error");
+        }
     };
 
     const handleSelectSuggestion = (text) => {
@@ -238,6 +278,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 onContinue={handleContinue}
                 onResubmit={handleResubmit}
                 onRepair={handleRepair}
+                onCheckStatus={handleCheckStatus}
                 isTyping={isTyping}
                 messagesAreaRef={messagesAreaRef}
             />

@@ -15,6 +15,7 @@ const MessageList = ({
     onContinue,
     onResubmit,
     onRepair,
+    onCheckStatus,
     isTyping,
     messagesAreaRef
 }) => {
@@ -35,7 +36,19 @@ const MessageList = ({
                                     {msg.url ? (
                                         <img src={msg.url} alt="Selfie" style={{ width: '100%', borderRadius: '12px' }} />
                                     ) : (
-                                        <div className="photo-loading">Generating selfie...</div>
+                                        <div className="photo-loading" style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', padding: '1rem' }}>
+                                            <span>Generating selfie...</span>
+                                            {msg.comfyPromptId && onCheckStatus && (
+                                                <button 
+                                                    onClick={() => onCheckStatus(msg.id, msg.comfyPromptId)}
+                                                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', padding: '6px 14px', borderRadius: '16px', color: 'white', cursor: 'pointer', fontSize: '0.85rem', display: 'flex', gap: '6px', alignItems: 'center', transition: 'all 0.2s' }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                                                >
+                                                    <RefreshCw size={14} /> Check Status
+                                                </button>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
                             ) : msg.isMoment ? (
