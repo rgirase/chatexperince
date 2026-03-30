@@ -92,7 +92,16 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                         { label: "69 Position", text: "(69 position:1.5), mutual oral sex, faces buried in genitals, intricate posing, extreme detail, on luxurious satin sheets" },
                                         { label: "Facial Cumshot", text: "close up on face, (facial cumshot:1.5), thick cum splattered across cheeks and nose, closed eyes, tongue out, messy, highly detailed masterpiece" },
                                         { label: "Spanking", text: "rear view, (spanking:1.4), bright red handprint on bare ass, (bent over:1.2), crying in pleasure, tears, bdsm, detailed skin marks" },
-                                        { label: "Groping", text: "two hands aggressively grabbing large breasts from behind, (breast grab:1.4), skin indentation, surprised expression, (from behind:1.2)" }
+                                        { label: "Groping", text: "two hands aggressively grabbing large breasts from behind, (breast grab:1.4), skin indentation, surprised expression, (from behind:1.2)" },
+                                        { label: "Face Sitting", text: "(facesitting:1.4), sitting on face, smothering, extreme expression, looking down, shiny skin, dominant" },
+                                        { label: "Footjob", text: "(footjob:1.4), toes curled, focus on feet, looking up, seductive gaze, bedroom lighting" },
+                                        { label: "Thigh Sex", text: "(intercrural sex:1.4), cock between thighs, squeezing legs, sweat, deep penetration illusion, highly detailed skin texture" },
+                                        { label: "Magic Wand", text: "using hitachi magic wand, vibrator on pussy, (intense orgasm:1.4), arching back, gripping sheets, flushed face" },
+                                        { label: "Shibari", text: "(full body shibari:1.5), intricate rope bondage, suspension, helpless, blushing, distressed expression, dark studio" },
+                                        { label: "Pet Play (Leash)", text: "wearing collar, (leash play:1.3), on hands and knees, crawling, (gagged:1.2), submissive, carpeted floor" },
+                                        { label: "Squirt", text: "(female ejaculation:1.5), squirting, heavy wetness, pool of liquid, glistening skin, intense orgasm face, messy bed" },
+                                        { label: "Cum Drenched", text: "(covered in cum:1.5), dripping semen, glazed eyes, ahegao face, panting, completely exhausted, shiny wet body" },
+                                        { label: "Latex & Ripped Nylons", text: "shiny black latex bodysuit, (ripped pantyhose:1.4), thighhighs, stiletto heels, posing seductively, neon rim lighting" }
                                     ].map((act, i) => (
                                         <button
                                             key={`exp-${i}`}
