@@ -10,6 +10,9 @@ $OUTPUT_DIR = "C:\Users\rgira\Documents\ComfyUI\output"
 
 Write-Host "Starting Dual-GPU ComfyUI Instances..." -ForegroundColor Cyan
 
+$env:PYTHONIOENCODING = "UTF-8"
+$env:TQDM_MININTERVAL = "5" # Reduce progress bar update frequency to further avoid issues
+
 # Kill existing processes on 8000 and 8001
 $ports = 8000, 8001
 foreach ($port in $ports) {
@@ -24,10 +27,10 @@ foreach ($port in $ports) {
 
 # Start GPU 0 on Port 8000
 Write-Host "Starting GPU 0 (Port 8000)..." -ForegroundColor Green
-Start-Process $PYTHON -ArgumentList "$MAIN_PY --listen 0.0.0.0 --port 8000 --enable-cors-header --cuda-device 0 --extra-model-paths-config $EXTRA_CONFIG --input-directory $INPUT_DIR --output-directory $OUTPUT_DIR --user-directory $USER_DIR --force-fp16 --fp16-vae --fp16-text-enc" -NoNewWindow
+Start-Process $PYTHON -ArgumentList "$MAIN_PY --listen 0.0.0.0 --port 8000 --enable-cors-header --cuda-device 0 --extra-model-paths-config $EXTRA_CONFIG --input-directory $INPUT_DIR --output-directory $OUTPUT_DIR --user-directory $USER_DIR --force-fp16 --fp16-vae --fp16-text-enc --lowvram" -NoNewWindow
 
 # Start GPU 1 on Port 8001
 Write-Host "Starting GPU 1 (Port 8001)..." -ForegroundColor Green
-Start-Process $PYTHON -ArgumentList "$MAIN_PY --listen 0.0.0.0 --port 8001 --enable-cors-header --cuda-device 1 --extra-model-paths-config $EXTRA_CONFIG --input-directory $INPUT_DIR --output-directory $OUTPUT_DIR --user-directory $USER_DIR --force-fp16 --fp16-vae --fp16-text-enc" -NoNewWindow
+Start-Process $PYTHON -ArgumentList "$MAIN_PY --listen 0.0.0.0 --port 8001 --enable-cors-header --cuda-device 1 --extra-model-paths-config $EXTRA_CONFIG --input-directory $INPUT_DIR --output-directory $OUTPUT_DIR --user-directory $USER_DIR --force-fp16 --fp16-vae --fp16-text-enc --lowvram" -NoNewWindow
 
 Write-Host "Both GPUs initialized. Waiting for servers to be ready..." -ForegroundColor Cyan

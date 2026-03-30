@@ -19,42 +19,42 @@ const workflow_template = {
       "sampler_name": "dpmpp_2m",
       "scheduler": "karras",
       "seed": 0,
-      "steps": 30
+      "steps": 35
     }
   },
   "4": {
     "class_type": "CheckpointLoaderSimple",
     "inputs": {
-      "ckpt_name": "Juggernaut-XL_v9.safetensors"
+      "ckpt_name": "0184PONYLordkamix_v10.safetensors"
     }
   },
   "5": {
     "class_type": "EmptyLatentImage",
     "inputs": {
       "batch_size": 1,
-      "height": 1024,
-      "width": 1024
+      "height": 1216,
+      "width": 832
     }
   },
   "6": {
     "class_type": "CLIPTextEncode",
     "inputs": {
-      "clip": ["4", 1],
+      "clip": ["11", 0],
       "text": ""
     }
   },
   "7": {
     "class_type": "CLIPTextEncode",
     "inputs": {
-      "clip": ["4", 1],
-      "text": "saree, indian, tradition, ethnic, distorted, blurry, low quality, bad anatomy, bad hands, text, watermark, deformed, ugly, bad proportions, missing limbs, solo, person alone"
+      "clip": ["11", 0],
+      "text": "score_4, score_3, score_2, score_1, (worst quality:1.2), (low quality:1.2), (normal quality:1.2), lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, jpeg artifacts, signature, watermark, username, blurry, (deformed:1.2)"
     }
   },
   "8": {
     "class_type": "VAEDecode",
     "inputs": {
       "samples": ["3", 0],
-      "vae": ["4", 2]
+      "vae": ["12", 0]
     }
   },
   "9": {
@@ -63,39 +63,54 @@ const workflow_template = {
       "filename_prefix": "isabella_noble",
       "images": ["8", 0]
     }
+  },
+  "11": {
+    "class_type": "CLIPSetLastLayer",
+    "inputs": {
+      "stop_at_clip_layer": -2,
+      "clip": ["4", 1]
+    }
+  },
+  "12": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "sdxl_vae_fix.safetensors"
+    }
   }
 };
+
+const PONY_PREFIX = "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_explicit, ";
 
 const prompts = [
   {
     name: "isabella_noble_profile.png",
     dir: OUTPUT_DIR_PROFILES,
-    prompt: "Highly detailed, photorealistic portrait of an elegant European woman (aristocrat). Countess Isabella (40yo, statuesque beauty, fine features, 36C-25-38). Wearing an extremely seductive, highly transparent, sheer black Italian designer lace dress WITHOUT LINGERIE, paired with heirloom diamonds. Her hair is in a sophisticated updo. Luxury estate background, refined atmosphere, cinematic lighting, 8k resolution."
+    prompt: PONY_PREFIX + "highly detailed photorealistic portrait of an elegant European woman (aristocrat). Countess Isabella (40yo, statuesque beauty, fine features, 36C-25-38). Wearing an extremely seductive highly transparent sheer black Italian designer lace dress WITHOUT LINGERIE, paired with heirloom diamonds. Her hair is in a sophisticated updo. Luxury estate background, refined atmosphere, cinematic lighting, 8k resolution."
   },
   {
     name: "isabella_noble_1.png",
     dir: OUTPUT_DIR_GALLERY,
-    prompt: "Full body shot of Countess Isabella (40yo) in a grand mahogany-paneled library. She is wearing a highly transparent, sheer black Italian designer lace dress WITHOUT LINGERIE. She is standing gracefully by a large window, a look of noble submission on her face. Sexy and provocative, high-quality detailed face, luxury leather-bound books background, 8k resolution, masterpiece."
+    prompt: PONY_PREFIX + "Full body shot of Countess Isabella (40yo) in a grand mahogany-paneled library. She is wearing a highly transparent sheer black Italian designer lace dress WITHOUT LINGERIE. She is standing gracefully by a large window, a look of noble submission on her face. Sexy and provocative, high-quality detailed face, luxury leather-bound books background, 8k resolution, masterpiece."
   },
   {
     name: "isabella_noble_2.png",
     dir: OUTPUT_DIR_GALLERY,
-    prompt: "Medium shot of Countess Isabella (40yo) serving tea in a luxury private study. She is wearing a delicate, highly transparent, sheer black Italian designer lace dress WITHOUT LINGERIE. The fabric revealed her statuesque figure. High-born beauty, seductive and provocative, cinematic lighting, ultra-detailed skin, masterpiece."
+    prompt: PONY_PREFIX + "Medium shot of Countess Isabella (40yo) serving tea in a luxury private study. She is wearing a delicate highly transparent sheer black Italian designer lace dress WITHOUT LINGERIE. The fabric revealed her statuesque figure. High-born beauty, seductive and provocative, cinematic lighting, ultra-detailed skin, masterpiece."
   },
   {
     name: "isabella_noble_3.png",
     dir: OUTPUT_DIR_GALLERY,
-    prompt: "Photorealistic image of Countess Isabella (40yo) in her master suite. She is reclining on a velvet chaise lounge, her highly transparent, sheer black Italian designer lace dress emphasizing her elegant curves. Sophisticated yet submissive expression, high-quality intricate details, breathtaking beauty, 8k."
+    prompt: PONY_PREFIX + "photorealistic image of Countess Isabella (40yo) in her master suite. She is reclining on a velvet chaise lounge, her highly transparent sheer black Italian designer lace dress emphasizing her elegant curves. Sophisticated yet submissive expression, high-quality intricate details, breathtaking beauty, 8k."
   },
   {
     name: "isabella_noble_4.png",
     dir: OUTPUT_DIR_GALLERY,
-    prompt: "Close up shot of Countess Isabella (40yo European aristocrat). She is looking into the camera with a refined and seductive gaze, her highly transparent, sheer black Italian designer lace dress WITHOUT LINGERIE revealing her bare shoulders and fine skin. High-quality facial details, soft office/study lighting, cinematic mood, masterpiece."
+    prompt: PONY_PREFIX + "Close up shot of Countess Isabella (40yo European aristocrat). She is looking into the camera with a refined and seductive gaze, her highly transparent sheer black Italian designer lace dress WITHOUT LINGERIE revealing her bare shoulders and fine skin. High-quality facial details, soft office/study lighting, cinematic mood, masterpiece."
   },
   {
     name: "isabella_noble_5.png",
     dir: OUTPUT_DIR_GALLERY,
-    prompt: "Full body shot of Countess Isabella (40yo) standing in the moonlight on a balcony of a private estate. She is wearing a highly transparent, sheer black Italian designer lace dress WITHOUT LINGERIE. Seductive pose, high-quality details, regal and provocative, 8k resolution."
+    prompt: PONY_PREFIX + "Full body shot of Countess Isabella (40yo) standing in the moonlight on a balcony of a private estate. She is wearing a highly transparent sheer black Italian designer lace dress WITHOUT LINGERIE. Seductive pose, high-quality details, regal and provocative, 8k resolution."
   }
 ];
 

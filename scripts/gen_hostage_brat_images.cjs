@@ -19,42 +19,42 @@ const workflow_template = {
       "sampler_name": "dpmpp_2m",
       "scheduler": "karras",
       "seed": 0,
-      "steps": 30
+      "steps": 35
     }
   },
   "4": {
     "class_type": "CheckpointLoaderSimple",
     "inputs": {
-      "ckpt_name": "Juggernaut-XL_v9.safetensors"
+      "ckpt_name": "0184PONYLordkamix_v10.safetensors"
     }
   },
   "5": {
     "class_type": "EmptyLatentImage",
     "inputs": {
       "batch_size": 1,
-      "height": 1024,
-      "width": 1024
+      "height": 1216,
+      "width": 832
     }
   },
   "6": {
     "class_type": "CLIPTextEncode",
     "inputs": {
-      "clip": ["4", 1],
+      "clip": ["11", 0],
       "text": ""
     }
   },
   "7": {
     "class_type": "CLIPTextEncode",
     "inputs": {
-      "clip": ["4", 1],
-      "text": "saree, indian, tradition, ethnic, distorted, blurry, low quality, bad anatomy, bad hands, text, watermark, deformed, ugly, bad proportions, missing limbs, solo, person alone"
+      "clip": ["11", 0],
+      "text": "score_4, score_3, score_2, score_1, (worst quality:1.2), (low quality:1.2), (normal quality:1.2), lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, jpeg artifacts, signature, watermark, username, blurry, (deformed:1.2)"
     }
   },
   "8": {
     "class_type": "VAEDecode",
     "inputs": {
       "samples": ["3", 0],
-      "vae": ["4", 2]
+      "vae": ["12", 0]
     }
   },
   "9": {
@@ -63,39 +63,54 @@ const workflow_template = {
       "filename_prefix": "hostage_brat_valentina",
       "images": ["8", 0]
     }
+  },
+  "11": {
+    "class_type": "CLIPSetLastLayer",
+    "inputs": {
+      "stop_at_clip_layer": -2,
+      "clip": ["4", 1]
+    }
+  },
+  "12": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "sdxl_vae_fix.safetensors"
+    }
   }
 };
+
+const PONY_PREFIX = "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_explicit, ";
 
 const prompts = [
   {
     name: "hostage_brat_valentina_profile.png",
     dir: OUTPUT_DIR_PROFILES,
-    prompt: "Highly detailed, photorealistic portrait of a stunning Brazilian woman (21yo). Valentina (tanned, voluptuous 36C figure, dark hair, flashing eyes). Wearing a highly seductive, highly transparent designer mesh cocktail dress WITHOUT LINGERIE. Rebellious and sassy expression. Luxury penthouse rooftop background, sunset lighting, cinematic atmosphere, 8k resolution."
+    prompt: PONY_PREFIX + "highly detailed photorealistic portrait of a stunning Brazilian woman (21yo), Valentina (tanned, voluptuous 36C figure, dark hair, flashing eyes). Wearing a highly seductive highly transparent designer mesh cocktail dress WITHOUT LINGERIE. Rebellious and sassy expression. Luxury penthouse rooftop background, sunset lighting, cinematic atmosphere, 8k resolution."
   },
   {
     name: "hostage_brat_valentina_1.png",
     dir: OUTPUT_DIR_GALLERY,
-    prompt: "Full body shot of Valentina (21yo) cleaning a massive glass window in a penthouse. She is wearing an extremely short, highly transparent designer clubwear dress WITHOUT LINGERIE. She looks defiant yet submissive in her task. Sexy and provocative, high-quality detailed body, sunset city skyline background, 8k resolution, masterpiece."
+    prompt: PONY_PREFIX + "Full body shot of Valentina (21yo) cleaning a massive glass window in a penthouse. She is wearing an extremely short highly transparent designer clubwear dress WITHOUT LINGERIE. She looks defiant yet submissive in her task. Sexy and provocative, high-quality detailed body, sunset city skyline background, 8k resolution, masterpiece."
   },
   {
     name: "hostage_brat_valentina_2.png",
     dir: OUTPUT_DIR_GALLERY,
-    prompt: "Medium shot of Valentina (21yo Brazilian beauty) serving a drink with a mock-submissive smile. She is wearing a delicate, highly transparent white designer dress WITHOUT LINGERIE. Her curvaceous figure is showcased by the sheer fabric. High-quality details, seductive and provocative, cinematic lighting, ultra-detailed skin, masterpiece."
+    prompt: PONY_PREFIX + "Medium shot of Valentina (21yo Brazilian beauty) serving a drink with a mock-submissive smile. She is wearing a delicate highly transparent white designer dress WITHOUT LINGERIE. Her curvaceous figure is showcased by the sheer fabric. High-quality details, seductive and provocative, cinematic lighting, ultra-detailed skin, masterpiece."
   },
   {
     name: "hostage_brat_valentina_3.png",
     dir: OUTPUT_DIR_GALLERY,
-    prompt: "Photorealistic image of Valentina (21yo) in a master bedroom. She is reclining on a silk bedsheet, her highly transparent black lace nightgown emphasizing her curves. Rebellious and submissive gaze, high-quality intricate details, breathtaking beauty, 8k."
+    prompt: PONY_PREFIX + "photorealistic image of Valentina (21yo) in a master bedroom. She is reclining on a silk bedsheet, her highly transparent black lace nightgown emphasizing her curves. Rebellious and submissive gaze, high-quality intricate details, breathtaking beauty, 8k."
   },
   {
     name: "hostage_brat_valentina_4.png",
     dir: OUTPUT_DIR_GALLERY,
-    prompt: "Close up shot of Valentina (21yo) looking up from her knees, a mix of defiance and submission in her eyes. She is wearing a sheer, transparent designer top WITHOUT LINGERIE. High-quality facial details, soft interior lighting, cinematic mood, masterpiece."
+    prompt: PONY_PREFIX + "Close up shot of Valentina (21yo) looking up from her knees, a mix of defiance and submission in her eyes. She is wearing a sheer transparent designer top WITHOUT LINGERIE. High-quality facial details, soft interior lighting, cinematic mood, masterpiece."
   },
   {
     name: "hostage_brat_valentina_5.png",
     dir: OUTPUT_DIR_GALLERY,
-    prompt: "Full body shot of Valentina standing on a balcony at night. She is wearing a highly transparent, sexy designer club dress WITHOUT LINGERIE. Seductive pose, high-quality details, bratty and provocative, 8k resolution."
+    prompt: PONY_PREFIX + "Full body shot of Valentina standing on a balcony at night. She is wearing a highly transparent sexy designer club dress WITHOUT LINGERIE. Seductive pose, high-quality details, bratty and provocative, 8k resolution."
   }
 ];
 

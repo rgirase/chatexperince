@@ -123,24 +123,28 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 while (!isComplete && attempts < 180) {
                     await new Promise(r => setTimeout(r, 2000));
                     attempts++;
-                    const histRes = await fetch(`${sdUrl.replace(/\/$/, '')}/history/${promptId}`);
-                    const histData = await histRes.json();
-                    if (histData[promptId]) {
-                        const outputs = histData[promptId].outputs;
-                        for (const nodeId in outputs) {
-                            if (outputs[nodeId].images && outputs[nodeId].images.length > 0) {
-                                const paramsObj = new URLSearchParams(outputs[nodeId].images[0]);
-                                const viewRes = await fetch(`${sdUrl.replace(/\/$/, '')}/view?${paramsObj.toString()}`);
-                                const blob = await viewRes.blob();
-                                base64Image = await new Promise((resolve) => {
-                                    const reader = new FileReader();
-                                    reader.onloadend = () => resolve(reader.result);
-                                    reader.readAsDataURL(blob);
-                                });
-                                isComplete = true;
-                                break;
+                    try {
+                        const histRes = await fetch(`${sdUrl.replace(/\/$/, '')}/history/${promptId}`);
+                        const histData = await histRes.json();
+                        if (histData[promptId]) {
+                            const outputs = histData[promptId].outputs;
+                            for (const nodeId in outputs) {
+                                if (outputs[nodeId].images && outputs[nodeId].images.length > 0) {
+                                    const paramsObj = new URLSearchParams(outputs[nodeId].images[0]);
+                                    const viewRes = await fetch(`${sdUrl.replace(/\/$/, '')}/view?${paramsObj.toString()}`);
+                                    const blob = await viewRes.blob();
+                                    base64Image = await new Promise((resolve) => {
+                                        const reader = new FileReader();
+                                        reader.onloadend = () => resolve(reader.result);
+                                        reader.readAsDataURL(blob);
+                                    });
+                                    isComplete = true;
+                                    break;
+                                }
                             }
                         }
+                    } catch (pollError) {
+                        console.warn("ComfyUI polling blocked or timeout (normal during generation), retrying...", pollError);
                     }
                 }
                 if (!isComplete) throw new Error("ComfyUI timeout.");
