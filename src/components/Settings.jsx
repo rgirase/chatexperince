@@ -3,7 +3,7 @@ import { ArrowLeft, Save, Plus, Trash2, Home, RefreshCw, Sparkles } from 'lucide
 import { fetchAvailableModels, getLmStudioUrl, getSdUrl } from '../services/llm';
 import * as db from '../services/db';
 
-import { DEFAULT_LM_STUDIO_URL, DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_LM_STUDIO_MODEL, DEFAULT_COMFY_WORKFLOW } from '../config';
+import { DEFAULT_LM_STUDIO_URL, DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_LM_STUDIO_MODEL, DEFAULT_COMFY_WORKFLOW, DEFAULT_PONY_WORKFLOW } from '../config';
 
 const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitchServer }) => {
     const [lmStudioUrl, setLmStudioUrl] = useState('');
@@ -213,6 +213,9 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
         setSdUrl(DEFAULT_SD_URL);
         setImageEngine('comfyui');
         setComfyWorkflow(JSON.stringify(workflow, null, 2));
+        localStorage.setItem('sdUrl', DEFAULT_SD_URL);
+        localStorage.setItem('imageEngine', 'comfyui');
+        localStorage.setItem('comfyWorkflow', JSON.stringify(workflow, null, 2));
         setSaveToast('🚀 ComfyUI Setup for SDXL!');
         setTimeout(() => setSaveToast(''), 3000);
     };
@@ -227,10 +230,24 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
             "8": { "inputs": { "samples": ["3", 0], "vae": ["4", 2] }, "class_type": "VAEDecode" },
             "9": { "inputs": { "filename_prefix": "ChatExperience", "images": ["8", 0] }, "class_type": "SaveImage" }
         };
-        setSdUrl('http://127.0.0.1:8000');
+        setSdUrl(DEFAULT_SD_URL);
         setImageEngine('comfyui');
         setComfyWorkflow(JSON.stringify(workflow, null, 2));
+        localStorage.setItem('sdUrl', DEFAULT_SD_URL);
+        localStorage.setItem('imageEngine', 'comfyui');
+        localStorage.setItem('comfyWorkflow', JSON.stringify(workflow, null, 2));
         setSaveToast('⚡ ComfyUI Setup for SD 1.5!');
+        setTimeout(() => setSaveToast(''), 3000);
+    };
+
+    const handleQuickSetupPony = () => {
+        setSdUrl(DEFAULT_SD_URL);
+        setImageEngine('comfyui');
+        setComfyWorkflow(JSON.stringify(DEFAULT_PONY_WORKFLOW, null, 2));
+        localStorage.setItem('sdUrl', DEFAULT_SD_URL);
+        localStorage.setItem('imageEngine', 'comfyui');
+        localStorage.setItem('comfyWorkflow', JSON.stringify(DEFAULT_PONY_WORKFLOW, null, 2));
+        setSaveToast('🦄 ComfyUI Setup for Pony V6 (Saved)!');
         setTimeout(() => setSaveToast(''), 3000);
     };
 
@@ -424,9 +441,10 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
 
                 <div style={{ marginBottom: '2rem', background: 'rgba(192, 132, 252, 0.05)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(192, 132, 252, 0.2)' }}>
                     <h3 style={{ margin: '0 0 1rem 0', color: '#c084fc', fontSize: '1rem' }}>ComfyUI Quick Setup</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                        <button onClick={handleQuickSetupComfyUI} style={{ background: 'linear-gradient(135deg, #ec4899 0%, #c084fc 100%)', color: 'white', border: 'none', padding: '0.6rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Setup SDXL</button>
-                        <button onClick={handleQuickSetupSD15} style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid #22c55e', padding: '0.6rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Setup SD 1.5</button>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
+                        <button onClick={handleQuickSetupComfyUI} style={{ background: 'linear-gradient(135deg, #ec4899 0%, #c084fc 100%)', color: 'white', border: comfyWorkflow.includes('Juggernaut') ? '2px solid white' : '2px solid transparent', boxShadow: comfyWorkflow.includes('Juggernaut') ? '0 0 15px rgba(236,72,153,0.5)' : 'none', padding: '0.6rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s', filter: comfyWorkflow.includes('Juggernaut') ? 'brightness(1.1)' : 'brightness(0.9)' }}>Setup SDXL</button>
+                        <button onClick={handleQuickSetupPony} style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)', color: 'white', border: comfyWorkflow.includes('PONY') ? '2px solid white' : '2px solid transparent', boxShadow: comfyWorkflow.includes('PONY') ? '0 0 15px rgba(139,92,246,0.5)' : 'none', padding: '0.6rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s', filter: comfyWorkflow.includes('PONY') ? 'brightness(1.1)' : 'brightness(0.9)' }}>Setup Pony V6</button>
+                        <button onClick={handleQuickSetupSD15} style={{ background: comfyWorkflow.includes('Realistic_Vision') ? 'rgba(34, 197, 94, 0.3)' : 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: comfyWorkflow.includes('Realistic_Vision') ? '2px solid #22c55e' : '1px solid #22c55e', boxShadow: comfyWorkflow.includes('Realistic_Vision') ? '0 0 15px rgba(34,197,94,0.4)' : 'none', padding: '0.6rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s' }}>Setup SD 1.5</button>
                     </div>
                 </div>
 

@@ -6,8 +6,8 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
     const isMounted = useRef(true);
 
     const generateSelfie = useCallback(async (prompt, aiMessageId) => {
-        const sdUrl = await db.getItem('settings', 'sdUrl') || DEFAULT_SD_URL;
-        const imageEngine = await db.getItem('settings', 'imageEngine') || DEFAULT_IMAGE_ENGINE;
+        const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
+        const imageEngine = localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE;
 
         const photoMsgId = aiMessageId + "_photo";
         setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: '*Sends a photo*', url: null }]);
@@ -41,13 +41,72 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                     throw new Error(`${imageEngine === 'drawthings' ? 'Draw Things' : 'A1111'} API error.`);
                 }
             } else if (imageEngine === 'comfyui') {
-                let comfyWorkflow = await db.getItem('settings', 'comfyWorkflow');
+                let comfyWorkflow = localStorage.getItem('comfyWorkflow');
                 if (!comfyWorkflow || !comfyWorkflow.includes('3')) {
                     comfyWorkflow = JSON.stringify(DEFAULT_COMFY_WORKFLOW);
                 }
 
+                const targetPrompt = `${charIdentity}, ${charAppearance}, ${prompt}`;
+                
+                let parsedPrompt = targetPrompt;
+                const loraRegex = /<lora:([^:>]+)(?::([0-9.]+))?>/g;
+                let loraMatches = [];
+                let match;
+                while ((match = loraRegex.exec(targetPrompt)) !== null) {
+                    loraMatches.push({ name: match[1], weight: match[2] ? parseFloat(match[2]) : 0.8 });
+                    parsedPrompt = parsedPrompt.replace(match[0], '');
+                }
+
                 const workflowObj = JSON.parse(comfyWorkflow);
-                if (workflowObj["6"]) workflowObj["6"].inputs.text = fullPrompt;
+                if (workflowObj["6"]) {
+                    if (workflowObj["6"].inputs.text.includes('__PROMPT__')) {
+                        workflowObj["6"].inputs.text = workflowObj["6"].inputs.text.replace('__PROMPT__', parsedPrompt);
+                    } else {
+                        workflowObj["6"].inputs.text = `masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ${parsedPrompt}`;
+                    }
+                }
+
+                // Dynamically inject LoRA nodes if tags were found
+                if (loraMatches.length > 0) {
+                    const ckptId = Object.keys(workflowObj).find(k => workflowObj[k].class_type === 'CheckpointLoaderSimple' || workflowObj[k].class_type === 'CheckpointLoader');
+                    if (ckptId) {
+                        let currentModelLink = [ckptId, 0];
+                        let currentClipLink = [ckptId, 1];
+                        
+                        let loraIdCounter = 900;
+                        for (const lora of loraMatches) {
+                            const newId = (loraIdCounter++).toString();
+                            workflowObj[newId] = {
+                                class_type: "LoraLoader",
+                                inputs: {
+                                    lora_name: lora.name,
+                                    strength_model: lora.weight,
+                                    strength_clip: lora.weight,
+                                    model: currentModelLink,
+                                    clip: currentClipLink
+                                }
+                            };
+                            currentModelLink = [newId, 0];
+                            currentClipLink = [newId, 1];
+                        }
+
+                        // Redirect all nodes that referenced the base checkpoint directly
+                        for (const [nodeId, nodeConfig] of Object.entries(workflowObj)) {
+                            if (parseInt(nodeId) >= 900) continue;
+                            if (!nodeConfig.inputs) continue;
+                            for (const [inputKey, inputValue] of Object.entries(nodeConfig.inputs)) {
+                                if (Array.isArray(inputValue)) {
+                                    if (inputValue[0] === ckptId && inputValue[1] === 0) {
+                                        workflowObj[nodeId].inputs[inputKey] = currentModelLink;
+                                    } else if (inputValue[0] === ckptId && inputValue[1] === 1) {
+                                        workflowObj[nodeId].inputs[inputKey] = currentClipLink;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 if (workflowObj["3"]) workflowObj["3"].inputs.seed = Math.floor(Math.random() * 1000000);
 
                 const queueRes = await fetch(`${sdUrl.replace(/\/$/, '')}/prompt`, {

@@ -36,36 +36,70 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                 Describe exactly what you want to see. The character's current appearance and location will be added automatically.
                             </p>
                             
-                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '1rem' }}>
-                                {[
-                                    { label: "Bounce", text: "standing nude, heavy breasts bouncing up and down, rhythmic jiggling" },
-                                    { label: "Squeeze", text: "hands reaching in and squeezing heavy breasts together, fingers digging in" },
-                                    { label: "Missionary", text: " missionary position, rhythmic grinding, eye contact" },
-                                    { label: "Oral Sex", text: "performing oral sex, head moving up and down, intense eye contact" },
-                                    { label: "From Behind", text: "bent over, view from behind, massive cock entering, rhythmic thrusting" },
-                                    { label: "Bralette Off", text: "unhooking bralette, sliding straps off shoulders, breasts falling out" },
-                                    { label: "Bondage", text: "heavy breasts bound tight with rope, skin indentations, erotic" }
-                                ].map((act, i) => (
-                                    <button
-                                        key={i}
-                                        onClick={() => setPrompt(prev => prev ? `${prev}, ${act.text}` : act.text)}
-                                        style={{
-                                            background: 'rgba(251, 191, 36, 0.1)',
-                                            border: '1px solid rgba(251, 191, 36, 0.2)',
-                                            color: '#fbbf24',
-                                            padding: '4px 10px',
-                                            borderRadius: '8px',
-                                            fontSize: '0.75rem',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s',
-                                            fontWeight: '600'
-                                        }}
-                                        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(251, 191, 36, 0.2)'; }}
-                                        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(251, 191, 36, 0.1)'; }}
-                                    >
-                                        {act.label}
-                                    </button>
-                                ))}
+                            <div style={{ marginBottom: '1rem' }}>
+                                <div style={{ color: '#fbbf24', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold' }}>Fun Outfits & Poses</div>
+                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                                    {[
+                                        { label: "Sheer Lace Dress", text: "wearing a highly transparent sheer black Italian designer lace dress WITHOUT LINGERIE, highly seductive" },
+                                        { label: "Transparent Saree", text: "wearing a highly seductive, transparent party wear saree without blouse" },
+                                        { label: "Library Nude", text: "standing gracefully by a large window in a grand mahogany-paneled library, nude portrait" },
+                                        { label: "Reclining Sexy", text: "reclining on a velvet chaise lounge in master suite, extremely attractive and seductive" }
+                                    ].map((act, i) => (
+                                        <button
+                                            key={`fun-${i}`}
+                                            onClick={() => setPrompt(prev => prev ? `${prev}, ${act.text}` : act.text)}
+                                            style={{
+                                                background: 'rgba(56, 189, 248, 0.1)',
+                                                border: '1px solid rgba(56, 189, 248, 0.2)',
+                                                color: '#38bdf8',
+                                                padding: '4px 10px',
+                                                borderRadius: '8px',
+                                                fontSize: '0.75rem',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s',
+                                                fontWeight: '600'
+                                            }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(56, 189, 248, 0.2)'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(56, 189, 248, 0.1)'; }}
+                                        >
+                                            {act.label}
+                                        </button>
+                                    ))}
+                                </div>
+                                
+                                <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold' }}>Explicit Actions</div>
+                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                    {[
+                                        { label: "Nude Penetration", text: "close up on lower body, ((thick erect cock deeply penetrating pussy:1.5)), (insertion:1.3), ((pussy lips stretching around cock:1.4)), wet glistening skin, lubrication, extreme detail of labia and genitals, highly detailed skin texture, silk bedsheets <lora:ossplnskFT15rs4.safetensors:0.8>" },
+                                        { label: "Gangbang", text: "5 naked men, one woman, surrounded by men, multiple penises, gangbang, buckeye, messy, facial, breast-splattered, internal creampie, group sex, extreme detail, masterpiece, dark basement studio <lora:gngsrrmphFT15.safetensors:0.8>" },
+                                        { label: "Cumshot", text: "close up on face and massive breasts, ((thick viscous white cum splattered all over face and boobs:1.5)), (cum dripping from lips:1.3), messy face, glazed eyes, highly detailed skin texture, pearl necklace, masterpiece, bathroom mirror background <lora:orlpvmltlnccFT15.safetensors:0.8>" },
+                                        { label: "Cowgirl", text: "facing viewer, sitting on cock, (vaginal penetration:1.4), cock in pussy, cowgirl position, bouncing, extreme detail of labia and genitals, in a luxury bedroom, velvet headboard <lora:ossplnskFT15rs4.safetensors:0.8>" },
+                                        { label: "Boobs Squeezing", text: "close up on torso, ((hands firmly squeezing and squishing breasts:1.4)), ((fingers sinking deep into breast skin:1.3)), deep cleavage, (breast deformation:1.2), red skin marks from pressure, highly detailed skin texture, sweat, luxury penthouse bedroom <lora:phbjcrsc.safetensors:0.8>" },
+                                        { label: "Missionary", text: "POV, missionary position, (vaginal penetration:1.4), legs wrapped around waist, eye contact, intense expression, sweat on skin, intimate, on a massive silk bed, master suite <lora:mssncopFT15.safetensors:0.8>" },
+                                        { label: "Oral Sex", text: "close up on face, (deepthroat:1.4), sucking cock, mouth full, saliva, looking up at camera, (gagging:0.8), messy hair, in a private mahogany office, executive office desk <lora:orlpvmltlnccFT15.safetensors:0.8>" },
+                                        { label: "Bounce", text: "(breasts bounce:1.4), standing nude, (heavy breasts:1.2), (bouncing up and down:1.2), rhythmic jiggling, expressive motion, highly detailed physics, soft body dynamics" }
+                                    ].map((act, i) => (
+                                        <button
+                                            key={`exp-${i}`}
+                                            onClick={() => setPrompt(prev => prev ? `${prev}, ${act.text}` : act.text)}
+                                            style={{
+                                                background: 'rgba(239, 68, 68, 0.1)',
+                                                border: '1px solid rgba(239, 68, 68, 0.2)',
+                                                color: '#ef4444',
+                                                padding: '4px 10px',
+                                                borderRadius: '8px',
+                                                fontSize: '0.75rem',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s',
+                                                fontWeight: '600'
+                                            }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'; }}
+                                        >
+                                            {act.label}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
 
                             <textarea
