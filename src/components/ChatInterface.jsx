@@ -138,9 +138,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         handleClearChatLogic();
     };
 
-    const handleConfirmSelfie = (prompt) => {
+    const handleConfirmSelfie = (prompt, aspectRatio) => {
         setIsSelfiePromptOpen(false);
-        generateSelfie(prompt, Date.now().toString());
+        generateSelfie(prompt, Date.now().toString(), aspectRatio);
     };
 
     const handleSelectSuggestion = (text) => {

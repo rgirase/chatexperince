@@ -4,10 +4,12 @@ import { Camera, X, Wand2 } from 'lucide-react';
 
 const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
     const [prompt, setPrompt] = useState("");
+    const [aspectRatio, setAspectRatio] = useState('portrait');
 
     const handleSubmit = () => {
-        onConfirm(prompt);
+        onConfirm(prompt, aspectRatio);
         setPrompt("");
+        onClose();
     };
 
     return (
@@ -83,7 +85,14 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                         { label: "Reverse Cowgirl", text: "rear view, sitting on cock, reverse cowgirl, (vaginal penetration:1.4), looking back at viewer over shoulder, arching back, seductive gaze, on a penthouse rooftop balcony, sunset skyline <lora:rvcgcoopcclnFT15.safetensors:0.8>" },
                                         { label: "Double Penetration", text: "3 naked people, (double penetration:1.5), one cock in pussy, one cock in ass, simultaneous insertion, extreme detail, group sex, in a luxury penthouse suite, city lights <lora:mmdmltFT15.safetensors:0.8>" },
                                         { label: "Breast Bondage", text: "close up on torso, (breast bondage:1.5), ropes around breasts, (clover clamps:0.7), skin indentation, red rope marks, (topped:1.2), in a dark BDSM studio, leather gear in background <lora:breast_bondage_v2.safetensors:0.8>" },
-                                        { label: "Bralette Off", text: "front view, (removing clothes:1.4), taking off bralette, pulling up top, (topless:1.2), revealed breasts, seductive smile, on a grand estate balcony, moonlight <lora:bralette-off.safetensors:0.8>" }
+                                        { label: "Bralette Off", text: "front view, (removing clothes:1.4), taking off bralette, pulling up top, (topless:1.2), revealed breasts, seductive smile, on a grand estate balcony, moonlight <lora:bralette-off.safetensors:0.8>" },
+                                        { label: "Titjob", text: "close up on breasts, (paizuri:1.5), cock between breasts, rubbing, highly detailed skin texture, sweat, flushed face" },
+                                        { label: "Creampie (Internal)", text: "close up on crotch, (creampie:1.5), thick white cum leaking from pussy, gaping, extreme detail of labia, legs spread wide, messy, intimate" },
+                                        { label: "Masturbation", text: "close up on lower body, (fingering pussy:1.4), female masturbation, two fingers inserted, glistening wet labia, intense expression, arched back" },
+                                        { label: "69 Position", text: "(69 position:1.5), mutual oral sex, faces buried in genitals, intricate posing, extreme detail, on luxurious satin sheets" },
+                                        { label: "Facial Cumshot", text: "close up on face, (facial cumshot:1.5), thick cum splattered across cheeks and nose, closed eyes, tongue out, messy, highly detailed masterpiece" },
+                                        { label: "Spanking", text: "rear view, (spanking:1.4), bright red handprint on bare ass, (bent over:1.2), crying in pleasure, tears, bdsm, detailed skin marks" },
+                                        { label: "Groping", text: "two hands aggressively grabbing large breasts from behind, (breast grab:1.4), skin indentation, surprised expression, (from behind:1.2)" }
                                     ].map((act, i) => (
                                         <button
                                             key={`exp-${i}`}
@@ -103,6 +112,39 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                             onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'; }}
                                         >
                                             {act.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <div style={{ color: '#c084fc', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold' }}>Aspect Ratio</div>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    {[
+                                        { id: 'portrait', label: '📱 Portrait', desc: 'Tall' },
+                                        { id: 'landscape', label: '🖥️ Landscape', desc: 'Wide' },
+                                        { id: 'square', label: '🔲 Square', desc: '1:1' }
+                                    ].map(ar => (
+                                        <button
+                                            key={ar.id}
+                                            onClick={() => setAspectRatio(ar.id)}
+                                            style={{
+                                                flex: 1,
+                                                padding: '10px 5px',
+                                                borderRadius: '8px',
+                                                border: aspectRatio === ar.id ? '2px solid #c084fc' : '1px solid #3f3f46',
+                                                background: aspectRatio === ar.id ? 'rgba(192, 132, 252, 0.2)' : 'rgba(255,255,255,0.05)',
+                                                color: aspectRatio === ar.id ? 'white' : '#a1a1aa',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                gap: '4px'
+                                            }}
+                                        >
+                                            <span style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{ar.label}</span>
+                                            <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>{ar.desc}</span>
                                         </button>
                                     ))}
                                 </div>

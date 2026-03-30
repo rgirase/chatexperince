@@ -5,7 +5,7 @@ import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_COMFY_WORKFLOW } from '..
 export const useImageGeneration = (persona, setMessages, showToast) => {
     const isMounted = useRef(true);
 
-    const generateSelfie = useCallback(async (prompt, aiMessageId) => {
+    const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait') => {
         const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
         const imageEngine = localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE;
 
@@ -22,6 +22,11 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
             let base64Image = null;
 
             if (imageEngine === 'a1111' || imageEngine === 'drawthings') {
+                let genWidth = 512;
+                let genHeight = 768;
+                if (aspectRatio === 'landscape') { genWidth = 768; genHeight = 512; }
+                else if (aspectRatio === 'square') { genWidth = 512; genHeight = 512; }
+
                 const response = await fetch(`${sdUrl.replace(/\/$/, '')}/sdapi/v1/txt2img`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -29,8 +34,8 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                         prompt: fullPrompt,
                         negative_prompt: negativePrompt,
                         steps: 20,
-                        width: 512,
-                        height: 768
+                        width: genWidth,
+                        height: genHeight
                     })
                 });
 
@@ -58,6 +63,17 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 }
 
                 const workflowObj = JSON.parse(comfyWorkflow);
+
+                if (workflowObj["5"] && workflowObj["5"].class_type === "EmptyLatentImage") {
+                    const isSD15 = workflowObj["5"].inputs.width === 512 || workflowObj["5"].inputs.height === 512 || workflowObj["5"].inputs.height === 768;
+                    if (isSD15) {
+                        workflowObj["5"].inputs.width = aspectRatio === 'landscape' ? 768 : (aspectRatio === 'square' ? 512 : 512);
+                        workflowObj["5"].inputs.height = aspectRatio === 'landscape' ? 512 : (aspectRatio === 'square' ? 512 : 768);
+                    } else {
+                        workflowObj["5"].inputs.width = aspectRatio === 'landscape' ? 1216 : (aspectRatio === 'square' ? 1024 : 832);
+                        workflowObj["5"].inputs.height = aspectRatio === 'landscape' ? 832 : (aspectRatio === 'square' ? 1024 : 1216);
+                    }
+                }
                 if (workflowObj["6"]) {
                     if (workflowObj["6"].inputs.text.includes('__PROMPT__')) {
                         workflowObj["6"].inputs.text = workflowObj["6"].inputs.text.replace('__PROMPT__', parsedPrompt);
