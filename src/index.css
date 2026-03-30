@@ -129,6 +129,7 @@ body {
   padding: 2rem;
   flex: 1;
   overflow-y: auto;
+  padding-bottom: 151px; /* Ensure space for bottom nav and last cards */
 }
 
 .persona-header {
@@ -251,7 +252,7 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 80px; /* Offset for bottom navigation bar on all devices */
   background-color: var(--bg-color);
   z-index: 10;
   overflow-x: hidden;
@@ -1106,7 +1107,7 @@ body {
   }
 
   .chat-container {
-    bottom: calc(70px + env(safe-area-inset-bottom));
+    bottom: calc(75px + env(safe-area-inset-bottom));
   }
 
   .input-area {

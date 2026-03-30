@@ -35,6 +35,39 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                             <p style={{ color: '#ccc', fontSize: '0.9rem', marginBottom: '1rem' }}>
                                 Describe exactly what you want to see. The character's current appearance and location will be added automatically.
                             </p>
+                            
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                                {[
+                                    { label: "Bounce", text: "standing nude, heavy breasts bouncing up and down, rhythmic jiggling" },
+                                    { label: "Squeeze", text: "hands reaching in and squeezing heavy breasts together, fingers digging in" },
+                                    { label: "Missionary", text: " missionary position, rhythmic grinding, eye contact" },
+                                    { label: "Oral Sex", text: "performing oral sex, head moving up and down, intense eye contact" },
+                                    { label: "From Behind", text: "bent over, view from behind, massive cock entering, rhythmic thrusting" },
+                                    { label: "Bralette Off", text: "unhooking bralette, sliding straps off shoulders, breasts falling out" },
+                                    { label: "Bondage", text: "heavy breasts bound tight with rope, skin indentations, erotic" }
+                                ].map((act, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => setPrompt(prev => prev ? `${prev}, ${act.text}` : act.text)}
+                                        style={{
+                                            background: 'rgba(251, 191, 36, 0.1)',
+                                            border: '1px solid rgba(251, 191, 36, 0.2)',
+                                            color: '#fbbf24',
+                                            padding: '4px 10px',
+                                            borderRadius: '8px',
+                                            fontSize: '0.75rem',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s',
+                                            fontWeight: '600'
+                                        }}
+                                        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(251, 191, 36, 0.2)'; }}
+                                        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(251, 191, 36, 0.1)'; }}
+                                    >
+                                        {act.label}
+                                    </button>
+                                ))}
+                            </div>
+
                             <textarea
                                 value={prompt}
                                 onChange={(e) => setPrompt(e.target.value)}
@@ -46,7 +79,7 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                     borderRadius: '12px',
                                     color: 'white',
                                     padding: '1rem',
-                                    height: '120px',
+                                    height: '100px',
                                     fontSize: '1rem',
                                     outline: 'none',
                                     resize: 'none',

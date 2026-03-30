@@ -39,4 +39,6 @@ if ($portProcess) {
 }
 
 # Run
-& $PYTHON $MAIN_PY --listen 0.0.0.0 --port 8000 --enable-cors-header --extra-model-paths-config $EXTRA_CONFIG --input-directory $INPUT_DIR --output-directory $OUTPUT_DIR --user-directory $USER_DIR
+# Run
+# Run
+& $PYTHON $MAIN_PY --listen 0.0.0.0 --port 8000 --enable-cors-header --force-fp16 --fp16-vae --fp16-text-enc --extra-model-paths-config $EXTRA_CONFIG --input-directory $INPUT_DIR --output-directory $OUTPUT_DIR --user-directory $USER_DIR

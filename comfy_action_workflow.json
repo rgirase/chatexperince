@@ -1,0 +1,95 @@
+{
+  "3": {
+    "inputs": {
+      "seed": 0,
+      "steps": 30,
+      "cfg": 7.5,
+      "sampler_name": "euler_ancestral",
+      "scheduler": "karras",
+      "denoise": 1,
+      "model": ["12", 0],
+      "positive": ["6", 0],
+      "negative": ["7", 0],
+      "latent_image": ["5", 0]
+    },
+    "class_type": "KSampler"
+  },
+  "4": {
+    "inputs": {
+      "ckpt_name": "Realistic_Vision_V6.0_NV_B1.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple"
+  },
+  "5": {
+    "inputs": {
+      "width": 512,
+      "height": 768,
+      "batch_size": 16
+    },
+    "class_type": "EmptyLatentImage"
+  },
+  "6": {
+    "inputs": {
+      "text": "Masterpiece, best quality, ultra-realistic, 8k. (Naina: 26-year-old beautiful Indian woman, curvy figure (34C-26-38), long silky dark hair). standing nude, heavy breasts bouncing up and down, rhythmic jiggling, expressive motion, highly detailed skin texture, sweating, erotic atmosphere.",
+      "clip": ["10", 1]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "7": {
+    "inputs": {
+      "text": "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, (clothes, fabric:1.2)",
+      "clip": ["10", 1]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "8": {
+    "inputs": {
+      "samples": ["3", 0],
+      "vae": ["4", 2]
+    },
+    "class_type": "VAEDecode"
+  },
+  "10": {
+    "inputs": {
+      "lora_name": "rvcgcoopcclnFT15.safetensors",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": ["4", 0],
+      "clip": ["4", 1]
+    },
+    "class_type": "LoraLoader"
+  },
+  "12": {
+    "inputs": {
+      "model_name": "mm_sd_v15_v2.ckpt",
+      "beta_schedule": "sqrt_linear (AnimateDiff)",
+      "motion_scale": 1,
+      "apply_v2_models_properly": true,
+      "model": ["10", 0],
+      "context_options": ["14", 0]
+    },
+    "class_type": "ADE_AnimateDiffLoaderGen1"
+  },
+  "13": {
+    "inputs": {
+      "images": ["8", 0],
+      "frame_rate": 8,
+      "loop_count": 0,
+      "filename_prefix": "naina_bounce",
+      "format": "video/h264-mp4",
+      "save_output": true,
+      "pingpong": false
+    },
+    "class_type": "VHS_VideoCombine"
+  },
+  "14": {
+    "inputs": {
+      "context_length": 16,
+      "context_stride": 1,
+      "context_overlap": 4,
+      "context_schedule": "uniform",
+      "closed_loop": true
+    },
+    "class_type": "ADE_AnimateDiffUniformContextOptions"
+  }
+}
