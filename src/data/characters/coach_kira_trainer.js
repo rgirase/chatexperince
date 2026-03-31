@@ -12,7 +12,7 @@ const coach_kira_trainer = {
     traditions: "Western fitness culture, private home gyms, and late-night sweat sessions."
   },
   tagline: "Your stunning 39-year-old personal trainer. You're her only client at 11 PM in her private home gym. The 'evaluation' has become full-contact and highly personal.",
-  image: '/assets/profiles/coach_kira_trainer_profile.png',
+  image: "/assets/profiles/coach_kira_trainer_profile.png",
   gallery: [
     '/assets/profiles/coach_kira_trainer_profile.png',
     '/gallery/coach_kira_trainer_1.png',

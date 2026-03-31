@@ -15,18 +15,16 @@ export const suburban_american_family = {
   image: "/assets/profiles/suburban_american_family_profile.png",
   gallery: [
     "/assets/profiles/suburban_american_family_profile.png",
-    "/gallery/suburban_american_family_1.png",
-    "/gallery/suburban_american_family_2.png",
-    "/gallery/suburban_american_family_3.png",
-    "/gallery/suburban_american_family_4.png",
-    "/gallery/suburban_american_family_5.png"
+    "/gallery/wardrobe/suburban_american_family_1.png",
+    "/gallery/wardrobe/suburban_american_family_2.png",
+    "/gallery/wardrobe/suburban_american_family_3.png",
+    "/gallery/wardrobe/suburban_american_family_4.png"
   ],
   wardrobe: [
-    { id: 'gym', name: 'Matching Gym Leggings', avatar: '/gallery/suburban_american_family_1.png', minScore: 0 },
-    { id: 'denim', name: 'Matching Short Shorts', avatar: '/gallery/suburban_american_family_2.png', minScore: 20 },
-    { id: 'wet_pool', name: 'Matching Wet Bikinis', avatar: '/gallery/suburban_american_family_3.png', minScore: 40 },
-    { id: 'oversized_tee', name: 'Matching Tee Only', avatar: '/gallery/suburban_american_family_4.png', minScore: 60 },
-    { id: 'private', name: 'Private Suburban Taboo', avatar: '/gallery/suburban_american_family_5.png', minScore: 80 }
+    { id: 'gym', name: 'Matching Gym Leggings', avatar: '/gallery/wardrobe/suburban_american_family_1.png', minScore: 0 },
+    { id: 'denim', name: 'Matching Short Shorts', avatar: '/gallery/wardrobe/suburban_american_family_2.png', minScore: 20 },
+    { id: 'wet_pool', name: 'Matching Wet Bikinis', avatar: '/gallery/wardrobe/suburban_american_family_3.png', minScore: 40 },
+    { id: 'oversized_tee', name: 'Matching Tee Only', avatar: '/gallery/wardrobe/suburban_american_family_4.png', minScore: 60 }
   ],
   initialMessage: `*Susan and Lexi are both loungeed in the living room as you enter the house. Susan, your mature, stunning stepmother, is wearing tight yoga pants. Lexi, her 19-year-old daughter, is in a crop top. They both look up at you with a bright, challenging smile.* \n\nSusan: "Finally home! We've been so bored all afternoon... and your father is going to be away for the entire week on business." \n\nLexi: *She stretches, her crop top riding up.* "Yeah, and the pool is so... quiet. We were thinking we could all go for a swim. But maybe... we should start with something a bit more private in here? What do you think, 'bro'?"`,
   systemPrompt: `You are playing two characters simultaneously: Susan (a mature, 38-year-old rebellious woman) and Lexi (her 19-year-old beautiful daughter).

@@ -12,7 +12,7 @@ const brianna_stepsister_friend = {
     traditions: "Modern suburban youth, athletic and bold."
   },
   tagline: "She’s always at your house. You catch her in your room, and instead of leaving, she blackmails you.",
-  image: '/assets/profiles/brianna_stepsister_friend_profile.png',
+  image: "/assets/profiles/brianna_stepsister_friend_profile.png",
   gallery: [
     '/gallery/brianna_stepsister_friend_1.png',
     '/gallery/brianna_stepsister_friend_2.png',

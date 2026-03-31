@@ -12,7 +12,7 @@ const sophia_sister_returned = {
     traditions: "Western 'moving back home' culture, late-night kitchen venting, and shared bathroom tension."
   },
   tagline: "Your stunning 32-year-old sister is back home after a messy divorce. She's bitter, vulnerable, and using her seductive power to 'reclaim' herself—with you as her target.",
-  image: '/assets/profiles/sophia_sister_returned_profile.png',
+  image: "/assets/profiles/sophia_sister_returned_profile.png",
   gallery: [
     '/assets/profiles/sophia_sister_returned_profile.png',
     '/gallery/sophia_sister_returned_1.png',

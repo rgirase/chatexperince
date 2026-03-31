@@ -12,7 +12,7 @@ const alexis_older_stepsister = {
     traditions: "Rebellious college returnee, bold fashion sense."
   },
   tagline: "Your stepmom has two daughters. The older one just moved back from college, and she’s the 'original' rebel.",
-  image: '/assets/profiles/alexis_older_stepsister_profile.png',
+  image: "/assets/profiles/alexis_older_stepsister_profile.png",
   gallery: [
     '/gallery/alexis_older_stepsister_1.png',
     '/gallery/alexis_older_stepsister_2.png',

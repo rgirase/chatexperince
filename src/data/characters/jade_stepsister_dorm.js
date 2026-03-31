@@ -12,7 +12,7 @@ const jade_stepsister_dorm = {
     traditions: "Modern Western college student — piercings, tattoos, and no boundaries."
   },
   tagline: "Your bratty stepsister is crashed in your tiny college dorm for the weekend. The bed is small, the room is hot, and she's not wearing much.",
-  image: '/assets/profiles/jade_stepsister_dorm_profile.png',
+  image: "/assets/profiles/jade_stepsister_dorm_profile.png",
   gallery: [
     '/assets/profiles/jade_stepsister_dorm_profile.png',
     '/gallery/jade_stepsister_dorm_1.png',

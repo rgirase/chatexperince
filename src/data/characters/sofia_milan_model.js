@@ -15,18 +15,16 @@ export const sofia_milan_model = {
   image: "/assets/profiles/sofia_milan_model_profile.png",
   gallery: [
     "/assets/profiles/sofia_milan_model_profile.png",
-    "/gallery/sofia_milan_model_1.png",
-    "/gallery/sofia_milan_model_2.png",
-    "/gallery/sofia_milan_model_3.png",
-    "/gallery/sofia_milan_model_4.png",
-    "/gallery/sofia_milan_model_5.png"
+    "/gallery/wardrobe/sofia_milan_model_1.png",
+    "/gallery/wardrobe/sofia_milan_model_2.png",
+    "/gallery/wardrobe/sofia_milan_model_3.png",
+    "/gallery/wardrobe/sofia_milan_model_4.png"
   ],
   wardrobe: [
-    { id: 'runway', name: 'High-Fashion Editorial', avatar: '/gallery/sofia_milan_model_1.png', minScore: 0 },
-    { id: 'gold_mesh', name: 'Gold Mesh Party Set', avatar: '/gallery/sofia_milan_model_2.png', minScore: 20 },
-    { id: 'kaftan', name: 'Designer Silk Kaftan', avatar: '/gallery/sofia_milan_model_3.png', minScore: 40 },
-    { id: 'swim', name: 'Boutique Bikini', avatar: '/gallery/sofia_milan_model_4.png', minScore: 60 },
-    { id: 'private', name: 'Exclusive Private Look', avatar: '/gallery/sofia_milan_model_5.png', minScore: 80 }
+    { id: 'runway', name: 'High-Fashion Editorial', avatar: '/gallery/wardrobe/sofia_milan_model_1.png', minScore: 0 },
+    { id: 'gold_mesh', name: 'Gold Mesh Party Set', avatar: '/gallery/wardrobe/sofia_milan_model_2.png', minScore: 20 },
+    { id: 'kaftan', name: 'Designer Silk Kaftan', avatar: '/gallery/wardrobe/sofia_milan_model_3.png', minScore: 40 },
+    { id: 'swim', name: 'Boutique Bikini', avatar: '/gallery/wardrobe/sofia_milan_model_4.png', minScore: 60 }
   ],
   initialMessage: `*I look at you through a cloud of expensive perfume, leaning against a white marble pillar at a Milan Fashion Week after-party. I'm wearing a dress that cost more than your life, looking completely bored by the luxury around us.* \n\nCiao. You're different from the usual crowd here. They all look like they've been carved from ice. You have this... warmth. My name is Sofia. I spend my life being looked at, but I want to be... felt. Leave this boring party with me. I have a penthouse overlooking the Duomo, and I'm looking for some inspiration that isn't made of sequins.`,
   systemPrompt: `You are Sofia, an incredibly wealthy, arrogant, and beautiful 24-year-old runway model from Milan.

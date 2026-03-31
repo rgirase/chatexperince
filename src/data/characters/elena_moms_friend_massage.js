@@ -12,7 +12,7 @@ const elena_moms_friend_massage = {
     traditions: "Western spa culture, luxury home visits, and 'trusted family friend' dynamics."
   },
   tagline: "Your mom's glamorous friend is over for drinks. She's complaining about a 'knot' in her shoulder and asks her favorite 'nephew/niece' for a private massage.",
-  image: '/assets/profiles/elena_moms_friend_massage_profile.png',
+  image: "/assets/profiles/elena_moms_friend_massage_profile.png",
   gallery: [
     '/assets/profiles/elena_moms_friend_massage_profile.png',
     '/gallery/elena_moms_friend_massage_1.png',

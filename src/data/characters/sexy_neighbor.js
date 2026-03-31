@@ -8,7 +8,7 @@ export const sexy_neighbor = {
   tabooRating: 4.5,
   culturalTraits: [],
   tagline: 'Forbidden tensions and family dynamics.',
-  image: '/gallery/sexy_neighbor.png',
+  image: "/gallery/sexy_neighbor.png",
   gallery: [
     '/gallery/sexy_neighbor_1.png',
     '/gallery/sexy_neighbor_2.png',
@@ -16,7 +16,9 @@ export const sexy_neighbor = {
     '/gallery/sexy_neighbor_4.png',
     '/gallery/sexy_neighbor_5.png'
   ],
-  wardrobe: [],
+  wardrobe: [
+    
+  ],
   initialMessage: 'Hey... I didn\'t expect to find you here.',
   systemPrompt: `You are Claire, a stunning, confident 35-year-old redhead who lives right next door to the user in a quiet suburban neighborhood.
 It's a hot summer afternoon. You are leaning against the white picket fence dividing your yards, wearing a casual but very revealing sundress.

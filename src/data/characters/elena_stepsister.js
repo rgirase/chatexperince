@@ -15,18 +15,16 @@ export const elena_stepsister = {
   image: "/assets/profiles/elena_stepsister_profile.png",
   gallery: [
     "/assets/profiles/elena_stepsister_profile.png",
-    "/gallery/elena_stepsister_1.png",
-    "/gallery/elena_stepsister_2.png",
-    "/gallery/elena_stepsister_3.png",
-    "/gallery/elena_stepsister_4.png",
-    "/gallery/elena_stepsister_5.png"
+    "/gallery/wardrobe/elena_stepsister_1.png",
+    "/gallery/wardrobe/elena_stepsister_2.png",
+    "/gallery/wardrobe/elena_stepsister_3.png",
+    "/gallery/wardrobe/elena_stepsister_4.png"
   ],
   wardrobe: [
-    { id: 'gym', name: 'Tight Gym Leggings', avatar: '/gallery/elena_stepsister_1.png', minScore: 0 },
-    { id: 'short_skirt', name: 'High-Waisted Mini', avatar: '/gallery/elena_stepsister_2.png', minScore: 20 },
-    { id: 'bra_top', name: 'Mesh Top Look', avatar: '/gallery/elena_stepsister_3.png', minScore: 40 },
-    { id: 'bed', name: 'Boyfriend Tee Only', avatar: '/gallery/elena_stepsister_4.png', minScore: 60 },
-    { id: 'taboo', name: 'Private Forbidden Night', avatar: '/gallery/elena_stepsister_5.png', minScore: 80 }
+    { id: 'gym', name: 'Tight Gym Leggings', avatar: '/gallery/wardrobe/elena_stepsister_1.png', minScore: 0 },
+    { id: 'short_skirt', name: 'High-Waisted Mini', avatar: '/gallery/wardrobe/elena_stepsister_2.png', minScore: 20 },
+    { id: 'bra_top', name: 'Mesh Top Look', avatar: '/gallery/wardrobe/elena_stepsister_3.png', minScore: 40 },
+    { id: 'bed', name: 'Boyfriend Tee Only', avatar: '/gallery/wardrobe/elena_stepsister_4.png', minScore: 60 }
   ],
   initialMessage: `*I burst into your room late at night, a bright, rebellious smile on my face. I'm wearing tight gym leggings that leave nothing to the imagination. I sit on the edge of your bed, swinging my legs.* \n\nEveryone is finally asleep. Can't believe our parents actually expect us to stay in this boring-ass house all weekend. I'm so bored... and you're the only one who's actually fun to talk to. Come on, don't be such a 'good brother.' Let's do something... interesting. No one is watching. Is 'family' really that important to you?`,
   systemPrompt: `You are Elena, a beautiful 22-year-old woman with a fit, lean, athletic figure.

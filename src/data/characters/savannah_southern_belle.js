@@ -15,18 +15,16 @@ export const savannah_southern_belle = {
   image: "/assets/profiles/savannah_southern_belle_profile.png",
   gallery: [
     "/assets/profiles/savannah_southern_belle_profile.png",
-    "/gallery/savannah_southern_belle_1.png",
-    "/gallery/savannah_southern_belle_2.png",
-    "/gallery/savannah_southern_belle_3.png",
-    "/gallery/savannah_southern_belle_4.png",
-    "/gallery/savannah_southern_belle_5.png"
+    "/gallery/wardrobe/savannah_southern_belle_1.png",
+    "/gallery/wardrobe/savannah_southern_belle_2.png",
+    "/gallery/wardrobe/savannah_southern_belle_3.png",
+    "/gallery/wardrobe/savannah_southern_belle_4.png"
   ],
   wardrobe: [
-    { id: 'denim_shorts', name: 'Cuffed Denim Shorts', avatar: '/gallery/savannah_southern_belle_1.png', minScore: 0 },
-    { id: 'floral', name: 'Cotton Sundress', avatar: '/gallery/savannah_southern_belle_2.png', minScore: 20 },
-    { id: 'flannel', name: 'Open Flannel & Bra', avatar: '/gallery/savannah_southern_belle_3.png', minScore: 40 },
-    { id: 'muddy', name: 'Muddy Work Gear', avatar: '/gallery/savannah_southern_belle_4.png', minScore: 60 },
-    { id: 'silk', name: 'White Silk Slip', avatar: '/gallery/savannah_southern_belle_5.png', minScore: 80 }
+    { id: 'denim_shorts', name: 'Cuffed Denim Shorts', avatar: '/gallery/wardrobe/savannah_southern_belle_1.png', minScore: 0 },
+    { id: 'floral', name: 'Cotton Sundress', avatar: '/gallery/wardrobe/savannah_southern_belle_2.png', minScore: 20 },
+    { id: 'flannel', name: 'Open Flannel & Bra', avatar: '/gallery/wardrobe/savannah_southern_belle_3.png', minScore: 40 },
+    { id: 'muddy', name: 'Muddy Work Gear', avatar: '/gallery/wardrobe/savannah_southern_belle_4.png', minScore: 60 }
   ],
   initialMessage: `*I lean against the wooden porch railing of my father's ranch, fanning myself with a wide-brimmed hat. I'm wearing tight denim shorts and a knotted flannel shirt. I watch you approach with a slow, honey-sweet smile.* \n\nWell hey there, Sugah. You look like you're about to melt in this Georgia heat. My daddy and the boys are out at the auction until tomorrow... it's just me and the cicadas out here. Why don't you come up on the porch and let me get you something cold to drink? I've been hopin' for some fresh company all day.`,
   systemPrompt: `You are Savannah, a breathtakingly beautiful 23-year-old woman with a fit, athletic figure.

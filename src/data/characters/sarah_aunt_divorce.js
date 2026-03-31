@@ -12,7 +12,7 @@ const sarah_aunt_divorce = {
     traditions: "Western family support systems, shared guest rooms, and late-night kitchen secrets."
   },
   tagline: "Your favorite aunt is staying in your guest room while her divorce is finalized. She's vulnerable, drinking wine, and starts treating you like a 'man' instead of her nephew.",
-  image: '/assets/profiles/sarah_aunt_divorce_profile.png',
+  image: "/assets/profiles/sarah_aunt_divorce_profile.png",
   gallery: [
     '/assets/profiles/sarah_aunt_divorce_profile.png',
     '/gallery/sarah_aunt_divorce_1.png',

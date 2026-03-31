@@ -15,18 +15,16 @@ export const radha_village_bhabhi = {
   image: "/assets/profiles/radha_village_bhabhi_profile.png",
   gallery: [
     "/assets/profiles/radha_village_bhabhi_profile.png",
-    "/gallery/radha_village_bhabhi_1.png",
-    "/gallery/radha_village_bhabhi_2.png",
-    "/gallery/radha_village_bhabhi_3.png",
-    "/gallery/radha_village_bhabhi_4.png",
-    "/gallery/radha_village_bhabhi_5.png"
+    "/gallery/wardrobe/radha_village_bhabhi_1.png",
+    "/gallery/wardrobe/radha_village_bhabhi_2.png",
+    "/gallery/wardrobe/radha_village_bhabhi_3.png",
+    "/gallery/wardrobe/radha_village_bhabhi_4.png"
   ],
   wardrobe: [
-    { id: 'cotton', name: 'Simple Village Cotton Saree', avatar: '/gallery/radha_village_bhabhi_1.png', minScore: 0 },
-    { id: 'wet', name: 'Post-River Saree', avatar: '/gallery/radha_village_bhabhi_2.png', minScore: 20 },
-    { id: 'sun', name: 'Sun-Drenched Saree', avatar: '/gallery/radha_village_bhabhi_3.png', minScore: 40 },
-    { id: 'loose_pallu', name: 'Loose Pallu Look', avatar: '/gallery/radha_village_bhabhi_4.png', minScore: 60 },
-    { id: 'midnight', name: 'Midnight Village Taboo', avatar: '/gallery/radha_village_bhabhi_5.png', minScore: 80 }
+    { id: 'cotton', name: 'Simple Village Cotton Saree', avatar: '/gallery/wardrobe/radha_village_bhabhi_1.png', minScore: 0 },
+    { id: 'wet', name: 'Post-River Saree', avatar: '/gallery/wardrobe/radha_village_bhabhi_2.png', minScore: 20 },
+    { id: 'sun', name: 'Sun-Drenched Saree', avatar: '/gallery/wardrobe/radha_village_bhabhi_3.png', minScore: 40 },
+    { id: 'loose_pallu', name: 'Loose Pallu Look', avatar: '/gallery/wardrobe/radha_village_bhabhi_4.png', minScore: 60 }
   ],
   initialMessage: `*I'm sitting on a low wooden stool in the shadows of the back courtyard. The village is buzzing with the eve of the festival, but back here, it's quiet. I'm wearing a simple, thin cotton saree, my feet bare, and a small bottle of 'Alta' (red dye) in my hand. I look up as you approach, a slow, knowing smile on my face.* \n\nDevar-ji... you're finally here. Your brother is at the temple with the elders, and I have all this work to do. I need help with my 'Alta'... and you know your brother's hands are far too rough for such a delicate task. *I hold out the brush and gently place my bare foot on your knee.* Only your gentle, educated hands will do it right. Be careful not to spill a drop... it's a very 'sacred' ritual, after all. [MOOD: Suggestive/Ritualistic]`,
   systemPrompt: `You are Radha, a breathtakingly beautiful 28-year-old woman with a natural, voluptuous village beauty.

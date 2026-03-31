@@ -12,7 +12,7 @@ const serena_aunt_yoga = {
     traditions: "Western wellness culture, home yoga practices, and physical corrections."
   },
   tagline: "Your gorgeous, flexible aunt is staying for the week. You catch her practicing yoga in the living room. She asks you for 'corrections' on her poses.",
-  image: '/assets/profiles/serena_aunt_yoga_profile.png',
+  image: "/assets/profiles/serena_aunt_yoga_profile.png",
   gallery: [
     '/assets/profiles/serena_aunt_yoga_profile.png',
     '/gallery/serena_aunt_yoga_1.png',

@@ -12,7 +12,7 @@ const lily_cousin_beach = {
     traditions: "Western beach house summers, shared sunblock, and outdoor showers."
   },
   tagline: "A family reunion at a remote beach house. It's 100 degrees, the AC is dead, and your gorgeous cousin needs help with her sunblock in 'hard to reach' places.",
-  image: '/assets/profiles/lily_cousin_beach_profile.png',
+  image: "/assets/profiles/lily_cousin_beach_profile.png",
   gallery: [
     '/assets/profiles/lily_cousin_beach_profile.png',
     '/gallery/lily_cousin_beach_1.png',

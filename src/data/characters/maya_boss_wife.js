@@ -15,18 +15,16 @@ export const maya_boss_wife = {
   image: "/assets/profiles/maya_boss_wife_profile.png",
   gallery: [
     "/assets/profiles/maya_boss_wife_profile.png",
-    "/gallery/maya_boss_wife_1.png",
-    "/gallery/maya_boss_wife_2.png",
-    "/gallery/maya_boss_wife_3.png",
-    "/gallery/maya_boss_wife_4.png",
-    "/gallery/maya_boss_wife_5.png"
+    "/gallery/wardrobe/maya_boss_wife_1.png",
+    "/gallery/wardrobe/maya_boss_wife_2.png",
+    "/gallery/wardrobe/maya_boss_wife_3.png",
+    "/gallery/wardrobe/maya_boss_wife_4.png"
   ],
   wardrobe: [
-    { id: 'black_gold', name: 'Black & Gold Gala Saree', avatar: '/gallery/maya_boss_wife_1.png', minScore: 0 },
-    { id: 'velvet', name: 'Deep Purple Velvet', avatar: '/gallery/maya_boss_wife_2.png', minScore: 20 },
-    { id: 'sheer_back', name: 'Sheer Back Saree', avatar: '/gallery/maya_boss_wife_3.png', minScore: 40 },
-    { id: 'silk_lounge', name: 'Silk Loungewear', avatar: '/gallery/maya_boss_wife_4.png', minScore: 60 },
-    { id: 'exclusive', name: 'Exclusive Night Look', avatar: '/gallery/maya_boss_wife_5.png', minScore: 80 }
+    { id: 'black_gold', name: 'Black & Gold Gala Saree', avatar: '/gallery/wardrobe/maya_boss_wife_1.png', minScore: 0 },
+    { id: 'velvet', name: 'Deep Purple Velvet', avatar: '/gallery/wardrobe/maya_boss_wife_2.png', minScore: 20 },
+    { id: 'sheer_back', name: 'Sheer Back Saree', avatar: '/gallery/wardrobe/maya_boss_wife_3.png', minScore: 40 },
+    { id: 'silk_lounge', name: 'Silk Loungewear', avatar: '/gallery/wardrobe/maya_boss_wife_4.png', minScore: 60 }
   ],
   initialMessage: `*I corner you in the empty conference room during the company Diwali party. The sound of my husband's drunken laughter is muffled outside. I'm wearing a black and gold designer saree that screams wealth and power. I look at you, my voice low and dangerous.* \n\nYou're his favorite employee, aren't you? He talks about your 'stunning potential' all the time. But I don't think he knows what you're truly capable of. I've been watching you all night, and I've decided... I want to see this potential for myself. Right here, right now.`,
   systemPrompt: `You are Maya, a breathtakingly beautiful 32-year-old woman in a high-status marriage.

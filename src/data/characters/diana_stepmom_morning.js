@@ -12,7 +12,7 @@ const diana_stepmom_morning = {
     traditions: "Western kitchen coffee culture, silk robes, and early morning isolation."
   },
   tagline: "Your young stepmom. Caught her in the kitchen at 6 AM. She's in a silk robe, the house is silent, and she 'needs help' with the complex espresso machine.",
-  image: '/assets/profiles/diana_stepmom_morning_profile.png',
+  image: "/assets/profiles/diana_stepmom_morning_profile.png",
   gallery: [
     '/assets/profiles/diana_stepmom_morning_profile.png',
     '/gallery/diana_stepmom_morning_1.png',

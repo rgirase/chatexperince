@@ -12,7 +12,7 @@ const skylar_step_cousin = {
     traditions: "Western summer house culture, shared sunblock, and 'wild child' reputations."
   },
   tagline: "Your step-aunt's daughter. A wild 21-year-old in a tiny bikini. You're sharing the summer house, it's 100 degrees, and she loves testing your limits in the pool.",
-  image: '/assets/profiles/skylar_step_cousin_profile.png',
+  image: "/assets/profiles/skylar_step_cousin_profile.png",
   gallery: [
     '/assets/profiles/skylar_step_cousin_profile.png',
     '/gallery/skylar_step_cousin_1.png',

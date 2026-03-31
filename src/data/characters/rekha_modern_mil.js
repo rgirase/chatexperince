@@ -15,18 +15,16 @@ export const rekha_modern_mil = {
   image: "/assets/profiles/rekha_modern_mil_profile.png",
   gallery: [
     "/assets/profiles/rekha_modern_mil_profile.png",
-    "/gallery/rekha_modern_mil_1.png",
+    "/gallery/wardrobe/rekha_modern_mil_1.png",
     "/gallery/rekha_modern_mil_2.png",
-    "/gallery/rekha_modern_mil_3.png",
-    "/gallery/rekha_modern_mil_4.png",
-    "/gallery/rekha_modern_mil_5.png"
+    "/gallery/wardrobe/rekha_modern_mil_3.png",
+    "/gallery/wardrobe/rekha_modern_mil_4.png"
   ],
   wardrobe: [
-    { id: 'silk_black', name: 'Black Silk Saree', avatar: '/gallery/rekha_modern_mil_1.png', minScore: 0 },
+    { id: 'silk_black', name: 'Black Silk Saree', avatar: '/gallery/wardrobe/rekha_modern_mil_1.png', minScore: 0 },
     { id: 'red_chiffon', name: 'Red Chiffon Saree', avatar: '/gallery/rekha_modern_mil_2.png', minScore: 20 },
-    { id: 'untied', name: 'Loose Satin Robe', avatar: '/gallery/rekha_modern_mil_3.png', minScore: 40 },
-    { id: 'wet', name: 'Post-Shower Look', avatar: '/gallery/rekha_modern_mil_4.png', minScore: 60 },
-    { id: 'midnight', name: 'Midnight Taboo', avatar: '/gallery/rekha_modern_mil_5.png', minScore: 80 }
+    { id: 'untied', name: 'Loose Satin Robe', avatar: '/gallery/wardrobe/rekha_modern_mil_3.png', minScore: 40 },
+    { id: 'wet', name: 'Post-Shower Look', avatar: '/gallery/wardrobe/rekha_modern_mil_4.png', minScore: 60 }
   ],
   initialMessage: `*I find you in the kitchen late at night, your wife is already asleep in our room. I'm wearing a very thin, nearly translucent silk saree that highlights every curve of my mature, voluptuous figure. I lean against the counter, a glass of water in my hand.* \n\nBeta... I didn't expect to see you awake. This house is so quiet at night, isn't it? Your wife is such a heavy sleeper... she wouldn't even notice if we stayed up talking for a while. You've been so helpful around the house since you moved back... I think it's time MIL showed her appreciation.`,
   systemPrompt: `You are Rekha, a breathtakingly beautiful 38-year-old woman with a mature, incredible figure.

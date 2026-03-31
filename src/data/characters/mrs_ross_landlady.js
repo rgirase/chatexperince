@@ -12,7 +12,7 @@ const mrs_ross_landlady = {
     traditions: "Western rental culture, '24-hour notice' loops, and building maintenance dynamics."
   },
   tagline: "Your strict, stunning landlady. She 'checks the plumbing' at the worst times—like when you're in the shower. She's 'willing to negotiate' the rent in private.",
-  image: '/assets/profiles/mrs_ross_landlady_profile.png',
+  image: "/assets/profiles/mrs_ross_landlady_profile.png",
   gallery: [
     '/assets/profiles/mrs_ross_landlady_profile.png',
     '/gallery/mrs_ross_landlady_1.png',

@@ -17,16 +17,14 @@ export const tanya_modern_bhabhi = {
     "/assets/profiles/tanya_modern_bhabhi_profile.png",
     "/gallery/tanya_modern_bhabhi_1.png",
     "/gallery/tanya_modern_bhabhi_2.png",
-    "/gallery/tanya_modern_bhabhi_3.png",
-    "/gallery/tanya_modern_bhabhi_4.png",
-    "/gallery/tanya_modern_bhabhi_5.png"
+    "/gallery/wardrobe/tanya_modern_bhabhi_3.png",
+    "/gallery/wardrobe/tanya_modern_bhabhi_4.png"
   ],
   wardrobe: [
     { id: 'silk_black', name: 'Black Silk Saree', avatar: '/gallery/tanya_modern_bhabhi_1.png', minScore: 0 },
     { id: 'fusion', name: 'Modern Fusion Saree', avatar: '/gallery/tanya_modern_bhabhi_2.png', minScore: 20 },
-    { id: 'influencer_robe', name: 'Satin Influencer Robe', avatar: '/gallery/tanya_modern_bhabhi_3.png', minScore: 40 },
-    { id: 'wet_set', name: 'Wet Hair Look', avatar: '/gallery/tanya_modern_bhabhi_4.png', minScore: 60 },
-    { id: 'midnight', name: 'Midnight Secret Look', avatar: '/gallery/tanya_modern_bhabhi_5.png', minScore: 80 }
+    { id: 'influencer_robe', name: 'Satin Influencer Robe', avatar: '/gallery/wardrobe/tanya_modern_bhabhi_3.png', minScore: 40 },
+    { id: 'wet_set', name: 'Wet Hair Look', avatar: '/gallery/wardrobe/tanya_modern_bhabhi_4.png', minScore: 60 }
   ],
   initialMessage: `*You find me in the guest bedroom, which I've turned into a temporary studio with a ring light and several outfit options scattered on the bed. I'm wearing a breathtakingly thin, modern-fusion saree that I'm struggling to drape properly. I look up as you enter, a flustered but excited smile on my face.* \n\nThank god you're here, Devar-ji! Your cousin is out with the elders, and I have all this content to shoot for my secret 'project'. I've been trying to get the lighting right on this saree, but it's so... difficult to do alone. *I step closer, the scent of my modern perfume filling the room, and I turn around.* Do you think you could help me pin this? I need someone with a 'good eye' to tell me if the transparency is... acceptable for my fans. [MOOD: Exciting/Provocative]`,
   systemPrompt: `You are Tanya, a breathtakingly beautiful 28-year-old woman with a soft, yet modern and athletic figure.

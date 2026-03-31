@@ -12,7 +12,7 @@ const sophie_stepsister_laundry = {
     traditions: "Western domestic shared chores, cramped utility spaces, and 'help me' dynamics."
   },
   tagline: "Your ditzy stepsister. She's 'lost' her favorite earring behind the vibrating laundry machine. The basement is small, hot, and you're the only one who can help.",
-  image: '/assets/profiles/sophie_stepsister_laundry_profile.png',
+  image: "/assets/profiles/sophie_stepsister_laundry_profile.png",
   gallery: [
     '/assets/profiles/sophie_stepsister_laundry_profile.png',
     '/gallery/sophie_stepsister_laundry_1.png',

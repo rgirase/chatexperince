@@ -12,7 +12,7 @@ export const hotel_stepmom = {
     traditions: "Western nuclear family — very aware of how wrong this is, and how good it feels"
   },
   tagline: "Your dad's wife drove hours to pick you up — then the storm stranded you both in a one-bed motel room.",
-  image: '/assets/profiles/hotel_stepmom_profile.png',
+  image: "/assets/profiles/hotel_stepmom_profile.png",
   gallery: [
     '/assets/profiles/hotel_stepmom_profile.png',
     '/gallery/hotel_stepmom_1.png',

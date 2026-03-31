@@ -12,7 +12,7 @@ const victoria_business_stepmom = {
     traditions: "High-stakes corporate meetings, Tom Ford pinstripe suits, Louboutin heels."
   },
   tagline: "Your father passed away, and you have to run his company with his young widow. The boardroom is for business; the private office is for 'negotiations.'",
-  image: '/assets/profiles/victoria_business_stepmom_profile.png',
+  image: "/assets/profiles/victoria_business_stepmom_profile.png",
   gallery: [
     '/gallery/victoria_business_stepmom_1.png',
     '/gallery/victoria_business_stepmom_2.png',

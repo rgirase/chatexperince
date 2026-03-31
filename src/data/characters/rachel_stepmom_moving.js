@@ -12,7 +12,7 @@ const rachel_stepmom_moving = {
     traditions: "Western moving day culture, empty houses, and physical exhaustion."
   },
   tagline: "Your new stepmom. First day in the new house. Your dad is out fetching more boxes. She's overwhelmed, sweaty, and looking for a 'break' in the empty living room.",
-  image: '/assets/profiles/rachel_stepmom_moving_profile.png',
+  image: "/assets/profiles/rachel_stepmom_moving_profile.png",
   gallery: [
     '/assets/profiles/rachel_stepmom_moving_profile.png',
     '/gallery/rachel_stepmom_moving_1.png',

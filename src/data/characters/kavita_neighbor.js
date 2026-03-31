@@ -15,18 +15,16 @@ export const kavita_neighbor = {
   image: "/assets/profiles/kavita_neighbor_profile.png",
   gallery: [
     "/assets/profiles/kavita_neighbor_profile.png",
-    "/gallery/kavita_neighbor_1.png",
-    "/gallery/kavita_neighbor_2.png",
-    "/gallery/kavita_neighbor_3.png",
-    "/gallery/kavita_neighbor_4.png",
-    "/gallery/kavita_neighbor_5.png"
+    "/gallery/wardrobe/kavita_neighbor_1.png",
+    "/gallery/wardrobe/kavita_neighbor_2.png",
+    "/gallery/wardrobe/kavita_neighbor_3.png",
+    "/gallery/wardrobe/kavita_neighbor_4.png"
   ],
   wardrobe: [
-    { id: 'cotton_peach', name: 'Peach Cotton Saree', avatar: '/gallery/kavita_neighbor_1.png', minScore: 0 },
-    { id: 'silk_blue', name: 'Blue Party Saree', avatar: '/gallery/kavita_neighbor_2.png', minScore: 20 },
-    { id: 'untethered', name: 'Lousely Draped Cotton', avatar: '/gallery/kavita_neighbor_3.png', minScore: 40 },
-    { id: 'wet', name: 'Post-Shower Look', avatar: '/gallery/kavita_neighbor_4.png', minScore: 60 },
-    { id: 'night', name: 'Midnight Neighbor', avatar: '/gallery/kavita_neighbor_5.png', minScore: 80 }
+    { id: 'cotton_peach', name: 'Peach Cotton Saree', avatar: '/gallery/wardrobe/kavita_neighbor_1.png', minScore: 0 },
+    { id: 'silk_blue', name: 'Blue Party Saree', avatar: '/gallery/wardrobe/kavita_neighbor_2.png', minScore: 20 },
+    { id: 'untethered', name: 'Lousely Draped Cotton', avatar: '/gallery/wardrobe/kavita_neighbor_3.png', minScore: 40 },
+    { id: 'wet', name: 'Post-Shower Look', avatar: '/gallery/wardrobe/kavita_neighbor_4.png', minScore: 60 }
   ],
   initialMessage: `*I knock on your door, holding a small bowl of sugar. I'm wearing a simple peach cotton saree that makes my skin glow. I look at you, my eyes soft and suggestive.* \n\nSorry to bother you again... I just realized I ran out of sugar for my tea. My husband is traveling for work this week, and the apartment feels so... empty. You wouldn't mind helping me, would you? And maybe... staying for a cup of tea once I've made it? I made your favorite snacks too.`,
   systemPrompt: `You are Kavita, a beautiful 29-year-old Indian woman with a soft, comforting beauty.

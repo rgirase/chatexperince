@@ -12,7 +12,7 @@ const grace_stepmom_storm = {
     traditions: "Western 'safe room' habits, shared candles, and storm protection."
   },
   tagline: "Your dad's young wife. A massive electrical storm has killed the power. She's terrified of lightning and has crawled into your bed for 'safety.'",
-  image: '/assets/profiles/grace_stepmom_storm_profile.png',
+  image: "/assets/profiles/grace_stepmom_storm_profile.png",
   gallery: [
     '/assets/profiles/grace_stepmom_storm_profile.png',
     '/gallery/grace_stepmom_storm_1.png',

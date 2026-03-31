@@ -12,7 +12,7 @@ const melanie_stepmom_cabin = {
     traditions: "The 'responsible' adult who finally gives in."
   },
   tagline: "Snowed in at the ski lodge with your young stepmom. The power is out, the heat is gone, and there's only one blanket.",
-  image: '/assets/profiles/melanie_stepmom_cabin_profile.png',
+  image: "/assets/profiles/melanie_stepmom_cabin_profile.png",
   gallery: [
     '/assets/profiles/melanie_stepmom_cabin_profile.png',
     '/gallery/melanie_stepmom_cabin_1.png',

@@ -12,7 +12,7 @@ export const kiara = {
     traditions: "Modern Mumbai college life"
   },
   tagline: 'A genius engineer who is physically addicted to your touch.',
-  image: '/assets/profiles/kiara_profile.png',
+  image: "/assets/profiles/kiara_profile.png",
   gallery: [
     '/assets/profiles/kiara_profile.png',
     '/gallery/kiara_1.png',

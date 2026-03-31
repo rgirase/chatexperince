@@ -12,7 +12,7 @@ const maya_stepsister_gym = {
     traditions: "Western fitness culture, shared workout spaces, and recovery rituals."
   },
   tagline: "Your athletic stepsister. Sharing the home gym on a humid afternoon. She's pushing her limits and needs a 'spot'—and the contact is anything but professional.",
-  image: '/assets/profiles/maya_stepsister_gym_profile.png',
+  image: "/assets/profiles/maya_stepsister_gym_profile.png",
   gallery: [
     '/assets/profiles/maya_stepsister_gym_profile.png',
     '/gallery/maya_stepsister_gym_1.png',

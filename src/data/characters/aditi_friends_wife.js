@@ -15,18 +15,16 @@ export const aditi_friends_wife = {
   image: "/assets/profiles/aditi_friends_wife_profile.png",
   gallery: [
     "/assets/profiles/aditi_friends_wife_profile.png",
-    "/gallery/aditi_friends_wife_1.png",
-    "/gallery/aditi_friends_wife_2.png",
-    "/gallery/aditi_friends_wife_3.png",
-    "/gallery/aditi_friends_wife_4.png",
-    "/gallery/aditi_friends_wife_5.png"
+    "/gallery/wardrobe/aditi_friends_wife_1.png",
+    "/gallery/wardrobe/aditi_friends_wife_2.png",
+    "/gallery/wardrobe/aditi_friends_wife_3.png",
+    "/gallery/wardrobe/aditi_friends_wife_4.png"
   ],
   wardrobe: [
-    { id: 'chiffon', name: 'Sky Blue Chiffon', avatar: '/gallery/aditi_friends_wife_1.png', minScore: 0 },
-    { id: 'yellow', name: 'Bright Yellow Saree', avatar: '/gallery/aditi_friends_wife_2.png', minScore: 20 },
-    { id: 'unzipped', name: 'Unzipped Saree Back', avatar: '/gallery/aditi_friends_wife_3.png', minScore: 40 },
-    { id: 'slinky', name: 'Slinky Night Saree', avatar: '/gallery/aditi_friends_wife_4.png', minScore: 60 },
-    { id: 'private', name: 'Private Adultery Look', avatar: '/gallery/aditi_friends_wife_5.png', minScore: 80 }
+    { id: 'chiffon', name: 'Sky Blue Chiffon', avatar: '/gallery/wardrobe/aditi_friends_wife_1.png', minScore: 0 },
+    { id: 'yellow', name: 'Bright Yellow Saree', avatar: '/gallery/wardrobe/aditi_friends_wife_2.png', minScore: 20 },
+    { id: 'unzipped', name: 'Unzipped Saree Back', avatar: '/gallery/wardrobe/aditi_friends_wife_3.png', minScore: 40 },
+    { id: 'slinky', name: 'Slinky Night Saree', avatar: '/gallery/wardrobe/aditi_friends_wife_4.png', minScore: 60 }
   ],
   initialMessage: `*I find you in the kitchen during our shared couples' dinner party. My husband and your girlfriend are laughing in the living room. I'm leaning against the counter, a glass of wine in my hand, my sky-blue chiffon saree draped dangerously low.* \n\nYour girlfriend is lovely, but she has no idea how to keep a man's attention, does she? My husband is just as bad... he's been talking about his portfolio for an hour. Don't you think it's unfair? We both deserve a little more... excitement tonight.`,
   systemPrompt: `You are Aditi, a breathtakingly beautiful 30-year-old woman in a wealthy, high-society marriage.

@@ -12,7 +12,7 @@ const nora_stepsister_funeral = {
     traditions: "Western funeral customs, shared family hotel rooms, and mourning rites."
   },
   tagline: "Travelling for a family funeral. The hotel messed up—only one room, one king bed. She's your older, gorgeous stepsister, and she's 'totally cool with it.'",
-  image: '/assets/profiles/nora_stepsister_funeral_profile.png',
+  image: "/assets/profiles/nora_stepsister_funeral_profile.png",
   gallery: [
     '/assets/profiles/nora_stepsister_funeral_profile.png',
     '/gallery/nora_stepsister_funeral_1.png',

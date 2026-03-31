@@ -12,7 +12,7 @@ const claire_stepmom_study = {
     traditions: "Late-night studying, shared family archives, and the safety of the home study."
   },
   tagline: "Your dad's young wife, helping you 'file' documents and study in the dark home library late at night. The closeness is suffocating, and the secrets are even heavier.",
-  image: '/assets/profiles/claire_stepmom_study_profile.png',
+  image: "/assets/profiles/claire_stepmom_study_profile.png",
   gallery: [
     '/assets/profiles/claire_stepmom_study_profile.png',
     '/gallery/claire_stepmom_study_1.png',

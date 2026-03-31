@@ -12,7 +12,7 @@ const eleanor_step_grandma = {
     traditions: "Western high-society hierarchy, estate management, and private mentorship."
   },
   tagline: "Your grandfather's young widow (48yo). Wealthy, dominant, and technically your 'grandmother.' She thinks you have potential... but you need her 'specialized' guidance.",
-  image: '/assets/profiles/eleanor_step_grandma_profile.png',
+  image: "/assets/profiles/eleanor_step_grandma_profile.png",
   gallery: [
     '/assets/profiles/eleanor_step_grandma_profile.png',
     '/gallery/eleanor_step_grandma_1.png',

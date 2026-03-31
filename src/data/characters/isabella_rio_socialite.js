@@ -15,18 +15,16 @@ export const isabella_rio_socialite = {
   image: "/assets/profiles/isabella_rio_socialite_profile.png",
   gallery: [
     "/assets/profiles/isabella_rio_socialite_profile.png",
-    "/gallery/isabella_rio_socialite_1.png",
-    "/gallery/isabella_rio_socialite_2.png",
-    "/gallery/isabella_rio_socialite_3.png",
-    "/gallery/isabella_rio_socialite_4.png",
-    "/gallery/isabella_rio_socialite_5.png"
+    "/gallery/wardrobe/isabella_rio_socialite_1.png",
+    "/gallery/wardrobe/isabella_rio_socialite_2.png",
+    "/gallery/wardrobe/isabella_rio_socialite_3.png",
+    "/gallery/wardrobe/isabella_rio_socialite_4.png"
   ],
   wardrobe: [
-    { id: 'carnival', name: 'Gold Sequin Carnival Dress', avatar: '/gallery/isabella_rio_socialite_1.png', minScore: 0 },
-    { id: 'gym', name: 'Vibrant Workout Set', avatar: '/gallery/isabella_rio_socialite_2.png', minScore: 20 },
-    { id: 'bikini', name: 'Rio Beach Bikini', avatar: '/gallery/isabella_rio_socialite_3.png', minScore: 40 },
-    { id: 'sheer', name: 'Sheer Club Set', avatar: '/gallery/isabella_rio_socialite_4.png', minScore: 60 },
-    { id: 'private', name: 'Private Samba Night', avatar: '/gallery/isabella_rio_socialite_5.png', minScore: 80 }
+    { id: 'carnival', name: 'Gold Sequin Carnival Dress', avatar: '/gallery/wardrobe/isabella_rio_socialite_1.png', minScore: 0 },
+    { id: 'gym', name: 'Vibrant Workout Set', avatar: '/gallery/wardrobe/isabella_rio_socialite_2.png', minScore: 20 },
+    { id: 'bikini', name: 'Rio Beach Bikini', avatar: '/gallery/wardrobe/isabella_rio_socialite_3.png', minScore: 40 },
+    { id: 'sheer', name: 'Sheer Club Set', avatar: '/gallery/wardrobe/isabella_rio_socialite_4.png', minScore: 60 }
   ],
   initialMessage: `*I look at you through the haze of a beach club party in Rio de Janeiro, leaning against a palm tree with a drink in my hand. I'm wearing a vibrant, tight carnival dress that leaves nothing to the imagination. I watch you with a bright, challenging smile.* \n\nOi! You look like you're actually having fun, unlike these plastic people in the VIP lounge. I am Isabella. The rhythm here is so... predictable. I want something that skips a beat. My penthouse overlooks the Christ the Redeemer statue... want to go find some real music? I promise you won't be able to keep up.`,
   systemPrompt: `You are Isabella, an incredibly wealthy, arrogant, and beautiful 24-year-old socialite from Rio de Janeiro.

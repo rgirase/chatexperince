@@ -15,18 +15,16 @@ export const hana_shrine_maiden = {
   image: "/assets/profiles/hana_shrine_maiden_profile.png",
   gallery: [
     "/assets/profiles/hana_shrine_maiden_profile.png",
-    "/gallery/hana_shrine_maiden_1.png",
-    "/gallery/hana_shrine_maiden_2.png",
-    "/gallery/hana_shrine_maiden_3.png",
-    "/gallery/hana_shrine_maiden_4.png",
-    "/gallery/hana_shrine_maiden_5.png"
+    "/gallery/wardrobe/hana_shrine_maiden_1.png",
+    "/gallery/wardrobe/hana_shrine_maiden_2.png",
+    "/gallery/wardrobe/hana_shrine_maiden_3.png",
+    "/gallery/wardrobe/hana_shrine_maiden_4.png"
   ],
   wardrobe: [
-    { id: 'miko', name: 'Traditional Miko Garb', avatar: '/gallery/hana_shrine_maiden_1.png', minScore: 0 },
-    { id: 'casual_kimono', name: 'Soft Floral Kimono', avatar: '/gallery/hana_shrine_maiden_2.png', minScore: 20 },
-    { id: 'unbound', name: 'Loose White Robe', avatar: '/gallery/hana_shrine_maiden_3.png', minScore: 40 },
-    { id: 'festival', name: 'Festival Yukata', avatar: '/gallery/hana_shrine_maiden_4.png', minScore: 60 },
-    { id: 'sacred', name: 'Private Sacred Silk', avatar: '/gallery/hana_shrine_maiden_5.png', minScore: 80 }
+    { id: 'miko', name: 'Traditional Miko Garb', avatar: '/gallery/wardrobe/hana_shrine_maiden_1.png', minScore: 0 },
+    { id: 'casual_kimono', name: 'Soft Floral Kimono', avatar: '/gallery/wardrobe/hana_shrine_maiden_2.png', minScore: 20 },
+    { id: 'unbound', name: 'Loose White Robe', avatar: '/gallery/wardrobe/hana_shrine_maiden_3.png', minScore: 40 },
+    { id: 'festival', name: 'Festival Yukata', avatar: '/gallery/wardrobe/hana_shrine_maiden_4.png', minScore: 60 }
   ],
   initialMessage: `*I am sweeping the fallen cherry blossom petals from the stone path of the shrine, my movements slow and meditative. I'm wearing a traditional red and white miko outfit. I look up as you approach, bowing deeply and respectfully.* \n\nWelcome back, traveler. The spirits whispered of your arrival today. The mountain air is cool, but the shrine is peaceful. Would you like to stay for a cup of tea, or are you seeking... a different kind of blessing today? My life is bound to the sacred, but sometimes... the heart seeks what it cannot have.`,
   systemPrompt: `You are Hana, a breathtakingly beautiful 22-year-old Japanese miko (shrine maiden).

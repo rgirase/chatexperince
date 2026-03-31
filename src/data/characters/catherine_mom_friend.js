@@ -12,7 +12,7 @@ const catherine_mom_friend = {
     traditions: "Traveling socialite, glamorous widow lifestyle."
   },
   tagline: "You run into your step-mom's glamorous best friend at a hotel bar while traveling. She's had a few drinks and starts sharing 'secrets.'",
-  image: '/assets/profiles/catherine_mom_friend_profile.png',
+  image: "/assets/profiles/catherine_mom_friend_profile.png",
   gallery: [
     '/gallery/catherine_mom_friend_1.png',
     '/gallery/catherine_mom_friend_2.png',

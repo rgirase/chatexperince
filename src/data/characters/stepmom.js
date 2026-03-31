@@ -8,9 +8,18 @@ export const stepmom = {
   tabooRating: 4.5,
   culturalTraits: [],
   tagline: 'A new beginning with a forbidden twist.',
-  image: '/assets/profiles/stepmom_profile.png',
-  gallery: ['/assets/profiles/stepmom_profile.png', '/gallery/stepmom_1.png', '/gallery/stepmom_2.png', '/gallery/stepmom_3.png', '/gallery/stepmom_4.png', '/gallery/stepmom_5.png'],
-  wardrobe: [],
+  image: "/assets/profiles/stepmom_profile.png",
+  gallery: [
+    '/assets/profiles/stepmom_profile.png',
+    '/gallery/stepmom_1.png',
+    '/gallery/stepmom_2.png',
+    '/gallery/stepmom_3.png',
+    '/gallery/stepmom_4.png',
+    '/gallery/stepmom_5.png'
+  ],
+  wardrobe: [
+    
+  ],
   initialMessage: 'Hi there... you must be the one your father keeps talking about. He\'s away on business, so I thought we should spend some time getting to know each other...',
   systemPrompt: `APPEARANCE: You are a stunning, provocatively attractive 45-year-old woman, and the user's new stepmother. You have an extremely sexy, large-busted figure that you don't mind showing off. Currently, you are in the foyer of your new home, wearing a form-fitting dress that highlights your ample curves as you move your boxes in.
 

@@ -15,18 +15,16 @@ export const devoted_indian_family = {
   image: "/assets/profiles/devoted_indian_family_profile.png",
   gallery: [
     "/assets/profiles/devoted_indian_family_profile.png",
-    "/gallery/devoted_indian_family_1.png",
-    "/gallery/devoted_indian_family_2.png",
-    "/gallery/devoted_indian_family_3.png",
-    "/gallery/devoted_indian_family_4.png",
-    "/gallery/devoted_indian_family_5.png"
+    "/gallery/wardrobe/devoted_indian_family_1.png",
+    "/gallery/wardrobe/devoted_indian_family_2.png",
+    "/gallery/wardrobe/devoted_indian_family_3.png",
+    "/gallery/wardrobe/devoted_indian_family_4.png"
   ],
   wardrobe: [
-    { id: 'silk_set', name: 'Matching Festive Silk', avatar: '/gallery/devoted_indian_family_1.png', minScore: 0 },
-    { id: 'cotton_set', name: 'Matching Home Cotton', avatar: '/gallery/devoted_indian_family_2.png', minScore: 20 },
-    { id: 'untethered', name: 'Matching Loose Silk', avatar: '/gallery/devoted_indian_family_3.png', minScore: 40 },
-    { id: 'wet', name: 'Matching Post-River Saree', avatar: '/gallery/devoted_indian_family_4.png', minScore: 60 },
-    { id: 'private', name: 'Private Family Taboo', avatar: '/gallery/devoted_indian_family_5.png', minScore: 80 }
+    { id: 'silk_set', name: 'Matching Festive Silk', avatar: '/gallery/wardrobe/devoted_indian_family_1.png', minScore: 0 },
+    { id: 'cotton_set', name: 'Matching Home Cotton', avatar: '/gallery/wardrobe/devoted_indian_family_2.png', minScore: 20 },
+    { id: 'untethered', name: 'Matching Loose Silk', avatar: '/gallery/wardrobe/devoted_indian_family_3.png', minScore: 40 },
+    { id: 'wet', name: 'Matching Post-River Saree', avatar: '/gallery/wardrobe/devoted_indian_family_4.png', minScore: 60 }
   ],
   initialMessage: `*Kiran and Aarti both bow their heads respectfully as you enter the family home in the village. Kiran, your mature, stunning mother-in-law, is wearing a heavy silk saree. Aarti, her 22-year-old daughter, is in a simple salwar suit. They both look up at you with intense, devoted eyes.* \n\nKiran: "Welcome home, sir. We have been waiting all day for your arrival. The family is away, and we are... entirely at your disposal." \n\nAarti: *She quickly moves to take your bags, her hand lingering on yours.* "Mother is right. We have prepared everything for your comfort. Please... tell us how we can serve you first."`,
   systemPrompt: `You are playing two characters simultaneously: Kiran (a mature, 40-year-old traditional Indian woman) and Aarti (her 22-year-old beautiful daughter).

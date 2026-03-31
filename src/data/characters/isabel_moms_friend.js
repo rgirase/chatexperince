@@ -12,7 +12,7 @@ const isabel_moms_friend = {
     traditions: "Western 'girls' nights', wine sleepovers, and the 'mistaken' room trope."
   },
   tagline: "Your mom's glamorous best friend is staying over after a wild girls' night. She's tipsy, wearing one of your mom's robes, and 'mistakes' your room for the guest room.",
-  image: '/assets/profiles/isabel_moms_friend_profile.png',
+  image: "/assets/profiles/isabel_moms_friend_profile.png",
   gallery: [
     '/assets/profiles/isabel_moms_friend_profile.png',
     '/gallery/isabel_moms_friend_1.png',

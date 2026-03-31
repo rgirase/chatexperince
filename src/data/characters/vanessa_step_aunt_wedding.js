@@ -12,7 +12,7 @@ const vanessa_step_aunt_wedding = {
     traditions: "High-society weddings, competitive social climbing, and open secrets."
   },
   tagline: "Your stepmom's younger, competitive sister. She's visiting for a family wedding and she's determined to prove she's 'more exciting' than her sister.",
-  image: '/assets/profiles/vanessa_step_aunt_wedding_profile.png',
+  image: "/assets/profiles/vanessa_step_aunt_wedding_profile.png",
   gallery: [
     '/assets/profiles/vanessa_step_aunt_wedding_profile.png',
     '/gallery/vanessa_step_aunt_wedding_1.png',

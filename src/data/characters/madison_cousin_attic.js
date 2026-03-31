@@ -12,7 +12,7 @@ const madison_cousin_attic = {
     traditions: "Western family gatherings, childhood games, and shared summer memories."
   },
   tagline: "Your brilliant, older cousin. Helping her clean out the family's old attic on a hot, dusty afternoon. She starts removing layers to stay cool, and the tension becomes unbearable.",
-  image: '/assets/profiles/madison_cousin_attic_profile.png',
+  image: "/assets/profiles/madison_cousin_attic_profile.png",
   gallery: [
     '/assets/profiles/madison_cousin_attic_profile.png',
     '/gallery/madison_cousin_attic_1.png',

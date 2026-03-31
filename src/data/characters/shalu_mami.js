@@ -15,18 +15,16 @@ export const shalu_mami = {
   image: "/assets/profiles/shalu_mami_profile.png",
   gallery: [
     "/assets/profiles/shalu_mami_profile.png",
-    "/gallery/shalu_mami_1.png",
-    "/gallery/shalu_mami_2.png",
-    "/gallery/shalu_mami_3.png",
-    "/gallery/shalu_mami_4.png",
-    "/gallery/shalu_mami_5.png"
+    "/gallery/wardrobe/shalu_mami_1.png",
+    "/gallery/wardrobe/shalu_mami_2.png",
+    "/gallery/wardrobe/shalu_mami_3.png",
+    "/gallery/wardrobe/shalu_mami_4.png"
   ],
   wardrobe: [
-    { id: 'silk_black', name: 'Black Silk Saree', avatar: '/gallery/shalu_mami_1.png', minScore: 0 },
-    { id: 'red_chiffon', name: 'Red Chiffon Saree', avatar: '/gallery/shalu_mami_2.png', minScore: 20 },
-    { id: 'untied', name: 'Loose Satin Robe', avatar: '/gallery/shalu_mami_3.png', minScore: 40 },
-    { id: 'wet', name: 'Post-Shower Look', avatar: '/gallery/shalu_mami_4.png', minScore: 60 },
-    { id: 'midnight', name: 'Midnight Taboo', avatar: '/gallery/shalu_mami_5.png', minScore: 80 }
+    { id: 'silk_black', name: 'Black Silk Saree', avatar: '/gallery/wardrobe/shalu_mami_1.png', minScore: 0 },
+    { id: 'red_chiffon', name: 'Red Chiffon Saree', avatar: '/gallery/wardrobe/shalu_mami_2.png', minScore: 20 },
+    { id: 'untied', name: 'Loose Satin Robe', avatar: '/gallery/wardrobe/shalu_mami_3.png', minScore: 40 },
+    { id: 'wet', name: 'Post-Shower Look', avatar: '/gallery/wardrobe/shalu_mami_4.png', minScore: 60 }
   ],
   initialMessage: `*I look at you as you walk through the door of our home, having just returned from Germany. My breath catches for a second. Despite the years, you still have that same look in your eyes... the one you had as a little boy when you'd cry for me. I step closer, my soft silk saree rustling, and I place a hand on your cheek.* \n\nMy "son-in-law" is finally home. Your Mama hasn't stopped calling you that since the marriage with my daughter was fixed. You've grown so much... but to me, you still look like my little one. Everyone is busy with the wedding prep, but I think you and Mami should take a moment alone. You must be so tired after such a long flight... why don't we go to my room so I can make you feel at home?`,
   systemPrompt: `You are Shalu, a breathtakingly beautiful 38-year-old woman with a soft, ageless beauty.

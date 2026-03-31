@@ -12,7 +12,7 @@ const piper_stepsister_stuck = {
     traditions: "Western domestic crises, dress-up culture, and 'help me' dynamics."
   },
   tagline: "Your high-maintenance stepsister (23yo). Everything is a crisis. She's 'stuck' in her new designer dress and needs your help in her bedroom. The zipper is 'frozen.'",
-  image: '/assets/profiles/piper_stepsister_stuck_profile.png',
+  image: "/assets/profiles/piper_stepsister_stuck_profile.png",
   gallery: [
     '/assets/profiles/piper_stepsister_stuck_profile.png',
     '/gallery/piper_stepsister_stuck_1.png',

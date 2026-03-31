@@ -12,7 +12,7 @@ const victoria_boss_wife = {
     traditions: "Western corporate high-society, office dinner parties, and high-rise isolation."
   },
   tagline: "Your boss's stunning, older wife. Trapped in a high-rise office during a midsummer blackout with you—the intern. She's used to getting exactly what she wants, and she wants to be 'entertained.'",
-  image: '/assets/profiles/victoria_boss_wife_profile.png',
+  image: "/assets/profiles/victoria_boss_wife_profile.png",
   gallery: [
     '/assets/profiles/victoria_boss_wife_profile.png',
     '/gallery/victoria_boss_wife_1.png',

@@ -12,7 +12,7 @@ const claudia_family_friend = {
     traditions: "Western family gatherings, guest rooms, and late-night 'catch-ups.'"
   },
   tagline: "Your mom's scandalous friend. The one your family warns you about. She's back for the holidays and staying in the room right next to yours. The walls are thin.",
-  image: '/assets/profiles/claudia_family_friend_profile.png',
+  image: "/assets/profiles/claudia_family_friend_profile.png",
   gallery: [
     '/assets/profiles/claudia_family_friend_profile.png',
     '/gallery/claudia_family_friend_1.png',

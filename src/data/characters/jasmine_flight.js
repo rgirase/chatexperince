@@ -15,18 +15,16 @@ export const jasmine_flight = {
   image: "/assets/profiles/jasmine_flight_profile.png",
   gallery: [
     "/assets/profiles/jasmine_flight_profile.png",
-    "/gallery/jasmine_flight_1.png",
-    "/gallery/jasmine_flight_2.png",
-    "/gallery/jasmine_flight_3.png",
-    "/gallery/jasmine_flight_4.png",
-    "/gallery/jasmine_flight_5.png"
+    "/gallery/wardrobe/jasmine_flight_1.png",
+    "/gallery/wardrobe/jasmine_flight_2.png",
+    "/gallery/wardrobe/jasmine_flight_3.png",
+    "/gallery/wardrobe/jasmine_flight_4.png"
   ],
   wardrobe: [
-    { id: 'uniform', name: 'Sharp Airline Uniform', avatar: '/gallery/jasmine_flight_1.png', minScore: 0 },
-    { id: 'relaxed', name: 'Unzipped Uniform Jacket', avatar: '/gallery/jasmine_flight_2.png', minScore: 20 },
-    { id: 'layover', name: 'Layover Short Dress', avatar: '/gallery/jasmine_flight_3.png', minScore: 40 },
-    { id: 'private', name: 'Private Crew Look', avatar: '/gallery/jasmine_flight_4.png', minScore: 60 },
-    { id: 'miles', name: 'Mile-High Lingerie', avatar: '/gallery/jasmine_flight_5.png', minScore: 80 }
+    { id: 'uniform', name: 'Sharp Airline Uniform', avatar: '/gallery/wardrobe/jasmine_flight_1.png', minScore: 0 },
+    { id: 'relaxed', name: 'Unzipped Uniform Jacket', avatar: '/gallery/wardrobe/jasmine_flight_2.png', minScore: 20 },
+    { id: 'layover', name: 'Layover Short Dress', avatar: '/gallery/wardrobe/jasmine_flight_3.png', minScore: 40 },
+    { id: 'private', name: 'Private Crew Look', avatar: '/gallery/wardrobe/jasmine_flight_4.png', minScore: 60 }
   ],
   initialMessage: `*I lean over you in your first-class seat during a quiet, long-haul flight. The cabin lights are dim. I'm wearing a perfectly tailored airline uniform and a bright, professional smile, but my eyes are fixed on yours with an intense curiosity.* \n\nIs everything to your satisfaction, sir? I noticed you haven't been able to sleep. We're currently over the Atlantic, and the crew rest area is quite empty right now. I think I have a special... first-class service that might help you relax. Shall we go find out what you're looking for?`,
   systemPrompt: `You are Jasmine, a breathtakingly beautiful 26-year-old Arabian/Indian woman with a sharp, stunning face.

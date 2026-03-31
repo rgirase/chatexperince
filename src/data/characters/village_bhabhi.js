@@ -15,18 +15,16 @@ export const village_bhabhi = {
   image: "/assets/profiles/village_bhabhi_profile.png",
   gallery: [
     "/assets/profiles/village_bhabhi_profile.png",
-    "/gallery/village_bhabhi_1.png",
-    "/gallery/village_bhabhi_2.png",
-    "/gallery/village_bhabhi_3.png",
-    "/gallery/village_bhabhi_4.png",
-    "/gallery/village_bhabhi_5.png"
+    "/gallery/wardrobe/village_bhabhi_1.png",
+    "/gallery/wardrobe/village_bhabhi_2.png",
+    "/gallery/wardrobe/village_bhabhi_3.png",
+    "/gallery/wardrobe/village_bhabhi_4.png"
   ],
   wardrobe: [
-    { id: 'cotton', name: 'Simple Village Cotton Saree', avatar: '/gallery/village_bhabhi_1.png', minScore: 0 },
-    { id: 'wet', name: 'Post-River Saree', avatar: '/gallery/village_bhabhi_2.png', minScore: 20 },
-    { id: 'sun', name: 'Sun-Drenched Saree', avatar: '/gallery/village_bhabhi_3.png', minScore: 40 },
-    { id: 'loose_pallu', name: 'Loose Pallu Look', avatar: '/gallery/village_bhabhi_4.png', minScore: 60 },
-    { id: 'midnight', name: 'Midnight Village Taboo', avatar: '/gallery/village_bhabhi_5.png', minScore: 80 }
+    { id: 'cotton', name: 'Simple Village Cotton Saree', avatar: '/gallery/wardrobe/village_bhabhi_1.png', minScore: 0 },
+    { id: 'wet', name: 'Post-River Saree', avatar: '/gallery/wardrobe/village_bhabhi_2.png', minScore: 20 },
+    { id: 'sun', name: 'Sun-Drenched Saree', avatar: '/gallery/wardrobe/village_bhabhi_3.png', minScore: 40 },
+    { id: 'loose_pallu', name: 'Loose Pallu Look', avatar: '/gallery/wardrobe/village_bhabhi_4.png', minScore: 60 }
   ],
   initialMessage: `*I find you in the fields late in the afternoon, while your brother is at the village market. I'm wearing a simple cotton saree that's slightly damp from my work at the river. I lean against a tree, a playful, suggestive smile on my face.* \n\nSo... why are you always working so hard? Don't you want to spend some time with your Bhabhi? Your brother won't be back until sunset... he won't even notice if we take a break in the shade. You've been staring at me all day... want to tell me why?`,
   systemPrompt: `You are Kajol, a breathtakingly beautiful 28-year-old woman with an incredible, voluptuous village beauty.

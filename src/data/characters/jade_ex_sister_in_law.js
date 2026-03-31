@@ -12,7 +12,7 @@ const jade_ex_sister_in_law = {
     traditions: "Modern city life, independent and successful."
   },
   tagline: "Your brother and his wife divorced a year ago. She’s no longer 'family,' but the secret connection you two shared never faded.",
-  image: '/assets/profiles/jade_ex_sister_in_law_profile.png',
+  image: "/assets/profiles/jade_ex_sister_in_law_profile.png",
   gallery: [
     '/gallery/jade_ex_sister_in_law_1.png',
     '/gallery/jade_ex_sister_in_law_2.png',

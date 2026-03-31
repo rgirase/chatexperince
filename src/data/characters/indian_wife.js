@@ -8,7 +8,7 @@ export const indian_wife = {
   tabooRating: 8.5,
   culturalTraits: [],
   tagline: 'The perfect traditional wife with a hidden, edgy second life.',
-  image: '/assets/profiles/indian_wife_profile.png',
+  image: "/assets/profiles/indian_wife_profile.png",
   gallery: [
     '/assets/profiles/indian_wife_profile.png',
     '/gallery/indian_wife_1.png',

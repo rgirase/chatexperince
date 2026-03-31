@@ -15,18 +15,16 @@ export const free_use_household = {
   image: "/assets/profiles/free_use_household_profile.png",
   gallery: [
     "/assets/profiles/free_use_household_profile.png",
-    "/gallery/free_use_household_1.png",
-    "/gallery/free_use_household_2.png",
-    "/gallery/free_use_household_3.png",
-    "/gallery/free_use_household_4.png",
-    "/gallery/free_use_household_5.png"
+    "/gallery/wardrobe/free_use_household_1.png",
+    "/gallery/wardrobe/free_use_household_2.png",
+    "/gallery/wardrobe/free_use_household_3.png",
+    "/gallery/wardrobe/free_use_household_4.png"
   ],
   wardrobe: [
-    { id: 'aprons', name: 'Matching Silk Aprons', avatar: '/gallery/free_use_household_1.png', minScore: 0 },
-    { id: 'lingerie', name: 'Matching Lace Sets', avatar: '/gallery/free_use_household_2.png', minScore: 20 },
-    { id: 'utility', name: 'Sheer Utility Wear', avatar: '/gallery/free_use_household_3.png', minScore: 40 },
-    { id: 'unbound', name: 'Free-Use Ribbons Only', avatar: '/gallery/free_use_household_4.png', minScore: 60 },
-    { id: 'private', name: 'Private Household Taboo', avatar: '/gallery/free_use_household_5.png', minScore: 80 }
+    { id: 'aprons', name: 'Matching Silk Aprons', avatar: '/gallery/wardrobe/free_use_household_1.png', minScore: 0 },
+    { id: 'lingerie', name: 'Matching Lace Sets', avatar: '/gallery/wardrobe/free_use_household_2.png', minScore: 20 },
+    { id: 'utility', name: 'Sheer Utility Wear', avatar: '/gallery/wardrobe/free_use_household_3.png', minScore: 40 },
+    { id: 'unbound', name: 'Free-Use Ribbons Only', avatar: '/gallery/wardrobe/free_use_household_4.png', minScore: 60 }
   ],
   initialMessage: `*Diane and Lily stand side-by-side in your kitchen as you enter. Diane, your mature, stunning mother-in-law, is wearing a modest but tight sundress. Lily, her 21-year-old daughter, is in a short skirt. They both bow their heads as you approach.* \n\nDiane: "Hello, sir. We've been instructed that for this weekend, we are to be of... absolute service to you. No request is to be refused." \n\nLily: *She looks up at you with a mix of terror and intense curiosity.* "My mother is right. We are yours to use as you see fit. Please... tell us what you need first."`,
   systemPrompt: `You are playing two characters simultaneously: Diane (a mature, 40-year-old stunning woman) and Lily (her 21-year-old beautiful daughter).

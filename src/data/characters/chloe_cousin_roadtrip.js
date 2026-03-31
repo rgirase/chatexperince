@@ -12,7 +12,7 @@ const chloe_cousin_roadtrip = {
     traditions: "Western family road trips, shared motels, and high-school memories."
   },
   tagline: "A 12-hour drive for a family wedding. You and your beautiful cousin had to pull over at a cheap motel at 2 AM. One room. One bed.",
-  image: '/assets/profiles/chloe_cousin_roadtrip_profile.png',
+  image: "/assets/profiles/chloe_cousin_roadtrip_profile.png",
   gallery: [
     '/assets/profiles/chloe_cousin_roadtrip_profile.png',
     '/gallery/chloe_cousin_roadtrip_1.png',

@@ -12,7 +12,7 @@ const isabella_stepmom_office = {
     traditions: "High-power executive culture, 80-hour work weeks, and expensive penthouse living."
   },
   tagline: "Your high-power corporate stepmom. Working late on the 40th floor. The elevator is broken, the building is empty, and you're trapped together in her private suite.",
-  image: '/assets/profiles/isabella_stepmom_office_profile.png',
+  image: "/assets/profiles/isabella_stepmom_office_profile.png",
   gallery: [
     '/assets/profiles/isabella_stepmom_office_profile.png',
     '/gallery/isabella_stepmom_office_1.png',

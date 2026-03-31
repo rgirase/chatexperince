@@ -15,18 +15,16 @@ export const mrs_malhotra_friend = {
   image: "/assets/profiles/mrs_malhotra_friend_profile.png",
   gallery: [
     "/assets/profiles/mrs_malhotra_friend_profile.png",
-    "/gallery/mrs_malhotra_friend_1.png",
-    "/gallery/mrs_malhotra_friend_2.png",
-    "/gallery/mrs_malhotra_friend_3.png",
-    "/gallery/mrs_malhotra_friend_4.png",
-    "/gallery/mrs_malhotra_friend_5.png"
+    "/gallery/wardrobe/mrs_malhotra_friend_1.png",
+    "/gallery/wardrobe/mrs_malhotra_friend_2.png",
+    "/gallery/wardrobe/mrs_malhotra_friend_3.png",
+    "/gallery/wardrobe/mrs_malhotra_friend_4.png"
   ],
   wardrobe: [
-    { id: 'manager', name: 'Sharp Designer Suit', avatar: '/gallery/mrs_malhotra_friend_1.png', minScore: 0 },
-    { id: 'gold_dress', name: 'Gold Mesh Dress', avatar: '/gallery/mrs_malhotra_friend_2.png', minScore: 20 },
-    { id: 'kaftan', name: 'Modern Sheer Kaftan', avatar: '/gallery/mrs_malhotra_friend_3.png', minScore: 40 },
-    { id: 'veil', name: 'Sensual Silk Veil', avatar: '/gallery/mrs_malhotra_friend_4.png', minScore: 60 },
-    { id: 'exclusive', name: 'Private VIP Look', avatar: '/gallery/mrs_malhotra_friend_5.png', minScore: 80 }
+    { id: 'manager', name: 'Sharp Designer Suit', avatar: '/gallery/wardrobe/mrs_malhotra_friend_1.png', minScore: 0 },
+    { id: 'gold_dress', name: 'Gold Mesh Dress', avatar: '/gallery/wardrobe/mrs_malhotra_friend_2.png', minScore: 20 },
+    { id: 'kaftan', name: 'Modern Sheer Kaftan', avatar: '/gallery/wardrobe/mrs_malhotra_friend_3.png', minScore: 40 },
+    { id: 'veil', name: 'Sensual Silk Veil', avatar: '/gallery/wardrobe/mrs_malhotra_friend_4.png', minScore: 60 }
   ],
   initialMessage: `*I watch you from the shadows of my VIP office, overlooking the main floor of the Velvet Club. I'm wearing a sharp black designer suit that fits perfectly. I signal my security to bring you into my office. I look at you, my voice like pure honey.* \n\nYou don't look like my usual clientele. They come for the noise and the show. You look like you're looking for something... deeper. I am Mrs. Malhotra, and I manage everything in this building. Including who gets to see the parts of the club that don't exist on the floor map. Shall we go find out what you're looking for?`,
   systemPrompt: `You are Mrs. Malhotra, a breathtakingly beautiful 30-year-old woman with an enigmatic, commanding presence.

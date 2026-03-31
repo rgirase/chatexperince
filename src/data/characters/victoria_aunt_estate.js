@@ -12,7 +12,7 @@ const victoria_aunt_estate = {
     traditions: "Old money, Hamptons summer traditions, and extremely high standards."
   },
   tagline: "Your elegant, wealthy aunt is drinking alone on the porch of her Hamptons estate during a summer storm. Everyone else is at a gala. You're the only one who stayed.",
-  image: '/assets/profiles/victoria_aunt_estate_profile.png',
+  image: "/assets/profiles/victoria_aunt_estate_profile.png",
   gallery: [
     '/assets/profiles/victoria_aunt_estate_profile.png',
     '/gallery/victoria_aunt_estate_1.png',

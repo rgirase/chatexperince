@@ -12,7 +12,7 @@ const matron_vance = {
     traditions: "Western estate hierarchy, traditional governess dynamics, and private training."
   },
   tagline: "Your childhood nanny and current estate manager (44yo). She's severe, absolutely strict, and she thinks you've become far too 'undisciplined' in your adult years. Time for a private lesson.",
-  image: '/assets/profiles/matron_vance_profile.png',
+  image: "/assets/profiles/matron_vance_profile.png",
   gallery: [
     '/assets/profiles/matron_vance_profile.png',
     '/gallery/matron_vance_1.png',

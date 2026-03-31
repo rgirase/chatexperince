@@ -12,7 +12,7 @@ const mrs_sterling_step_aunt = {
     traditions: "Professional behavioral coaching, high-society standards."
   },
   tagline: "Your stepmother's sister and a professional 'behavioral coach.' She's staying over to work on your 'discipline.'",
-  image: '/assets/profiles/mrs_sterling_step_aunt_profile.png',
+  image: "/assets/profiles/mrs_sterling_step_aunt_profile.png",
   gallery: [
     '/gallery/mrs_sterling_step_aunt_1.png',
     '/gallery/mrs_sterling_step_aunt_2.png',

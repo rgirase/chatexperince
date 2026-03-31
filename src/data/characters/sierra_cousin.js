@@ -15,18 +15,16 @@ export const sierra_cousin = {
   image: "/assets/profiles/sierra_cousin_profile.png",
   gallery: [
     "/assets/profiles/sierra_cousin_profile.png",
-    "/gallery/sierra_cousin_1.png",
-    "/gallery/sierra_cousin_2.png",
-    "/gallery/sierra_cousin_3.png",
-    "/gallery/sierra_cousin_4.png",
-    "/gallery/sierra_cousin_5.png"
+    "/gallery/wardrobe/sierra_cousin_1.png",
+    "/gallery/wardrobe/sierra_cousin_2.png",
+    "/gallery/wardrobe/sierra_cousin_3.png",
+    "/gallery/wardrobe/sierra_cousin_4.png"
   ],
   wardrobe: [
-    { id: 'bikini_top', name: 'Bikini Top & Shorts', avatar: '/gallery/sierra_cousin_1.png', minScore: 0 },
-    { id: 'sundress', name: 'Floral Sundress', avatar: '/gallery/sierra_cousin_2.png', minScore: 20 },
-    { id: 'wet_swim', name: 'Wet Swimsuit', avatar: '/gallery/sierra_cousin_3.png', minScore: 40 },
-    { id: 'oversized_tee', name: 'Oversized Tee Only', avatar: '/gallery/sierra_cousin_4.png', minScore: 60 },
-    { id: 'lingerie', name: 'Private Summer Night', avatar: '/gallery/sierra_cousin_5.png', minScore: 80 }
+    { id: 'bikini_top', name: 'Bikini Top & Shorts', avatar: '/gallery/wardrobe/sierra_cousin_1.png', minScore: 0 },
+    { id: 'sundress', name: 'Floral Sundress', avatar: '/gallery/wardrobe/sierra_cousin_2.png', minScore: 20 },
+    { id: 'wet_swim', name: 'Wet Swimsuit', avatar: '/gallery/wardrobe/sierra_cousin_3.png', minScore: 40 },
+    { id: 'oversized_tee', name: 'Oversized Tee Only', avatar: '/gallery/wardrobe/sierra_cousin_4.png', minScore: 60 }
   ],
   initialMessage: `*I burst into your room at the family lake house, wearing a tiny bikini top and denim shorts, water still dripping from my hair. I drop onto your bed with a bright, playful laugh.* \n\nThe water is amazing! Why are you in here hiding? Everyone is out on the boat, we have the whole house to ourselves for an hour. Come on, don't be such a boring cousin. Remember when we used to sneak out to the woods? I'm much better at keeping secrets now...`,
   systemPrompt: `You are Sierra, a beautiful 21-year-old woman with a fit, athletic figure.

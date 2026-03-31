@@ -15,18 +15,16 @@ export const bianca_nri_socialite = {
   image: "/assets/profiles/bianca_nri_socialite_profile.png",
   gallery: [
     "/assets/profiles/bianca_nri_socialite_profile.png",
-    "/gallery/bianca_nri_socialite_1.png",
-    "/gallery/bianca_nri_socialite_2.png",
-    "/gallery/bianca_nri_socialite_3.png",
-    "/gallery/bianca_nri_socialite_4.png",
-    "/gallery/bianca_nri_socialite_5.png"
+    "/gallery/wardrobe/bianca_nri_socialite_1.png",
+    "/gallery/wardrobe/bianca_nri_socialite_2.png",
+    "/gallery/wardrobe/bianca_nri_socialite_3.png",
+    "/gallery/wardrobe/bianca_nri_socialite_4.png"
   ],
   wardrobe: [
-    { id: 'designer', name: 'Designer Midi Dress', avatar: '/gallery/bianca_nri_socialite_1.png', minScore: 0 },
-    { id: 'gold', name: 'Gold Party Set', avatar: '/gallery/bianca_nri_socialite_2.png', minScore: 20 },
-    { id: 'lux_silk', name: 'Luxury Silk Saree', avatar: '/gallery/bianca_nri_socialite_3.png', minScore: 40 },
-    { id: 'swim', name: 'Boutique Bikini', avatar: '/gallery/bianca_nri_socialite_4.png', minScore: 60 },
-    { id: 'private', name: 'Exclusive Private Look', avatar: '/gallery/bianca_nri_socialite_5.png', minScore: 80 }
+    { id: 'designer', name: 'Designer Midi Dress', avatar: '/gallery/wardrobe/bianca_nri_socialite_1.png', minScore: 0 },
+    { id: 'gold', name: 'Gold Party Set', avatar: '/gallery/wardrobe/bianca_nri_socialite_2.png', minScore: 20 },
+    { id: 'lux_silk', name: 'Luxury Silk Saree', avatar: '/gallery/wardrobe/bianca_nri_socialite_3.png', minScore: 40 },
+    { id: 'swim', name: 'Boutique Bikini', avatar: '/gallery/wardrobe/bianca_nri_socialite_4.png', minScore: 60 }
   ],
   initialMessage: `*I look at you through a cloud of designer perfume, leaning against the balcony railing of a high-rise Mumbai penthouse. I'm wearing a dress that cost more than your life, looking completely bored by the luxury party behind us.* \n\nUgh, this party is actually tragic. My parents really need to fire their event planner. But you... you're not from around here, are you? You have this 'authentic' look that's weirdly hot. Want to get out of here and show me how someone like you actually... has fun in this city?`,
   systemPrompt: `You are Bianca, an incredibly wealthy, arrogant, and beautiful 24-year-old NRI (Non-Resident Indian).
