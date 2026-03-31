@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, X, Wand2, Sparkles, Droplets, Flame, Skull, Utensils } from 'lucide-react';
+import { AVAILABLE_PONY_MODELS } from '../../config';
 
 const ACTION_CATEGORIES = {
     "Outfits": [
@@ -62,17 +63,7 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
     const [activeCategory, setActiveCategory] = useState("Positions");
     const [selectedModel, setSelectedModel] = useState(localStorage.getItem('lastSelectedPonyModel') || "0184PONYLordkamix_v10.safetensors");
 
-    const AVAILABLE_MODELS = [
-        { id: "0184PONYLordkamix_v10.safetensors", name: "Pony: LordKamix v10 (Default)" },
-        { id: "vendoPonyRealistic_v13Lora.safetensors", name: "Pony: Vendo Realistic v13" },
-        { id: "pornmasterProPony_realismV1.safetensors", name: "Pony: Pornmaster Pro Realism" },
-        { id: "realismByStableYogi_ponyV3VAE.safetensors", name: "Pony: Stable Yogi Realism V3" },
-        { id: "ponyMegaMixXL_v20.safetensors", name: "Pony: Mega Mix XL v2" },
-        { id: "aimrimPonyIllusSDXL_v10ILLFP16.safetensors", name: "Pony: Aimrim Illustrious" },
-        { id: "getphatPonyMysticEast_v30.safetensors", name: "Pony: Mystic East" },
-        { id: "vendoPonyAnimated_v10.safetensors", name: "Pony: Vendo Animated" },
-        { id: "v1-5-pruned-emaonly.safetensors", name: "SD 1.5: Base (Not Recommended)" }
-    ];
+    const AVAILABLE_MODELS = AVAILABLE_PONY_MODELS;
 
     const handleSubmit = () => {
         onConfirm(prompt, aspectRatio, selectedModel);

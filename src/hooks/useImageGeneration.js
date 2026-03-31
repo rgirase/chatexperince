@@ -15,7 +15,21 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
         const charAppearance = persona.prompt?.match(/APPEARANCE:\s*(.*?)(?=\n|BACKSTORY:|$)/is)?.[1] || "";
         const charIdentity = persona.prompt?.match(/You are\s*(.*?)(?=\n|$)/i)?.[1] || persona.name;
         
-        const fullPrompt = `masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ${charIdentity}, ${charAppearance}, ${prompt}`;
+        // Character-specific LoRA mapping for high-fidelity Pony generations
+        const charLoras = {
+            'hostage_brat_valentina': '<lora:valentina_pony_v1:0.9>',
+            'isabella_noble': '<lora:isabella_noble_pony:0.9>'
+        };
+
+        const charLora = charLoras[persona.id] || "";
+        
+        // PONY_PREFIX: High-fidelity quality and texture boosters
+        const PONY_PREFIX = "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_explicit, (highly detailed skin texture:1.2), sweat, (goosebumps:0.8), (subsurface scattering:1.1), (intricate details:1.2), physically-based rendering, ";
+
+        const isPonyModel = selectedModel?.toLowerCase().includes('pony');
+        const finalPrefix = isPonyModel ? PONY_PREFIX : "masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ";
+
+        const fullPrompt = `${finalPrefix}${charIdentity}, ${charAppearance}, ${charLora}, ${prompt}`;
         const negativePrompt = "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature";
 
         try {
@@ -47,8 +61,9 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 }
             } else if (imageEngine === 'comfyui') {
                 let comfyWorkflow = localStorage.getItem('comfyWorkflow');
+                const isPonyModel = selectedModel?.toLowerCase().includes('pony');
                 if (!comfyWorkflow || !comfyWorkflow.includes('3')) {
-                    comfyWorkflow = JSON.stringify(DEFAULT_COMFY_WORKFLOW);
+                    comfyWorkflow = JSON.stringify(isPonyModel ? DEFAULT_PONY_WORKFLOW : DEFAULT_COMFY_WORKFLOW);
                 }
 
                 const targetPrompt = `${charIdentity}, ${charAppearance}, ${prompt}`;

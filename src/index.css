@@ -600,10 +600,49 @@ body {
   text-align: left;
 }
 
-.gift-card:hover {
-  background: rgba(244, 114, 182, 0.1);
-  border-color: #f472b6;
-  transform: translateY(-2px);
+.hub-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hub-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.hub-item:active {
+  transform: scale(0.95);
+}
+
+.action-icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, transform 0.2s ease;
+  padding: 8px;
+}
+
+.action-icon-btn:hover {
+  color: var(--text-main);
+  transform: scale(1.1);
+}
+
+.action-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .gift-icon {

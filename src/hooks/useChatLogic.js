@@ -571,6 +571,39 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         }
     }, [persona, messages, showToast]);
 
+    const handlePerformAdultAction = useCallback(async (action, selectedModel) => {
+        if (isTyping) return;
+
+        const actionMsg = { 
+            id: Date.now().toString(), 
+            role: 'user', 
+            content: `*${action.label}*` 
+        };
+        setMessages(prev => [...prev, actionMsg]);
+        setRelationshipScore(prev => Math.min(100, prev + 2)); // High-intensity reward
+        
+        setIsTyping(true);
+        const aiMessageId = (Date.now() + 1).toString();
+        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
+
+        // 1. Trigger the Visual Generation (includes action LoRAs)
+        if (generateSelfie) {
+            const combinedPrompt = action.loras && action.loras.length > 0 
+                ? `${action.prompt}, ${action.loras.map(l => `<lora:${l.name}:${l.weight}>`).join(', ')}`
+                : action.prompt;
+            
+            generateSelfie(combinedPrompt, aiMessageId, 'portrait', selectedModel);
+        }
+
+        // 2. Trigger the AI Response
+        const actionDirective = {
+            role: 'user',
+            content: `[SYSTEM DIRECTIVE: The user has initiated the erotic action: ${action.label}. You must provide a visceral, intense, and descriptive reaction to this specific act. Focus on your physical sensations and emotional state. Continue the scene proactively.]`
+        };
+
+        await executeAiRequest(aiMessageId, [...messages, actionMsg, actionDirective]);
+    }, [messages, executeAiRequest, generateSelfie, isTyping]);
+
     const handleGenerateSceneImage = useCallback(async () => {
         showToast("Analyzing scene for visual capture...", "info");
         const visualContext = await generateVisualPrompt(persona, messages);
@@ -800,6 +833,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         handleUpdateRelation,
         handleUpdateMilestones,
         handleUpdateEncounters,
+        handlePerformAdultAction,
         customRelation,
         chapterRecap
     };

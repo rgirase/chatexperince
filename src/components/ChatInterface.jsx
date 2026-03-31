@@ -18,6 +18,7 @@ import * as db from '../services/db';
 import ParticleEffect from './sub/ParticleEffect';
 import InviteModal from './sub/InviteModal';
 import GalleryModal from './sub/GalleryModal';
+import AdultActionsModal from './sub/AdultActionsModal';
 
 const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, scenario }) => {
     // --- UI VIEW STATE ---
@@ -34,6 +35,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
     const [isArchiveOpen, setIsArchiveOpen] = useState(false);
     const [isLocationSwitcherOpen, setIsLocationSwitcherOpen] = useState(false);
+    const [isAdultActionsOpen, setIsAdultActionsOpen] = useState(false);
     
     // --- EDITING STATE ---
     const [editingMessageId, setEditingMessageId] = useState(null);
@@ -93,6 +95,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         handleUpdateRelation,
         handleUpdateMilestones,
         handleUpdateEncounters,
+        handlePerformAdultAction, // <--- EXTRACTED FROM HOOK
         customRelation,
         allSessions,
         sessionId,
@@ -294,6 +297,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 isSuggesting={isSuggesting}
                 onStopGeneration={handleStopGeneration}
                 suggestions={currentSuggestions}
+                onOpenAdultActions={() => setIsAdultActionsOpen(true)}
             />
 
             <AnimatePresence>
@@ -416,6 +420,15 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                         sessions={allSessions}
                         persona={persona}
                         currentSessionId={sessionId}
+                    />
+                )}
+
+                {isAdultActionsOpen && (
+                    <AdultActionsModal 
+                        isOpen={isAdultActionsOpen}
+                        onClose={() => setIsAdultActionsOpen(false)}
+                        onConfirm={handlePerformAdultAction}
+                        relationshipScore={relationshipScore}
                     />
                 )}
             </AnimatePresence>

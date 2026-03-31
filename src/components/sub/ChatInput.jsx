@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Wand2, Camera, Sparkles, StopCircle } from 'lucide-react';
+import { Send, Wand2, Camera, Sparkles, StopCircle, Flame, Plus } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ChatInput = ({ 
     input, 
@@ -11,9 +12,23 @@ const ChatInput = ({
     isSuggesting, 
     onStopGeneration,
     suggestions = [],
+    onOpenAdultActions,
     onSelectSuggestion
 }) => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const textareaRef = useRef(null);
+    const menuRef = useRef(null);
+
+    // Close menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setIsMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     useEffect(() => {
         if (textareaRef.current) {
@@ -88,24 +103,74 @@ const ChatInput = ({
                 </div>
             )}
             
-            <div className="input-container">
-                <button 
-                    onClick={onGenerateSuggestion}
-                    disabled={isSuggesting || isTyping}
-                    className="action-icon-btn"
-                    title="Get suggestion"
-                >
-                    <Wand2 size={20} className={isSuggesting ? 'spin' : ''} />
-                </button>
-                
-                <button 
-                    onClick={onOpenSelfiePrompt}
-                    disabled={isTyping}
-                    className="action-icon-btn"
-                    title="Request selfie"
-                >
-                    <Camera size={20} />
-                </button>
+            <div className="input-container" style={{ position: 'relative' }}>
+                {/* ACTION HUB TOGGLE */}
+                <div ref={menuRef} style={{ display: 'flex', alignItems: 'center' }}>
+                    <button 
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        disabled={isTyping}
+                        className={`action-icon-btn toggle-btn ${isMenuOpen ? 'active' : ''}`}
+                        title="Actions"
+                        style={{ color: isMenuOpen ? '#a855f7' : '#fff', transition: 'all 0.3s ease' }}
+                    >
+                        <motion.div animate={{ rotate: isMenuOpen ? 45 : 0 }}>
+                            <Plus size={22} />
+                        </motion.div>
+                    </button>
+
+                    <AnimatePresence>
+                        {isMenuOpen && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                                animate={{ opacity: 1, y: -60, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                                className="action-hub-vertical"
+                                style={{
+                                    position: 'absolute',
+                                    bottom: '10px',
+                                    left: '8px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '12px',
+                                    padding: '12px',
+                                    background: 'rgba(20, 20, 25, 0.9)',
+                                    backdropFilter: 'blur(20px)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    borderRadius: '20px',
+                                    boxShadow: '0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(168, 85, 247, 0.1)',
+                                    zIndex: 100
+                                }}
+                            >
+                                <button 
+                                    onClick={() => { onGenerateSuggestion(); setIsMenuOpen(false); }}
+                                    className="hub-item"
+                                    title="Get Suggestion"
+                                    style={{ color: '#a855f7' }}
+                                >
+                                    <Wand2 size={20} className={isSuggesting ? 'spin' : ''} />
+                                </button>
+                                
+                                <button 
+                                    onClick={() => { onOpenAdultActions(); setIsMenuOpen(false); }}
+                                    className="hub-item"
+                                    title="🔥 Erotic Action"
+                                    style={{ color: '#ef4444' }}
+                                >
+                                    <Flame size={20} />
+                                </button>
+
+                                <button 
+                                    onClick={() => { onOpenSelfiePrompt(); setIsMenuOpen(false); }}
+                                    className="hub-item"
+                                    title="Request Selfie"
+                                    style={{ color: '#f472b6' }}
+                                >
+                                    <Camera size={20} />
+                                </button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
 
                 <textarea
                     ref={textareaRef}
