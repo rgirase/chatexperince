@@ -53,7 +53,7 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
     const [prompt, setPrompt] = useState("");
     const [aspectRatio, setAspectRatio] = useState('portrait');
     const [activeCategory, setActiveCategory] = useState("Positions");
-    const [selectedModel, setSelectedModel] = useState("0184PONYLordkamix_v10.safetensors");
+    const [selectedModel, setSelectedModel] = useState(localStorage.getItem('lastSelectedPonyModel') || "0184PONYLordkamix_v10.safetensors");
 
     const AVAILABLE_MODELS = [
         { id: "0184PONYLordkamix_v10.safetensors", name: "Pony: LordKamix v10 (Default)" },
@@ -103,7 +103,11 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                 <div style={{ color: '#fbbf24', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold' }}>Core Engine</div>
                                 <select 
                                     value={selectedModel}
-                                    onChange={(e) => setSelectedModel(e.target.value)}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setSelectedModel(val);
+                                        localStorage.setItem('lastSelectedPonyModel', val);
+                                    }}
                                     style={{
                                         width: '100%',
                                         padding: '10px 12px',
