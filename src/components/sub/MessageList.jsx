@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit2, Check, X, Trash2, FastForward, Image as ImageIcon, RefreshCw, Hammer, Sparkles } from 'lucide-react';
+import { Edit2, Check, X, Trash2, FastForward, Image as ImageIcon, RefreshCw, Hammer, Sparkles, Download } from 'lucide-react';
 
 const MessageList = ({ 
     messages, 
@@ -19,6 +19,15 @@ const MessageList = ({
     isTyping,
     messagesAreaRef
 }) => {
+    const handleDownload = (url, filename) => {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename || `selfie_${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div className="messages-area" ref={messagesAreaRef}>
             {messages.map((msg, index) => (
@@ -34,7 +43,16 @@ const MessageList = ({
                             {msg.isPhoto ? (
                                 <div className="photo-container">
                                     {msg.url ? (
-                                        <img src={msg.url} alt="Selfie" style={{ width: '100%', borderRadius: '12px' }} />
+                                        <>
+                                            <img src={msg.url} alt="Selfie" style={{ width: '100%', borderRadius: '12px', display: 'block' }} />
+                                            <button 
+                                                className="download-btn"
+                                                onClick={() => handleDownload(msg.url, `selfie_${msg.id}.png`)}
+                                                title="Save Image"
+                                            >
+                                                <Download size={18} />
+                                            </button>
+                                        </>
                                     ) : (
                                         <div className="photo-loading" style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', padding: '1rem' }}>
                                             <span>Generating selfie...</span>

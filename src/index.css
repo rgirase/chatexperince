@@ -338,6 +338,45 @@ body {
   border-bottom-left-radius: 4px;
 }
 
+.photo-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.photo-container:hover .download-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.download-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: all 0.3s ease;
+  z-index: 5;
+}
+
+.download-btn:hover {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  transform: scale(1.1);
+}
+
+
 .typing-indicator {
   display: flex;
   gap: 4px;
