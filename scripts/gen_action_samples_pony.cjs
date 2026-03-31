@@ -24,7 +24,7 @@ const workflow_template = {
   "4": {
     "class_type": "CheckpointLoaderSimple",
     "inputs": {
-      "ckpt_name": "0184PONYLordkamix_v10.safetensors"
+      "ckpt_name": "realismByStableYogi_ponyV3VAE.safetensors"
     }
   },
   "5": {
@@ -147,14 +147,14 @@ const ACTIONS = {
 
 const characters = [
   {
-    id: "hostage_brat_valentina",
-    name: "Valentina",
-    appearance: "stunning 21yo Brazilian woman, Valentina (tanned, voluptuous 36C figure, dark hair, flashing eyes), rebellious expression"
+    id: "julia_forgotten_wife",
+    name: "Julia",
+    appearance: "stunning 34yo American woman, Julia (suburban elegance, 34D-24-36, long dark hair, wearing high-end black silk slip), poised and sophisticated expression"
   },
   {
-    id: "isabella_noble",
-    name: "Countess Isabella",
-    appearance: "elegant 40yo European aristocrat, Countess Isabella (statuesque beauty, fine features, 36C-25-38), sophisticated and submissive expression"
+    id: "millie_thorne",
+    name: "Millie",
+    appearance: "curvy mature 46yo American woman, Millie Thorne (38DD-30-42, soft features, melancholic eyes, wearing elegant but revealing lace loungewear), emotionally vulnerable expression"
   }
 ];
 
