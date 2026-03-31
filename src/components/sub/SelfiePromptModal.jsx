@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, X, Wand2, Sparkles, Droplets, Flame, Skull } from 'lucide-react';
+import { Camera, X, Wand2, Sparkles, Droplets, Flame, Skull, Utensils } from 'lucide-react';
 
 const ACTION_CATEGORIES = {
     "Outfits": [
@@ -35,17 +35,24 @@ const ACTION_CATEGORIES = {
         { label: "Latex & Nylons", text: "shiny black latex bodysuit, (ripped pantyhose:1.4), thighhighs, stiletto heels, posing seductively, neon rim lighting" },
         { label: "Breast Bondage", text: "close up on torso, (breast bondage:1.5), ropes around breasts, (clover clamps:0.7), skin indentation, red rope marks, (topped:1.2), in a dark BDSM studio, leather gear in background <lora:breast_bondage_v2.safetensors:0.8>" }
     ],
+    "Oral": [
+        { label: "Blowjob", text: "close up on face, (blowjob:1.5), sucking cock, (deepthroat:1.3), mouth full, eyes looking up at viewer, (eye contact:1.2), holding cock with hands, saliva dripping, in a luxury hotel suite <lora:phbjcrsc.safetensors:0.8>" },
+        { label: "Deepthroat", text: "side view, (deepthroat:1.5), cock deep in throat, (gagging:0.8), tears in eyes, blurry background, extreme detail of mouth and cock <lora:phbjcrsc.safetensors:0.8>" },
+        { label: "Cunnilingus", text: "POV between legs, (cunnilingus:1.5), tongue on pussy, licking clitoris, spread legs, wet glistening labia, (oral sex:1.2), looking up at viewer, messy bed" },
+        { label: "Handjob", text: "close up on hands and crotch, (handjob:1.4), gripping cock, (stroking:1.2), pre-cum, extreme detail of genitals, veins on cock, silk sheets" },
+        { label: "Facefuck", text: "(facefuck:1.5), standing over her, pushing cock into mouth, (dominant:1.2), messy hair, extreme expression, grabbing hair, dark modern bedroom" }
+    ],
     "Hardcore": [
         { label: "Nude Penetration", text: "close up on lower body, ((thick erect cock deeply penetrating pussy:1.5)), (insertion:1.3), ((pussy lips stretching around cock:1.4)), wet glistening skin, lubrication, extreme detail of labia and genitals, highly detailed skin texture, silk bedsheets <lora:ossplnskFT15rs4.safetensors:0.8>" },
         { label: "Double Penetration", text: "3 naked people, (double penetration:1.5), one cock in pussy, one cock in ass, simultaneous insertion, extreme detail, group sex, in a luxury penthouse suite, city lights <lora:mmdmltFT15.safetensors:0.8>" },
         { label: "Gangbang", text: "5 naked men, one woman, surrounded by men, multiple penises, gangbang, buckeye, messy, facial, breast-splattered, internal creampie, group sex, extreme detail, masterpiece, dark basement studio <lora:gngsrrmphFT15.safetensors:0.8>" },
-        { label: "Oral Sex", text: "close up on face, (deepthroat:1.4), sucking cock, mouth full, saliva, looking up at camera, (gagging:0.8), messy hair, in a private mahogany office, executive office desk <lora:orlpvmltlnccFT15.safetensors:0.8>" },
         { label: "Titjob", text: "close up on breasts, (paizuri:1.5), cock between breasts, rubbing, highly detailed skin texture, sweat, flushed face" },
         { label: "Thigh Sex", text: "(intercrural sex:1.4), cock between thighs, squeezing legs, sweat, deep penetration illusion, highly detailed skin texture" },
         { label: "Footjob", text: "(footjob:1.4), toes curled, focus on feet, looking up, seductive gaze, bedroom lighting" },
         { label: "Masturbation", text: "close up on lower body, (fingering pussy:1.4), female masturbation, two fingers inserted, glistening wet labia, intense expression, arched back" },
         { label: "Boobs Squeezing", text: "close up on torso, ((hands firmly squeezing and squishing breasts:1.4)), ((fingers sinking deep into breast skin:1.3)), deep cleavage, (breast deformation:1.2), red skin marks from pressure, highly detailed skin texture, sweat, luxury penthouse bedroom <lora:phbjcrsc.safetensors:0.8>" },
-        { label: "Groping", text: "two hands aggressively grabbing large breasts from behind, (breast grab:1.4), skin indentation, surprised expression, (from behind:1.2)" }
+        { label: "Groping", text: "two hands aggressively grabbing large breasts from behind, (breast grab:1.4), skin indentation, surprised expression, (from behind:1.2)" },
+        { label: "Doggy (Hairpull)", text: "rear view, (doggy style:1.4), (hair pulling:1.3), arching back, looking back with ecstatic face, (vaginal penetration:1.4), reaching back to touch him, sweat, workout room <lora:ossplnskFT15rs4.safetensors:0.8>" }
     ]
 };
 
@@ -159,6 +166,7 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                             {cat === 'Fluids' && <Droplets size={14} />}
                                             {cat === 'Hardcore' && <Flame size={14} />}
                                             {cat === 'Kink & BD' && <Skull size={14} />}
+                                            {cat === 'Oral' && <Utensils size={14} />}
                                             {cat}
                                         </button>
                                     ))}
