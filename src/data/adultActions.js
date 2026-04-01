@@ -68,5 +68,54 @@ export const ADULT_ACTIONS = [
         icon: '👄',
         prompt: 'close up on face, (blowjob:1.5), sucking cock, (deepthroat:1.3), mouth full, eyes looking up at viewer, (eye contact:1.2), saliva dripping',
         loras: [{ name: 'phbjcrsc.safetensors', weight: 0.8 }]
+    },
+    {
+        id: 'shower_sex',
+        label: 'Steamy Shower Sex',
+        icon: '🚿',
+        prompt: '(standing in a steamy glass shower:1.3), (shower sex:1.5), (vaginal penetration:1.4), pinned against wet glass wall, water splashing, (steamy atmosphere:1.4), intense expression, wet skin, naked, extreme detail, masterpiece, realistic skin',
+        loras: []
+    },
+    {
+        id: 'ceo_desk_intimacy',
+        label: 'CEO Desk Intimacy',
+        icon: '📂',
+        prompt: 'sitting on a massive mahogany executive desk, (legs spread:1.2), (vaginal penetration:1.4), cock in pussy, high-end office background, city skyline through floor-to-ceiling windows, paperwork scattered, dominant expression, intense eye contact',
+        loras: []
+    },
+    {
+        id: 'against_office_window',
+        label: 'Against the Skyline',
+        icon: '🏙️',
+        prompt: 'pinned against a floor-to-ceiling office window, (rear view:1.3), looking back over shoulder, (vaginal penetration:1.4), cock in pussy, city lights below, (reflection on glass:1.2), high-rise office background, intense expression',
+        loras: []
+    },
+    {
+        id: 'jet_lap_sitting',
+        label: 'Private Jet Lap Sitting',
+        icon: '✈️',
+        prompt: 'sitting on his lap in a luxury leather jet seat, (vaginal penetration:1.4), cock in pussy, (cabin window view:1.2), clouds outside, soft cabin lighting, (sheer lingerie:1.2), arching back, ecstatic expression',
+        loras: []
+    },
+    {
+        id: 'yacht_railing',
+        label: 'Yacht Railing Doggy',
+        icon: '🛥️',
+        prompt: 'bent over a luxury yacht railing, (rear view:1.3), (vaginal penetration:1.4), doggy style, turquoise ocean background, sun-drenched, (bikini bottom ruffed:1.2), looking back at viewer, sea spray on skin',
+        loras: []
+    },
+    {
+        id: 'elevator_press',
+        label: 'Elevator Press',
+        icon: '↕️',
+        prompt: 'inside a mirror-lined luxury elevator, (reflection:1.3), pinned against the wall, (skirt lifted:1.4), (vaginal penetration:1.4), cock in pussy, high-tension atmosphere, intense face, hands on mirrors',
+        loras: []
+    },
+    {
+        id: 'library_stacks_quickie',
+        label: 'Library Stacks Quickie',
+        icon: '📚',
+        prompt: 'pinned against a bookshelf in a grand library, (narrow aisle:1.2), (skirt pulled up:1.4), (vaginal penetration:1.4), cock in pussy, looking around nervously, (forbidden:1.2), detailed book spines, intimate whispering',
+        loras: []
     }
 ];

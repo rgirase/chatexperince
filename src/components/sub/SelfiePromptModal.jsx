@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, X, Wand2, Sparkles, Droplets, Flame, Skull, Utensils, Shirt, Palette } from 'lucide-react';
+import { Camera, X, Wand2, Sparkles, Droplets, Flame, Skull, Utensils, Shirt, Palette, MapPin } from 'lucide-react';
 import { AVAILABLE_PONY_MODELS } from '../../config';
 import { CLOTHING_TYPES, COLORS } from '../../data/imageGenOptions';
 
@@ -60,6 +60,25 @@ const ACTION_CATEGORIES = {
         { label: "Boobs Squeezing", text: "close up on torso, ((hands firmly squeezing and squishing breasts:1.4)), ((fingers sinking deep into breast skin:1.3)), deep cleavage, (breast deformation:1.2), red skin marks from pressure, highly detailed skin texture, sweat, luxury penthouse bedroom <lora:phbjcrsc.safetensors:0.8>" },
         { label: "Groping", text: "two hands aggressively grabbing large breasts from behind, (breast grab:1.4), skin indentation, surprised expression, (from behind:1.2)" },
         { label: "Doggy (Hairpull)", text: "rear view, (doggy style:1.4), (hair pulling:1.3), arching back, looking back with ecstatic face, (vaginal penetration:1.4), reaching back to touch him, sweat, workout room <lora:ossplnskFT15rs4.safetensors:0.8>" }
+    ],
+    "Scenarios": [
+        { label: "Steamy Shower", text: "(standing in a steamy glass shower:1.3), (water droplets on skin:1.2), (wet hair:1.3), (steamy atmosphere:1.4), condensation on glass, looking at viewer, seductive, naked, masterpiece, realistic skin" },
+        { label: "Shower Intimacy", text: "(standing in a steamy glass shower:1.3), (shower sex:1.5), (vaginal penetration:1.4), pinned against wet glass wall, water splashing, (steamy atmosphere:1.4), intense expression, wet skin, naked, extreme detail, masterpiece, realistic skin" },
+        { label: "CEO Desk", text: "sitting on a massive mahogany executive desk, (legs spread:1.2), paperwork scattered, high-end office background, city skyline through floor-to-ceiling windows, (topped:1.2), dominant expression" },
+        { label: "Against Office Window", text: "pinned against a floor-to-ceiling glass window, (rear view:1.3), looking back over shoulder, city lights below, (reflection on glass:1.2), high-rise office background, seductive" },
+        { label: "Private Jet Bed", text: "lying on a luxury leather bed inside a private jet, (cabin window view:1.2), clouds outside, soft cabin lighting, (sheer lingerie:1.2), relaxed and inviting" },
+        { label: "Yacht Deck", text: "(standing on a luxury yacht deck:1.3), sun-drenched, turquoise ocean background, (bikini:1.2), wind-blown hair, (sea spray on skin:1.2), yacht railing, vacation vibe" },
+        { label: "Penthouse Balcony", text: "standing on a penthouse balcony at night, (city skyline:1.4), glowing neon lights, (silk robe:1.2), holding a glass of wine, luxurious atmosphere" },
+        { label: "Jacuzzi Spa", text: "submerged in a private jacuzzi, (bubbles and steam:1.3), wet hair, (glistening skin:1.2), low ambient lighting, (night:1.2), intimate atmosphere" },
+        { label: "VIP Cinema Box", text: "sitting in a plush velvet theater seat, (dim screen glow:1.3), dark theater background, (skirt lifted:1.2), hand between legs, secretive expression" },
+        { label: "Boutique Dressing Room", text: "inside a designer boutique dressing room, (three-way mirror reflections:1.3), high-end clothes on hangers, (trying on lingerie:1.2), holding a dress in front of self, shy but seductive" },
+        { label: "Library Stacks", text: "leaning against a bookshelf in a grand library, (hidden corner:1.2), narrow aisle, (pulling up skirt:1.3), looking around nervously, (forbidden:1.2), detailed book spines" },
+        { label: "Luxury Elevator", text: "inside a mirror-lined luxury elevator, (brushed steel walls:1.2), (reflection:1.3), pinned against the wall, (skirt ruffled:1.2), high-tension atmosphere" },
+        { label: "Limousine Backseat", text: "in the backseat of a luxury limousine, (leather interior:1.2), (city light streaks through window:1.3), (partition closed:1.2), mini-bar background, intimate proximity" },
+        { label: "Estate Stables", text: "inside rustic estate stables, (sunbeams through wooden slats:1.3), (hay on floor:1.2), leather saddles, (wearing only a white shirt:1.2), dusty and atmospheric" },
+        { label: "Mountain Cabin", text: "lying on a fur rug in front of a fireplace, (warm orange fire glow:1.4), (snow outside window:1.2), rustic log cabin background, cozy and intimate" },
+        { label: "Traditional Kitchen", text: "standing in a traditional kitchen, (copper pans background:1.2), (leaning over counter:1.3), (wearing a saree/traditional dress:1.1), warm domestic lighting" },
+        { label: "Moonlit Terrace", text: "standing on a moonlit terrace, (stars in sky:1.3), (laundry lines with hanging silk:1.2), night breeze, (nightgown:1.2), looking at the moon" }
     ]
 };
 
@@ -212,6 +231,7 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                             {cat === 'Hardcore' && <Flame size={14} />}
                                             {cat === 'Kink & BD' && <Skull size={14} />}
                                             {cat === 'Oral' && <Utensils size={14} />}
+                                            {cat === 'Scenarios' && <MapPin size={14} />}
                                             {cat}
                                         </button>
                                     ))}
