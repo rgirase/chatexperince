@@ -19,6 +19,7 @@ import ParticleEffect from './sub/ParticleEffect';
 import InviteModal from './sub/InviteModal';
 import GalleryModal from './sub/GalleryModal';
 import AdultActionsModal from './sub/AdultActionsModal';
+import InventoryModal from './sub/InventoryModal';
 
 const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, scenario }) => {
     // --- UI VIEW STATE ---
@@ -36,6 +37,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     const [isArchiveOpen, setIsArchiveOpen] = useState(false);
     const [isLocationSwitcherOpen, setIsLocationSwitcherOpen] = useState(false);
     const [isAdultActionsOpen, setIsAdultActionsOpen] = useState(false);
+    const [isInventoryOpen, setIsInventoryOpen] = useState(false); // Character Core 2.0
     
     // --- EDITING STATE ---
     const [editingMessageId, setEditingMessageId] = useState(null);
@@ -102,7 +104,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         startNewSession,
         switchSession,
         deleteSession,
-        chapterRecap
+        chapterRecap,
+        currentMood,
+        inventory,
+        setInventory,
+        setCurrentMood
     } = useChatLogic(persona, showToast, scenario, generateSelfie);
 
     // Update the ref whenever setMessages changes
@@ -266,6 +272,10 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 intensity={intensity}
                 setIntensity={setIntensity}
                 invitedPersona={invitedPersona}
+                currentMood={currentMood}
+                memory={memory}
+                onOpenMemory={() => setIsMemoryViewerOpen(true)}
+                onOpenInventory={() => setIsInventoryOpen(true)}
             />
 
             <MessageList 

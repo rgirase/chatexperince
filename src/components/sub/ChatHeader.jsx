@@ -3,10 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     ArrowLeft, Heart, Gift, Shirt, Book, History, Trash2, Home, Sparkles, 
     Flame, UserPlus, Wand2, MapPin, Image as ImageIcon, MessageSquare, 
-    Users, MoreVertical, Map as MapIcon
+    Users, MoreVertical, Map as MapIcon, Brain, Package
 } from 'lucide-react';
 import AuraPulse from './AuraPulse';
 import MoodOverlay from './MoodOverlay';
+import MoodMeter from './MoodMeter';
 import { getRelationshipLabel } from '../../services/reputation';
 
 const ChatHeader = ({ 
@@ -31,7 +32,11 @@ const ChatHeader = ({
     relationshipScore,
     intensity,
     setIntensity,
-    invitedPersona
+    invitedPersona,
+    currentMood, // Character Core 2.0
+    memory, // Character Core 2.0
+    onOpenMemory, // Character Core 2.0
+    onOpenInventory // Character Core 2.0
 }) => {
     const menuRef = useRef(null);
 
@@ -58,7 +63,7 @@ const ChatHeader = ({
             </button>
             <div className="chat-avatar-wrapper" style={{ position: 'relative' }}>
                 <AuraPulse score={relationshipScore} intensity={intensity} />
-                <MoodOverlay score={relationshipScore} intensity={intensity} />
+                <MoodOverlay score={relationshipScore} intensity={intensity} mood={currentMood} />
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <img 
                         src={activePersonaImage || persona.image} 
@@ -79,6 +84,9 @@ const ChatHeader = ({
                         />
                     )}
                 </div>
+                <div style={{ position: 'absolute', bottom: '-4px', right: '-4px', zIndex: 2 }}>
+                    <MoodMeter mood={currentMood} isBadge={true} />
+                </div>
                 <div className="status-online-indicator"></div>
             </div>
             <div className="chat-header-info" style={{ flex: 1 }}>
@@ -88,19 +96,10 @@ const ChatHeader = ({
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <p style={{ margin: 0, fontSize: '0.75rem', color: '#22c55e', fontWeight: '500' }}>Online</p>
                     <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}></span>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#a1a1aa' }}>{getRelationshipLabel(relationshipScore)} ({relationshipScore}%)</p>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#a1a1aa' }}>{getRelationshipLabel(relationshipScore)}</p>
                 </div>
             </div>
-            <div className="chat-header-actions" style={{ display: 'flex', gap: '4px' }}>
-                <button 
-                    onClick={onOpenStoryMap}
-                    className="header-action-btn"
-                    style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#a855f7', border: '1px solid rgba(139, 92, 246, 0.2)', padding: '6px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', marginRight: '4px' }}
-                    title="Progress"
-                >
-                    <Heart size={16} fill="#a855f7" />
-                </button>
-                
+            <div className="chat-header-actions" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                 <div style={{ position: 'relative' }} ref={menuRef}>
                     <button 
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
@@ -129,14 +128,28 @@ const ChatHeader = ({
                                         right: 0,
                                         marginTop: '10px',
                                         zIndex: 1000,
-                                        transformOrigin: 'top right'
+                                        transformOrigin: 'top right',
+                                        width: '220px'
                                     }}
                                 >
-                                    <button onClick={() => { onOpenHistory(); setIsMobileMenuOpen(false); }} className="menu-item"><History size={18} /> Chat History</button>
+                                    <div style={{ padding: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '0.7rem', color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Intel & Mood</span>
+                                            <span style={{ fontSize: '0.7rem', color: '#a855f7', fontWeight: 'bold' }}>{currentMood}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <button onClick={() => { onOpenMemory(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#3b82f6' }}><Brain size={18} /> Chat Intel Brain</button>
+                                    <button onClick={() => { onOpenInventory(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#fbbf24' }}><Package size={18} /> Collection / Inventory</button>
+                                    <button onClick={() => { onOpenStoryMap(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#ec4899' }}><Heart size={18} /> Relationship Map</button>
                                     <button onClick={() => { onOpenJournal(); setIsMobileMenuOpen(false); }} className="menu-item"><Book size={18} /> Memory Journal</button>
-                                    <button onClick={() => { onOpenGallery(); setIsMobileMenuOpen(false); }} className="menu-item"><ImageIcon size={18} /> Image Gallery</button>
-                                    <button onClick={() => { onOpenGifts(); setIsMobileMenuOpen(false); }} className="menu-item"><Gift size={18} /> Send a Gift</button>
+                                    <button onClick={() => { onOpenHistory(); setIsMobileMenuOpen(false); }} className="menu-item"><History size={18} /> All Chat Sessions</button>
+                                    
+                                    <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
+                                    <span style={{ padding: '0 0.75rem', fontSize: '0.65rem', color: '#71717a', textTransform: 'uppercase' }}>Character Media</span>
+                                    <button onClick={() => { onOpenGallery(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#c084fc' }}><ImageIcon size={18} /> Secret Album</button>
                                     <button onClick={() => { onOpenWardrobe(); setIsMobileMenuOpen(false); }} className="menu-item"><Shirt size={18} /> Wardrobe</button>
+                                    <button onClick={() => { onOpenGifts(); setIsMobileMenuOpen(false); }} className="menu-item"><Gift size={18} /> Send a Gift</button>
                                     
                                     <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
                                     

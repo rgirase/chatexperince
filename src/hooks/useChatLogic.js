@@ -40,6 +40,8 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     const [messageCountForScene, setMessageCountForScene] = useState(0);
     const [currentLocationId, setCurrentLocationId] = useState('kitchen_morning');
     const [customRelation, setCustomRelation] = useState('');
+    const [currentMood, setCurrentMood] = useState('Neutral'); // Character Core 2.0
+    const [inventory, setInventory] = useState([]); // Character Core 2.0 (RPG Update)
 
     const abortControllerRef = useRef(null);
 
@@ -119,6 +121,10 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             setCustomRelation(await db.getItem('settings', `relation${suffix}`) || '');
             setIsAvatarManual(await db.getItem('settings', `avatar_manual${suffix}`) || false);
             
+            // Character Core 2.0
+            setCurrentMood(await db.getItem('settings', `mood${suffix}`) || 'Neutral');
+            setInventory(await db.getItem('settings', `inventory${suffix}`) || []);
+            
             const savedRecap = await db.getItem('settings', `recap${suffix}`);
             setChapterRecap(savedRecap || "");
 
@@ -178,6 +184,10 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         db.setItem('settings', `location${suffix}`, currentLocationId);
         db.setItem('settings', `relation${suffix}`, customRelation);
         db.setItem('settings', `avatar_manual${suffix}`, isAvatarManual);
+        
+        // Character Core 2.0
+        db.setItem('settings', `mood${suffix}`, currentMood);
+        db.setItem('settings', `inventory${suffix}`, inventory);
 
         // Milestone Unlocking Logic
         const checkMilestones = async () => {
@@ -206,7 +216,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         };
         checkMilestones();
 
-    }, [messages, memory, relationshipScore, intensity, milestones, traits, encounterStats, currentSceneId, invitedPersona, activePersonaImage, currentLocationId, persona.id, sessionId, isDataLoaded]);
+    }, [messages, memory, relationshipScore, intensity, milestones, traits, encounterStats, currentSceneId, invitedPersona, activePersonaImage, currentLocationId, persona.id, sessionId, isDataLoaded, currentMood, inventory]);
 
     const startNewSession = async () => {
         setIsDataLoaded(false);
@@ -290,9 +300,13 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
                     const avatarMatch = rawText.match(/\[AVATAR:\s*(.*?)\]/i);
                     if (avatarMatch) setActivePersonaImage(avatarMatch[1].trim());
 
-                    // Mood log for debug
+                    // Mood logic Character Core 2.0
                     const moodMatch = rawText.match(/\[MOOD:\s*(.*?)\]/i);
-                    if (moodMatch) console.log(`[ChatLogic] Persona Mood: ${moodMatch[1]}`);
+                    if (moodMatch) {
+                        const newMood = moodMatch[1].trim();
+                        setCurrentMood(newMood);
+                        console.log(`[ChatLogic] Persona Mood: ${newMood}`);
+                    }
 
                     if (scoreDelta !== 0) {
                         setRelationshipScore(prev => Math.max(0, Math.min(100, prev + (scoreDelta * 5))));
@@ -478,6 +492,16 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         };
         setMessages(prev => [...prev, giftMsg]);
         setRelationshipScore(prev => Math.min(100, prev + gift.bonus));
+        
+        // Character Core 2.0: Collection Persistence
+        setInventory(prev => [
+            {
+                ...gift,
+                id: `gift_${Date.now()}`,
+                receivedAt: new Date().toISOString()
+            },
+            ...(prev || [])
+        ]);
         
         localStorage.setItem('lastPersonaId', persona.id);
         setIsTyping(true);
@@ -844,6 +868,10 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         handleUpdateEncounters,
         handlePerformAdultAction,
         customRelation,
-        chapterRecap
+        chapterRecap,
+        currentMood,
+        inventory,
+        setInventory,
+        setCurrentMood
     };
 };

@@ -32,14 +32,38 @@ const MessageList = ({
         <div className="messages-area" ref={messagesAreaRef}>
             {messages.map((msg, index) => (
                 <div key={msg.id || index} className={`message-wrapper ${msg.role}`}>
-                    <div className="message-content-group" style={{ maxWidth: '85%', position: 'relative' }}>
+                    <div className="message-content-group" style={{ maxWidth: '85%', position: 'relative', overflow: 'visible' }}>
+                        {/* Swipe Indicators behind bubble */}
+                        <div style={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 20px', zIndex: 0, opacity: 0.5 }}>
+                            <div style={{ color: '#ef4444' }}><Trash2 size={24} /></div>
+                            <div style={{ color: '#a855f7' }}><RefreshCw size={24} /></div>
+                        </div>
                         {msg.role === 'ai' && !msg.isPhoto && !msg.isSystem && (
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', padding: '0 4px' }}>
                                 <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#a855f7' }}>{persona.name}</span>
                             </div>
                         )}
                         
-                        <div className={`message-bubble ${msg.role} ${msg.isPhoto ? 'photo-bubble' : ''} ${msg.isMoment ? 'flashback-bubble' : ''}`}>
+                        <motion.div 
+                            className={`message-bubble ${msg.role} ${msg.isPhoto ? 'photo-bubble' : ''} ${msg.isMoment ? 'flashback-bubble' : ''}`}
+                            drag="x"
+                            dragConstraints={{ left: -100, right: 100 }}
+                            onDragEnd={(event, info) => {
+                                if (info.offset.x < -60) {
+                                    onDeleteMessage(msg.id);
+                                } else if (info.offset.x > 60) {
+                                    // Regenerate logic: 
+                                    // If AI, repair/regenerate. If User, resubmit.
+                                    if (msg.role === 'user') {
+                                        onResubmit(msg.id);
+                                    } else if (msg.role === 'ai' && index === messages.length - 1) {
+                                        onRepair(msg.id);
+                                    }
+                                }
+                            }}
+                            whileDrag={{ scale: 1.02, cursor: 'grabbing' }}
+                            style={{ position: 'relative', zIndex: 2 }}
+                        >
                             {msg.isPhoto ? (
                                 <div className="photo-container">
                                     {msg.url ? (
@@ -100,7 +124,7 @@ const MessageList = ({
                             ) : (
                                 <div dangerouslySetInnerHTML={{ __html: msg.content.replace(/\*(.*?)\*/g, '<em class="action">* $1 *</em>') }} />
                             )}
-                        </div>
+                        </motion.div>
 
                         {!msg.isSystem && (
                             <div className="message-meta-actions">
