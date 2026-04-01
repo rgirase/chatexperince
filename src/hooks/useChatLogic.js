@@ -412,26 +412,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
                                 });
                             }
 
-                            // Trigger "Moment of Truth" memory recall
-                            if (context.length > 5 && (context.length % 10 === 0)) {
-                                getDiaries(persona.id).then(diaries => {
-                                    const diaryTexts = diaries.map(d => d.content);
-                                    generateMemoryRecallQuestion(persona, milestones, diaryTexts).then(question => {
-                                        if (question) {
-                                            setTimeout(() => {
-                                                setMessages(prev => [...prev, {
-                                                    id: Date.now().toString() + "_moment",
-                                                    role: 'ai',
-                                                    content: question,
-                                                    isMoment: true
-                                                }]);
-                                                showToast(`${persona.name} is reminiscing...`, "success");
-                                            }, 2000);
-                                        }
-                                    });
-                                });
-                            }
-
                             return 0;
                         }
                         return newCount;

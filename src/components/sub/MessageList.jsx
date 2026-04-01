@@ -108,19 +108,6 @@ const MessageList = ({
                                         </div>
                                     )}
                                 </div>
-                            ) : msg.isMoment ? (
-                                <div className="flashback-content">
-                                    <div className="flashback-header">
-                                        <Sparkles size={14} className="premium-gradient-text" />
-                                        <span>Moment of Truth</span>
-                                    </div>
-                                    <div className="flashback-body">
-                                        {msg.content}
-                                    </div>
-                                    <div className="flashback-footer">
-                                        A shared memory that lingers...
-                                    </div>
-                                </div>
                             ) : msg.isSystem ? (
                                 <div className="system-message">{msg.content}</div>
                             ) : editingMessageId === msg.id ? (
