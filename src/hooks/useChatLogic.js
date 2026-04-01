@@ -8,8 +8,7 @@ import {
     extractSceneSummary, 
     generateVisualPrompt,
     generateDiaryEntry,
-    summarizeMemory,
-    generateMemoryRecallQuestion
+    summarizeMemory
 } from '../services/llm';
 import { getDiaries } from '../services/memory';
 import { getLocation, getAllLocations } from '../services/LocationService';
