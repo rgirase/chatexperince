@@ -42,6 +42,11 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     const [customRelation, setCustomRelation] = useState('');
     const [currentMood, setCurrentMood] = useState('Neutral'); // Character Core 2.0
     const [inventory, setInventory] = useState([]); // Character Core 2.0 (RPG Update)
+    const [narrativeSettings, setNarrativeSettings] = useState({
+        style: 'Novel', // Novel, Fast, Casual, Bratty
+        tension: 3,     // 1-5
+        focus: 'Mixed'  // Dialogue, Action, Mixed
+    });
 
     const abortControllerRef = useRef(null);
 
@@ -93,7 +98,10 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
                 setMessages([{
                     id: Date.now().toString(),
                     role: 'ai',
-                    content: cleanLeakage(initialContent)
+                    content: cleanLeakage(initialContent),
+                    personaId: persona.id,
+                    personaName: persona.name,
+                    personaAvatar: persona.image
                 }]);
                 
                 // Cleanup localStorage if it was used
@@ -124,6 +132,12 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             // Character Core 2.0
             setCurrentMood(await db.getItem('settings', `mood${suffix}`) || 'Neutral');
             setInventory(await db.getItem('settings', `inventory${suffix}`) || []);
+            setNarrativeSettings(await db.getItem('settings', `narrative${suffix}`) || {
+                style: 'Novel',
+                tension: 3,
+                focus: 'Mixed',
+                chaosMode: false
+            });
             
             const savedRecap = await db.getItem('settings', `recap${suffix}`);
             setChapterRecap(savedRecap || "");
@@ -188,6 +202,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         // Character Core 2.0
         db.setItem('settings', `mood${suffix}`, currentMood);
         db.setItem('settings', `inventory${suffix}`, inventory);
+        db.setItem('settings', `narrative${suffix}`, narrativeSettings);
 
         // Milestone Unlocking Logic
         const checkMilestones = async () => {
@@ -216,7 +231,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         };
         checkMilestones();
 
-    }, [messages, memory, relationshipScore, intensity, milestones, traits, encounterStats, currentSceneId, invitedPersona, activePersonaImage, currentLocationId, persona.id, sessionId, isDataLoaded, currentMood, inventory]);
+    }, [messages, memory, relationshipScore, intensity, milestones, traits, encounterStats, currentSceneId, invitedPersona, activePersonaImage, currentLocationId, persona.id, sessionId, isDataLoaded, currentMood, inventory, narrativeSettings]);
 
     const startNewSession = async () => {
         setIsDataLoaded(false);
@@ -250,12 +265,17 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     };
 
     const executeAiRequest = useCallback(async (aiMessageId, context, options = {}) => {
-        const { recalledMemory, ...restOptions } = options;
+        const { recalledMemory, overridePersona, ...restOptions } = options;
         abortControllerRef.current = new AbortController();
 
+        const activeSpeaker = overridePersona || persona;
+        const otherPersona = overridePersona ? persona : invitedPersona;
+
         const personaWithExtras = {
-            ...persona,
-            systemPrompt: (invitedPersona ? `${persona.systemPrompt}\n\n[CRITICAL: ${invitedPersona.name} has joined the scene and is interacting with you and the user.]` : persona.systemPrompt) + 
+            ...activeSpeaker,
+            systemPrompt: `[RESPONDING AS: ${activeSpeaker.name}]\n` +
+                          (otherPersona ? `[SCENE PARTNER: ${otherPersona.name} is also present and interacting.]\n` : "") +
+                          activeSpeaker.systemPrompt + 
                           (traits.length > 0 ? `\n\n[RECENT PERSONALITY EVOLUTION: ${traits.join(", ")}]` : "") +
                           (customRelation ? `\n\n[RELATIONSHIP ROLE: You are currently acting in the role of: ${customRelation}]` : "")
         };
@@ -267,8 +287,9 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             relationshipScore,
             currentSituation,
             recalledMemory,
+            narrativeSettings,
             ...options,
-            systemOverride: options.isRepair ? `[SYSTEM OVERRIDE: Your last response was invalid or contained metadata. This is a REPAIR ATTEMPT. You MUST respond ONLY with character dialogue and physical actions in pure narrative roleplay. NO JSON, NO MOOD TAGS, NO CODE, NO METADATA.]` : null
+            systemOverride: options.isRepair ? `[SYSTEM OVERRIDE: Your last response was invalid or contained metadata. This is a REPAIR ATTEMPT. You MUST respond ONLY with character dialogue and physical actions in pure narrative roleplay.]` : null
         };
 
         try {
@@ -282,10 +303,41 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
                 },
                 async (cleanedText, rawText) => {
                     setIsTyping(false);
-                    // Update message with final cleaned version
+                    // Update message with final cleaned version and persona metadata
                     setMessages(prev => prev.map(msg =>
-                        msg.id === aiMessageId ? { ...msg, content: cleanedText, isError: false } : msg
+                        msg.id === aiMessageId ? { 
+                            ...msg, 
+                            content: cleanedText, 
+                            isError: false,
+                            personaId: activeSpeaker.id,
+                            personaName: activeSpeaker.name,
+                            personaAvatar: activeSpeaker.id === persona.id ? activePersonaImage : activeSpeaker.image
+                        } : msg
                     ));
+
+                    // MULTI-PERSONA SEQUENTIAL LOOP
+                    // If we just finished primary character and there is an invited persona, trigger them
+                    if (!overridePersona && invitedPersona && !options.isRepair && !options.isSilent) {
+                        const invitedMsgId = (Date.now() + 2).toString();
+                        setMessages(prev => [...prev, { 
+                            id: invitedMsgId, 
+                            role: 'ai', 
+                            content: '', 
+                            isError: false,
+                            personaId: invitedPersona.id,
+                            personaName: invitedPersona.name,
+                            personaAvatar: invitedPersona.image
+                        }]);
+                        setIsTyping(true);
+                        
+                        // Small delay for natural flow
+                        setTimeout(() => {
+                            executeAiRequest(invitedMsgId, [...context, { role: 'ai', content: cleanedText }], { 
+                                ...options, 
+                                overridePersona: invitedPersona 
+                            });
+                        }, 1000);
+                    }
 
                     let scoreDelta = 0;
                     let photoPrompt = null;
@@ -306,6 +358,14 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
                         const newMood = moodMatch[1].trim();
                         setCurrentMood(newMood);
                         console.log(`[ChatLogic] Persona Mood: ${newMood}`);
+                    }
+
+                    // Proactive Actions Phase 6
+                    const actionMatch = rawText.match(/\[PROACTIVE_ACTION:\s*(.*?)\]/i);
+                    if (actionMatch) {
+                        const suggestion = actionMatch[1].trim().replace(/^["']|["']$/g, '');
+                        console.log(`[ChatLogic] Proactive Action Suggested: ${suggestion}`);
+                        setCurrentSuggestions([suggestion]);
                     }
 
                     if (scoreDelta !== 0) {
@@ -452,7 +512,15 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         setIsTyping(true);
 
         const aiMessageId = (Date.now() + 1).toString();
-        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
+        setMessages(prev => [...prev, { 
+            id: aiMessageId, 
+            role: 'ai', 
+            content: '', 
+            isError: false,
+            personaId: persona.id,
+            personaName: persona.name,
+            personaAvatar: activePersonaImage
+        }]);
 
         // DEEP MEMORY RETRIEVAL (RAG-lite)
         let recalledMemory = null;
@@ -506,7 +574,14 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         localStorage.setItem('lastPersonaId', persona.id);
         setIsTyping(true);
         const aiMessageId = (Date.now() + 1).toString();
-        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
+        setMessages(prev => [...prev, { 
+            id: aiMessageId, 
+            role: 'ai', 
+            content: '',
+            personaId: persona.id,
+            personaName: persona.name,
+            personaAvatar: activePersonaImage
+        }]);
 
         const giftDirective = {
             role: 'user',
@@ -514,7 +589,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         };
 
         await executeAiRequest(aiMessageId, [...messages, giftMsg, giftDirective]);
-    }, [messages, executeAiRequest]);
+    }, [messages, executeAiRequest, persona.id, activePersonaImage]);
 
     const handleSetOutfit = useCallback(async (outfit) => {
         setIsAvatarManual(true);
@@ -529,7 +604,14 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         localStorage.setItem('lastPersonaId', persona.id);
         setIsTyping(true);
         const aiMessageId = (Date.now() + 1).toString();
-        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
+        setMessages(prev => [...prev, { 
+            id: aiMessageId, 
+            role: 'ai', 
+            content: '',
+            personaId: persona.id,
+            personaName: persona.name,
+            personaAvatar: activePersonaImage
+        }]);
 
         const outfitDirective = {
             role: 'user',
@@ -537,7 +619,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         };
 
         await executeAiRequest(aiMessageId, [...messages, outfitMsg, outfitDirective]);
-    }, [messages, executeAiRequest]);
+    }, [messages, executeAiRequest, persona.id, activePersonaImage]);
 
     const handleSceneChange = useCallback(() => {
         const newScene = window.prompt("Enter new location or scene description:");
@@ -557,7 +639,14 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         
         setIsTyping(true);
         const aiMessageId = (Date.now() + 1).toString();
-        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
+        setMessages(prev => [...prev, { 
+            id: aiMessageId, 
+            role: 'ai', 
+            content: '',
+            personaId: persona.id,
+            personaName: persona.name,
+            personaAvatar: activePersonaImage
+        }]);
 
         const shuffleDirective = {
             role: 'user',
@@ -565,7 +654,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         };
 
         await executeAiRequest(aiMessageId, [...messages, shuffleDirective]);
-    }, [isTyping, messages, executeAiRequest]);
+    }, [isTyping, messages, executeAiRequest, persona.id, activePersonaImage]);
 
     const handleSelectFantasy = useCallback(async (fantasy) => {
         const fantasyMsg = { 
@@ -577,10 +666,17 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         
         setIsTyping(true);
         const aiMessageId = (Date.now() + 1).toString();
-        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
+        setMessages(prev => [...prev, { 
+            id: aiMessageId, 
+            role: 'ai', 
+            content: '',
+            personaId: persona.id,
+            personaName: persona.name,
+            personaAvatar: activePersonaImage
+        }]);
 
         await executeAiRequest(aiMessageId, [...messages, fantasyMsg]);
-    }, [messages, executeAiRequest]);
+    }, [messages, executeAiRequest, persona.id, activePersonaImage]);
 
     const handleScanIntimacy = useCallback(async () => {
         showToast("Scanning recent history for intimacy...", "info");
@@ -604,38 +700,66 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         }
     }, [persona, messages, showToast]);
 
-    const handlePerformAdultAction = useCallback(async (action, selectedModel, clothing, color) => {
+    const handlePerformAdultAction = useCallback(async (action, selectedModel, clothing, color, options = {}) => {
         if (isTyping) return;
 
-        const actionMsg = { 
-            id: Date.now().toString(), 
-            role: 'user', 
-            content: `*${action.label}*` 
-        };
-        setMessages(prev => [...prev, actionMsg]);
-        setRelationshipScore(prev => Math.min(100, prev + 2)); // High-intensity reward
-        
-        setIsTyping(true);
+        const isSilent = options.isSilent || false;
         const aiMessageId = (Date.now() + 1).toString();
-        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '' }]);
 
-        // 1. Trigger the Visual Generation (includes action LoRAs)
-        if (generateSelfie) {
-            const combinedPrompt = action.loras && action.loras.length > 0 
-                ? `${action.prompt}, ${action.loras.map(l => `<lora:${l.name}:${l.weight}>`).join(', ')}`
-                : action.prompt;
+        if (!isSilent) {
+            const actionMsg = { 
+                id: Date.now().toString(), 
+                role: 'user', 
+                content: `*${action.label}*` 
+            };
+            setMessages(prev => [...prev, actionMsg]);
+            setRelationshipScore(prev => Math.min(100, prev + 2)); 
             
-            generateSelfie(combinedPrompt, aiMessageId, 'portrait', selectedModel, clothing, color);
+            setMessages(prev => [...prev, { 
+                id: aiMessageId, 
+                role: 'ai', 
+                content: '', 
+                isError: false,
+                personaId: persona.id,
+                personaName: persona.name,
+                personaAvatar: activePersonaImage
+            }]);
+            setIsTyping(true);
+
+            // 1. Trigger the Visual Generation
+            if (generateSelfie) {
+                const combinedPrompt = action.loras && action.loras.length > 0 
+                    ? `${action.prompt}, ${action.loras.map(l => `<lora:${l.name}:${l.weight}>`).join(', ')}`
+                    : action.prompt;
+                
+                generateSelfie(combinedPrompt, aiMessageId, 'portrait', selectedModel, clothing, color);
+            }
+
+            // 2. Trigger the AI Response
+            const actionDirective = {
+                role: 'user',
+                content: `[SYSTEM DIRECTIVE: The user has initiated the action: ${action.label}. Reaction accordingly in persona.]`
+            };
+            await executeAiRequest(aiMessageId, [...messages, actionMsg, actionDirective]);
+        } else {
+            // SILENT MODE: Just create the image bubble
+            setMessages(prev => [...prev, { 
+                id: aiMessageId, 
+                role: 'ai', 
+                content: '', 
+                isPhoto: true, 
+                isError: false,
+                content: `[Generating ${action.label}...]`,
+                personaId: persona.id,
+                personaName: persona.name,
+                personaAvatar: activePersonaImage
+            }]);
+            
+            if (generateSelfie) {
+                generateSelfie(action.prompt, aiMessageId, 'portrait', selectedModel, clothing, color);
+            }
         }
-
-        // 2. Trigger the AI Response
-        const actionDirective = {
-            role: 'user',
-            content: `[SYSTEM DIRECTIVE: The user has initiated the erotic action: ${action.label}. You must provide a visceral, intense, and descriptive reaction to this specific act. Focus on your physical sensations and emotional state. Continue the scene proactively.]`
-        };
-
-        await executeAiRequest(aiMessageId, [...messages, actionMsg, actionDirective]);
-    }, [messages, executeAiRequest, generateSelfie, isTyping]);
+    }, [messages, executeAiRequest, generateSelfie, isTyping, persona.id, activePersonaImage]);
 
     const handleGenerateSceneImage = useCallback(async () => {
         showToast("Analyzing scene for visual capture...", "info");
@@ -709,7 +833,10 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         const initialMsg = {
             id: Date.now().toString(),
             role: 'ai',
-            content: cleanLeakage(persona.initialMessage) || "*Smiles softly* Hello..."
+            content: cleanLeakage(persona.initialMessage) || "*Smiles softly* Hello...",
+            personaId: persona.id,
+            personaName: persona.name,
+            personaAvatar: persona.image
         };
         
         setMessages([initialMsg]);
@@ -739,10 +866,18 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         setIsTyping(true);
         const aiMessageId = (Date.now() + 1).toString();
         // Add a fresh empty AI bubble for the new response
-        setMessages(prev => [...prev.slice(0, msgIndex + 1), { id: aiMessageId, role: 'ai', content: '', isError: false }]);
+        setMessages(prev => [...prev.slice(0, msgIndex + 1), { 
+            id: aiMessageId, 
+            role: 'ai', 
+            content: '', 
+            isError: false,
+            personaId: persona.id,
+            personaName: persona.name,
+            personaAvatar: activePersonaImage
+        }]);
 
         await executeAiRequest(aiMessageId, truncatedMessages);
-    }, [messages, isTyping, executeAiRequest, persona.id]);
+    }, [messages, isTyping, executeAiRequest, persona.id, activePersonaImage]);
     const handleRepair = useCallback(async (messageId) => {
         const msgIndex = messages.findIndex(m => m.id === messageId);
         if (msgIndex === -1 || isTyping) return;
@@ -756,10 +891,18 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
 
         setIsTyping(true);
         const aiMessageId = Date.now().toString() + "_repair";
-        setMessages(prev => [...prev.slice(0, userMsgIndex + 1), { id: aiMessageId, role: 'ai', content: 'Repairing response...', isError: false }]);
+        setMessages(prev => [...prev.slice(0, userMsgIndex + 1), { 
+            id: aiMessageId, 
+            role: 'ai', 
+            content: 'Repairing response...', 
+            isError: false,
+            personaId: persona.id,
+            personaName: persona.name,
+            personaAvatar: activePersonaImage
+        }]);
 
         await executeAiRequest(aiMessageId, truncatedMessages, { isRepair: true });
-    }, [messages, isTyping, executeAiRequest]);
+    }, [messages, isTyping, executeAiRequest, persona.id, activePersonaImage]);
 
     const handleContinue = useCallback(async () => {
         if (isTyping || messages.length === 0) return;
@@ -774,11 +917,19 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         setMessages(prev => [...prev, continueMsg]);
         setIsTyping(true);
         const aiMessageId = (Date.now() + 1).toString();
-        setMessages(prev => [...prev, { id: aiMessageId, role: 'ai', content: '', isError: false }]);
+        setMessages(prev => [...prev, { 
+            id: aiMessageId, 
+            role: 'ai', 
+            content: '', 
+            isError: false,
+            personaId: persona.id,
+            personaName: persona.name,
+            personaAvatar: activePersonaImage
+        }]);
 
         // We handle the continuation directive inside generateResponse (via isContinuation flag)
         await executeAiRequest(aiMessageId, [...messages, continueMsg], { isContinuation: true });
-    }, [messages, isTyping, executeAiRequest]);
+    }, [messages, isTyping, executeAiRequest, persona.id, activePersonaImage]);
 
     const handleLocationChange = useCallback(async (locationId) => {
         const location = getLocation(locationId);
@@ -800,11 +951,19 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
 
         // Trigger an immediate AI reaction to the new environment
         const aiMsgId = (Date.now() + 1).toString();
-        setMessages(prev => [...prev, { id: aiMsgId, role: 'ai', content: '', isTyping: true }]);
+        setMessages(prev => [...prev, { 
+            id: aiMsgId, 
+            role: 'ai', 
+            content: '', 
+            isTyping: true,
+            personaId: persona.id,
+            personaName: persona.name,
+            personaAvatar: activePersonaImage
+        }]);
         setIsTyping(true);
         
         await executeAiRequest(aiMsgId, [...messages, moveMsg], { currentSituation: location.situation });
-    }, [messages, executeAiRequest, showToast]);
+    }, [messages, executeAiRequest, showToast, persona.id, activePersonaImage]);
     const handleUpdateMemory = useCallback((newMemory) => {
         setMemory(newMemory);
         showToast("Memory manually updated", "success");
@@ -825,16 +984,74 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         showToast("Encounters updated", "success");
     }, [showToast]);
 
+    const handlePlotTwist = useCallback(async () => {
+        if (isTyping) return;
+        
+        showToast("Generating narrative shift...", "info");
+        setIsTyping(true);
+        const aiMessageId = (Date.now() + 1).toString();
+        setMessages(prev => [...prev, { 
+            id: aiMessageId, 
+            role: 'ai', 
+            content: '', 
+            isError: false,
+            personaId: persona.id,
+            personaName: persona.name,
+            personaAvatar: activePersonaImage
+        }]);
+
+        await executeAiRequest(aiMessageId, messages, { isPlotTwist: true });
+    }, [isTyping, messages, executeAiRequest, persona.id, activePersonaImage, showToast]);
+
+    const handleInvitePersona = useCallback(async (p) => {
+        setInvitedPersona(p);
+        const inviteMsg = {
+            id: Date.now().toString(),
+            role: 'user',
+            content: `*${p.name} joins the scene.*`,
+            isSystem: true
+        };
+        setMessages(prev => [...prev, inviteMsg]);
+        showToast(`${p.name} joined the scene`, "success");
+        
+        const aiMsgId = (Date.now() + 1).toString();
+        setMessages(prev => [...prev, { 
+            id: aiMsgId, 
+            role: 'ai', 
+            content: '', 
+            isTyping: true,
+            personaId: persona.id,
+            personaName: persona.name,
+            personaAvatar: activePersonaImage
+        }]);
+        setIsTyping(true);
+        await executeAiRequest(aiMsgId, [...messages, inviteMsg], { invitedPersona: p });
+    }, [messages, executeAiRequest, persona, activePersonaImage, showToast]);
+
+    const handleRemovePersona = useCallback(() => {
+        if (!invitedPersona) return;
+        const name = invitedPersona.name;
+        setInvitedPersona(null);
+        setMessages(prev => [...prev, {
+            id: Date.now().toString(),
+            role: 'user',
+            content: `*${name} leaves the scene.*`,
+            isSystem: true
+        }]);
+        showToast(`${name} left the scene`, "info");
+    }, [invitedPersona, showToast]);
+
     return {
         messages, setMessages,
         input, setInput,
         isTyping,
         isSuggesting,
-        relationshipScore,
-        memory,
+        relationshipScore, setRelationshipScore,
         intensity, setIntensity,
-        milestones,
-        traits,
+        memory, setMemory,
+        invitedPersona, setInvitedPersona,
+        handleInvitePersona, handleRemovePersona,
+        handlePlotTwist,
         encounterStats,
         currentSituation,
         activePersonaImage,
@@ -872,6 +1089,8 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         currentMood,
         inventory,
         setInventory,
-        setCurrentMood
+        setCurrentMood,
+        narrativeSettings,
+        setNarrativeSettings
     };
 };

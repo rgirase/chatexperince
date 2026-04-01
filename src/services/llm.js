@@ -278,8 +278,19 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
         isContinuation = false,
         intensity = 3,
         memory = '',
-        isTimeSkip = false
+        isTimeSkip = false,
+        narrativeSettings = { style: 'Novel', tension: 3, focus: 'Mixed' }
     } = options;
+
+    const narrativeDirective = `
+[NARRATIVE STYLE: ${narrativeSettings.style}]
+- Writing Style: ${narrativeSettings.style === 'Novel' ? 'Descriptive prose.' : 
+                   narrativeSettings.style === 'Bratty' ? 'Teasing and defiant.' : 
+                   'Casual and modern.'}
+- Tension: ${narrativeSettings.tension}/5.
+- Focus: ${narrativeSettings.focus}.
+${narrativeSettings.chaosMode ? `\n[CHAOS MODE ACTIVE: You are in a high-unpredictability state. Break conversational loops, introduce sudden internal or external conflict, and be more emotionally volatile or creative than usual. Do NOT be polite or predictable.]` : ""}
+`;
 
     const recalledMemoryDirective = options.recalledMemory && options.recalledMemory.length > 0 ?
         `\n\n[RECALLED HISTORY: You specifically remember these details from previous conversations: ${options.recalledMemory.map(m => `"${m.user}" (Your response: "${m.ai}")`).join(" | ")}]` : "";
@@ -296,7 +307,7 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
         `\n\n[MULTI-CHARACTER MODE: ${invitedName} is also present. You must manage BOTH characters. Use the character names at the start of dialogue if helpful, but primarily ensure their unique personalities and descriptions are distinct. You are acting as BOTH ${charName} and ${invitedName} in this scene.]` : "";
 
     const biblePrompt = `YOU ARE ${charName}${invitedName ? ` and ${invitedName}` : ""}.
-Roleplay identity of ${charName}: ${persona.systemPrompt}${timeSkipDirective}${multiCharDirective}${recalledMemoryDirective}
+Roleplay identity of ${charName}: ${persona.systemPrompt}${timeSkipDirective}${multiCharDirective}${recalledMemoryDirective}${narrativeDirective}
 ${options.invitedPersona ? `Roleplay identity of ${invitedName}: ${options.invitedPersona.systemPrompt}` : ""}
 
 Voice: Immersive, descriptive, multi-paragraph narrative. Use *asterisks* for actions and natural dialogue.
@@ -308,8 +319,9 @@ Recent Milestones: ${milestones.length > 0 ? milestones.slice(-5).join(". ") : "
 Intensity: ${intensity}/5
 ${options.currentSituation ? `Situation: ${options.currentSituation}` : ""}
 ${localStorage.getItem('userName') ? "User's Name: " + localStorage.getItem('userName') : ""}
-
-FINAL RULE: Always end your response with your current mood exactly like this: [MOOD: emotion]`;
+FINAL RULE: Always end your response with your current mood exactly like this: [MOOD: emotion].
+OPTIONAL: If you want to proactively suggest an action for the User to take next, add [PROACTIVE_ACTION: "short suggestion"] at the very end.
+${options.isPlotTwist ? `[PLOT TWIST TRIGGERED: STOP the current conversational flow. You MUST introduce a sudden, dramatic, and unexpected external event or a massive shift in the character's behavior. Something has happened right NOW that changes the entire trajectory of the scene. Be vivid and bold with this twist.]` : ""}`;
 
     // 2. CONSTRUCT HISTORY (Cleaned and formatted)
     let rawHistory = trimHistory(messages, MAX_HISTORY_CHARS - biblePrompt.length);
@@ -370,10 +382,10 @@ FINAL RULE: Always end your response with your current mood exactly like this: [
                 messages: formattedMessages,
                 max_tokens: MAX_RESPONSE_TOKENS,
                 stream: true,
-                temperature: 0.8,
+                temperature: narrativeSettings.chaosMode ? 0.95 : 0.8,
                 top_p: 0.95,
-                frequency_penalty: 0.5,
-                presence_penalty: 0.5,
+                frequency_penalty: narrativeSettings.chaosMode ? 1.0 : 0.5,
+                presence_penalty: narrativeSettings.chaosMode ? 1.0 : 0.5,
                 stop: [
                     "User:", "Assistant:", "###", "System:",
                     "<|eot_id|>", "<|im_end|>", "<|endoftext|>", "<|end_of_text|>",
@@ -676,7 +688,10 @@ export const extractSceneSummary = async (persona, messages) => {
     const url = getLmStudioUrl();
     // last 10 messages for scene context
     const recent = messages.slice(-10);
-    const transcript = recent.map(msg => `${msg.role === 'user' ? 'User' : charName}: ${msg.content}`).join('\n\n');
+    const transcript = recent.map(msg => {
+        const name = msg.role === 'user' ? 'User' : (msg.personaName || charName);
+        return `${name}: ${msg.content}`;
+    }).join('\n\n');
 
     const prompt = `You are a cinematic scene tracker.
 Review the following recent interaction for its IMMEDIATE physical and situational context.
@@ -721,8 +736,12 @@ Return ONLY the summary sentence. No intros or outros.
 export const generateVisualPrompt = async (persona, messages) => {
     const charName = getShortName(persona.name);
     const url = getLmStudioUrl();
+    // Transcript (last 10 messages):
     const recent = messages.slice(-10);
-    const transcript = recent.map(msg => `${msg.role === 'user' ? 'User' : charName}: ${msg.content}`).join('\n\n');
+    const transcript = recent.map(msg => {
+        const name = msg.role === 'user' ? 'User' : (msg.personaName || charName);
+        return `${name}: ${msg.content}`;
+    }).join('\n\n');
 
     const prompt = `You are an AI image prompt engineer.
 Review the following recent roleplay interaction.

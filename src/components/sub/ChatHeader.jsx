@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     ArrowLeft, Heart, Gift, Shirt, Book, History, Trash2, Home, Sparkles, 
     Flame, UserPlus, Wand2, MapPin, Image as ImageIcon, MessageSquare, 
-    Users, MoreVertical, Map as MapIcon, Brain, Package
+    Users, MoreVertical, Map as MapIcon, Brain, Package, Sliders, Eye, EyeOff, Camera
 } from 'lucide-react';
 import AuraPulse from './AuraPulse';
 import MoodOverlay from './MoodOverlay';
@@ -36,7 +36,11 @@ const ChatHeader = ({
     currentMood, // Character Core 2.0
     memory, // Character Core 2.0
     onOpenMemory, // Character Core 2.0
-    onOpenInventory // Character Core 2.0
+    onOpenInventory, // Character Core 2.0
+    isImmersionMode, // Phase 4
+    onToggleImmersion, // Phase 4
+    onOpenDirector, // Phase 4
+    onOpenActionLibrary // Phase 4
 }) => {
     const menuRef = useRef(null);
 
@@ -90,8 +94,8 @@ const ChatHeader = ({
                 <div className="status-online-indicator"></div>
             </div>
             <div className="chat-header-info" style={{ flex: 1 }}>
-                <h3 className="premium-gradient-text" style={{ margin: 0, fontSize: '1rem' }}>
-                    {persona.name}
+                <h3 className="premium-gradient-text" style={{ margin: 0, fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {persona.name}{invitedPersona ? ` & ${invitedPersona.name}` : ''}
                 </h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <p style={{ margin: 0, fontSize: '0.75rem', color: '#22c55e', fontWeight: '500' }}>Online</p>
@@ -101,6 +105,21 @@ const ChatHeader = ({
             </div>
             <div className="chat-header-actions" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                 <div style={{ position: 'relative' }} ref={menuRef}>
+                    <button 
+                        onClick={onToggleImmersion} 
+                        className="header-action-btn"
+                        title={isImmersionMode ? "Exit Immersion" : "Enter Immersion"}
+                        style={{ 
+                            background: isImmersionMode ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255, 255, 255, 0.05)', 
+                            color: isImmersionMode ? 'var(--primary-color)' : '#fff', 
+                            border: `1px solid ${isImmersionMode ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.1)'}`, 
+                            padding: '6px', 
+                            borderRadius: '10px' 
+                        }}
+                    >
+                        {isImmersionMode ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+
                     <button 
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
                         className="header-action-btn"
@@ -141,6 +160,11 @@ const ChatHeader = ({
                                     
                                     <button onClick={() => { onOpenMemory(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#3b82f6' }}><Brain size={18} /> Chat Intel Brain</button>
                                     <button onClick={() => { onOpenInventory(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#fbbf24' }}><Package size={18} /> Collection / Inventory</button>
+                                    
+                                    <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
+                                    <span style={{ padding: '0 0.75rem', fontSize: '0.65rem', color: '#71717a', textTransform: 'uppercase' }}>Narrative Engine</span>
+                                    <button onClick={() => { onOpenDirector(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#22c55e' }}><Sliders size={18} /> Narrative Director</button>
+                                    <button onClick={() => { onOpenActionLibrary(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#f472b6' }}><Camera size={18} /> Action & Pose Studio</button>
                                     <button onClick={() => { onOpenStoryMap(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#ec4899' }}><Heart size={18} /> Relationship Map</button>
                                     <button onClick={() => { onOpenJournal(); setIsMobileMenuOpen(false); }} className="menu-item"><Book size={18} /> Memory Journal</button>
                                     <button onClick={() => { onOpenHistory(); setIsMobileMenuOpen(false); }} className="menu-item"><History size={18} /> All Chat Sessions</button>

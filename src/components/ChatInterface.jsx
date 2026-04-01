@@ -20,6 +20,8 @@ import InviteModal from './sub/InviteModal';
 import GalleryModal from './sub/GalleryModal';
 import AdultActionsModal from './sub/AdultActionsModal';
 import InventoryModal from './sub/InventoryModal';
+import DirectorSettingsModal from './sub/DirectorSettingsModal';
+import ActionLibraryModal from './sub/ActionLibraryModal';
 
 const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, scenario }) => {
     // --- UI VIEW STATE ---
@@ -38,6 +40,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     const [isLocationSwitcherOpen, setIsLocationSwitcherOpen] = useState(false);
     const [isAdultActionsOpen, setIsAdultActionsOpen] = useState(false);
     const [isInventoryOpen, setIsInventoryOpen] = useState(false); // Character Core 2.0
+    const [isImmersionMode, setIsImmersionMode] = useState(false); // Phase 4
+    const [isDirectorOpen, setIsDirectorOpen] = useState(false);   // Phase 4
+    const [isActionLibraryOpen, setIsActionLibraryOpen] = useState(false); // Phase 4
     
     // --- EDITING STATE ---
     const [editingMessageId, setEditingMessageId] = useState(null);
@@ -107,8 +112,13 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         chapterRecap,
         currentMood,
         inventory,
+        handleInvitePersona,
+        handleRemovePersona,
+        handlePlotTwist,
         setInventory,
-        setCurrentMood
+        setCurrentMood,
+        narrativeSettings,
+        setNarrativeSettings
     } = useChatLogic(persona, showToast, scenario, generateSelfie);
 
     // Update the ref whenever setMessages changes
@@ -276,11 +286,16 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 memory={memory}
                 onOpenMemory={() => setIsMemoryViewerOpen(true)}
                 onOpenInventory={() => setIsInventoryOpen(true)}
+                isImmersionMode={isImmersionMode}
+                onToggleImmersion={() => setIsImmersionMode(!isImmersionMode)}
+                onOpenDirector={() => setIsDirectorOpen(true)}
+                onOpenActionLibrary={() => setIsActionLibraryOpen(true)}
             />
 
             <MessageList 
                 messages={messages}
                 persona={persona}
+                isImmersionMode={isImmersionMode}
                 editingMessageId={editingMessageId}
                 editContent={editContent}
                 setEditContent={setEditContent}
@@ -376,11 +391,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                     <InviteModal 
                         isOpen={isInviteModalOpen}
                         onClose={() => setIsInviteModalOpen(false)}
-                        onInvite={setInvitedPersona}
+                        onInvite={handleInvitePersona}
                         allPersonas={allPersonas}
                         currentPersona={persona}
                         invitedPersona={invitedPersona}
-                        onRemove={() => setInvitedPersona(null)}
+                        onRemove={handleRemovePersona}
                     />
                 )}
 
@@ -439,6 +454,35 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                         onClose={() => setIsAdultActionsOpen(false)}
                         onConfirm={handlePerformAdultAction}
                         relationshipScore={relationshipScore}
+                    />
+                )}
+
+                {/* Phase 4 & RPG Update Modals */}
+                {isDirectorOpen && (
+                    <DirectorSettingsModal 
+                        isOpen={isDirectorOpen}
+                        onClose={() => setIsDirectorOpen(false)}
+                        settings={narrativeSettings}
+                        onUpdate={setNarrativeSettings}
+                        onPlotTwist={handlePlotTwist}
+                    />
+                )}
+
+                {isActionLibraryOpen && (
+                    <ActionLibraryModal 
+                        isOpen={isActionLibraryOpen}
+                        onClose={() => setIsActionLibraryOpen(false)}
+                        persona={persona}
+                        onExecuteAction={handlePerformAdultAction}
+                    />
+                )}
+
+                {isInventoryOpen && (
+                    <InventoryModal 
+                        isOpen={isInventoryOpen}
+                        onClose={() => setIsInventoryOpen(false)}
+                        items={inventory}
+                        personaName={persona.name}
                     />
                 )}
             </AnimatePresence>

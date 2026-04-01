@@ -17,7 +17,8 @@ const MessageList = ({
     onRepair,
     onCheckStatus,
     isTyping,
-    messagesAreaRef
+    messagesAreaRef,
+    isImmersionMode = false
 }) => {
     const handleDownload = (url, filename) => {
         const link = document.createElement('a');
@@ -29,31 +30,36 @@ const MessageList = ({
     };
 
     return (
-        <div className="messages-area" ref={messagesAreaRef}>
+        <div className={`messages-area ${isImmersionMode ? 'immersion-mode' : ''}`} ref={messagesAreaRef}>
             {messages.map((msg, index) => (
-                <div key={msg.id || index} className={`message-wrapper ${msg.role}`}>
-                    <div className="message-content-group" style={{ maxWidth: '85%', position: 'relative', overflow: 'visible' }}>
+                <div key={msg.id || index} className={`message-wrapper ${msg.role} ${isImmersionMode ? 'immersion' : ''}`}>
+                    <div className="message-content-group" style={{ maxWidth: isImmersionMode && msg.role === 'ai' ? '100%' : '85%', position: 'relative', overflow: 'visible', width: isImmersionMode && msg.role === 'ai' ? '100%' : 'auto' }}>
                         {/* Swipe Indicators behind bubble */}
-                        <div style={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 20px', zIndex: 0, opacity: 0.5, pointerEvents: 'none' }}>
-                            <div style={{ color: '#ef4444' }}><Trash2 size={24} /></div>
-                            <div style={{ color: '#a855f7' }}><RefreshCw size={24} /></div>
-                        </div>
+                        {!isImmersionMode && (
+                            <div style={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 20px', zIndex: 0, opacity: 0.5, pointerEvents: 'none' }}>
+                                <div style={{ color: '#ef4444' }}><Trash2 size={24} /></div>
+                                <div style={{ color: '#a855f7' }}><RefreshCw size={24} /></div>
+                            </div>
+                        )}
                         {msg.role === 'ai' && !msg.isPhoto && !msg.isSystem && (
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', padding: '0 4px' }}>
-                                <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#a855f7' }}>{persona.name}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', padding: '0 4px' }}>
+                                {!isImmersionMode && (
+                                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', overflow: 'hidden', border: '1px solid rgba(168, 85, 247, 0.4)', flexShrink: 0 }}>
+                                        <img src={msg.personaAvatar || persona.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    </div>
+                                )}
+                                <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#a855f7' }}>{msg.personaName || persona.name}</span>
                             </div>
                         )}
                         
                         <motion.div 
-                            className={`message-bubble ${msg.role} ${msg.isPhoto ? 'photo-bubble' : ''} ${msg.isMoment ? 'flashback-bubble' : ''}`}
-                            drag="x"
+                            className={`message-bubble ${msg.role} ${msg.isPhoto ? 'photo-bubble' : ''} ${msg.isMoment ? 'flashback-bubble' : ''} ${isImmersionMode ? 'cinematic' : ''}`}
+                            drag={!isImmersionMode ? "x" : false}
                             dragConstraints={{ left: -100, right: 100 }}
                             onDragEnd={(event, info) => {
-                                if (info.offset.x < -60) {
+                                if (!isImmersionMode && info.offset.x < -60) {
                                     onDeleteMessage(msg.id);
-                                } else if (info.offset.x > 60) {
-                                    // Regenerate logic: 
-                                    // If AI, repair/regenerate. If User, resubmit.
+                                } else if (!isImmersionMode && info.offset.x > 60) {
                                     if (msg.role === 'user') {
                                         onResubmit(msg.id);
                                     } else if (msg.role === 'ai' && index === messages.length - 1) {
@@ -61,11 +67,20 @@ const MessageList = ({
                                     }
                                 }
                             }}
-                            whileDrag={{ scale: 1.02, cursor: 'grabbing' }}
-                            style={{ position: 'relative', zIndex: 2 }}
+                            whileDrag={!isImmersionMode ? { scale: 1.02, cursor: 'grabbing' } : {}}
+                            style={{ 
+                                position: 'relative', 
+                                zIndex: 2, 
+                                background: isImmersionMode && msg.role === 'ai' ? 'transparent' : undefined,
+                                border: isImmersionMode && msg.role === 'ai' ? 'none' : undefined,
+                                boxShadow: isImmersionMode && msg.role === 'ai' ? 'none' : undefined,
+                                padding: isImmersionMode && msg.role === 'ai' ? '1rem 2rem' : undefined,
+                                width: isImmersionMode && msg.role === 'ai' ? '100%' : 'auto',
+                                textAlign: isImmersionMode && msg.role === 'ai' ? 'center' : 'left'
+                            }}
                         >
                             {msg.isPhoto ? (
-                                <div className="photo-container">
+                                <div className="photo-container" style={{ margin: isImmersionMode ? '0 auto' : '0', maxWidth: isImmersionMode ? '100%' : '100%' }}>
                                     {msg.url ? (
                                         <>
                                             <img src={msg.url} alt="Selfie" style={{ width: '100%', borderRadius: '12px', display: 'block' }} />
@@ -122,12 +137,28 @@ const MessageList = ({
                                     </div>
                                 </div>
                             ) : (
-                                <div dangerouslySetInnerHTML={{ __html: msg.content.replace(/\*(.*?)\*/g, '<em class="action">* $1 *</em>') }} />
+                                <div 
+                                    className={isImmersionMode && msg.role === 'ai' ? 'cinematic-text' : ''}
+                                    style={{ 
+                                        fontFamily: isImmersionMode && msg.role === 'ai' ? '"Handlee", cursive' : 'inherit',
+                                        fontSize: isImmersionMode && msg.role === 'ai' ? '1.4rem' : 'inherit',
+                                        lineHeight: isImmersionMode && msg.role === 'ai' ? '1.6' : 'inherit',
+                                        color: isImmersionMode && msg.role === 'ai' ? '#fff' : 'inherit',
+                                        textShadow: isImmersionMode && msg.role === 'ai' ? '0 2px 10px rgba(0,0,0,0.8)' : 'none'
+                                    }}
+                                >
+                                    {isImmersionMode && msg.role === 'ai' && (
+                                        <span style={{ color: '#a855f7', marginRight: '10px', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '1rem', verticalAlign: 'middle', fontWeight: 'bold' }}>
+                                            {msg.personaName || persona.name}:
+                                        </span>
+                                    )}
+                                    <span dangerouslySetInnerHTML={{ __html: msg.content.replace(/\*(.*?)\*/g, '<em class="action">* $1 *</em>') }} />
+                                </div>
                             )}
                         </motion.div>
 
                         {!msg.isSystem && (
-                            <div className="message-meta-actions">
+                            <div className={`message-meta-actions ${isImmersionMode ? 'immersion-actions' : ''}`} style={{ opacity: isImmersionMode ? 0.3 : undefined }}>
                                 <button onClick={() => onEditStart(msg)} title="Edit"><Edit2 size={12} /></button>
                                 <button onClick={() => onDeleteMessage(msg.id)} title="Delete"><Trash2 size={12} /></button>
                                 {msg.role === 'user' && (
