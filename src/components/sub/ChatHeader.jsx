@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     ArrowLeft, Heart, Gift, Shirt, Book, History, Trash2, Home, Sparkles, 
     Flame, UserPlus, Wand2, MapPin, Image as ImageIcon, MessageSquare, 
-    Users, MoreVertical, Map as MapIcon, Brain, Package, Sliders, Eye, EyeOff, Camera
+    Users, MoreVertical, Brain, Package, Sliders, Eye, EyeOff, Camera
 } from 'lucide-react';
 import AuraPulse from './AuraPulse';
 import MoodOverlay from './MoodOverlay';
