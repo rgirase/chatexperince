@@ -1,0 +1,84 @@
+{
+  "prompt": {
+    "3": {
+      "inputs": {
+        "seed": 123456,
+        "steps": 25,
+        "cfg": 7,
+        "sampler_name": "dpmpp_2m",
+        "scheduler": "karras",
+        "denoise": 1,
+        "model": ["10", 0],
+        "positive": ["6", 0],
+        "negative": ["7", 0],
+        "latent_image": ["5", 0]
+      },
+      "class_type": "KSampler"
+    },
+    "4": {
+      "inputs": {
+        "ckpt_name": "realismByStableYogi_ponyV3VAE.safetensors"
+      },
+      "class_type": "CheckpointLoaderSimple"
+    },
+    "5": {
+      "inputs": {
+        "width": 832,
+        "height": 1216,
+        "batch_size": 1
+      },
+      "class_type": "EmptyLatentImage"
+    },
+    "6": {
+      "inputs": {
+        "text": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_explicit, beautiful 27yo Indian woman, Gauri (soft classical beauty, curvaceous 36D-26-40, large expressive eyes, long dark hair in a loose braid), wearing a simple cotton house saree with a modest blouse, standing in a dim kitchen, soft evening light, seductive expression, photorealistic, 8k, masterpiece",
+        "clip": ["11", 0]
+      },
+      "class_type": "CLIPTextEncode"
+    },
+    "7": {
+      "inputs": {
+        "text": "score_4, score_3, score_2, score_1, (worst quality:1.2), (low quality:1.2), (normal quality:1.2), lowres, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs",
+        "clip": ["11", 0]
+      },
+      "class_type": "CLIPTextEncode"
+    },
+    "8": {
+      "inputs": {
+        "samples": ["3", 0],
+        "vae": ["12", 0]
+      },
+      "class_type": "VAEDecode"
+    },
+    "9": {
+      "inputs": {
+        "filename_prefix": "gauri_bhabhi_profile",
+        "images": ["8", 0]
+      },
+      "class_type": "SaveImage"
+    },
+    "10": {
+      "inputs": {
+        "lora_name": "Seductive_sister.safetensors",
+        "strength_model": 0.5,
+        "strength_clip": 0.5,
+        "model": ["4", 0],
+        "clip": ["4", 1]
+      },
+      "class_type": "LoraLoader"
+    },
+    "11": {
+      "inputs": {
+        "stop_at_clip_layer": -2,
+        "clip": ["10", 1]
+      },
+      "class_type": "CLIPSetLastLayer"
+    },
+    "12": {
+      "inputs": {
+        "vae_name": "sdxl_vae_fix.safetensors"
+      },
+      "class_type": "VAELoader"
+    }
+  }
+}

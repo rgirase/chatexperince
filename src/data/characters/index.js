@@ -161,6 +161,9 @@ import alexis_older_stepsister from './alexis_older_stepsister.js';
 import victoria_business_stepmom from './victoria_business_stepmom.js';
 import { millie_thorne } from './millie_thorne.js';
 import { julia_forgotten_wife } from './julia_forgotten_wife.js';
+import { gauri_bhabhi } from './gauri_bhabhi.js';
+import { anjali_auntie } from './anjali_auntie.js';
+import { meera_bride } from './meera_bride.js';
 
 
 export const characters = [
@@ -327,5 +330,8 @@ export const characters = [
   victoria_business_stepmom,
   millie_thorne,
   julia_forgotten_wife,
+  gauri_bhabhi,
+  anjali_auntie,
+  meera_bride,
 ];
 
