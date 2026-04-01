@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, X, Wand2, Sparkles, Droplets, Flame, Skull, Utensils } from 'lucide-react';
+import { Camera, X, Wand2, Sparkles, Droplets, Flame, Skull, Utensils, Shirt, Palette } from 'lucide-react';
 import { AVAILABLE_PONY_MODELS } from '../../config';
+import { CLOTHING_TYPES, COLORS } from '../../data/imageGenOptions';
 
 const ACTION_CATEGORIES = {
     "Outfits": [
@@ -19,7 +20,12 @@ const ACTION_CATEGORIES = {
         { label: "Anal Side Lying", text: "side view, spooning, (anal penetration:1.4), cock in ass, side-lying position, legs pulled back, extreme detail, in a private morning studio, soft lighting <lora:ossplnskFT15rs4.safetensors:0.8>" },
         { label: "Reverse Cowgirl", text: "rear view, sitting on cock, reverse cowgirl, (vaginal penetration:1.4), looking back at viewer over shoulder, arching back, seductive gaze, on a penthouse rooftop balcony, sunset skyline <lora:rvcgcoopcclnFT15.safetensors:0.8>" },
         { label: "Face Sitting", text: "(facesitting:1.4), sitting on face, smothering, extreme expression, looking down, shiny skin, dominant" },
-        { label: "69 Position", text: "(69 position:1.5), mutual oral sex, faces buried in genitals, intricate posing, extreme detail, on luxurious satin sheets" }
+        { label: "69 Position", text: "(69 position:1.5), mutual oral sex, faces buried in genitals, intricate posing, extreme detail, on luxurious satin sheets" },
+        { label: "Lying on Back", text: "lying on back, legs spread wide, (legs up:1.3), revealing self, looking at viewer, intimate, on silk sheets" },
+        { label: "Sitting on Bed", text: "sitting on edge of bed, (leaning back on elbows:1.2), knees apart, looking seductive, master bedroom" },
+        { label: "Bending Over", text: "bending over, (rear view:1.3), looking back at viewer over shoulder, arching back, hands on knees, revealing" },
+        { label: "Mirror Selfie", text: "(mirror selfie:1.4), holding phone, reflection, standing in luxury bathroom, looking at phone screen" },
+        { label: "Leaning Wall", text: "standing, (leaning against wall:1.2), one leg lifted, hands behind head, looking at viewer, dramatic lighting" }
     ],
     "Fluids": [
         { label: "Cumshot", text: "close up on face and massive breasts, ((thick viscous white cum splattered all over face and boobs:1.5)), (cum dripping from lips:1.3), messy face, glazed eyes, highly detailed skin texture, pearl necklace, masterpiece, bathroom mirror background <lora:orlpvmltlnccFT15.safetensors:0.8>" },
@@ -61,12 +67,14 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
     const [prompt, setPrompt] = useState("");
     const [aspectRatio, setAspectRatio] = useState('portrait');
     const [activeCategory, setActiveCategory] = useState("Positions");
-    const [selectedModel, setSelectedModel] = useState(localStorage.getItem('lastSelectedPonyModel') || "0184PONYLordkamix_v10.safetensors");
+    const [selectedModel, setSelectedModel] = useState(localStorage.getItem('lastSelectedPonyModel') || "realismByStableYogi_ponyV3VAE.safetensors");
+    const [selectedClothing, setSelectedClothing] = useState('none');
+    const [selectedColor, setSelectedColor] = useState('none');
 
     const AVAILABLE_MODELS = AVAILABLE_PONY_MODELS;
 
     const handleSubmit = () => {
-        onConfirm(prompt, aspectRatio, selectedModel);
+        onConfirm(prompt, aspectRatio, selectedModel, selectedClothing, selectedColor);
         setPrompt("");
         onClose();
     };
@@ -97,8 +105,59 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                 Describe exactly what you want to see. The character's current appearance and location will be added automatically.
                             </p>
 
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '1.5rem' }}>
+                                <div>
+                                    <div style={{ color: '#fbbf24', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        <Shirt size={14} /> Style
+                                    </div>
+                                    <select 
+                                        value={selectedClothing}
+                                        onChange={(e) => setSelectedClothing(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '10px 12px',
+                                            borderRadius: '8px',
+                                            background: 'rgba(0,0,0,0.4)',
+                                            border: '1px solid #3f3f46',
+                                            color: 'white',
+                                            fontSize: '0.9rem',
+                                            outline: 'none',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {CLOTHING_TYPES.map(type => (
+                                            <option key={type.id} value={type.id} style={{ background: '#1e1e2e' }}>{type.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div style={{ color: '#60a5fa', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        <Palette size={14} /> Color
+                                    </div>
+                                    <select 
+                                        value={selectedColor}
+                                        onChange={(e) => setSelectedColor(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '10px 12px',
+                                            borderRadius: '8px',
+                                            background: 'rgba(0,0,0,0.4)',
+                                            border: '1px solid #3f3f46',
+                                            color: 'white',
+                                            fontSize: '0.9rem',
+                                            outline: 'none',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {COLORS.map(color => (
+                                            <option key={color.id} value={color.id} style={{ background: '#1e1e2e' }}>{color.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <div style={{ color: '#fbbf24', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold' }}>Core Engine</div>
+                                <div style={{ color: '#a855f7', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold' }}>Core Engine</div>
                                 <select 
                                     value={selectedModel}
                                     onChange={(e) => {
@@ -115,12 +174,7 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                         color: 'white',
                                         fontSize: '0.9rem',
                                         outline: 'none',
-                                        cursor: 'pointer',
-                                        appearance: 'none',
-                                        backgroundImage: `url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a1a1aa%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")`,
-                                        backgroundRepeat: 'no-repeat',
-                                        backgroundPosition: 'right 12px top 50%',
-                                        backgroundSize: '12px auto'
+                                        cursor: 'pointer'
                                     }}
                                 >
                                     {AVAILABLE_MODELS.map(model => (

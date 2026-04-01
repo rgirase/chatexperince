@@ -1,11 +1,12 @@
 import { useState, useCallback, useRef } from 'react';
 import * as db from '../services/db';
 import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_COMFY_WORKFLOW } from '../config';
+import { CLOTHING_TYPES, COLORS } from '../data/imageGenOptions';
 
 export const useImageGeneration = (persona, setMessages, showToast) => {
     const isMounted = useRef(true);
 
-    const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait', selectedModel = null) => {
+    const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait', selectedModel = null, clothing = '', color = '') => {
         const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
         const imageEngine = localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE;
 
@@ -24,13 +25,24 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
         const charLora = charLoras[persona.id] || "";
         
         // PONY_PREFIX: High-fidelity quality and texture boosters
-        const PONY_PREFIX = "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_explicit, (highly detailed skin texture:1.2), sweat, (goosebumps:0.8), (subsurface scattering:1.1), (intricate details:1.2), physically-based rendering, ";
+        const PONY_PREFIX = "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_explicit, (highly detailed skin texture:1.3), sweat, (goosebumps:0.8), (subsurface scattering:1.1), (intricate details:1.3), physically-based rendering, (photorealistic:1.2), 8k uhd, masterpiece, ";
 
         const isPonyModel = selectedModel?.toLowerCase().includes('pony');
         const finalPrefix = isPonyModel ? PONY_PREFIX : "masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ";
 
-        const fullPrompt = `${finalPrefix}${charIdentity}, ${charAppearance}, ${charLora}, ${prompt}`;
-        const negativePrompt = "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature";
+        // Construct clothing part using the text mapping
+        const selectedClothingObj = CLOTHING_TYPES.find(c => c.id === clothing);
+        const selectedColorObj = COLORS.find(c => c.id === color);
+
+        let clothingPart = "";
+        if (selectedClothingObj && selectedClothingObj.id !== 'none') {
+            const colorText = (selectedColorObj && selectedColorObj.id !== 'none') ? `${selectedColorObj.text} ` : "";
+            // Use a higher weight for the selected clothing to ensure it override defaults
+            clothingPart = `(${selectedClothingObj.text.replace('wearing ', `wearing ${colorText}`)}:1.4)`;
+        }
+
+        const fullPrompt = `${finalPrefix}${charIdentity}, ${clothingPart ? clothingPart + ', ' : ''}${charAppearance}, ${charLora}, ${prompt}`;
+        const negativePrompt = "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature, (clothing:0.2), (clothes:0.2)";
 
         try {
             let base64Image = null;
@@ -66,7 +78,7 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                     comfyWorkflow = JSON.stringify(isPonyModel ? DEFAULT_PONY_WORKFLOW : DEFAULT_COMFY_WORKFLOW);
                 }
 
-                const targetPrompt = `${charIdentity}, ${charAppearance}, ${prompt}`;
+                const targetPrompt = `${charIdentity}, ${clothingPart ? clothingPart + ', ' : ''}${charAppearance}, ${prompt}`;
                 
                 let parsedPrompt = targetPrompt;
                 const loraRegex = /<lora:([^:>]+)(?::([0-9.]+))?>/g;
@@ -96,12 +108,24 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                         workflowObj["5"].inputs.height = aspectRatio === 'landscape' ? 832 : (aspectRatio === 'square' ? 1024 : 1216);
                     }
                 }
+
+                // POSITIVE PROMPT
                 if (workflowObj["6"]) {
+                    const isPonyModel = selectedModel?.toLowerCase().includes('pony');
+                    const comfyPrefix = isPonyModel ? PONY_PREFIX : "masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ";
+                    
                     if (workflowObj["6"].inputs.text.includes('__PROMPT__')) {
-                        workflowObj["6"].inputs.text = workflowObj["6"].inputs.text.replace('__PROMPT__', parsedPrompt);
+                        workflowObj["6"].inputs.text = workflowObj["6"].inputs.text.replace('__PROMPT__', `${comfyPrefix}${parsedPrompt}`);
                     } else {
-                        workflowObj["6"].inputs.text = `masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ${parsedPrompt}`;
+                        workflowObj["6"].inputs.text = `${comfyPrefix}${parsedPrompt}`;
                     }
+                }
+
+                // NEGATIVE PROMPT (NODE 7 IS STANDARD FOR NEGATIVE)
+                if (workflowObj["7"]) {
+                    const baseNeg = "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature";
+                    const clothingSuppression = clothingPart ? ", (clothing:0.1), (clothes:0.1)" : "";
+                    workflowObj["7"].inputs.text = baseNeg + clothingSuppression;
                 }
 
                 // Dynamically inject LoRA nodes if tags were found

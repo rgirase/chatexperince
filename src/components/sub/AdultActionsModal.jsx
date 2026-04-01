@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Flame, Zap, Droplets, Heart } from 'lucide-react';
+import { X, Flame, Zap, Droplets, Heart, Shirt, Palette } from 'lucide-react';
 import { AVAILABLE_PONY_MODELS } from '../../config';
 import { ADULT_ACTIONS } from '../../data/adultActions';
+import { CLOTHING_TYPES, COLORS } from '../../data/imageGenOptions';
 
 const AdultActionsModal = ({ isOpen, onClose, onConfirm, relationshipScore }) => {
-    const [selectedModel, setSelectedModel] = useState(localStorage.getItem('lastSelectedPonyModel') || "0184PONYLordkamix_v10.safetensors");
+    const [selectedModel, setSelectedModel] = useState(localStorage.getItem('lastSelectedPonyModel') || "realismByStableYogi_ponyV3VAE.safetensors");
+    const [selectedClothing, setSelectedClothing] = useState('none');
+    const [selectedColor, setSelectedColor] = useState('none');
     const [hoveredAction, setHoveredAction] = useState(null);
 
     const handleActionClick = (action) => {
-        // We could implement lock logic here based on relationshipScore if desired
-        onConfirm(action, selectedModel);
+        // Pass the new clothing and color options to the confirmation handler
+        onConfirm(action, selectedModel, selectedClothing, selectedColor);
         onClose();
     };
 
@@ -40,6 +43,58 @@ const AdultActionsModal = ({ isOpen, onClose, onConfirm, relationshipScore }) =>
                             <p style={{ color: '#ccc', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
                                 Trigger a high-intensity erotic generation. Character response and image will be generated in real-time.
                             </p>
+
+                            {/* OUTFIT CUSTOMIZATION */}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '1.5rem', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                <div>
+                                    <div style={{ color: '#fbbf24', fontSize: '0.75rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        <Shirt size={14} /> STYLE
+                                    </div>
+                                    <select 
+                                        value={selectedClothing}
+                                        onChange={(e) => setSelectedClothing(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '8px 10px',
+                                            borderRadius: '8px',
+                                            background: 'rgba(0,0,0,0.5)',
+                                            border: '1px solid rgba(255,255,255,0.1)',
+                                            color: 'white',
+                                            fontSize: '0.85rem',
+                                            outline: 'none',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {CLOTHING_TYPES.map(type => (
+                                            <option key={type.id} value={type.id} style={{ background: '#1e1e2e' }}>{type.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div style={{ color: '#60a5fa', fontSize: '0.75rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        <Palette size={14} /> COLOR
+                                    </div>
+                                    <select 
+                                        value={selectedColor}
+                                        onChange={(e) => setSelectedColor(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '8px 10px',
+                                            borderRadius: '8px',
+                                            background: 'rgba(0,0,0,0.5)',
+                                            border: '1px solid rgba(255,255,255,0.1)',
+                                            color: 'white',
+                                            fontSize: '0.85rem',
+                                            outline: 'none',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {COLORS.map(color => (
+                                            <option key={color.id} value={color.id} style={{ background: '#1e1e2e' }}>{color.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
 
                             {/* CORE ENGINE SELECTOR */}
                             <div style={{ marginBottom: '1.5rem', background: 'rgba(239, 68, 68, 0.05)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(239, 68, 68, 0.1)' }}>
