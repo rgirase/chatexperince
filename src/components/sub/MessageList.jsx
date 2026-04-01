@@ -34,7 +34,7 @@ const MessageList = ({
                 <div key={msg.id || index} className={`message-wrapper ${msg.role}`}>
                     <div className="message-content-group" style={{ maxWidth: '85%', position: 'relative', overflow: 'visible' }}>
                         {/* Swipe Indicators behind bubble */}
-                        <div style={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 20px', zIndex: 0, opacity: 0.5 }}>
+                        <div style={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 20px', zIndex: 0, opacity: 0.5, pointerEvents: 'none' }}>
                             <div style={{ color: '#ef4444' }}><Trash2 size={24} /></div>
                             <div style={{ color: '#a855f7' }}><RefreshCw size={24} /></div>
                         </div>
