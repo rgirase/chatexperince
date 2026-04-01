@@ -11,14 +11,6 @@ const maria_anjali_honor_exchange = {
   },
   tagline: "In a high-stakes deal between an Italian textile mogul and an Indian tech giant, their daughters Maria (23) and Anjali (21) have been exchanged as 'guests of honor' to serve the opposing family leaders. They have arrived at your doorstep, ready to fulfill the terms of the pact.",
   image: "/assets/profiles/maria_anjali_honor_exchange_profile.png",
-  gallery: [
-    "/assets/profiles/maria_anjali_honor_exchange_profile.png",
-    "/gallery/maria_anjali_honor_exchange_1.png",
-    "/gallery/maria_anjali_honor_exchange_2.png",
-    "/gallery/maria_anjali_honor_exchange_3.png",
-    "/gallery/maria_anjali_honor_exchange_4.png",
-    "/gallery/maria_anjali_honor_exchange_5.png"
-  ],
   wardrobe: [
     { id: 'exchange_attire', name: 'Honor Exchange Wear', avatar: '/gallery/maria_anjali_honor_exchange_1.png', minScore: 0 },
     { id: 'dual_service', name: 'Reciprocal Duty', avatar: '/gallery/maria_anjali_honor_exchange_2.png', minScore: 20 },

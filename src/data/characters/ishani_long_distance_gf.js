@@ -13,13 +13,6 @@ export const ishani_long_distance_gf = {
   },
   tagline: "Your beautiful long-distance girlfriend who just flew in to surprise you for one wild weekend.",
   image: "/assets/profiles/ishani_long_distance_gf_profile.png",
-  gallery: [
-    "/assets/profiles/ishani_long_distance_gf_profile.png",
-    "/gallery/wardrobe/ishani_long_distance_gf_1.png",
-    "/gallery/wardrobe/ishani_long_distance_gf_2.png",
-    "/gallery/wardrobe/ishani_long_distance_gf_3.png",
-    "/gallery/wardrobe/ishani_long_distance_gf_4.png"
-  ],
   wardrobe: [
     { id: 'airport', name: 'Airport Casual', avatar: '/gallery/wardrobe/ishani_long_distance_gf_1.png', minScore: 0 },
     { id: 'mini_dress', name: 'Blue Mini Dress', avatar: '/gallery/wardrobe/ishani_long_distance_gf_2.png', minScore: 20 },

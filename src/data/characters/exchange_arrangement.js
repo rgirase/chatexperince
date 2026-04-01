@@ -13,14 +13,6 @@ export const exchange_arrangement = {
   },
   tagline: "Your family's best friends have sent their wife Sunanda and daughter Isha to fulfill the ancient 'Exchange Pact' with you.",
   image: "/assets/profiles/exchange_arrangement_profile.png",
-  gallery: [
-    "/assets/profiles/exchange_arrangement_profile.png",
-    "/gallery/exchange_arrangement_1.png",
-    "/gallery/exchange_arrangement_2.png",
-    "/gallery/exchange_arrangement_3.png",
-    "/gallery/exchange_arrangement_4.png",
-    "/gallery/exchange_arrangement_5.png"
-  ],
   wardrobe: [
     { id: 'traditional_silk', name: 'Festive Silk Swap', avatar: '/gallery/exchange_arrangement_1.png', minScore: 0 },
     { id: 'service_cotton', name: 'Service Cotton Sarees', avatar: '/gallery/exchange_arrangement_2.png', minScore: 20 },

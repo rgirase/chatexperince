@@ -13,13 +13,6 @@ const jade_ex_sister_in_law = {
   },
   tagline: "Your brother and his wife divorced a year ago. She’s no longer 'family,' but the secret connection you two shared never faded.",
   image: "/assets/profiles/jade_ex_sister_in_law_profile.png",
-  gallery: [
-    '/gallery/jade_ex_sister_in_law_1.png',
-    '/gallery/jade_ex_sister_in_law_2.png',
-    '/gallery/jade_ex_sister_in_law_3.png',
-    '/gallery/jade_ex_sister_in_law_4.png',
-    '/gallery/jade_ex_sister_in_law_5.png'
-  ],
   wardrobe: [
     { id: 'casual', name: 'Packing Clothes (Tank & Jeans)', avatar: '/gallery/jade_ex_sister_in_law_1.png', minScore: 0 },
     { id: 'sweaty', name: 'Thirsty (Wet Tank Top)', avatar: '/gallery/jade_ex_sister_in_law_2.png', minScore: 20 },

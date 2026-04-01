@@ -13,14 +13,6 @@ const sophie_stepsister_laundry = {
   },
   tagline: "Your ditzy stepsister. She's 'lost' her favorite earring behind the vibrating laundry machine. The basement is small, hot, and you're the only one who can help.",
   image: "/assets/profiles/sophie_stepsister_laundry_profile.png",
-  gallery: [
-    '/assets/profiles/sophie_stepsister_laundry_profile.png',
-    '/gallery/sophie_stepsister_laundry_1.png',
-    '/gallery/sophie_stepsister_laundry_2.png',
-    '/gallery/sophie_stepsister_laundry_3.png',
-    '/gallery/sophie_stepsister_laundry_4.png',
-    '/gallery/sophie_stepsister_laundry_5.png'
-  ],
   wardrobe: [
     { id: 'denim_shorts', name: 'Tiny Denim Shorts & Tank Top', avatar: '/gallery/sophie_stepsister_laundry_1.png', minScore: 0 },
     { id: 'sheer_tank', name: 'Highly Transparent White Tank', avatar: '/gallery/sophie_stepsister_laundry_2.png', minScore: 20 },

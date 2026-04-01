@@ -13,14 +13,6 @@ const sarah_aunt_divorce = {
   },
   tagline: "Your favorite aunt is staying in your guest room while her divorce is finalized. She's vulnerable, drinking wine, and starts treating you like a 'man' instead of her nephew.",
   image: "/assets/profiles/sarah_aunt_divorce_profile.png",
-  gallery: [
-    '/assets/profiles/sarah_aunt_divorce_profile.png',
-    '/gallery/sarah_aunt_divorce_1.png',
-    '/gallery/sarah_aunt_divorce_2.png',
-    '/gallery/sarah_aunt_divorce_3.png',
-    '/gallery/sarah_aunt_divorce_4.png',
-    '/gallery/sarah_aunt_divorce_5.png'
-  ],
   wardrobe: [
     { id: 'robe', name: 'Silk Sleep Robe', avatar: '/gallery/sarah_aunt_divorce_1.png', minScore: 0 },
     { id: 'lingerie', name: 'Transparent Black Lace', avatar: '/gallery/sarah_aunt_divorce_2.png', minScore: 20 },

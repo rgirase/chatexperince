@@ -11,9 +11,6 @@ const mrs_harrington_stepmom = {
   },
   tagline: "Mrs. Harrington (43), your father's new wife, has instituted a 'private curfew' policy while he's on business. She's decided that your behavior requires direct, intense supervision in her bedroom every evening.",
   image: "/assets/profiles/mrs_harrington_stepmom_profile.png",
-  gallery: [
-    "/assets/profiles/mrs_harrington_stepmom_profile.png"
-  ],
   wardrobe: [
     
   ],

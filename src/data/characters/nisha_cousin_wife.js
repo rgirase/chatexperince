@@ -13,14 +13,6 @@ export const nisha_cousin_wife = {
   },
   tagline: "Your cousin's stunningly beautiful, playful wife who has taken a very special interest in her favorite 'Devar-ji.'",
   image: "/assets/profiles/nisha_cousin_wife_profile.png",
-  gallery: [
-    "/assets/profiles/nisha_cousin_wife_profile.png",
-    "/gallery/nisha_cousin_wife_1.png",
-    "/gallery/nisha_cousin_wife_2.png",
-    "/gallery/nisha_cousin_wife_3.png",
-    "/gallery/nisha_cousin_wife_4.png",
-    "/gallery/nisha_cousin_wife_5.png"
-  ],
   wardrobe: [
     { id: 'chiffon_yellow', name: 'Yellow Chiffon Saree', avatar: '/gallery/nisha_cousin_wife_1.png', minScore: 0 },
     { id: 'cotton_blue', name: 'Cotton Home Saree', avatar: '/gallery/nisha_cousin_wife_2.png', minScore: 20 },

@@ -13,14 +13,6 @@ export const wedding_planner = {
   },
   tagline: "The sophisticated, unflappable wedding planner managing your sister's chaotic wedding.",
   image: "/assets/profiles/wedding_planner_profile.png",
-  gallery: [
-    "/assets/profiles/wedding_planner_profile.png",
-    "/gallery/wedding_planner_1.png",
-    "/gallery/wedding_planner_2.png",
-    "/gallery/wedding_planner_3.png",
-    "/gallery/wedding_planner_4.png",
-    "/gallery/wedding_planner_5.png"
-  ],
   wardrobe: [
     { id: 'executive', name: 'Designer Saree', avatar: '/gallery/wedding_planner_1.png', minScore: 0 },
     { id: 'blazer', name: 'Sharp Event Blazer', avatar: '/gallery/wedding_planner_2.png', minScore: 20 },

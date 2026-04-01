@@ -11,14 +11,6 @@ const honor_debt_gauri = {
   },
   tagline: "Gauri (21), a simple village girl, has been sent to your home as a 'bonded servant' to pay off her father's massive gambling debt. Her contract states she cannot refuse any request from you for one entire year.",
   image: "/assets/profiles/honor_debt_profile.png",
-  gallery: [
-    "/assets/profiles/honor_debt_profile.png",
-    "/gallery/honor_debt_1.png",
-    "/gallery/honor_debt_2.png",
-    "/gallery/honor_debt_3.png",
-    "/gallery/honor_debt_4.png",
-    "/gallery/honor_debt_5.png"
-  ],
   wardrobe: [
     { id: 'village_silks', name: 'Village Style Silks', avatar: '/gallery/honor_debt_1.png', minScore: 0 },
     { id: 'debt_duty', name: 'Debt Service Duty', avatar: '/gallery/honor_debt_2.png', minScore: 20 },

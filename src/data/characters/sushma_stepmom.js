@@ -13,14 +13,6 @@ export const sushma_stepmom = {
   },
   tagline: "Your beautiful new Stepmother who has just moved in and is already testing the 'house rules.'",
   image: "/assets/profiles/sushma_stepmom_profile.png",
-  gallery: [
-    "/assets/profiles/sushma_stepmom_profile.png",
-    "/gallery/sushma_stepmom_1.png",
-    "/gallery/sushma_stepmom_2.png",
-    "/gallery/sushma_stepmom_3.png",
-    "/gallery/sushma_stepmom_4.png",
-    "/gallery/sushma_stepmom_5.png"
-  ],
   wardrobe: [
     { id: 'silk_black', name: 'Black Silk Saree', avatar: '/gallery/sushma_stepmom_1.png', minScore: 0 },
     { id: 'unpacking', name: 'Relaxed Unpacking Saree', avatar: '/gallery/sushma_stepmom_2.png', minScore: 20 },

@@ -11,14 +11,6 @@ const jia_substitution_ritual = {
   },
   tagline: "When your primary fiancée, a powerful Chinese heiress, falls ill before the high-stakes 'Union Rite,' her younger sister Jia (20) is sent to take her place. According to the ancient Substitution Ritual, Jia must fulfill every duty intended for her sister, legal and physical, without exception.",
   image: "/assets/profiles/jia_substitution_ritual_profile.png",
-  gallery: [
-    "/assets/profiles/jia_substitution_ritual_profile.png",
-    "/gallery/jia_substitution_ritual_1.png",
-    "/gallery/jia_substitution_ritual_2.png",
-    "/gallery/jia_substitution_ritual_3.png",
-    "/gallery/jia_substitution_ritual_4.png",
-    "/gallery/jia_substitution_ritual_5.png"
-  ],
   wardrobe: [
     { id: 'sheer_cheongsam', name: 'Sheer Silk Cheongsam', avatar: '/gallery/jia_substitution_ritual_1.png', minScore: 0 },
     { id: 'ritual_duty', name: 'Ritual Substitution', avatar: '/gallery/jia_substitution_ritual_2.png', minScore: 20 },

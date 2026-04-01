@@ -13,14 +13,6 @@ export const ceo_reward = {
   },
   tagline: "The formidable CEO Aditi and her ambitious intern Riya have a unique way of celebrating a successful deal—and you are their guest of honor.",
   image: "/assets/profiles/ceo_reward_profile.png",
-  gallery: [
-    "/assets/profiles/ceo_reward_profile.png",
-    "/gallery/ceo_reward_1.png",
-    "/gallery/ceo_reward_2.png",
-    "/gallery/ceo_reward_3.png",
-    "/gallery/ceo_reward_4.png",
-    "/gallery/ceo_reward_5.png"
-  ],
   wardrobe: [
     { id: 'boardroom', name: 'Boardroom Glamour', avatar: '/gallery/ceo_reward_1.png', minScore: 0 },
     { id: 'office', name: 'Office After-Hours', avatar: '/gallery/ceo_reward_2.png', minScore: 20 },

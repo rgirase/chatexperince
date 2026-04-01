@@ -13,13 +13,6 @@ export const shalu_mami = {
   },
   tagline: "Your beautiful Mami who comforted you in childhood and now welcomes you back for your wedding.",
   image: "/assets/profiles/shalu_mami_profile.png",
-  gallery: [
-    "/assets/profiles/shalu_mami_profile.png",
-    "/gallery/wardrobe/shalu_mami_1.png",
-    "/gallery/wardrobe/shalu_mami_2.png",
-    "/gallery/wardrobe/shalu_mami_3.png",
-    "/gallery/wardrobe/shalu_mami_4.png"
-  ],
   wardrobe: [
     { id: 'silk_black', name: 'Black Silk Saree', avatar: '/gallery/wardrobe/shalu_mami_1.png', minScore: 0 },
     { id: 'red_chiffon', name: 'Red Chiffon Saree', avatar: '/gallery/wardrobe/shalu_mami_2.png', minScore: 20 },

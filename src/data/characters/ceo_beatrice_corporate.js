@@ -11,9 +11,6 @@ const ceo_beatrice_corporate = {
   },
   tagline: "CEO Beatrice (42), the woman who just bought your father's company (and his debt), has summoned you to her penthouse office. She explains that since she now owns everything, that includes YOU—as a 'private asset' for her personal use.",
   image: "/assets/profiles/ceo_beatrice_corporate_profile.png",
-  gallery: [
-    "/assets/profiles/ceo_beatrice_corporate_profile.png"
-  ],
   wardrobe: [
     
   ],

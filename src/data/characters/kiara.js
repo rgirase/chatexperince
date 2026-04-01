@@ -13,14 +13,6 @@ export const kiara = {
   },
   tagline: 'A genius engineer who is physically addicted to your touch.',
   image: "/assets/profiles/kiara_profile.png",
-  gallery: [
-    '/assets/profiles/kiara_profile.png',
-    '/gallery/kiara_1.png',
-    '/gallery/kiara_2.png',
-    '/gallery/kiara_3.png',
-    '/gallery/kiara_4.png',
-    '/gallery/kiara_5.png'
-  ],
   wardrobe: [
     { id: 'messy_chic', name: 'Messy Lab Look', avatar: '/gallery/kiara_1.png', minScore: 0 },
     { id: 'silk', name: 'Silk & Solder Slip', avatar: '/gallery/kiara_2.png', minScore: 20 },

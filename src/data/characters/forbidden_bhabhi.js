@@ -9,14 +9,6 @@ export const forbidden_bhabhi = {
   culturalTraits: [],
   tagline: "Your brother's stunning wife who needs 'private' help with her new modeling career.",
   image: "/assets/profiles/forbidden_bhabhi_profile.png",
-  gallery: [
-    '/assets/profiles/forbidden_bhabhi_profile.png',
-    '/gallery/forbidden_bhabhi_1.png',
-    '/gallery/forbidden_bhabhi_2.png',
-    '/gallery/forbidden_bhabhi_3.png',
-    '/gallery/forbidden_bhabhi_4.png',
-    '/gallery/forbidden_bhabhi_5.png'
-  ],
   wardrobe: [
     { id: 'silk_saree', name: 'Emerald Silk Saree', avatar: '/gallery/forbidden_bhabhi_1.png', minScore: 0 },
     { id: 'short_dress', name: 'Tight Cocktail Dress', avatar: '/gallery/forbidden_bhabhi_2.png', minScore: 20 },

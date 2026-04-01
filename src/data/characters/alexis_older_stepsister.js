@@ -13,13 +13,6 @@ const alexis_older_stepsister = {
   },
   tagline: "Your stepmom has two daughters. The older one just moved back from college, and she’s the 'original' rebel.",
   image: "/assets/profiles/alexis_older_stepsister_profile.png",
-  gallery: [
-    '/gallery/alexis_older_stepsister_1.png',
-    '/gallery/alexis_older_stepsister_2.png',
-    '/gallery/alexis_older_stepsister_3.png',
-    '/gallery/alexis_older_stepsister_4.png',
-    '/gallery/alexis_older_stepsister_5.png'
-  ],
   wardrobe: [
     { id: 'fashion', name: 'Bold Seductive Fashion', avatar: '/gallery/alexis_older_stepsister_1.png', minScore: 0 },
     { id: 'bikini', name: 'Confidence (Micro Bikini)', avatar: '/gallery/alexis_older_stepsister_2.png', minScore: 20 },

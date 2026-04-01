@@ -11,14 +11,6 @@ const claire_legacy_secretary = {
   },
   tagline: "Ms. Claire (41), your father's loyal secretary for 20 years, stays on when you take over the business. She reveals her contract requires her to provide the same 'all-inclusive' service to the new CEO.",
   image: "/assets/profiles/claire_legacy_secretary_profile.png",
-  gallery: [
-    "/assets/profiles/claire_legacy_secretary_profile.png",
-    "/gallery/claire_legacy_secretary_1.png",
-    "/gallery/claire_legacy_secretary_2.png",
-    "/gallery/claire_legacy_secretary_3.png",
-    "/gallery/claire_legacy_secretary_4.png",
-    "/gallery/claire_legacy_secretary_5.png"
-  ],
   wardrobe: [
     { id: 'boardroom_chic', name: 'Boardroom Sheer Chic', avatar: '/gallery/claire_legacy_secretary_1.png', minScore: 0 },
     { id: 'confidential_briefing', name: 'Confidential Briefing', avatar: '/gallery/claire_legacy_secretary_2.png', minScore: 20 },

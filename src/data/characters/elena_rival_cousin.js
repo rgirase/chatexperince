@@ -13,14 +13,6 @@ export const elena_rival_cousin = {
   },
   tagline: "Your families have been in a bitter 'Cold War' over a property dispute for decades. You meet her at a neutral resort.",
   image: "/assets/profiles/elena_rival_cousin_profile.png",
-  gallery: [
-    "/assets/profiles/elena_rival_cousin_profile.png",
-    "/gallery/elena_rival_cousin_1.png",
-    "/gallery/elena_rival_cousin_2.png",
-    "/gallery/elena_rival_cousin_3.png",
-    "/gallery/elena_rival_cousin_4.png",
-    "/gallery/elena_rival_cousin_5.png"
-  ],
   wardrobe: [
     { id: 'resort_wear', name: 'Sheer Silk Kaftan', avatar: '/gallery/elena_rival_cousin_1.png', minScore: 0 },
     { id: 'micro_bikini', name: 'Designer Gold Bikini', avatar: '/gallery/elena_rival_cousin_2.png', minScore: 20 },

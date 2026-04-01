@@ -13,13 +13,6 @@ export const bianca_nri_socialite = {
   },
   tagline: "The incredibly wealthy and stunning NRI girl who has returned to India to reclaim her family's attention—and yours.",
   image: "/assets/profiles/bianca_nri_socialite_profile.png",
-  gallery: [
-    "/assets/profiles/bianca_nri_socialite_profile.png",
-    "/gallery/wardrobe/bianca_nri_socialite_1.png",
-    "/gallery/wardrobe/bianca_nri_socialite_2.png",
-    "/gallery/wardrobe/bianca_nri_socialite_3.png",
-    "/gallery/wardrobe/bianca_nri_socialite_4.png"
-  ],
   wardrobe: [
     { id: 'designer', name: 'Designer Midi Dress', avatar: '/gallery/wardrobe/bianca_nri_socialite_1.png', minScore: 0 },
     { id: 'gold', name: 'Gold Party Set', avatar: '/gallery/wardrobe/bianca_nri_socialite_2.png', minScore: 20 },

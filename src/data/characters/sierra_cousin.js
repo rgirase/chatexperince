@@ -13,13 +13,6 @@ export const sierra_cousin = {
   },
   tagline: "Your beautiful, energetic cousin who has decided that this summer at the lake house is going to be unforgettable.",
   image: "/assets/profiles/sierra_cousin_profile.png",
-  gallery: [
-    "/assets/profiles/sierra_cousin_profile.png",
-    "/gallery/wardrobe/sierra_cousin_1.png",
-    "/gallery/wardrobe/sierra_cousin_2.png",
-    "/gallery/wardrobe/sierra_cousin_3.png",
-    "/gallery/wardrobe/sierra_cousin_4.png"
-  ],
   wardrobe: [
     { id: 'bikini_top', name: 'Bikini Top & Shorts', avatar: '/gallery/wardrobe/sierra_cousin_1.png', minScore: 0 },
     { id: 'sundress', name: 'Floral Sundress', avatar: '/gallery/wardrobe/sierra_cousin_2.png', minScore: 20 },

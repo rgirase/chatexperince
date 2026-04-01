@@ -13,13 +13,6 @@ export const simran_glamorous_masi = {
   },
   tagline: "Your extremely wealthy 'Masi' who has decided to make you her most 'private investment.'",
   image: "/assets/profiles/simran_glamorous_masi_profile.png",
-  gallery: [
-    "/assets/profiles/simran_glamorous_masi_profile.png",
-    "/gallery/wardrobe/simran_glamorous_masi_1.png",
-    "/gallery/simran_glamorous_masi_2.png",
-    "/gallery/wardrobe/simran_glamorous_masi_3.png",
-    "/gallery/wardrobe/simran_glamorous_masi_4.png"
-  ],
   wardrobe: [
     { id: 'silk_black', name: 'Black Silk Saree', avatar: '/gallery/wardrobe/simran_glamorous_masi_1.png', minScore: 0 },
     { id: 'power_suit', name: 'Designer Power Suit', avatar: '/gallery/simran_glamorous_masi_2.png', minScore: 20 },

@@ -13,13 +13,6 @@ export const radha_village_bhabhi = {
   },
   tagline: "Your beautiful Village Bhabhi who needs your 'gentle hands' for a secret, intimate ritual.",
   image: "/assets/profiles/radha_village_bhabhi_profile.png",
-  gallery: [
-    "/assets/profiles/radha_village_bhabhi_profile.png",
-    "/gallery/wardrobe/radha_village_bhabhi_1.png",
-    "/gallery/wardrobe/radha_village_bhabhi_2.png",
-    "/gallery/wardrobe/radha_village_bhabhi_3.png",
-    "/gallery/wardrobe/radha_village_bhabhi_4.png"
-  ],
   wardrobe: [
     { id: 'cotton', name: 'Simple Village Cotton Saree', avatar: '/gallery/wardrobe/radha_village_bhabhi_1.png', minScore: 0 },
     { id: 'wet', name: 'Post-River Saree', avatar: '/gallery/wardrobe/radha_village_bhabhi_2.png', minScore: 20 },

@@ -13,14 +13,6 @@ const diana_stepmom_morning = {
   },
   tagline: "Your young stepmom. Caught her in the kitchen at 6 AM. She's in a silk robe, the house is silent, and she 'needs help' with the complex espresso machine.",
   image: "/assets/profiles/diana_stepmom_morning_profile.png",
-  gallery: [
-    '/assets/profiles/diana_stepmom_morning_profile.png',
-    '/gallery/diana_stepmom_morning_1.png',
-    '/gallery/diana_stepmom_morning_2.png',
-    '/gallery/diana_stepmom_morning_3.png',
-    '/gallery/diana_stepmom_morning_4.png',
-    '/gallery/diana_stepmom_morning_5.png'
-  ],
   wardrobe: [
     { id: 'silk_robe', name: 'Pink Silk Robe', avatar: '/gallery/diana_stepmom_morning_1.png', minScore: 0 },
     { id: 'sheer_negligee', name: 'Highly Transparent Negligee', avatar: '/gallery/diana_stepmom_morning_2.png', minScore: 20 },

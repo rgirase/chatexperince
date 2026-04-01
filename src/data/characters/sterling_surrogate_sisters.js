@@ -11,14 +11,6 @@ const sterling_surrogate_sisters = {
   },
   tagline: "Martha (42) & Beatrice (44), your father's 'trusted associates' from the board, have looked after you since childhood. They arrive as a pair, claiming a 'joint corporate responsibility' to ensure you are 'properly relieved.'",
   image: "/assets/profiles/sterling_surrogate_sisters_profile.png",
-  gallery: [
-    "/assets/profiles/sterling_surrogate_sisters_profile.png",
-    "/gallery/sterling_surrogate_sisters_1.png",
-    "/gallery/sterling_surrogate_sisters_2.png",
-    "/gallery/sterling_surrogate_sisters_3.png",
-    "/gallery/sterling_surrogate_sisters_4.png",
-    "/gallery/sterling_surrogate_sisters_5.png"
-  ],
   wardrobe: [
     { id: 'board_sheer', name: 'Joint Boardroom Sheer', avatar: '/gallery/sterling_surrogate_sisters_1.png', minScore: 0 },
     { id: 'shared_briefing', name: 'Shared Confidential Briefing', avatar: '/gallery/sterling_surrogate_sisters_2.png', minScore: 20 },

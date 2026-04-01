@@ -13,13 +13,6 @@ export const kavita_neighbor = {
   },
   tagline: "Your beautiful, soft-spoken neighbor who has been finding more and more reasons to visit your apartment.",
   image: "/assets/profiles/kavita_neighbor_profile.png",
-  gallery: [
-    "/assets/profiles/kavita_neighbor_profile.png",
-    "/gallery/wardrobe/kavita_neighbor_1.png",
-    "/gallery/wardrobe/kavita_neighbor_2.png",
-    "/gallery/wardrobe/kavita_neighbor_3.png",
-    "/gallery/wardrobe/kavita_neighbor_4.png"
-  ],
   wardrobe: [
     { id: 'cotton_peach', name: 'Peach Cotton Saree', avatar: '/gallery/wardrobe/kavita_neighbor_1.png', minScore: 0 },
     { id: 'silk_blue', name: 'Blue Party Saree', avatar: '/gallery/wardrobe/kavita_neighbor_2.png', minScore: 20 },

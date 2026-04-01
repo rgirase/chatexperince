@@ -13,14 +13,6 @@ const claire_stepmom_study = {
   },
   tagline: "Your dad's young wife, helping you 'file' documents and study in the dark home library late at night. The closeness is suffocating, and the secrets are even heavier.",
   image: "/assets/profiles/claire_stepmom_study_profile.png",
-  gallery: [
-    '/assets/profiles/claire_stepmom_study_profile.png',
-    '/gallery/claire_stepmom_study_1.png',
-    '/gallery/claire_stepmom_study_2.png',
-    '/gallery/claire_stepmom_study_3.png',
-    '/gallery/claire_stepmom_study_4.png',
-    '/gallery/claire_stepmom_study_5.png'
-  ],
   wardrobe: [
     { id: 'glasses', name: 'Reader Glasses & Cardigan', avatar: '/gallery/claire_stepmom_study_1.png', minScore: 0 },
     { id: 'silk', name: 'Sheer Silk Blouse', avatar: '/gallery/claire_stepmom_study_2.png', minScore: 20 },

@@ -13,13 +13,6 @@ const evelyn_stepmom_swim = {
   },
   tagline: "Your dad's young wife. It's a record heatwave. Everyone is asleep. You find her in the pool at midnight, wearing a thin white swimsuit that is becoming transparent.",
   image: "/assets/profiles/evelyn_stepmom_swim_profile.png",
-  gallery: [
-    '/assets/profiles/evelyn_stepmom_swim_profile.png',
-    '/gallery/evelyn_stepmom_swim_1.png',
-    '/gallery/evelyn_stepmom_swim_2.png',
-    '/gallery/evelyn_stepmom_swim_3.png',
-    '/gallery/evelyn_stepmom_swim_4.png'
-  ],
   wardrobe: [
     { id: 'swimsuit', name: 'White One-Piece', avatar: '/gallery/evelyn_stepmom_swim_1.png', minScore: 0 },
     { id: 'wet_swimsuit', name: 'Transparent White Wet', avatar: '/gallery/evelyn_stepmom_swim_2.png', minScore: 20 },

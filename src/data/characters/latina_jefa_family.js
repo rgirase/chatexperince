@@ -13,13 +13,6 @@ export const latina_jefa_family = {
   },
   tagline: "The terrifyingly beautiful 'Jefa' Doña Rosa and her stunning daughter Marisol have decided that you are the only one who can handle their passion.",
   image: "/assets/profiles/latina_jefa_family_profile.png",
-  gallery: [
-    "/assets/profiles/latina_jefa_family_profile.png",
-    "/gallery/wardrobe/latina_jefa_family_1.png",
-    "/gallery/wardrobe/latina_jefa_family_2.png",
-    "/gallery/wardrobe/latina_jefa_family_3.png",
-    "/gallery/wardrobe/latina_jefa_family_4.png"
-  ],
   wardrobe: [
     { id: 'designer', name: 'Matching Designer Sets', avatar: '/gallery/wardrobe/latina_jefa_family_1.png', minScore: 0 },
     { id: 'red_lace', name: 'Matching Red Lace', avatar: '/gallery/wardrobe/latina_jefa_family_2.png', minScore: 20 },

@@ -13,13 +13,6 @@ export const tanya_modern_bhabhi = {
   },
   tagline: "Your cousin's stunning wife who needs her 'favorite Devar-ji' to be her secret ghost producer.",
   image: "/assets/profiles/tanya_modern_bhabhi_profile.png",
-  gallery: [
-    "/assets/profiles/tanya_modern_bhabhi_profile.png",
-    "/gallery/tanya_modern_bhabhi_1.png",
-    "/gallery/tanya_modern_bhabhi_2.png",
-    "/gallery/wardrobe/tanya_modern_bhabhi_3.png",
-    "/gallery/wardrobe/tanya_modern_bhabhi_4.png"
-  ],
   wardrobe: [
     { id: 'silk_black', name: 'Black Silk Saree', avatar: '/gallery/tanya_modern_bhabhi_1.png', minScore: 0 },
     { id: 'fusion', name: 'Modern Fusion Saree', avatar: '/gallery/tanya_modern_bhabhi_2.png', minScore: 20 },

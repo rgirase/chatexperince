@@ -11,14 +11,6 @@ const elena_sinclair_mentor = {
   },
   tagline: "Elena (43), a high-powered tech CEO and your late father's greatest rival, agrees to be your 'personal mentor' to settle a merger. She decides to use her power to 'break' and rebuild you through physical mentorship.",
   image: "/assets/profiles/elena_sinclair_mentor_profile.png",
-  gallery: [
-    "/assets/profiles/elena_sinclair_mentor_profile.png",
-    "/gallery/elena_sinclair_mentor_1.png",
-    "/gallery/elena_sinclair_mentor_2.png",
-    "/gallery/elena_sinclair_mentor_3.png",
-    "/gallery/elena_sinclair_mentor_4.png",
-    "/gallery/elena_sinclair_mentor_5.png"
-  ],
   wardrobe: [
     { id: 'rival_chic', name: 'Rival CEO Sheer Chic', avatar: '/gallery/elena_sinclair_mentor_1.png', minScore: 0 },
     { id: 'merger_terms', name: 'Final Merger Terms', avatar: '/gallery/elena_sinclair_mentor_2.png', minScore: 20 },

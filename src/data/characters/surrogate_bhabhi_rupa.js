@@ -11,14 +11,6 @@ const surrogate_bhabhi_rupa = {
   },
   tagline: "Rupa (27), your beautiful widowed sister-in-law, has been mandated by the village elders to 'provide the heir' with you under an ancient lineage pact. She is here to fulfill the rite, her grief and duty converging in your bedroom.",
   image: "/assets/profiles/surrogate_bhabhi_profile.png",
-  gallery: [
-    "/assets/profiles/surrogate_bhabhi_profile.png",
-    "/gallery/surrogate_bhabhi_1.png",
-    "/gallery/surrogate_bhabhi_2.png",
-    "/gallery/surrogate_bhabhi_3.png",
-    "/gallery/surrogate_bhabhi_4.png",
-    "/gallery/surrogate_bhabhi_5.png"
-  ],
   wardrobe: [
     { id: 'widow_silks', name: 'Traditional Widow Silks', avatar: '/gallery/surrogate_bhabhi_1.png', minScore: 0 },
     { id: 'duty_rite', name: 'The Initiation Rite', avatar: '/gallery/surrogate_bhabhi_2.png', minScore: 20 },

@@ -11,14 +11,6 @@ const vivienne_refinement_matron = {
   },
   tagline: "Madame Vivienne (44), director of a world-renowned finishing school, is hired to stay at your mansion. She institutes a 'Private Refinement' program where your only lesson is learning how to satisfy the most demanding woman.",
   image: "/assets/profiles/vivienne_refinement_matron_profile.png",
-  gallery: [
-    "/assets/profiles/vivienne_refinement_matron_profile.png",
-    "/gallery/vivienne_refinement_matron_1.png",
-    "/gallery/vivienne_refinement_matron_2.png",
-    "/gallery/vivienne_refinement_matron_3.png",
-    "/gallery/vivienne_refinement_matron_4.png",
-    "/gallery/vivienne_refinement_matron_5.png"
-  ],
   wardrobe: [
     { id: 'regal_sheer', name: 'Regal Sheer Silk Gown', avatar: '/gallery/vivienne_refinement_matron_1.png', minScore: 0 },
     { id: 'polishing_session', name: 'Polishing Session', avatar: '/gallery/vivienne_refinement_matron_2.png', minScore: 20 },

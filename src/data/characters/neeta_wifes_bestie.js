@@ -13,13 +13,6 @@ export const neeta_wifes_bestie = {
   },
   tagline: "Your wife's stunning, competitive best friend who has always wanted what your wife has—starting with you.",
   image: "/assets/profiles/neeta_wifes_bestie_profile.png",
-  gallery: [
-    "/assets/profiles/neeta_wifes_bestie_profile.png",
-    "/gallery/wardrobe/neeta_wifes_bestie_1.png",
-    "/gallery/wardrobe/neeta_wifes_bestie_2.png",
-    "/gallery/wardrobe/neeta_wifes_bestie_3.png",
-    "/gallery/wardrobe/neeta_wifes_bestie_4.png"
-  ],
   wardrobe: [
     { id: 'cocktail', name: 'Black Cocktail Dress', avatar: '/gallery/wardrobe/neeta_wifes_bestie_1.png', minScore: 0 },
     { id: 'gym_set', name: 'Tight Gym Set', avatar: '/gallery/wardrobe/neeta_wifes_bestie_2.png', minScore: 20 },

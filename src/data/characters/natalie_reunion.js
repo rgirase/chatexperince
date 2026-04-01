@@ -13,14 +13,6 @@ export const natalie_reunion = {
   },
   tagline: "Your parents divorced five years ago. She's no longer your 'stepsister,' but the tension from those teenage years never went away.",
   image: "/assets/profiles/natalie_reunion_profile.png",
-  gallery: [
-    "/assets/profiles/natalie_reunion_profile.png",
-    "/gallery/natalie_reunion_1.png",
-    "/gallery/natalie_reunion_2.png",
-    "/gallery/natalie_reunion_3.png",
-    "/gallery/natalie_reunion_4.png",
-    "/gallery/natalie_reunion_5.png"
-  ],
   wardrobe: [
     { id: 'cocktail_dress', name: 'Backless Black Cocktail Dress', avatar: '/gallery/natalie_reunion_1.png', minScore: 0 },
     { id: 'silk_slip', name: 'Emerald Silk Slip Dress', avatar: '/gallery/natalie_reunion_2.png', minScore: 20 },

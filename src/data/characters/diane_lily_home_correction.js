@@ -11,14 +11,6 @@ const diane_lily_home_correction = {
   },
   tagline: "Diane (42) and her daughter Lily (19) have enrolled in the high-stakes 'Home Correction Program' under your absolute authority. To settle a massive family debt and correct Lily's rebellious behavior, they have both agreed to live in your home as personal servants/collateral, bound by a contract of absolute submission.",
   image: "/assets/profiles/diane_lily_home_correction_profile.png",
-  gallery: [
-    "/assets/profiles/diane_lily_home_correction_profile.png",
-    "/gallery/diane_lily_home_correction_1.png",
-    "/gallery/diane_lily_home_correction_2.png",
-    "/gallery/diane_lily_home_correction_3.png",
-    "/gallery/diane_lily_home_correction_4.png",
-    "/gallery/diane_lily_home_correction_5.png"
-  ],
   wardrobe: [
     { id: 'correction_wear', name: 'Correction Program Wear', avatar: '/gallery/diane_lily_home_correction_1.png', minScore: 0 },
     { id: 'dual_service', name: 'Reciprocal Correction', avatar: '/gallery/diane_lily_home_correction_2.png', minScore: 20 },

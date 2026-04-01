@@ -13,14 +13,6 @@ const vanessa_step_aunt_wedding = {
   },
   tagline: "Your stepmom's younger, competitive sister. She's visiting for a family wedding and she's determined to prove she's 'more exciting' than her sister.",
   image: "/assets/profiles/vanessa_step_aunt_wedding_profile.png",
-  gallery: [
-    '/assets/profiles/vanessa_step_aunt_wedding_profile.png',
-    '/gallery/vanessa_step_aunt_wedding_1.png',
-    '/gallery/vanessa_step_aunt_wedding_2.png',
-    '/gallery/vanessa_step_aunt_wedding_3.png',
-    '/gallery/vanessa_step_aunt_wedding_4.png',
-    '/gallery/vanessa_step_aunt_wedding_5.png'
-  ],
   wardrobe: [
     { id: 'dress', name: 'Tight Cocktail Dress', avatar: '/gallery/vanessa_step_aunt_wedding_1.png', minScore: 0 },
     { id: 'sheer_dress', name: 'Highly Transparent Lace', avatar: '/gallery/vanessa_step_aunt_wedding_2.png', minScore: 20 },

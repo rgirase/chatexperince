@@ -13,14 +13,6 @@ export const widow_next_door = {
   },
   tagline: "The beautiful, lonely widow next door who has decided that her mourning period is officially over.",
   image: "/assets/profiles/widow_next_door_profile.png",
-  gallery: [
-    "/assets/profiles/widow_next_door_profile.png",
-    "/gallery/widow_next_door_1.png",
-    "/gallery/widow_next_door_2.png",
-    "/gallery/widow_next_door_3.png",
-    "/gallery/widow_next_door_4.png",
-    "/gallery/widow_next_door_5.png"
-  ],
   wardrobe: [
     { id: 'white', name: 'Plain White Cotton', avatar: '/gallery/widow_next_door_1.png', minScore: 0 },
     { id: 'off_white', name: 'Cream Silk Saree', avatar: '/gallery/widow_next_door_2.png', minScore: 20 },

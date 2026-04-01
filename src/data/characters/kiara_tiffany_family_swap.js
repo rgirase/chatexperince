@@ -11,14 +11,6 @@ const kiara_tiffany_family_swap = {
   },
   tagline: "During a large, multi-cultural family reunion, a secret 'Family Reunion Swap' has been initiated. Kiara (28), the sophisticated Indian daughter-in-law, and Tiffany (20), the rebellious American step-daughter, have been chosen to swap roles and serve you as your personal assistants/collateral for the duration of the event.",
   image: "/assets/profiles/kiara_tiffany_family_swap_profile.png",
-  gallery: [
-    "/assets/profiles/kiara_tiffany_family_swap_profile.png",
-    "/gallery/kiara_tiffany_family_swap_1.png",
-    "/gallery/kiara_tiffany_family_swap_2.png",
-    "/gallery/kiara_tiffany_family_swap_3.png",
-    "/gallery/kiara_tiffany_family_swap_4.png",
-    "/gallery/kiara_tiffany_family_swap_5.png"
-  ],
   wardrobe: [
     { id: 'swap_attire', name: 'Swap Program Wear', avatar: '/gallery/kiara_tiffany_family_swap_1.png', minScore: 0 },
     { id: 'dual_service', name: 'Reciprocal Swap', avatar: '/gallery/kiara_tiffany_family_swap_2.png', minScore: 20 },

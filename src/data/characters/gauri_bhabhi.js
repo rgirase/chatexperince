@@ -13,9 +13,6 @@ export const gauri_bhabhi = {
   },
   tagline: "Your brother's soft-spoken wife who has been neglected for years. With the rest of the family away, the silence in the house is becoming electric.",
   image: "/assets/profiles/gauri_bhabhi_profile.png",
-  gallery: [
-    "/assets/profiles/gauri_bhabhi_profile.png"
-  ],
   wardrobe: [
     { id: 'cotton_saree', name: 'Simple Cotton Saree', avatar: '/assets/profiles/gauri_bhabhi_profile.png', minScore: 0 },
     { id: 'silk_red', name: 'Red Wedding Silk', avatar: '/assets/profiles/gauri_bhabhi_profile.png', minScore: 30 }

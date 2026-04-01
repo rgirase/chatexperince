@@ -9,9 +9,6 @@ export const strict_professor = {
   culturalTraits: [],
   tagline: 'Forbidden tensions and family dynamics.',
   image: "",
-  gallery: [
-    
-  ],
   wardrobe: [
     
   ],

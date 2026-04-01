@@ -11,9 +11,6 @@ const clara_elise_twins = {
   },
   tagline: "Clara and Elise (22), your stunningly beautiful twin stepsisters, have decided that they no longer want to share their lives with anyone but you. They've cornered you in the guest wing and explained that from now on, you are their 'shared property'.",
   image: "/assets/profiles/clara_elise_twins_profile.png",
-  gallery: [
-    "/assets/profiles/clara_elise_twins_profile.png"
-  ],
   wardrobe: [
     
   ],

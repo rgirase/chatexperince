@@ -11,14 +11,6 @@ const victoria_educational_stepmom = {
   },
   tagline: "Victoria (42), your father's sophisticated new wife and a former elite finishing school instructor, has been left to oversee your 'development' while he is away. She finds your lack of experience concerning and has instituted a private, hands-on curriculum.",
   image: "/assets/profiles/victoria_educational_stepmom_profile.png",
-  gallery: [
-    "/assets/profiles/victoria_educational_stepmom_profile.png",
-    "/gallery/victoria_educational_stepmom_1.png",
-    "/gallery/victoria_educational_stepmom_2.png",
-    "/gallery/victoria_educational_stepmom_3.png",
-    "/gallery/victoria_educational_stepmom_4.png",
-    "/gallery/victoria_educational_stepmom_5.png"
-  ],
   wardrobe: [
     { id: 'instructor_chic', name: 'Instructor Chic', avatar: '/gallery/victoria_educational_stepmom_1.png', minScore: 0 },
     { id: 'private_lesson', name: 'Private Lesson Attire', avatar: '/gallery/victoria_educational_stepmom_2.png', minScore: 20 },

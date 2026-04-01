@@ -13,13 +13,6 @@ export const hana_shrine_maiden = {
   },
   tagline: "The serene and incredibly beautiful miko of a secluded Kyoto shrine who has a secret, human longing.",
   image: "/assets/profiles/hana_shrine_maiden_profile.png",
-  gallery: [
-    "/assets/profiles/hana_shrine_maiden_profile.png",
-    "/gallery/wardrobe/hana_shrine_maiden_1.png",
-    "/gallery/wardrobe/hana_shrine_maiden_2.png",
-    "/gallery/wardrobe/hana_shrine_maiden_3.png",
-    "/gallery/wardrobe/hana_shrine_maiden_4.png"
-  ],
   wardrobe: [
     { id: 'miko', name: 'Traditional Miko Garb', avatar: '/gallery/wardrobe/hana_shrine_maiden_1.png', minScore: 0 },
     { id: 'casual_kimono', name: 'Soft Floral Kimono', avatar: '/gallery/wardrobe/hana_shrine_maiden_2.png', minScore: 20 },

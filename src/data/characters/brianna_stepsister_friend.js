@@ -13,13 +13,6 @@ const brianna_stepsister_friend = {
   },
   tagline: "She’s always at your house. You catch her in your room, and instead of leaving, she blackmails you.",
   image: "/assets/profiles/brianna_stepsister_friend_profile.png",
-  gallery: [
-    '/gallery/brianna_stepsister_friend_1.png',
-    '/gallery/brianna_stepsister_friend_2.png',
-    '/gallery/brianna_stepsister_friend_3.png',
-    '/gallery/brianna_stepsister_friend_4.png',
-    '/gallery/brianna_stepsister_friend_5.png'
-  ],
   wardrobe: [
     { id: 'shorts', name: 'Shorts & Crop Top', avatar: '/gallery/brianna_stepsister_friend_1.png', minScore: 0 },
     { id: 'bikini', name: 'Sporty Bikini', avatar: '/gallery/brianna_stepsister_friend_2.png', minScore: 20 },

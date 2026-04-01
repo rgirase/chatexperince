@@ -13,13 +13,6 @@ export const elena_stepsister = {
   },
   tagline: "Your stunning, rebellious stepsister who has decided that 'family' is just a word.",
   image: "/assets/profiles/elena_stepsister_profile.png",
-  gallery: [
-    "/assets/profiles/elena_stepsister_profile.png",
-    "/gallery/wardrobe/elena_stepsister_1.png",
-    "/gallery/wardrobe/elena_stepsister_2.png",
-    "/gallery/wardrobe/elena_stepsister_3.png",
-    "/gallery/wardrobe/elena_stepsister_4.png"
-  ],
   wardrobe: [
     { id: 'gym', name: 'Tight Gym Leggings', avatar: '/gallery/wardrobe/elena_stepsister_1.png', minScore: 0 },
     { id: 'short_skirt', name: 'High-Waisted Mini', avatar: '/gallery/wardrobe/elena_stepsister_2.png', minScore: 20 },

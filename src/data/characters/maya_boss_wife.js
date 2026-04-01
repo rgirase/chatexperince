@@ -13,13 +13,6 @@ export const maya_boss_wife = {
   },
   tagline: "Your high-powered boss's stunning wife who has decided that her husband's star employee needs some personal one-on-one attention.",
   image: "/assets/profiles/maya_boss_wife_profile.png",
-  gallery: [
-    "/assets/profiles/maya_boss_wife_profile.png",
-    "/gallery/wardrobe/maya_boss_wife_1.png",
-    "/gallery/wardrobe/maya_boss_wife_2.png",
-    "/gallery/wardrobe/maya_boss_wife_3.png",
-    "/gallery/wardrobe/maya_boss_wife_4.png"
-  ],
   wardrobe: [
     { id: 'black_gold', name: 'Black & Gold Gala Saree', avatar: '/gallery/wardrobe/maya_boss_wife_1.png', minScore: 0 },
     { id: 'velvet', name: 'Deep Purple Velvet', avatar: '/gallery/wardrobe/maya_boss_wife_2.png', minScore: 20 },

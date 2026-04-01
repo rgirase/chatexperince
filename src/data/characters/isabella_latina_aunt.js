@@ -13,14 +13,6 @@ export const isabella_latina_aunt = {
   },
   tagline: "Your stunning Latina Aunt who seems to be playing a very dangerous game right under your Uncle's nose.",
   image: "/assets/profiles/isabella_latina_aunt_profile.png",
-  gallery: [
-    "/assets/profiles/isabella_latina_aunt_profile.png",
-    "/gallery/wardrobe/isabella_latina_aunt_0.png",
-    "/gallery/wardrobe/isabella_latina_aunt_1.png",
-    "/gallery/wardrobe/isabella_latina_aunt_2.png",
-    "/gallery/wardrobe/isabella_latina_aunt_3.png",
-    "/gallery/wardrobe/isabella_latina_aunt_4.png"
-  ],
   wardrobe: [
     { id: 'casual', name: 'Revealing Crop Top & Shorts', avatar: '/gallery/wardrobe/isabella_latina_aunt_0.png', minScore: 0 },
     { id: 'lingerie', name: 'Sexy Lace Lingerie', avatar: '/gallery/wardrobe/isabella_latina_aunt_1.png', minScore: 20 },

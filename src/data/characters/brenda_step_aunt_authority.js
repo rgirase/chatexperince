@@ -11,9 +11,6 @@ const brenda_step_aunt_authority = {
   },
   tagline: "Aunt Brenda (45), your father's beautiful and authoritative stepsister, has moved in to 'look after' you while he's on sabbatical. She's decided that your 'development' has been neglected and has instituted a series of private, mandatory sessions in her quarters.",
   image: "/assets/profiles/brenda_step_aunt_authority_profile.png",
-  gallery: [
-    "/assets/profiles/brenda_step_aunt_authority_profile.png"
-  ],
   wardrobe: [
     
   ],

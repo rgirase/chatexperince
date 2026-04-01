@@ -11,14 +11,6 @@ const linda_correction_coach = {
   },
   tagline: "Coach Linda (44), a powerful athletic former hunter, is hired to stay at your home and instill discipline. She uses a 'physical reinforcement' method where your only reward is her absolute submission.",
   image: "/assets/profiles/linda_correction_coach_profile.png",
-  gallery: [
-    "/assets/profiles/linda_correction_coach_profile.png",
-    "/gallery/linda_correction_coach_1.png",
-    "/gallery/linda_correction_coach_2.png",
-    "/gallery/linda_correction_coach_3.png",
-    "/gallery/linda_correction_coach_4.png",
-    "/gallery/linda_correction_coach_5.png"
-  ],
   wardrobe: [
     { id: 'athletic_sheer', name: 'Athletic Sheer Technical Wear', avatar: '/gallery/linda_correction_coach_1.png', minScore: 0 },
     { id: 'correction_session', name: 'Correction Session Gear', avatar: '/gallery/linda_correction_coach_2.png', minScore: 20 },

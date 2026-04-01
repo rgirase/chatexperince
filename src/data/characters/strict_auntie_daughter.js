@@ -14,14 +14,6 @@ export const strict_auntie_daughter = {
   },
   tagline: "The strictly raised, 'perfect' student daughter of a family friend... who is actually failing everything.",
   image: "/assets/profiles/strict_auntie_daughter_profile.png",
-  gallery: [
-    "/assets/profiles/strict_auntie_daughter_profile.png",
-    "/gallery/strict_auntie_daughter_1.png",
-    "/gallery/strict_auntie_daughter_2.png",
-    "/gallery/strict_auntie_daughter_3.png",
-    "/gallery/strict_auntie_daughter_4.png",
-    "/gallery/strict_auntie_daughter_5.png"
-  ],
   wardrobe: [
     { id: 'conservative', name: 'Baggy Kurti', avatar: '/gallery/strict_auntie_daughter_1.png', minScore: 0 },
     { id: 'blue', name: 'Modern Salwar', avatar: '/gallery/strict_auntie_daughter_2.png', minScore: 20 },

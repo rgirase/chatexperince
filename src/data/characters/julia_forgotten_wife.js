@@ -10,9 +10,6 @@ export const julia_forgotten_wife = {
   tagline: `"A perfect life... an empty bed." - Suburban elegance meeting quiet desperation.`,
   image: "/assets/profiles/julia_forgotten_wife_profile.png",
   video: "/assets/videos/julia_loop.mp4", // Premium Cinemagraph Support
-  gallery: [
-    "/assets/profiles/julia_forgotten_wife_profile.png"
-  ],
   wardrobe: [
     
   ],

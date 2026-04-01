@@ -5,7 +5,6 @@ import { updateAura } from './services/reputation';
 import PersonaList from './components/PersonaList';
 import ChatInterface from './components/ChatInterface';
 import Settings from './components/Settings';
-import Gallery from './components/Gallery';
 import GenesisWizard from './components/GenesisWizard';
 import { personas as defaultPersonas } from './data/personas';
 import { personal_gf } from './data/characters/personal_gf';
@@ -112,8 +111,6 @@ function App() {
       } else if (savedView === 'gf') {
         // Handled by activeView state
       } else if (savedView === 'settings') {
-        // Handled by activeView state
-      } else if (savedView === 'gallery') {
         // Handled by activeView state
       } else if (savedView === 'genesis') {
         // Handled by activeView state
@@ -266,15 +263,6 @@ function App() {
     setSelectedPersona(null);
     setActiveView('settings');
     localStorage.setItem('activeView', 'settings');
-  };
-
-  const handleOpenGallery = () => {
-    console.log('[App] handleOpenGallery called');
-    window.history.pushState({ view: 'gallery' }, '');
-    hasPushedHistory = true;
-    setSelectedPersona(null);
-    setActiveView('gallery');
-    localStorage.setItem('activeView', 'gallery');
   };
 
   const handleOpenGenesis = () => {
@@ -488,12 +476,6 @@ function App() {
             activeServerUrl={activeServerUrl}
             onSwitchServer={handleSwitchServer}
           />
-        ) : activeView === 'gallery' ? (
-          <Gallery
-            onBack={handleBack}
-            allPersonas={processedPersonas}
-            onSelectImage={handleSelectImage}
-          />
         ) : activeView === 'genesis' ? (
           <GenesisWizard 
             onPersonaCreated={handlePersonaCreated}
@@ -547,14 +529,6 @@ function App() {
           >
             <MessageCircle size={22} color={activeView === 'chat' && selectedPersona?.id !== personal_gf.id ? '#a855f7' : '#71717a'} />
             <span style={{ color: activeView === 'chat' && selectedPersona?.id !== personal_gf.id ? '#fff' : '#71717a' }}>Chat</span>
-          </button>
-          
-          <button 
-            className={`nav-item ${activeView === 'gallery' ? 'active' : ''}`}
-            onClick={handleOpenGallery}
-          >
-            <ImageIcon size={22} color={activeView === 'gallery' ? '#a855f7' : '#71717a'} />
-            <span style={{ color: activeView === 'gallery' ? '#fff' : '#71717a' }}>Gallery</span>
           </button>
           
           <button 

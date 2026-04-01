@@ -22,6 +22,7 @@ const ChatHeader = ({
     onOpenHistory,
     onOpenStoryMap,
     onOpenGallery,
+    onOpenStatus,
     onGenerateSceneImage,
     onSceneChange,
     onScenarioShuffle,
@@ -65,7 +66,11 @@ const ChatHeader = ({
             <button onClick={onBack} className="back-btn" title="Back to Personas">
                 <ArrowLeft size={24} />
             </button>
-            <div className="chat-avatar-wrapper" style={{ position: 'relative' }}>
+            <div 
+                className="chat-avatar-wrapper" 
+                onClick={onOpenStatus}
+                style={{ position: 'relative', cursor: 'pointer' }}
+            >
                 <AuraPulse score={relationshipScore} intensity={intensity} />
                 <MoodOverlay score={relationshipScore} intensity={intensity} mood={currentMood} />
                 <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -93,7 +98,12 @@ const ChatHeader = ({
                 </div>
                 <div className="status-online-indicator"></div>
             </div>
-            <div className="chat-header-info" style={{ flex: 1 }}>
+            <div 
+                className="chat-header-info" 
+                onClick={onOpenGallery}
+                style={{ flex: 1, cursor: 'pointer' }}
+                title="Open Chat Gallery"
+            >
                 <h3 className="premium-gradient-text" style={{ margin: 0, fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {persona.name}{invitedPersona ? ` & ${invitedPersona.name}` : ''}
                 </h3>
@@ -171,7 +181,7 @@ const ChatHeader = ({
                                     
                                     <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
                                     <span style={{ padding: '0 0.75rem', fontSize: '0.65rem', color: '#71717a', textTransform: 'uppercase' }}>Character Media</span>
-                                    <button onClick={() => { onOpenGallery(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#c084fc' }}><ImageIcon size={18} /> Secret Album</button>
+                                    <button onClick={() => { onOpenGallery(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#c084fc' }}><ImageIcon size={18} /> Chat Media Gallery</button>
                                     <button onClick={() => { onOpenWardrobe(); setIsMobileMenuOpen(false); }} className="menu-item"><Shirt size={18} /> Wardrobe</button>
                                     <button onClick={() => { onOpenGifts(); setIsMobileMenuOpen(false); }} className="menu-item"><Gift size={18} /> Send a Gift</button>
                                     

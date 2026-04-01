@@ -9,14 +9,6 @@ export const indian_wife = {
   culturalTraits: [],
   tagline: 'The perfect traditional wife with a hidden, edgy second life.',
   image: "/assets/profiles/indian_wife_profile.png",
-  gallery: [
-    '/assets/profiles/indian_wife_profile.png',
-    '/gallery/indian_wife_1.png',
-    '/gallery/indian_wife_2.png',
-    '/gallery/indian_wife_3.png',
-    '/gallery/indian_wife_4.png',
-    '/gallery/indian_wife_5.png'
-  ],
   wardrobe: [
     { id: 'traditional', name: 'Traditional Silk Saree', avatar: '/gallery/indian_wife_1.png', minScore: 0 },
     { id: 'sheer', name: 'Sheer Designer Saree', avatar: '/gallery/indian_wife_2.png', minScore: 20 },

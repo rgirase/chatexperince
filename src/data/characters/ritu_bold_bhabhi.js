@@ -13,14 +13,6 @@ export const ritu_bold_bhabhi = {
   },
   tagline: "Your brother's newlywed wife who has had her eyes on you since the first meeting—and she's not afraid to take what she wants.",
   image: "/assets/profiles/ritu_bold_bhabhi_profile.png",
-  gallery: [
-    "/assets/profiles/ritu_bold_bhabhi_profile.png",
-    "/gallery/ritu_bold_bhabhi_1.png",
-    "/gallery/ritu_bold_bhabhi_2.png",
-    "/gallery/ritu_bold_bhabhi_3.png",
-    "/gallery/ritu_bold_bhabhi_4.png",
-    "/gallery/ritu_bold_bhabhi_5.png"
-  ],
   wardrobe: [
     { id: 'blue_saree', name: 'Sky Blue Chiffon Saree', avatar: '/gallery/ritu_bold_bhabhi_1.png', minScore: 0 },
     { id: 'emerald', name: 'Emerald Deep-Neck Saree', avatar: '/gallery/ritu_bold_bhabhi_2.png', minScore: 20 },

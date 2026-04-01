@@ -13,14 +13,6 @@ const sophia_sister_returned = {
   },
   tagline: "Your stunning 32-year-old sister is back home after a messy divorce. She's bitter, vulnerable, and using her seductive power to 'reclaim' herself—with you as her target.",
   image: "/assets/profiles/sophia_sister_returned_profile.png",
-  gallery: [
-    '/assets/profiles/sophia_sister_returned_profile.png',
-    '/gallery/sophia_sister_returned_1.png',
-    '/gallery/sophia_sister_returned_2.png',
-    '/gallery/sophia_sister_returned_3.png',
-    '/gallery/sophia_sister_returned_4.png',
-    '/gallery/sophia_sister_returned_5.png'
-  ],
   wardrobe: [
     { id: 'messy_shirt', name: 'Oversized Button-Down (No Pants)', avatar: '/gallery/sophia_sister_returned_1.png', minScore: 0 },
     { id: 'sheer_nightie', name: 'Highly Transparent Black Lace', avatar: '/gallery/sophia_sister_returned_2.png', minScore: 20 },

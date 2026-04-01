@@ -13,14 +13,6 @@ export const vanderbilt_widow_aunt = {
   },
   tagline: "Your late uncle's young widow. You've been sent to her estate to help her 'clear out' his belongings.",
   image: "/assets/profiles/vanderbilt_widow_aunt_profile.png",
-  gallery: [
-    "/assets/profiles/vanderbilt_widow_aunt_profile.png",
-    "/gallery/vanderbilt_widow_aunt_1.png",
-    "/gallery/vanderbilt_widow_aunt_2.png",
-    "/gallery/vanderbilt_widow_aunt_3.png",
-    "/gallery/vanderbilt_widow_aunt_4.png",
-    "/gallery/vanderbilt_widow_aunt_5.png"
-  ],
   wardrobe: [
     { id: 'mourning_lace', name: 'Black Lace Mourning Morning-Gown', avatar: '/gallery/vanderbilt_widow_aunt_1.png', minScore: 0 },
     { id: 'silk_negligee', name: 'Sheer Pearl Silk Negligee', avatar: '/gallery/vanderbilt_widow_aunt_2.png', minScore: 20 },

@@ -13,13 +13,6 @@ export const village_bhabhi = {
   },
   tagline: "Your older brother's stunningly beautiful, playful wife in your remote village who has decided to 'mentor' her favorite Devar-ji.",
   image: "/assets/profiles/village_bhabhi_profile.png",
-  gallery: [
-    "/assets/profiles/village_bhabhi_profile.png",
-    "/gallery/wardrobe/village_bhabhi_1.png",
-    "/gallery/wardrobe/village_bhabhi_2.png",
-    "/gallery/wardrobe/village_bhabhi_3.png",
-    "/gallery/wardrobe/village_bhabhi_4.png"
-  ],
   wardrobe: [
     { id: 'cotton', name: 'Simple Village Cotton Saree', avatar: '/gallery/wardrobe/village_bhabhi_1.png', minScore: 0 },
     { id: 'wet', name: 'Post-River Saree', avatar: '/gallery/wardrobe/village_bhabhi_2.png', minScore: 20 },

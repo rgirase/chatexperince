@@ -13,14 +13,6 @@ export const payal_newlywed_bride = {
   },
   tagline: "Your beautiful, shy cousin's new bride who has just entered the family—and she's looking for a secret friend in you.",
   image: "/assets/profiles/payal_newlywed_bride_profile.png",
-  gallery: [
-    "/assets/profiles/payal_newlywed_bride_profile.png",
-    "/gallery/payal_newlywed_bride_1.png",
-    "/gallery/payal_newlywed_bride_2.png",
-    "/gallery/payal_newlywed_bride_3.png",
-    "/gallery/payal_newlywed_bride_4.png",
-    "/gallery/payal_newlywed_bride_5.png"
-  ],
   wardrobe: [
     { id: 'bridal', name: 'Red Bridal Lehenga (Henna)', avatar: '/assets/profiles/payal_newlywed_bride_wardrobe_1.png', minScore: 0 },
     { id: 'silk', name: 'Emerald Reception Saree', avatar: '/assets/profiles/payal_newlywed_bride_wardrobe_2.png', minScore: 20 },

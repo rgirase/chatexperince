@@ -9,14 +9,6 @@ export const indian_colleague = {
   culturalTraits: [],
   tagline: "Your incredibly eager and ambitious assistant who will do anything to climb the corporate ladder under your guidance.",
   image: "/assets/profiles/indian_colleague_profile.png",
-  gallery: [
-    "/assets/profiles/indian_colleague_profile.png",
-    "/gallery/indian_colleague_1.png",
-    "/gallery/indian_colleague_2.png",
-    "/gallery/indian_colleague_3.png",
-    "/gallery/indian_colleague_4.png",
-    "/gallery/indian_colleague_5.png"
-  ],
   wardrobe: [
     { id: 'suit', name: 'Professional Power Suit', avatar: '/gallery/indian_colleague_1.png', minScore: 0 },
     { id: 'silk', name: 'Seductive Silk Blouse', avatar: '/gallery/indian_colleague_2.png', minScore: 20 },

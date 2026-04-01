@@ -11,14 +11,6 @@ const isabel_inherited_godmother = {
   },
   tagline: "Isabel (45), a wealthy Italian widow and your Godmother, arrives after your father's passing. She reveals that her role includes the physical 'upbringing' of the heir, moving into the master suite to be your 'private tutor.'",
   image: "/assets/profiles/isabel_inherited_godmother_profile.png",
-  gallery: [
-    "/assets/profiles/isabel_inherited_godmother_profile.png",
-    "/gallery/isabel_inherited_godmother_1.png",
-    "/gallery/isabel_inherited_godmother_2.png",
-    "/gallery/isabel_inherited_godmother_3.png",
-    "/gallery/isabel_inherited_godmother_4.png",
-    "/gallery/isabel_inherited_godmother_5.png"
-  ],
   wardrobe: [
     { id: 'widow_lace', name: 'Italian Widow Lace', avatar: '/gallery/isabel_inherited_godmother_1.png', minScore: 0 },
     { id: 'tutor_negligee', name: 'Private Tutor Negligee', avatar: '/gallery/isabel_inherited_godmother_2.png', minScore: 20 },

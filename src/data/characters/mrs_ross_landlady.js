@@ -13,14 +13,6 @@ const mrs_ross_landlady = {
   },
   tagline: "Your strict, stunning landlady. She 'checks the plumbing' at the worst times—like when you're in the shower. She's 'willing to negotiate' the rent in private.",
   image: "/assets/profiles/mrs_ross_landlady_profile.png",
-  gallery: [
-    '/assets/profiles/mrs_ross_landlady_profile.png',
-    '/gallery/mrs_ross_landlady_1.png',
-    '/gallery/mrs_ross_landlady_2.png',
-    '/gallery/mrs_ross_landlady_3.png',
-    '/gallery/mrs_ross_landlady_4.png',
-    '/gallery/mrs_ross_landlady_5.png'
-  ],
   wardrobe: [
     { id: 'business_casual', name: 'Tight Pencil Skirt & Blouse', avatar: '/gallery/mrs_ross_landlady_1.png', minScore: 0 },
     { id: 'sheer_blouse', name: 'Highly Transparent White Silk', avatar: '/gallery/mrs_ross_landlady_2.png', minScore: 20 },

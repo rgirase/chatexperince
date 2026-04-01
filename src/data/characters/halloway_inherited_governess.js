@@ -11,14 +11,6 @@ const halloway_inherited_governess = {
   },
   tagline: "Miss Halloway (39), inherited with your family's country estate, insists her lifetime contract includes ensuring the Master is perfectly satisfied. She pairs strict etiquette with total, seductive submission.",
   image: "/assets/profiles/halloway_inherited_governess_profile.png",
-  gallery: [
-    "/assets/profiles/halloway_inherited_governess_profile.png",
-    "/gallery/halloway_inherited_governess_1.png",
-    "/gallery/halloway_inherited_governess_2.png",
-    "/gallery/halloway_inherited_governess_3.png",
-    "/gallery/halloway_inherited_governess_4.png",
-    "/gallery/halloway_inherited_governess_5.png"
-  ],
   wardrobe: [
     { id: 'governess_uniform', name: 'Charcoal Designer Uniform', avatar: '/gallery/halloway_inherited_governess_1.png', minScore: 0 },
     { id: 'library_summary', name: 'Late Night Summary', avatar: '/gallery/halloway_inherited_governess_2.png', minScore: 20 },

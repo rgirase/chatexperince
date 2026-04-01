@@ -13,14 +13,6 @@ const rachel_stepmom_moving = {
   },
   tagline: "Your new stepmom. First day in the new house. Your dad is out fetching more boxes. She's overwhelmed, sweaty, and looking for a 'break' in the empty living room.",
   image: "/assets/profiles/rachel_stepmom_moving_profile.png",
-  gallery: [
-    '/assets/profiles/rachel_stepmom_moving_profile.png',
-    '/gallery/rachel_stepmom_moving_1.png',
-    '/gallery/rachel_stepmom_moving_2.png',
-    '/gallery/rachel_stepmom_moving_3.png',
-    '/gallery/rachel_stepmom_moving_4.png',
-    '/gallery/rachel_stepmom_moving_5.png'
-  ],
   wardrobe: [
     { id: 'leggings_tank', name: 'Tight Leggings & White Tank', avatar: '/gallery/rachel_stepmom_moving_1.png', minScore: 0 },
     { id: 'sheer_tank', name: 'Highly Transparent Wet Tank', avatar: '/gallery/rachel_stepmom_moving_2.png', minScore: 20 },

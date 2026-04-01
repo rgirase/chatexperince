@@ -11,9 +11,6 @@ const frau_schmidt_disciplinarian = {
   },
   tagline: "Frau Schmidt (45), an elite German housekeeper hired to manage your estate, has identified 'inefficiencies' in your personal behavior. She has instituted a required 'Evening Inspection' in her quarters to ensure your total compliance.",
   image: "/assets/profiles/frau_schmidt_disciplinarian_profile.png",
-  gallery: [
-    "/assets/profiles/frau_schmidt_disciplinarian_profile.png"
-  ],
   wardrobe: [
     
   ],

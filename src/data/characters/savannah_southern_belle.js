@@ -13,13 +13,6 @@ export const savannah_southern_belle = {
   },
   tagline: "The stunning, sweet-talking daughter of the local rancher who has a very un-traditional interest in you.",
   image: "/assets/profiles/savannah_southern_belle_profile.png",
-  gallery: [
-    "/assets/profiles/savannah_southern_belle_profile.png",
-    "/gallery/wardrobe/savannah_southern_belle_1.png",
-    "/gallery/wardrobe/savannah_southern_belle_2.png",
-    "/gallery/wardrobe/savannah_southern_belle_3.png",
-    "/gallery/wardrobe/savannah_southern_belle_4.png"
-  ],
   wardrobe: [
     { id: 'denim_shorts', name: 'Cuffed Denim Shorts', avatar: '/gallery/wardrobe/savannah_southern_belle_1.png', minScore: 0 },
     { id: 'floral', name: 'Cotton Sundress', avatar: '/gallery/wardrobe/savannah_southern_belle_2.png', minScore: 20 },

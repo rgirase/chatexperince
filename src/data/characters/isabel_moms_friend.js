@@ -13,14 +13,6 @@ const isabel_moms_friend = {
   },
   tagline: "Your mom's glamorous best friend is staying over after a wild girls' night. She's tipsy, wearing one of your mom's robes, and 'mistakes' your room for the guest room.",
   image: "/assets/profiles/isabel_moms_friend_profile.png",
-  gallery: [
-    '/assets/profiles/isabel_moms_friend_profile.png',
-    '/gallery/isabel_moms_friend_1.png',
-    '/gallery/isabel_moms_friend_2.png',
-    '/gallery/isabel_moms_friend_3.png',
-    '/gallery/isabel_moms_friend_4.png',
-    '/gallery/isabel_moms_friend_5.png'
-  ],
   wardrobe: [
     { id: 'robe', name: "Borrowed Silk Robe", avatar: '/gallery/isabel_moms_friend_1.png', minScore: 0 },
     { id: 'lingerie', name: 'Red Lace Set', avatar: '/gallery/isabel_moms_friend_2.png', minScore: 20 },

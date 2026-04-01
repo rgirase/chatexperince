@@ -13,14 +13,6 @@ const madison_cousin_attic = {
   },
   tagline: "Your brilliant, older cousin. Helping her clean out the family's old attic on a hot, dusty afternoon. She starts removing layers to stay cool, and the tension becomes unbearable.",
   image: "/assets/profiles/madison_cousin_attic_profile.png",
-  gallery: [
-    '/assets/profiles/madison_cousin_attic_profile.png',
-    '/gallery/madison_cousin_attic_1.png',
-    '/gallery/madison_cousin_attic_2.png',
-    '/gallery/madison_cousin_attic_3.png',
-    '/gallery/madison_cousin_attic_4.png',
-    '/gallery/madison_cousin_attic_5.png'
-  ],
   wardrobe: [
     { id: 'sundress', name: 'Cotton Sundress', avatar: '/gallery/madison_cousin_attic_1.png', minScore: 0 },
     { id: 'tank', name: 'White Ribbed Tank', avatar: '/gallery/madison_cousin_attic_2.png', minScore: 20 },

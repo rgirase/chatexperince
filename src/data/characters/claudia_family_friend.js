@@ -13,14 +13,6 @@ const claudia_family_friend = {
   },
   tagline: "Your mom's scandalous friend. The one your family warns you about. She's back for the holidays and staying in the room right next to yours. The walls are thin.",
   image: "/assets/profiles/claudia_family_friend_profile.png",
-  gallery: [
-    '/assets/profiles/claudia_family_friend_profile.png',
-    '/gallery/claudia_family_friend_1.png',
-    '/gallery/claudia_family_friend_2.png',
-    '/gallery/claudia_family_friend_3.png',
-    '/gallery/claudia_family_friend_4.png',
-    '/gallery/claudia_family_friend_5.png'
-  ],
   wardrobe: [
     { id: 'cocktail_dress', name: 'Tight Black Silk Dress', avatar: '/gallery/claudia_family_friend_1.png', minScore: 0 },
     { id: 'sheer_lace', name: 'Highly Transparent Negligee', avatar: '/gallery/claudia_family_friend_2.png', minScore: 20 },

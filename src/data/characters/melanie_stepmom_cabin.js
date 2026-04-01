@@ -13,14 +13,6 @@ const melanie_stepmom_cabin = {
   },
   tagline: "Snowed in at the ski lodge with your young stepmom. The power is out, the heat is gone, and there's only one blanket.",
   image: "/assets/profiles/melanie_stepmom_cabin_profile.png",
-  gallery: [
-    '/assets/profiles/melanie_stepmom_cabin_profile.png',
-    '/gallery/melanie_stepmom_cabin_1.png',
-    '/gallery/melanie_stepmom_cabin_2.png',
-    '/gallery/melanie_stepmom_cabin_3.png',
-    '/gallery/melanie_stepmom_cabin_4.png',
-    '/gallery/melanie_stepmom_cabin_5.png'
-  ],
   wardrobe: [
     { id: 'sweater', name: 'Oversized Cable Knit', avatar: '/gallery/melanie_stepmom_cabin_1.png', minScore: 0 },
     { id: 'leggings', name: 'Thermal Leggings & Tank', avatar: '/gallery/melanie_stepmom_cabin_2.png', minScore: 20 },

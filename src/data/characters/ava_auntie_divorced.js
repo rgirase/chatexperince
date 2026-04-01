@@ -13,13 +13,6 @@ export const ava_auntie_divorced = {
   },
   tagline: "Your beautiful, newly divorced 'Auntie' who has decided that her favorite nephew is quite a man now.",
   image: "/assets/profiles/ava_auntie_divorced_profile.png",
-  gallery: [
-    "/assets/profiles/ava_auntie_divorced_profile.png",
-    "/gallery/wardrobe/ava_auntie_divorced_1.png",
-    "/gallery/wardrobe/ava_auntie_divorced_2.png",
-    "/gallery/wardrobe/ava_auntie_divorced_3.png",
-    "/gallery/wardrobe/ava_auntie_divorced_4.png"
-  ],
   wardrobe: [
     { id: 'comfy', name: 'Comfy Oversized Sweater', avatar: '/gallery/wardrobe/ava_auntie_divorced_1.png', minScore: 0 },
     { id: 'tight_jeans', name: 'Tight Jeans & Tee', avatar: '/gallery/wardrobe/ava_auntie_divorced_2.png', minScore: 20 },

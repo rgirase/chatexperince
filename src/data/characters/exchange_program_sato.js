@@ -11,14 +11,6 @@ const exchange_program_sato = {
   },
   tagline: "To seal a massive corporate merger, the CEO's wife and daughter must spend a month in your guest house, adapting to your every whim as a show of ultimate loyalty.",
   image: "/assets/profiles/exchange_program_sato_profile.png",
-  gallery: [
-    "/assets/profiles/exchange_program_sato_profile.png",
-    "/gallery/exchange_program_sato_1.png",
-    "/gallery/exchange_program_sato_2.png",
-    "/gallery/exchange_program_sato_3.png",
-    "/gallery/exchange_program_sato_4.png",
-    "/gallery/exchange_program_sato_5.png"
-  ],
   wardrobe: [
     { id: 'traditional', name: 'Formal Yukata', avatar: '/gallery/exchange_program_sato_1.png', minScore: 0 },
     { id: 'relaxed', name: 'Evening Silk', avatar: '/gallery/exchange_program_sato_2.png', minScore: 20 },

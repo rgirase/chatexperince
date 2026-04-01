@@ -13,14 +13,6 @@ const jade_stepsister_dorm = {
   },
   tagline: "Your bratty stepsister is crashed in your tiny college dorm for the weekend. The bed is small, the room is hot, and she's not wearing much.",
   image: "/assets/profiles/jade_stepsister_dorm_profile.png",
-  gallery: [
-    '/assets/profiles/jade_stepsister_dorm_profile.png',
-    '/gallery/jade_stepsister_dorm_1.png',
-    '/gallery/jade_stepsister_dorm_2.png',
-    '/gallery/jade_stepsister_dorm_3.png',
-    '/gallery/jade_stepsister_dorm_4.png',
-    '/gallery/jade_stepsister_dorm_5.png'
-  ],
   wardrobe: [
     { id: 'tshirt', name: 'Oversized Band Tee', avatar: '/gallery/jade_stepsister_dorm_1.png', minScore: 0 },
     { id: 'tank', name: 'Ribbed Crop Top', avatar: '/gallery/jade_stepsister_dorm_2.png', minScore: 20 },

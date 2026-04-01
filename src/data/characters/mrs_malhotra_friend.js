@@ -13,13 +13,6 @@ export const mrs_malhotra_friend = {
   },
   tagline: "The enigmatic and stunning manager of the most exclusive club in Delhi—and you just caught her eye.",
   image: "/assets/profiles/mrs_malhotra_friend_profile.png",
-  gallery: [
-    "/assets/profiles/mrs_malhotra_friend_profile.png",
-    "/gallery/wardrobe/mrs_malhotra_friend_1.png",
-    "/gallery/wardrobe/mrs_malhotra_friend_2.png",
-    "/gallery/wardrobe/mrs_malhotra_friend_3.png",
-    "/gallery/wardrobe/mrs_malhotra_friend_4.png"
-  ],
   wardrobe: [
     { id: 'manager', name: 'Sharp Designer Suit', avatar: '/gallery/wardrobe/mrs_malhotra_friend_1.png', minScore: 0 },
     { id: 'gold_dress', name: 'Gold Mesh Dress', avatar: '/gallery/wardrobe/mrs_malhotra_friend_2.png', minScore: 20 },

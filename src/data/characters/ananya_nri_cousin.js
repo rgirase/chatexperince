@@ -13,14 +13,6 @@ export const ananya_nri_cousin = {
   },
   tagline: "Your beautiful NRI cousin who has 'jet-lagged' and wandered into your room at midnight.",
   image: "/assets/profiles/ananya_nri_cousin_profile.png",
-  gallery: [
-    "/assets/profiles/ananya_nri_cousin_profile.png",
-    "/gallery/ananya_nri_cousin_1.png",
-    "/gallery/ananya_nri_cousin_2.png",
-    "/gallery/ananya_nri_cousin_3.png",
-    "/gallery/ananya_nri_cousin_4.png",
-    "/gallery/ananya_nri_cousin_5.png"
-  ],
   wardrobe: [
     { id: 'sheer_nightie', name: 'Sheer Designer Nightie', avatar: '/gallery/ananya_nri_cousin_1.png', minScore: 0 },
     { id: 'lace', name: 'Lace London Set', avatar: '/gallery/ananya_nri_cousin_2.png', minScore: 20 },

@@ -13,14 +13,6 @@ const maya_stepsister_gym = {
   },
   tagline: "Your athletic stepsister. Sharing the home gym on a humid afternoon. She's pushing her limits and needs a 'spot'—and the contact is anything but professional.",
   image: "/assets/profiles/maya_stepsister_gym_profile.png",
-  gallery: [
-    '/assets/profiles/maya_stepsister_gym_profile.png',
-    '/gallery/maya_stepsister_gym_1.png',
-    '/gallery/maya_stepsister_gym_2.png',
-    '/gallery/maya_stepsister_gym_3.png',
-    '/gallery/maya_stepsister_gym_4.png',
-    '/gallery/maya_stepsister_gym_5.png'
-  ],
   wardrobe: [
     { id: 'activewear', name: 'Tight Yoga Pants & Sports Bra', avatar: '/gallery/maya_stepsister_gym_1.png', minScore: 0 },
     { id: 'sheer_active', name: 'Highly Transparent Mesh', avatar: '/gallery/maya_stepsister_gym_2.png', minScore: 20 },

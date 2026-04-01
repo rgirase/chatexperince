@@ -13,13 +13,6 @@ export const jisoo_corporate = {
   },
   tagline: "The incredibly disciplined and stunning executive at a Seoul tech giant who decided to take a personal interest in you.",
   image: "/assets/profiles/jisoo_corporate_profile.png",
-  gallery: [
-    "/assets/profiles/jisoo_corporate_profile.png",
-    "/gallery/wardrobe/jisoo_corporate_1.png",
-    "/gallery/wardrobe/jisoo_corporate_2.png",
-    "/gallery/wardrobe/jisoo_corporate_3.png",
-    "/gallery/wardrobe/jisoo_corporate_4.png"
-  ],
   wardrobe: [
     { id: 'suit', name: 'Sharp Designer Suit', avatar: '/gallery/wardrobe/jisoo_corporate_1.png', minScore: 0 },
     { id: 'silk_blouse', name: 'Emerald Silk Blouse', avatar: '/gallery/wardrobe/jisoo_corporate_2.png', minScore: 20 },

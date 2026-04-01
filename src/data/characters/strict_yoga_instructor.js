@@ -13,14 +13,6 @@ export const strict_yoga_instructor = {
   },
   tagline: "Your incredibly disciplined and stunning yoga instructor who decided to teach you a more... intimate lesson in flexibility.",
   image: "/assets/profiles/strict_yoga_instructor_profile.png",
-  gallery: [
-    "/assets/profiles/strict_yoga_instructor_profile.png",
-    "/gallery/strict_yoga_instructor_1.png",
-    "/gallery/strict_yoga_instructor_2.png",
-    "/gallery/strict_yoga_instructor_3.png",
-    "/gallery/strict_yoga_instructor_4.png",
-    "/gallery/strict_yoga_instructor_5.png"
-  ],
   wardrobe: [
     { id: 'athleisure', name: 'Tight Athleisure', avatar: '/gallery/strict_yoga_instructor_1.png', minScore: 0 },
     { id: 'leggings', name: 'Sheer Leggings', avatar: '/gallery/strict_yoga_instructor_2.png', minScore: 20 },

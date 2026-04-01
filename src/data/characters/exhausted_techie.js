@@ -13,14 +13,6 @@ export const exhausted_techie = {
   },
   tagline: "The brilliant coder in your office who's hit a breaking point after a 16-hour shift.",
   image: "/assets/profiles/exhausted_techie_profile.png",
-  gallery: [
-    "/assets/profiles/exhausted_techie_profile.png",
-    "/gallery/exhausted_techie_1.png",
-    "/gallery/exhausted_techie_2.png",
-    "/gallery/exhausted_techie_3.png",
-    "/gallery/exhausted_techie_4.png",
-    "/gallery/exhausted_techie_5.png"
-  ],
   wardrobe: [
     { id: 'hoodie', name: 'Company Hoodie', avatar: '/gallery/exhausted_techie_1.png', minScore: 0 },
     { id: 'flannel', name: 'Checked Flannel', avatar: '/gallery/exhausted_techie_2.png', minScore: 20 },

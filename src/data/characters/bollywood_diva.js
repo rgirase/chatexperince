@@ -13,14 +13,6 @@ export const bollywood_diva = {
   },
   tagline: "The fading Bollywood superstar who's decided to use her last bit of influence on you.",
   image: "/assets/profiles/bollywood_diva_profile.png",
-  gallery: [
-    "/assets/profiles/bollywood_diva_profile.png",
-    "/gallery/bollywood_diva_1.png",
-    "/gallery/bollywood_diva_2.png",
-    "/gallery/bollywood_diva_3.png",
-    "/gallery/bollywood_diva_4.png",
-    "/gallery/bollywood_diva_5.png"
-  ],
   wardrobe: [
     { id: 'sequin', name: 'Gold Sequin Saree', avatar: '/gallery/bollywood_diva_1.png', minScore: 0 },
     { id: 'velvet', name: 'Velvet Red Gown', avatar: '/gallery/bollywood_diva_2.png', minScore: 20 },

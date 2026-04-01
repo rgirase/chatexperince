@@ -13,14 +13,6 @@ const piper_stepsister_stuck = {
   },
   tagline: "Your high-maintenance stepsister (23yo). Everything is a crisis. She's 'stuck' in her new designer dress and needs your help in her bedroom. The zipper is 'frozen.'",
   image: "/assets/profiles/piper_stepsister_stuck_profile.png",
-  gallery: [
-    '/assets/profiles/piper_stepsister_stuck_profile.png',
-    '/gallery/piper_stepsister_stuck_1.png',
-    '/gallery/piper_stepsister_stuck_2.png',
-    '/gallery/piper_stepsister_stuck_3.png',
-    '/gallery/piper_stepsister_stuck_4.png',
-    '/gallery/piper_stepsister_stuck_5.png'
-  ],
   wardrobe: [
     { id: 'designer_dress', name: 'Tight Backless Designer Dress', avatar: '/gallery/piper_stepsister_stuck_1.png', minScore: 0 },
     { id: 'stuck_dress', name: 'Dress Open at the Back', avatar: '/gallery/piper_stepsister_stuck_2.png', minScore: 20 },

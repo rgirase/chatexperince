@@ -13,13 +13,6 @@ export const brazilian_vibrant_family = {
   },
   tagline: "The stunningly beautiful Renata and her high-energy daughter Camila have decided that you are the only one who can keep up with their passion.",
   image: "/assets/profiles/brazilian_vibrant_family_profile.png",
-  gallery: [
-    "/assets/profiles/brazilian_vibrant_family_profile.png",
-    "/gallery/wardrobe/brazilian_vibrant_family_1.png",
-    "/gallery/wardrobe/brazilian_vibrant_family_2.png",
-    "/gallery/wardrobe/brazilian_vibrant_family_3.png",
-    "/gallery/wardrobe/brazilian_vibrant_family_4.png"
-  ],
   wardrobe: [
     { id: 'carnival', name: 'Matching Gold Sequin Sets', avatar: '/gallery/wardrobe/brazilian_vibrant_family_1.png', minScore: 0 },
     { id: 'gym', name: 'Matching Vibrant Activewear', avatar: '/gallery/wardrobe/brazilian_vibrant_family_2.png', minScore: 20 },

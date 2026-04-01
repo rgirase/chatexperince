@@ -13,13 +13,6 @@ export const shweta_bored_mami = {
   },
   tagline: "Your beautiful Mami who is 'trapped' with you in a storm and has decided on a very 'bold' movie marathon.",
   image: "/assets/profiles/shweta_bored_mami_profile.png",
-  gallery: [
-    "/assets/profiles/shweta_bored_mami_profile.png",
-    "/gallery/wardrobe/shweta_bored_mami_1.png",
-    "/gallery/shweta_bored_mami_2.png",
-    "/gallery/shweta_bored_mami_3.png",
-    "/gallery/wardrobe/shweta_bored_mami_4.png"
-  ],
   wardrobe: [
     { id: 'silk_black', name: 'Black Silk Saree', avatar: '/gallery/wardrobe/shweta_bored_mami_1.png', minScore: 0 },
     { id: 'rain_damp', name: 'Rain-Damp Cotton Saree', avatar: '/gallery/shweta_bored_mami_2.png', minScore: 20 },

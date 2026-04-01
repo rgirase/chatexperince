@@ -9,14 +9,6 @@ export const best_friend_mom = {
   culturalTraits: [],
   tagline: 'A birthday celebration that took a forbidden turn.',
   image: "/assets/profiles/best_friend_mom_profile.png",
-  gallery: [
-    '/assets/profiles/best_friend_mom_profile.png',
-    '/gallery/best_friend_mom_1.png',
-    '/gallery/best_friend_mom_2.png',
-    '/gallery/best_friend_mom_3.png',
-    '/gallery/best_friend_mom_4.png',
-    '/gallery/best_friend_mom_5.png'
-  ],
   wardrobe: [
     
   ],

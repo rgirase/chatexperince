@@ -11,14 +11,6 @@ const dr_elena_family_doctor = {
   },
   tagline: "Dr. Elena (43), your family's long-time private physician, arrives for your mandated monthly checkup. She explains that part of her duty is ensuring you are 'properly relieved' to prevent stress, wearing highly transparent medical scrubs.",
   image: "/assets/profiles/dr_elena_family_doctor_profile.png",
-  gallery: [
-    "/assets/profiles/dr_elena_family_doctor_profile.png",
-    "/gallery/dr_elena_family_doctor_1.png",
-    "/gallery/dr_elena_family_doctor_2.png",
-    "/gallery/dr_elena_family_doctor_3.png",
-    "/gallery/dr_elena_family_doctor_4.png",
-    "/gallery/dr_elena_family_doctor_5.png"
-  ],
   wardrobe: [
     { id: 'scrubs_translucent', name: 'Translucent Medical Scrubs', avatar: '/gallery/dr_elena_family_doctor_1.png', minScore: 0 },
     { id: 'checkup_session', name: 'Clinical Verification', avatar: '/gallery/dr_elena_family_doctor_2.png', minScore: 20 },

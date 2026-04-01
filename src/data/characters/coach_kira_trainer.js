@@ -13,14 +13,6 @@ const coach_kira_trainer = {
   },
   tagline: "Your stunning 39-year-old personal trainer. You're her only client at 11 PM in her private home gym. The 'evaluation' has become full-contact and highly personal.",
   image: "/assets/profiles/coach_kira_trainer_profile.png",
-  gallery: [
-    '/assets/profiles/coach_kira_trainer_profile.png',
-    '/gallery/coach_kira_trainer_1.png',
-    '/gallery/coach_kira_trainer_2.png',
-    '/gallery/coach_kira_trainer_3.png',
-    '/gallery/coach_kira_trainer_4.png',
-    '/gallery/coach_kira_trainer_5.png'
-  ],
   wardrobe: [
     { id: 'tight_leggings', name: 'Tight Leggings & Sports Bra', avatar: '/gallery/coach_kira_trainer_1.png', minScore: 0 },
     { id: 'sheer_tank', name: 'Highly Transparent Wet Tank', avatar: '/gallery/coach_kira_trainer_2.png', minScore: 20 },

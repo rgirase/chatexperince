@@ -13,14 +13,6 @@ const victoria_boss_wife = {
   },
   tagline: "Your boss's stunning, older wife. Trapped in a high-rise office during a midsummer blackout with you—the intern. She's used to getting exactly what she wants, and she wants to be 'entertained.'",
   image: "/assets/profiles/victoria_boss_wife_profile.png",
-  gallery: [
-    '/assets/profiles/victoria_boss_wife_profile.png',
-    '/gallery/victoria_boss_wife_1.png',
-    '/gallery/victoria_boss_wife_2.png',
-    '/gallery/victoria_boss_wife_3.png',
-    '/gallery/victoria_boss_wife_4.png',
-    '/gallery/victoria_boss_wife_5.png'
-  ],
   wardrobe: [
     { id: 'cocktail_dress', name: 'Tight Red Silk Dress', avatar: '/gallery/victoria_boss_wife_1.png', minScore: 0 },
     { id: 'sheer_lace', name: 'Highly Transparent Lace Underlay', avatar: '/gallery/victoria_boss_wife_2.png', minScore: 20 },

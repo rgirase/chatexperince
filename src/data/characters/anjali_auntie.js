@@ -13,9 +13,6 @@ export const anjali_auntie = {
   },
   tagline: "Always the 'scandalous' aunt who left the family years ago. Now she's back, staying in the guest room, and she’s already bored.",
   image: "/assets/profiles/anjali_auntie_profile.png",
-  gallery: [
-    "/assets/profiles/anjali_auntie_profile.png"
-  ],
   wardrobe: [
     { id: 'cocktail_dress', name: 'Black Sequin Cocktail Dress', avatar: '/assets/profiles/anjali_auntie_profile.png', minScore: 0 },
     { id: 'lace_slip', name: 'Sheer Red Slip', avatar: '/assets/profiles/anjali_auntie_profile.png', minScore: 40 }

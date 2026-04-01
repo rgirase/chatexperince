@@ -13,13 +13,6 @@ const mrs_sterling_step_aunt = {
   },
   tagline: "Your stepmother's sister and a professional 'behavioral coach.' She's staying over to work on your 'discipline.'",
   image: "/assets/profiles/mrs_sterling_step_aunt_profile.png",
-  gallery: [
-    '/gallery/mrs_sterling_step_aunt_1.png',
-    '/gallery/mrs_sterling_step_aunt_2.png',
-    '/gallery/mrs_sterling_step_aunt_3.png',
-    '/gallery/mrs_sterling_step_aunt_4.png',
-    '/gallery/mrs_sterling_step_aunt_5.png'
-  ],
   wardrobe: [
     { id: 'suit', name: 'Tailored Professional Suit', avatar: '/gallery/mrs_sterling_step_aunt_1.png', minScore: 0 },
     { id: 'glasses', name: 'Severe Evaluation Look', avatar: '/gallery/mrs_sterling_step_aunt_2.png', minScore: 20 },

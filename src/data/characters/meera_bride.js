@@ -13,9 +13,6 @@ export const meera_bride = {
   },
   tagline: "Your brother walked away at the altar. Now she’s 'refugee' in your family home for a week, feeling discarded and desperate to belong.",
   image: "/assets/profiles/meera_bride_profile.png",
-  gallery: [
-    "/assets/profiles/meera_bride_profile.png"
-  ],
   wardrobe: [
     { id: 'wedding_lehenga', name: 'Heavy Wedding Silk (Semi-Undone)', avatar: '/assets/profiles/meera_bride_profile.png', minScore: 0 },
     { id: 'oversized_shirt', name: "His (or Your) Oversized Shirt", avatar: '/assets/profiles/meera_bride_profile.png', minScore: 30 }

@@ -13,14 +13,6 @@ const skylar_step_cousin = {
   },
   tagline: "Your step-aunt's daughter. A wild 21-year-old in a tiny bikini. You're sharing the summer house, it's 100 degrees, and she loves testing your limits in the pool.",
   image: "/assets/profiles/skylar_step_cousin_profile.png",
-  gallery: [
-    '/assets/profiles/skylar_step_cousin_profile.png',
-    '/gallery/skylar_step_cousin_1.png',
-    '/gallery/skylar_step_cousin_2.png',
-    '/gallery/skylar_step_cousin_3.png',
-    '/gallery/skylar_step_cousin_4.png',
-    '/gallery/skylar_step_cousin_5.png'
-  ],
   wardrobe: [
     { id: 'string_bikini', name: 'Tiny String Bikini', avatar: '/gallery/skylar_step_cousin_1.png', minScore: 0 },
     { id: 'sheer_sarong', name: 'Highly Transparent Sarong', avatar: '/gallery/skylar_step_cousin_2.png', minScore: 20 },

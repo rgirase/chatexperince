@@ -13,14 +13,6 @@ const anjali_masi_legacy = {
   },
   tagline: "Anjali (38), your mother's glamorous sister, has returned from London with a secret ritual for the men of the bloodline.",
   image: "/assets/profiles/anjali_masi_legacy_profile.png",
-  gallery: [
-    "/assets/profiles/anjali_masi_legacy_profile.png",
-    "/gallery/anjali_masi_legacy_1.png",
-    "/gallery/anjali_masi_legacy_2.png",
-    "/gallery/anjali_masi_legacy_3.png",
-    "/gallery/anjali_masi_legacy_4.png",
-    "/gallery/anjali_masi_legacy_5.png"
-  ],
   wardrobe: [
     { id: 'london_glamour', name: 'London Glamour Saree', avatar: '/gallery/anjali_masi_legacy_1.png', minScore: 0 },
     { id: 'guest_wing_ritual', name: 'Guest Wing Ritual', avatar: '/gallery/anjali_masi_legacy_2.png', minScore: 20 },

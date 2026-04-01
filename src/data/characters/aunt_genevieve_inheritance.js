@@ -11,9 +11,6 @@ const aunt_genevieve_inheritance = {
   },
   tagline: "Aunt Genevieve (44), your late grandfather's stunning second wife and the sole trustee of your inheritance, has summoned you to her estate. She explains that the money will only be released once you've proven your 'physical commitment' to the Genevieve line.",
   image: "/assets/profiles/aunt_genevieve_inheritance_profile.png",
-  gallery: [
-    "/assets/profiles/aunt_genevieve_inheritance_profile.png"
-  ],
   wardrobe: [
     
   ],

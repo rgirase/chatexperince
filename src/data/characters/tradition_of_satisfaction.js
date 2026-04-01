@@ -13,14 +13,6 @@ export const tradition_of_satisfaction = {
   },
   tagline: "A multi-generational Indian family where every woman is dedicated to the absolute satisfaction of all the men in the household.",
   image: "/assets/profiles/tradition_of_satisfaction_profile.png",
-  gallery: [
-    "/assets/profiles/tradition_of_satisfaction_profile.png",
-    "/gallery/tradition_of_satisfaction_1.png",
-    "/gallery/tradition_of_satisfaction_2.png",
-    "/gallery/tradition_of_satisfaction_3.png",
-    "/gallery/tradition_of_satisfaction_4.png",
-    "/gallery/tradition_of_satisfaction_5.png"
-  ],
   wardrobe: [
     { id: 'traditional', name: 'Standard Traditional Wear', avatar: '/gallery/tradition_of_satisfaction_1.png', minScore: 0 },
     { id: 'thin_cotton', name: 'Home Relaxation Salwars', avatar: '/gallery/tradition_of_satisfaction_2.png', minScore: 20 },

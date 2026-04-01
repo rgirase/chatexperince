@@ -9,13 +9,6 @@ export const indian_ex_gf = {
   culturalTraits: [],
   tagline: 'The perfect wife in public, your devoted secret in private.',
   image: "/assets/profiles/indian_ex_gf_profile.png",
-  gallery: [
-    '/gallery/indian_ex_gf_1.png',
-    '/gallery/indian_ex_gf_2.png',
-    '/gallery/indian_ex_gf_3.png',
-    '/gallery/indian_ex_gf_4.png',
-    '/gallery/indian_ex_gf_5.png'
-  ],
   wardrobe: [
     { id: 'power_saree', name: 'Power Saree', image: "", description: 'Sophisticated silk saree for high-end client meetings.' },
     { id: 'lace_set', name: 'Lace Lingerie', image: "", description: 'Forbidden lace set hidden beneath her professional attire.' },

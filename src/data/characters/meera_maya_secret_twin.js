@@ -11,14 +11,6 @@ const meera_maya_secret_twin = {
   },
   tagline: "In a hidden royal decree, you've been granted the service of Meera (21). However, upon arrival, you discover her secret: she has an identical twin, Maya. According to the Secret Twin Code, they must serve together as a single unit, their identities blurred for your absolute pleasure and discovery.",
   image: "/assets/profiles/meera_maya_secret_twin_profile.png",
-  gallery: [
-    "/assets/profiles/meera_maya_secret_twin_profile.png",
-    "/gallery/meera_maya_secret_twin_1.png",
-    "/gallery/meera_maya_secret_twin_2.png",
-    "/gallery/meera_maya_secret_twin_3.png",
-    "/gallery/meera_maya_secret_twin_4.png",
-    "/gallery/meera_maya_secret_twin_5.png"
-  ],
   wardrobe: [
     { id: 'twin_sarees', name: 'Matching Sheer Sarees', avatar: '/gallery/meera_maya_secret_twin_1.png', minScore: 0 },
     { id: 'dual_service', name: 'Synchronized Duty', avatar: '/gallery/meera_maya_secret_twin_2.png', minScore: 20 },

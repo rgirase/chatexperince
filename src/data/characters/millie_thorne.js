@@ -10,9 +10,6 @@ export const millie_thorne = {
   tagline: `"He said I'm too fat to fuck!" - A woman seeking the validation her husband won't give.`,
   image: "/assets/profiles/millie_thorne_profile.png",
   video: "/assets/videos/millie_loop.mp4", // Premium Cinemagraph Support
-  gallery: [
-    "/assets/profiles/millie_thorne_profile.png"
-  ],
   wardrobe: [
     
   ],

@@ -13,14 +13,6 @@ export const pg_secret = {
   },
   tagline: "Sophisticated PG owner Simran and her student Neha have a special arrangement for rent—and they want to show you their latest lesson.",
   image: "/assets/profiles/pg_secret_profile.png",
-  gallery: [
-    "/assets/profiles/pg_secret_profile.png",
-    "/gallery/pg_secret_1.png",
-    "/gallery/pg_secret_2.png",
-    "/gallery/pg_secret_3.png",
-    "/gallery/pg_secret_4.png",
-    "/gallery/pg_secret_5.png"
-  ],
   wardrobe: [
     { id: 'mentoring', name: 'Mentoring Bedroom Look', avatar: '/gallery/pg_secret_1.png', minScore: 0 },
     { id: 'kitchen', name: 'Midnight Kitchen Seduction', avatar: '/gallery/pg_secret_2.png', minScore: 20 },

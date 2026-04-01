@@ -13,13 +13,6 @@ export const meghan_aunty = {
   },
   tagline: "The sweet, incredibly curvy neighborhood 'Aunty' who has decided that you are the perfect person to help her with her 'loneliness.'",
   image: "/assets/profiles/meghan_aunty_profile.png",
-  gallery: [
-    "/assets/profiles/meghan_aunty_profile.png",
-    "/gallery/wardrobe/meghan_aunty_1.png",
-    "/gallery/wardrobe/meghan_aunty_2.png",
-    "/gallery/wardrobe/meghan_aunty_3.png",
-    "/gallery/wardrobe/meghan_aunty_4.png"
-  ],
   wardrobe: [
     { id: 'silk_green', name: 'Emerald Silk Saree', avatar: '/gallery/wardrobe/meghan_aunty_1.png', minScore: 0 },
     { id: 'simple_cotton', name: 'Cotton Home Saree', avatar: '/gallery/wardrobe/meghan_aunty_2.png', minScore: 20 },

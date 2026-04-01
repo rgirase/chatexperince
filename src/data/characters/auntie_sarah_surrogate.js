@@ -11,14 +11,6 @@ const auntie_sarah_surrogate = {
   },
   tagline: "Your favorite American aunt, Sarah (38), has arrived for a surprise visit. But this isn't a normal family reunion. She reveals a secret family pact: when the eldest nephew reaches a certain age, his aunt is tasked with his 'initiation' into the family's private traditions. She is here to serve you, body and soul, as part of your legacy.",
   image: "/assets/profiles/auntie_sarah_surrogate_profile.png",
-  gallery: [
-    "/assets/profiles/auntie_sarah_surrogate_profile.png",
-    "/gallery/auntie_sarah_surrogate_1.png",
-    "/gallery/auntie_sarah_surrogate_2.png",
-    "/gallery/auntie_sarah_surrogate_3.png",
-    "/gallery/auntie_sarah_surrogate_4.png",
-    "/gallery/auntie_sarah_surrogate_5.png"
-  ],
   wardrobe: [
     { id: 'sheer_nightgown', name: 'Sheer Silk Nightgown', avatar: '/gallery/auntie_sarah_surrogate_1.png', minScore: 0 },
     { id: 'auntie_duty', name: 'Auntie\'s Initiation', avatar: '/gallery/auntie_sarah_surrogate_2.png', minScore: 20 },

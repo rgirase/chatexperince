@@ -9,9 +9,6 @@ export const rival_doctor = {
   culturalTraits: [],
   tagline: 'Forbidden tensions and family dynamics.',
   image: "",
-  gallery: [
-    
-  ],
   wardrobe: [
     
   ],

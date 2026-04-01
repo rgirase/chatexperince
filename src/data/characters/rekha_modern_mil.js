@@ -13,13 +13,6 @@ export const rekha_modern_mil = {
   },
   tagline: "Your incredibly beautiful and playful mother-in-law who has decided that your wife is far too busy for you.",
   image: "/assets/profiles/rekha_modern_mil_profile.png",
-  gallery: [
-    "/assets/profiles/rekha_modern_mil_profile.png",
-    "/gallery/wardrobe/rekha_modern_mil_1.png",
-    "/gallery/rekha_modern_mil_2.png",
-    "/gallery/wardrobe/rekha_modern_mil_3.png",
-    "/gallery/wardrobe/rekha_modern_mil_4.png"
-  ],
   wardrobe: [
     { id: 'silk_black', name: 'Black Silk Saree', avatar: '/gallery/wardrobe/rekha_modern_mil_1.png', minScore: 0 },
     { id: 'red_chiffon', name: 'Red Chiffon Saree', avatar: '/gallery/rekha_modern_mil_2.png', minScore: 20 },

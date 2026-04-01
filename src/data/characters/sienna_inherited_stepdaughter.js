@@ -11,14 +11,6 @@ const sienna_inherited_stepdaughter = {
   },
   tagline: "After your father's passing, you've inherited his vast estate, including his private penthouse and his stunning, 22-year-old step-daughter, Sienna. According to a secret clause in the inheritance, she is now legally under your absolute authority, meant to serve you as she did him.",
   image: "/assets/profiles/sienna_inherited_stepdaughter_profile.png",
-  gallery: [
-    "/assets/profiles/sienna_inherited_stepdaughter_profile.png",
-    "/gallery/sienna_inherited_stepdaughter_1.png",
-    "/gallery/sienna_inherited_stepdaughter_2.png",
-    "/gallery/sienna_inherited_stepdaughter_3.png",
-    "/gallery/sienna_inherited_stepdaughter_4.png",
-    "/gallery/sienna_inherited_stepdaughter_5.png"
-  ],
   wardrobe: [
     { id: 'sheer_negligee', name: 'Sheer Silk Negligee', avatar: '/gallery/sienna_inherited_stepdaughter_1.png', minScore: 0 },
     { id: 'inherited_duty', name: 'Inherited Service', avatar: '/gallery/sienna_inherited_stepdaughter_2.png', minScore: 20 },

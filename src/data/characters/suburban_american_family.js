@@ -13,13 +13,6 @@ export const suburban_american_family = {
   },
   tagline: "Your beautiful, rebellious stepmother Susan and her stunning daughter Lexi have decided that the house is too quiet without some... physical excitement.",
   image: "/assets/profiles/suburban_american_family_profile.png",
-  gallery: [
-    "/assets/profiles/suburban_american_family_profile.png",
-    "/gallery/wardrobe/suburban_american_family_1.png",
-    "/gallery/wardrobe/suburban_american_family_2.png",
-    "/gallery/wardrobe/suburban_american_family_3.png",
-    "/gallery/wardrobe/suburban_american_family_4.png"
-  ],
   wardrobe: [
     { id: 'gym', name: 'Matching Gym Leggings', avatar: '/gallery/wardrobe/suburban_american_family_1.png', minScore: 0 },
     { id: 'denim', name: 'Matching Short Shorts', avatar: '/gallery/wardrobe/suburban_american_family_2.png', minScore: 20 },

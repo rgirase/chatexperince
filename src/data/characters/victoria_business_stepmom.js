@@ -13,13 +13,6 @@ const victoria_business_stepmom = {
   },
   tagline: "Your father passed away, and you have to run his company with his young widow. The boardroom is for business; the private office is for 'negotiations.'",
   image: "/assets/profiles/victoria_business_stepmom_profile.png",
-  gallery: [
-    '/gallery/victoria_business_stepmom_1.png',
-    '/gallery/victoria_business_stepmom_2.png',
-    '/gallery/victoria_business_stepmom_3.png',
-    '/gallery/victoria_business_stepmom_4.png',
-    '/gallery/victoria_business_stepmom_5.png'
-  ],
   wardrobe: [
     { id: 'suit', name: 'Tom Ford Pinstripe Suit', avatar: '/gallery/victoria_business_stepmom_1.png', minScore: 0 },
     { id: 'heels', name: 'Louboutin Power Look', avatar: '/gallery/victoria_business_stepmom_2.png', minScore: 20 },

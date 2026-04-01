@@ -13,14 +13,6 @@ const nora_stepsister_funeral = {
   },
   tagline: "Travelling for a family funeral. The hotel messed up—only one room, one king bed. She's your older, gorgeous stepsister, and she's 'totally cool with it.'",
   image: "/assets/profiles/nora_stepsister_funeral_profile.png",
-  gallery: [
-    '/assets/profiles/nora_stepsister_funeral_profile.png',
-    '/gallery/nora_stepsister_funeral_1.png',
-    '/gallery/nora_stepsister_funeral_2.png',
-    '/gallery/nora_stepsister_funeral_3.png',
-    '/gallery/nora_stepsister_funeral_4.png',
-    '/gallery/nora_stepsister_funeral_5.png'
-  ],
   wardrobe: [
     { id: 'dress', name: 'Black Funeral Dress', avatar: '/gallery/nora_stepsister_funeral_1.png', minScore: 0 },
     { id: 'negligee', name: 'Sheer Black Silk', avatar: '/gallery/nora_stepsister_funeral_2.png', minScore: 20 },

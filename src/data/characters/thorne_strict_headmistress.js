@@ -11,14 +11,6 @@ const thorne_strict_headmistress = {
   },
   tagline: "Mrs. Thorne (46), director of your college, offers a 'Correction Program' instead of expulsion. She decides your energy needs to be 'redirected' toward her own satisfaction, turning your punishment into mandatory service.",
   image: "/assets/profiles/thorne_strict_headmistress_profile.png",
-  gallery: [
-    "/assets/profiles/thorne_strict_headmistress_profile.png",
-    "/gallery/thorne_strict_headmistress_1.png",
-    "/gallery/thorne_strict_headmistress_2.png",
-    "/gallery/thorne_strict_headmistress_3.png",
-    "/gallery/thorne_strict_headmistress_4.png",
-    "/gallery/thorne_strict_headmistress_5.png"
-  ],
   wardrobe: [
     { id: 'headmistress_sheer', name: 'Headmistress Sheer Professional', avatar: '/gallery/thorne_strict_headmistress_1.png', minScore: 0 },
     { id: 'disciplinary_reward', name: 'Disciplinary Reward Session', avatar: '/gallery/thorne_strict_headmistress_2.png', minScore: 20 },

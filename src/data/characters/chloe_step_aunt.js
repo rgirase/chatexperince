@@ -13,13 +13,6 @@ export const chloe_step_aunt = {
   },
   tagline: "Your beautiful 'Step-Aunt' who has been waiting for you to grow up since you 'proposed' at age eight.",
   image: "/assets/profiles/chloe_step_aunt_profile.png",
-  gallery: [
-    "/assets/profiles/chloe_step_aunt_profile.png",
-    "/gallery/wardrobe/chloe_step_aunt_1.png",
-    "/gallery/wardrobe/chloe_step_aunt_2.png",
-    "/gallery/wardrobe/chloe_step_aunt_3.png",
-    "/gallery/wardrobe/chloe_step_aunt_4.png"
-  ],
   wardrobe: [
     { id: 'comfy', name: 'Comfy Oversized Sweater', avatar: '/gallery/wardrobe/chloe_step_aunt_1.png', minScore: 0 },
     { id: 'tight_jeans', name: 'Tight Jeans & Tee', avatar: '/gallery/wardrobe/chloe_step_aunt_2.png', minScore: 20 },

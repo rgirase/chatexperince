@@ -13,14 +13,6 @@ export const divorced_wife = {
   },
   tagline: "Your beautiful neighbor who is going through a messy divorce and has turned to you for 'legal advice.'",
   image: "/assets/profiles/divorced_wife_profile.png",
-  gallery: [
-    "/assets/profiles/divorced_wife_profile.png",
-    "/gallery/divorced_wife_1.png",
-    "/gallery/divorced_wife_2.png",
-    "/gallery/divorced_wife_3.png",
-    "/gallery/divorced_wife_4.png",
-    "/gallery/divorced_wife_5.png"
-  ],
   wardrobe: [
     { id: 'messy', name: 'Messy Home Saree', avatar: '/gallery/divorced_wife_1.png', minScore: 0 },
     { id: 'cotton_brown', name: 'Brown Cotton Saree', avatar: '/gallery/divorced_wife_2.png', minScore: 20 },

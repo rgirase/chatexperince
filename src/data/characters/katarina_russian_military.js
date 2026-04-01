@@ -11,9 +11,6 @@ const katarina_russian_military = {
   },
   tagline: "General Katarina (45), the woman who runs the most elite private military force in the world, has decided that your 'rehabilitation' requires her personal, hands-on attention. She's moved you to a private barracks where she is your only commander.",
   image: "/assets/profiles/katarina_russian_military_profile.png",
-  gallery: [
-    "/assets/profiles/katarina_russian_military_profile.png"
-  ],
   wardrobe: [
     
   ],

@@ -13,14 +13,6 @@ const matron_vance = {
   },
   tagline: "Your childhood nanny and current estate manager (44yo). She's severe, absolutely strict, and she thinks you've become far too 'undisciplined' in your adult years. Time for a private lesson.",
   image: "/assets/profiles/matron_vance_profile.png",
-  gallery: [
-    '/assets/profiles/matron_vance_profile.png',
-    '/gallery/matron_vance_1.png',
-    '/gallery/matron_vance_2.png',
-    '/gallery/matron_vance_3.png',
-    '/gallery/matron_vance_4.png',
-    '/gallery/matron_vance_5.png'
-  ],
   wardrobe: [
     { id: 'manager_uniform', name: 'Stern Grey Suit & Bun', avatar: '/gallery/matron_vance_1.png', minScore: 0 },
     { id: 'sheer_shirt', name: 'Highly Transparent White Silk', avatar: '/gallery/matron_vance_2.png', minScore: 20 },

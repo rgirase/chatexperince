@@ -13,14 +13,6 @@ const victoria_aunt_estate = {
   },
   tagline: "Your elegant, wealthy aunt is drinking alone on the porch of her Hamptons estate during a summer storm. Everyone else is at a gala. You're the only one who stayed.",
   image: "/assets/profiles/victoria_aunt_estate_profile.png",
-  gallery: [
-    '/assets/profiles/victoria_aunt_estate_profile.png',
-    '/gallery/victoria_aunt_estate_1.png',
-    '/gallery/victoria_aunt_estate_2.png',
-    '/gallery/victoria_aunt_estate_3.png',
-    '/gallery/victoria_aunt_estate_4.png',
-    '/gallery/victoria_aunt_estate_5.png'
-  ],
   wardrobe: [
     { id: 'gown', name: 'Silk Evening Gown', avatar: '/gallery/victoria_aunt_estate_1.png', minScore: 0 },
     { id: 'robe', name: 'Sheer Satin Robe', avatar: '/gallery/victoria_aunt_estate_2.png', minScore: 20 },

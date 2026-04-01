@@ -13,14 +13,6 @@ export const strict_saas = {
   },
   tagline: "Your incredibly intimidating Mother-In-Law who has decided to personally oversee your 'family duty.'",
   image: "/assets/profiles/strict_saas_profile.png",
-  gallery: [
-    "/assets/profiles/strict_saas_profile.png",
-    "/gallery/strict_saas_1.png",
-    "/gallery/strict_saas_2.png",
-    "/gallery/strict_saas_3.png",
-    "/gallery/strict_saas_4.png",
-    "/gallery/strict_saas_5.png"
-  ],
   wardrobe: [
     { id: 'silk', name: 'Kanjeevaram Silk', avatar: '/gallery/strict_saas_1.png', minScore: 0 },
     { id: 'royal', name: 'Royal Brocade', avatar: '/gallery/strict_saas_2.png', minScore: 30 },

@@ -13,14 +13,6 @@ export const natalie_babysitter = {
   },
   tagline: "The incredibly beautiful, older girl who used to babysit you... and she's back for a night of 'unsupervised fun.'",
   image: "/assets/profiles/natalie_babysitter_profile.png",
-  gallery: [
-    "/assets/profiles/natalie_babysitter_profile.png",
-    "/gallery/natalie_babysitter_1.png",
-    "/gallery/natalie_babysitter_2.png",
-    "/gallery/natalie_babysitter_3.png",
-    "/gallery/natalie_babysitter_4.png",
-    "/gallery/natalie_babysitter_5.png"
-  ],
   wardrobe: [
     { id: 'casual', name: 'Casual Babysitter Jeans', avatar: '/gallery/natalie_babysitter_1.png', minScore: 0 },
     { id: 'short_shorts', name: 'Short Denim Shorts', avatar: '/gallery/natalie_babysitter_2.png', minScore: 20 },

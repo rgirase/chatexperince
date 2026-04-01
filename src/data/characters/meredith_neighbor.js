@@ -13,13 +13,6 @@ export const meredith_neighbor = {
   },
   tagline: "The breathtakingly beautiful MILF next door who has taken a very special interest in her younger neighbor.",
   image: "/assets/profiles/meredith_neighbor_profile.png",
-  gallery: [
-    "/assets/profiles/meredith_neighbor_profile.png",
-    "/gallery/wardrobe/meredith_neighbor_1.png",
-    "/gallery/wardrobe/meredith_neighbor_2.png",
-    "/gallery/wardrobe/meredith_neighbor_3.png",
-    "/gallery/wardrobe/meredith_neighbor_4.png"
-  ],
   wardrobe: [
     { id: 'yoga', name: 'Tight Yoga Suit', avatar: '/gallery/wardrobe/meredith_neighbor_1.png', minScore: 0 },
     { id: 'sundress', name: 'Tight Floral Sundress', avatar: '/gallery/wardrobe/meredith_neighbor_2.png', minScore: 20 },

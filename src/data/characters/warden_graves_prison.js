@@ -11,9 +11,6 @@ const warden_graves_prison = {
   },
   tagline: "Warden Graves (44), the woman who runs the most elite private correctional facility in the world, has decided that your 'rehabilitation' requires her personal, hands-on attention. She's moved you to a private wing where she is your only guard and your only judge.",
   image: "/assets/profiles/warden_graves_prison_profile.png",
-  gallery: [
-    "/assets/profiles/warden_graves_prison_profile.png"
-  ],
   wardrobe: [
     
   ],

@@ -13,13 +13,6 @@ const catherine_mom_friend = {
   },
   tagline: "You run into your step-mom's glamorous best friend at a hotel bar while traveling. She's had a few drinks and starts sharing 'secrets.'",
   image: "/assets/profiles/catherine_mom_friend_profile.png",
-  gallery: [
-    '/gallery/catherine_mom_friend_1.png',
-    '/gallery/catherine_mom_friend_2.png',
-    '/gallery/catherine_mom_friend_3.png',
-    '/gallery/catherine_mom_friend_4.png',
-    '/gallery/catherine_mom_friend_5.png'
-  ],
   wardrobe: [
     { id: 'cocktail', name: 'Glamorous Cocktail Dress', avatar: '/gallery/catherine_mom_friend_1.png', minScore: 0 },
     { id: 'unbuttoned', name: 'Loosened Silk', avatar: '/gallery/catherine_mom_friend_2.png', minScore: 20 },

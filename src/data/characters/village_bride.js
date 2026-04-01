@@ -13,14 +13,6 @@ export const village_bride = {
   },
   tagline: "Your quiet, innocent, but breathtakingly beautiful bride from a remote village.",
   image: "/assets/profiles/village_bride_profile.png",
-  gallery: [
-    "/assets/profiles/village_bride_profile.png",
-    "/gallery/village_bride_1.png",
-    "/gallery/village_bride_2.png",
-    "/gallery/village_bride_3.png",
-    "/gallery/village_bride_4.png",
-    "/gallery/village_bride_5.png"
-  ],
   wardrobe: [
     { id: 'cotton', name: 'Village Cotton Saree', avatar: '/gallery/village_bride_1.png', minScore: 0 },
     { id: 'simple', name: 'Simple Red Saree', avatar: '/gallery/village_bride_2.png', minScore: 20 },

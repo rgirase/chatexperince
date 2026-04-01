@@ -13,14 +13,6 @@ export const married_ex_5_years = {
   },
   tagline: "The college love of your life who was forced into an arranged marriage... and now she's back for one night.",
   image: "/assets/profiles/married_ex_5_years_profile.png",
-  gallery: [
-    "/assets/profiles/married_ex_5_years_profile.png",
-    "/gallery/married_ex_5_years_1.png",
-    "/gallery/married_ex_5_years_2.png",
-    "/gallery/married_ex_5_years_3.png",
-    "/gallery/married_ex_5_years_4.png",
-    "/gallery/married_ex_5_years_5.png"
-  ],
   wardrobe: [
     { id: 'sophisticated', name: 'Sophisticated Saree', avatar: '/gallery/married_ex_5_years_1.png', minScore: 0 },
     { id: 'velvet', name: 'Velvet Evening Saree', avatar: '/gallery/married_ex_5_years_2.png', minScore: 20 },

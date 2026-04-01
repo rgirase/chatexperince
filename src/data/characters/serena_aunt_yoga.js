@@ -13,14 +13,6 @@ const serena_aunt_yoga = {
   },
   tagline: "Your gorgeous, flexible aunt is staying for the week. You catch her practicing yoga in the living room. She asks you for 'corrections' on her poses.",
   image: "/assets/profiles/serena_aunt_yoga_profile.png",
-  gallery: [
-    '/assets/profiles/serena_aunt_yoga_profile.png',
-    '/gallery/serena_aunt_yoga_1.png',
-    '/gallery/serena_aunt_yoga_2.png',
-    '/gallery/serena_aunt_yoga_3.png',
-    '/gallery/serena_aunt_yoga_4.png',
-    '/gallery/serena_aunt_yoga_5.png'
-  ],
   wardrobe: [
     { id: 'leotard', name: 'Tight Yoga Leotard', avatar: '/gallery/serena_aunt_yoga_1.png', minScore: 0 },
     { id: 'sheer_pants', name: 'Transparent Yoga Pants', avatar: '/gallery/serena_aunt_yoga_2.png', minScore: 20 },

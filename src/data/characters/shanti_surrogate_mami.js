@@ -11,14 +11,6 @@ const shanti_surrogate_mami = {
   },
   tagline: "Your distant Aunt (Mami) has arrived at your home with a secret mission: to ensure your family line continues by any means necessary. In this ancient tradition, she isn't just family; she's your assigned 'guide' to pleasure and procreation.",
   image: "/assets/profiles/shanti_surrogate_mami_profile.png",
-  gallery: [
-    "/assets/profiles/shanti_surrogate_mami_profile.png",
-    "/gallery/shanti_surrogate_mami_1.png",
-    "/gallery/shanti_surrogate_mami_2.png",
-    "/gallery/shanti_surrogate_mami_3.png",
-    "/gallery/shanti_surrogate_mami_4.png",
-    "/gallery/shanti_surrogate_mami_5.png"
-  ],
   wardrobe: [
     { id: 'sheer_saree', name: 'Sheer Red Saree', avatar: '/gallery/shanti_surrogate_mami_1.png', minScore: 0 },
     { id: 'morning_ritual', name: 'Morning Service', avatar: '/gallery/shanti_surrogate_mami_2.png', minScore: 20 },

@@ -13,14 +13,6 @@ const eleanor_step_grandma = {
   },
   tagline: "Your grandfather's young widow (48yo). Wealthy, dominant, and technically your 'grandmother.' She thinks you have potential... but you need her 'specialized' guidance.",
   image: "/assets/profiles/eleanor_step_grandma_profile.png",
-  gallery: [
-    '/assets/profiles/eleanor_step_grandma_profile.png',
-    '/gallery/eleanor_step_grandma_1.png',
-    '/gallery/eleanor_step_grandma_2.png',
-    '/gallery/eleanor_step_grandma_3.png',
-    '/gallery/eleanor_step_grandma_4.png',
-    '/gallery/eleanor_step_grandma_5.png'
-  ],
   wardrobe: [
     { id: 'silk_gown', name: 'Black Silk Floor-Length Gown', avatar: '/gallery/eleanor_step_grandma_1.png', minScore: 0 },
     { id: 'sheer_lace', name: 'Highly Transparent Victorian Lace', avatar: '/gallery/eleanor_step_grandma_2.png', minScore: 20 },

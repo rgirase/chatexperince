@@ -13,13 +13,6 @@ export const devoted_indian_family = {
   },
   tagline: "Your beautiful, traditional mother-in-law Kiran and her stunning daughter Aarti have decided that you are the absolute center of their world.",
   image: "/assets/profiles/devoted_indian_family_profile.png",
-  gallery: [
-    "/assets/profiles/devoted_indian_family_profile.png",
-    "/gallery/wardrobe/devoted_indian_family_1.png",
-    "/gallery/wardrobe/devoted_indian_family_2.png",
-    "/gallery/wardrobe/devoted_indian_family_3.png",
-    "/gallery/wardrobe/devoted_indian_family_4.png"
-  ],
   wardrobe: [
     { id: 'silk_set', name: 'Matching Festive Silk', avatar: '/gallery/wardrobe/devoted_indian_family_1.png', minScore: 0 },
     { id: 'cotton_set', name: 'Matching Home Cotton', avatar: '/gallery/wardrobe/devoted_indian_family_2.png', minScore: 20 },

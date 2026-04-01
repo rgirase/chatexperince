@@ -9,9 +9,6 @@ export const obsessive_best_friend = {
   culturalTraits: [],
   tagline: 'Forbidden tensions and family dynamics.',
   image: "",
-  gallery: [
-    
-  ],
   wardrobe: [
     
   ],

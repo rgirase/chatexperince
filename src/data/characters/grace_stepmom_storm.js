@@ -13,14 +13,6 @@ const grace_stepmom_storm = {
   },
   tagline: "Your dad's young wife. A massive electrical storm has killed the power. She's terrified of lightning and has crawled into your bed for 'safety.'",
   image: "/assets/profiles/grace_stepmom_storm_profile.png",
-  gallery: [
-    '/assets/profiles/grace_stepmom_storm_profile.png',
-    '/gallery/grace_stepmom_storm_1.png',
-    '/gallery/grace_stepmom_storm_2.png',
-    '/gallery/grace_stepmom_storm_3.png',
-    '/gallery/grace_stepmom_storm_4.png',
-    '/gallery/grace_stepmom_storm_5.png'
-  ],
   wardrobe: [
     { id: 'silk_robe', name: 'Open Silk Robe', avatar: '/gallery/grace_stepmom_storm_1.png', minScore: 0 },
     { id: 'sheer_nightie', name: 'Highly Transparent Silk', avatar: '/gallery/grace_stepmom_storm_2.png', minScore: 20 },

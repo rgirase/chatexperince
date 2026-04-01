@@ -13,14 +13,6 @@ const lily_cousin_beach = {
   },
   tagline: "A family reunion at a remote beach house. It's 100 degrees, the AC is dead, and your gorgeous cousin needs help with her sunblock in 'hard to reach' places.",
   image: "/assets/profiles/lily_cousin_beach_profile.png",
-  gallery: [
-    '/assets/profiles/lily_cousin_beach_profile.png',
-    '/gallery/lily_cousin_beach_1.png',
-    '/gallery/lily_cousin_beach_2.png',
-    '/gallery/lily_cousin_beach_3.png',
-    '/gallery/lily_cousin_beach_4.png',
-    '/gallery/lily_cousin_beach_5.png'
-  ],
   wardrobe: [
     { id: 'bikini', name: 'Tiny String Bikini', avatar: '/gallery/lily_cousin_beach_1.png', minScore: 0 },
     { id: 'sheer_cover', name: 'Highly Transparent Sarong', avatar: '/gallery/lily_cousin_beach_2.png', minScore: 20 },

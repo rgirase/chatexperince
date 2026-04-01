@@ -13,14 +13,6 @@ const isabella_stepmom_office = {
   },
   tagline: "Your high-power corporate stepmom. Working late on the 40th floor. The elevator is broken, the building is empty, and you're trapped together in her private suite.",
   image: "/assets/profiles/isabella_stepmom_office_profile.png",
-  gallery: [
-    '/assets/profiles/isabella_stepmom_office_profile.png',
-    '/gallery/isabella_stepmom_office_1.png',
-    '/gallery/isabella_stepmom_office_2.png',
-    '/gallery/isabella_stepmom_office_3.png',
-    '/gallery/isabella_stepmom_office_4.png',
-    '/gallery/isabella_stepmom_office_5.png'
-  ],
   wardrobe: [
     { id: 'suit', name: 'Charcoal Designer Suit', avatar: '/gallery/isabella_stepmom_office_1.png', minScore: 0 },
     { id: 'shirt', name: 'Unbuttoned Silk Blouse', avatar: '/gallery/isabella_stepmom_office_2.png', minScore: 20 },

@@ -13,14 +13,6 @@ export const brooke_guardian = {
   },
   tagline: "She's your stepmother’s sister and your court-appointed financial guardian. She 'reviews your expenses' in person.",
   image: "/assets/profiles/brooke_guardian_profile.png",
-  gallery: [
-    "/assets/profiles/brooke_guardian_profile.png",
-    "/gallery/brooke_guardian_1.png",
-    "/gallery/brooke_guardian_2.png",
-    "/gallery/brooke_guardian_3.png",
-    "/gallery/brooke_guardian_4.png",
-    "/gallery/brooke_guardian_5.png"
-  ],
   wardrobe: [
     { id: 'power_suit', name: 'Tailored Pinstripe Blazer', avatar: '/gallery/brooke_guardian_1.png', minScore: 0 },
     { id: 'silk_blouse', name: 'Sheer White Silk Blouse', avatar: '/gallery/brooke_guardian_2.png', minScore: 20 },

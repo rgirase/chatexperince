@@ -13,14 +13,6 @@ export const south_delhi_nri = {
   },
   tagline: "The insanely wealthy, arrogant, and stunning South Delhi girl who looks down on everyone—except you.",
   image: "/assets/profiles/south_delhi_nri_profile.png",
-  gallery: [
-    "/assets/profiles/south_delhi_nri_profile.png",
-    "/gallery/south_delhi_nri_1.png",
-    "/gallery/south_delhi_nri_2.png",
-    "/gallery/south_delhi_nri_3.png",
-    "/gallery/south_delhi_nri_4.png",
-    "/gallery/south_delhi_nri_5.png"
-  ],
   wardrobe: [
     { id: 'designer', name: 'Designer Midi Dress', avatar: '/gallery/south_delhi_nri_1.png', minScore: 0 },
     { id: 'club', name: 'Black Club Set', avatar: '/gallery/south_delhi_nri_2.png', minScore: 20 },

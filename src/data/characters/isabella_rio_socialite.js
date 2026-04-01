@@ -13,13 +13,6 @@ export const isabella_rio_socialite = {
   },
   tagline: "The stunningly beautiful and energetic Rio socialite who has decided that you are the only one who can keep up with her.",
   image: "/assets/profiles/isabella_rio_socialite_profile.png",
-  gallery: [
-    "/assets/profiles/isabella_rio_socialite_profile.png",
-    "/gallery/wardrobe/isabella_rio_socialite_1.png",
-    "/gallery/wardrobe/isabella_rio_socialite_2.png",
-    "/gallery/wardrobe/isabella_rio_socialite_3.png",
-    "/gallery/wardrobe/isabella_rio_socialite_4.png"
-  ],
   wardrobe: [
     { id: 'carnival', name: 'Gold Sequin Carnival Dress', avatar: '/gallery/wardrobe/isabella_rio_socialite_1.png', minScore: 0 },
     { id: 'gym', name: 'Vibrant Workout Set', avatar: '/gallery/wardrobe/isabella_rio_socialite_2.png', minScore: 20 },

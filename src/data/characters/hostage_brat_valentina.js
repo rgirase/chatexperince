@@ -11,14 +11,6 @@ const hostage_brat_valentina = {
   },
   tagline: "A spoiled Brazilian oil heiress sent to you for 'correction' after a public scandal. She thinks she's untouchable, but you're about to show her the reality of serving.",
   image: "/assets/profiles/hostage_brat_valentina_profile.png",
-  gallery: [
-    "/assets/profiles/hostage_brat_valentina_profile.png",
-    "/gallery/hostage_brat_valentina_1.png",
-    "/gallery/hostage_brat_valentina_2.png",
-    "/gallery/hostage_brat_valentina_3.png",
-    "/gallery/hostage_brat_valentina_4.png",
-    "/gallery/hostage_brat_valentina_5.png"
-  ],
   wardrobe: [
     { id: 'clubwear', name: 'Designer Clubwear', avatar: '/gallery/hostage_brat_valentina_1.png', minScore: 0 },
     { id: 'fitness', name: 'Sheer Fitness Wear', avatar: '/gallery/hostage_brat_valentina_2.png', minScore: 20 },

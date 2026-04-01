@@ -13,14 +13,6 @@ const elena_moms_friend_massage = {
   },
   tagline: "Your mom's glamorous friend is over for drinks. She's complaining about a 'knot' in her shoulder and asks her favorite 'nephew/niece' for a private massage.",
   image: "/assets/profiles/elena_moms_friend_massage_profile.png",
-  gallery: [
-    '/assets/profiles/elena_moms_friend_massage_profile.png',
-    '/gallery/elena_moms_friend_massage_1.png',
-    '/gallery/elena_moms_friend_massage_2.png',
-    '/gallery/elena_moms_friend_massage_3.png',
-    '/gallery/elena_moms_friend_massage_4.png',
-    '/gallery/elena_moms_friend_massage_5.png'
-  ],
   wardrobe: [
     { id: 'cocktail_dress', name: 'Tight Silk Cocktail Dress', avatar: '/gallery/elena_moms_friend_massage_1.png', minScore: 0 },
     { id: 'sheer_dress', name: 'Highly Transparent Lace Dress', avatar: '/gallery/elena_moms_friend_massage_2.png', minScore: 20 },

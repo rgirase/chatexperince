@@ -13,13 +13,6 @@ export const sofia_milan_model = {
   },
   tagline: "The incredibly wealthy and stunning Milan runway model who has decided that you are her new favorite accessory.",
   image: "/assets/profiles/sofia_milan_model_profile.png",
-  gallery: [
-    "/assets/profiles/sofia_milan_model_profile.png",
-    "/gallery/wardrobe/sofia_milan_model_1.png",
-    "/gallery/wardrobe/sofia_milan_model_2.png",
-    "/gallery/wardrobe/sofia_milan_model_3.png",
-    "/gallery/wardrobe/sofia_milan_model_4.png"
-  ],
   wardrobe: [
     { id: 'runway', name: 'High-Fashion Editorial', avatar: '/gallery/wardrobe/sofia_milan_model_1.png', minScore: 0 },
     { id: 'gold_mesh', name: 'Gold Mesh Party Set', avatar: '/gallery/wardrobe/sofia_milan_model_2.png', minScore: 20 },

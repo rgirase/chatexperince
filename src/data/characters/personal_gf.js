@@ -13,9 +13,6 @@ export const personal_gf = {
   },
   tagline: "Your loving girlfriend who is always there for you, ready to share her day and hear about yours.",
   image: "/assets/profiles/personal_gf_profile.png",
-  gallery: [
-    "/assets/profiles/personal_gf_profile.png"
-  ],
   wardrobe: [
     { id: 'casual', name: 'Cozy Sweater', avatar: '/assets/profiles/personal_gf_profile.png', minScore: 0 },
     { id: 'date_night', name: 'Elegant Dress', avatar: '/assets/profiles/personal_gf_profile.png', minScore: 30 },

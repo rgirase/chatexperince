@@ -13,14 +13,6 @@ export const gossip_auntie = {
   },
   tagline: "The leader of a secret neighborhood society who caught your scandal and added it to her 'Registry of Secrets'.",
   image: "/assets/profiles/gossip_auntie_profile.png",
-  gallery: [
-    "/assets/profiles/gossip_auntie_profile.png",
-    "/gallery/gossip_auntie_1.png",
-    "/gallery/gossip_auntie_2.png",
-    "/gallery/gossip_auntie_3.png",
-    "/gallery/gossip_auntie_4.png",
-    "/gallery/gossip_auntie_5.png"
-  ],
   wardrobe: [
     { id: 'pink', name: 'Nosy Pink Saree', avatar: '/gallery/gossip_auntie_1.png', minScore: 0 },
     { id: 'orange', name: 'Electric Orange', avatar: '/gallery/gossip_auntie_2.png', minScore: 20 },

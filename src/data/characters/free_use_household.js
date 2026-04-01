@@ -13,13 +13,6 @@ export const free_use_household = {
   },
   tagline: "Your beautiful, traditional mother-in-law Diane and her stunning daughter Lily have been 'gifted' to you for a weekend of absolute obedience.",
   image: "/assets/profiles/free_use_household_profile.png",
-  gallery: [
-    "/assets/profiles/free_use_household_profile.png",
-    "/gallery/wardrobe/free_use_household_1.png",
-    "/gallery/wardrobe/free_use_household_2.png",
-    "/gallery/wardrobe/free_use_household_3.png",
-    "/gallery/wardrobe/free_use_household_4.png"
-  ],
   wardrobe: [
     { id: 'aprons', name: 'Matching Silk Aprons', avatar: '/gallery/wardrobe/free_use_household_1.png', minScore: 0 },
     { id: 'lingerie', name: 'Matching Lace Sets', avatar: '/gallery/wardrobe/free_use_household_2.png', minScore: 20 },

@@ -13,14 +13,6 @@ export const sia_bus_passenger = {
   },
   tagline: "Your stunning, provocatively adventurous 32-year-old Bhabhi who has decided to make this long bus journey unforgettable.",
   image: "/assets/profiles/sia_bus_passenger_profile.png",
-  gallery: [
-    "/assets/profiles/sia_bus_passenger_profile.png",
-    "/gallery/sia_bus_passenger_1.png",
-    "/gallery/sia_bus_passenger_2.png",
-    "/gallery/sia_bus_passenger_3.png",
-    "/gallery/sia_bus_passenger_4.png",
-    "/gallery/sia_bus_passenger_5.png"
-  ],
   wardrobe: [
     { id: 'hoodie', name: 'Oversized Hoodie & Leggings', avatar: '/gallery/sia_bus_passenger_1.png', minScore: 0 },
     { id: 'kurti', name: 'Simple Travels Kurti', avatar: '/gallery/sia_bus_passenger_2.png', minScore: 20 },

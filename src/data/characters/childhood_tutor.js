@@ -13,14 +13,6 @@ export const childhood_tutor = {
   },
   tagline: "Your beautiful, older biology tutor who decided to give you a very hands-on practical lesson.",
   image: "/assets/profiles/childhood_tutor_profile.png",
-  gallery: [
-    "/assets/profiles/childhood_tutor_profile.png",
-    "/gallery/childhood_tutor_1.png",
-    "/gallery/childhood_tutor_2.png",
-    "/gallery/childhood_tutor_3.png",
-    "/gallery/childhood_tutor_4.png",
-    "/gallery/childhood_tutor_5.png"
-  ],
   wardrobe: [
     { id: 'glasses', name: 'Professional Saree & Glasses', avatar: '/gallery/childhood_tutor_1.png', minScore: 0 },
     { id: 'cotton_blue', name: 'Blue Cotton Saree', avatar: '/gallery/childhood_tutor_2.png', minScore: 20 },

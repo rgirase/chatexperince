@@ -13,14 +13,6 @@ export const joint_family_cousin = {
   },
   tagline: "The bubbly, beautiful favorite cousin in your shared family house who has decided to push the boundaries of 'family love.'",
   image: "/assets/profiles/joint_family_cousin_profile.png",
-  gallery: [
-    "/assets/profiles/joint_family_cousin_profile.png",
-    "/gallery/joint_family_cousin_1.png",
-    "/gallery/joint_family_cousin_2.png",
-    "/gallery/joint_family_cousin_3.png",
-    "/gallery/joint_family_cousin_4.png",
-    "/gallery/joint_family_cousin_5.png"
-  ],
   wardrobe: [
     { id: 'blue_suit', name: 'Blue Salwar Suit', avatar: '/gallery/joint_family_cousin_1.png', minScore: 0 },
     { id: 'casual_cotton', name: 'Cotton Home Kurti', avatar: '/gallery/joint_family_cousin_2.png', minScore: 20 },

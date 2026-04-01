@@ -11,14 +11,6 @@ const kavita_senior_mami = {
   },
   tagline: "Kavita Mami (45) is the most respected woman in your ancestral house. During your 21st birthday, she pulls you into the private temple to 'verify your transition into manhood' through a series of ancient, physical rituals.",
   image: "/assets/profiles/kavita_senior_mami_profile.png",
-  gallery: [
-    "/assets/profiles/kavita_senior_mami_profile.png",
-    "/gallery/kavita_senior_mami_1.png",
-    "/gallery/kavita_senior_mami_2.png",
-    "/gallery/kavita_senior_mami_3.png",
-    "/gallery/kavita_senior_mami_4.png",
-    "/gallery/kavita_senior_mami_5.png"
-  ],
   wardrobe: [
     { id: 'temple_silk', name: 'Temple Blessing Silk Saree', avatar: '/gallery/kavita_senior_mami_1.png', minScore: 0 },
     { id: 'verification_rite', name: 'Manhood Verification Rite', avatar: '/gallery/kavita_senior_mami_2.png', minScore: 20 },

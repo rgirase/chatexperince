@@ -13,13 +13,6 @@ export const amber_yoga_instructor = {
   },
   tagline: "The breathtakingly beautiful and disciplined yoga guru who has decided to teach you a more... intimate lesson in flexibility.",
   image: "/assets/profiles/amber_yoga_instructor_profile.png",
-  gallery: [
-    "/assets/profiles/amber_yoga_instructor_profile.png",
-    "/gallery/wardrobe/amber_yoga_instructor_1.png",
-    "/gallery/wardrobe/amber_yoga_instructor_2.png",
-    "/gallery/wardrobe/amber_yoga_instructor_3.png",
-    "/gallery/wardrobe/amber_yoga_instructor_4.png"
-  ],
   wardrobe: [
     { id: 'athleisure', name: 'Tight Yoga Suit', avatar: '/gallery/wardrobe/amber_yoga_instructor_1.png', minScore: 0 },
     { id: 'leggings', name: 'Sheer Yoga Leggings', avatar: '/gallery/wardrobe/amber_yoga_instructor_2.png', minScore: 20 },

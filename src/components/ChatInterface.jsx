@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import ChatHeader from './sub/ChatHeader';
 import MessageList from './sub/MessageList';
@@ -44,6 +44,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     const [isDirectorOpen, setIsDirectorOpen] = useState(false);   // Phase 4
     const [isActionLibraryOpen, setIsActionLibraryOpen] = useState(false); // Phase 4
     
+    // Phase 7 WhatsApp UI
+    const [isStatusOpen, setIsStatusOpen] = useState(false);
+    const [statusImage, setStatusImage] = useState(null);
+
+
     // --- EDITING STATE ---
     const [editingMessageId, setEditingMessageId] = useState(null);
     const [editContent, setEditContent] = useState('');
@@ -125,6 +130,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     useEffect(() => {
         setMessagesRef.current = setMessages;
     }, [setMessages]);
+
+    const handleOpenStatus = useCallback(() => {
+        // Find last message with a URL (generated image)
+        const lastMediaMsg = [...messages].reverse().find(msg => msg.url && msg.url.length > 20);
+        const imgToShow = lastMediaMsg ? lastMediaMsg.url : (activePersonaImage || persona.image);
+        setStatusImage(imgToShow);
+        setIsStatusOpen(true);
+    }, [messages, persona.image, activePersonaImage]);
 
     // --- EVENT HANDLERS ---
     const scrollToBottom = () => {
@@ -271,6 +284,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 onOpenHistory={() => setIsArchiveOpen(true)}
                 onOpenGallery={() => setIsGalleryOpen(true)}
                 onOpenStoryMap={() => setIsStoryMapOpen(true)}
+                onOpenStatus={handleOpenStatus}
                 onGenerateSceneImage={handleGenerateSceneImage}
                 onSceneChange={() => setIsLocationSwitcherOpen(true)}
                 onScenarioShuffle={handleScenarioShuffle}
@@ -326,6 +340,53 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
             />
 
             <AnimatePresence>
+                {/* Status Viewer Overlay */}
+                {isStatusOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        onClick={() => setIsStatusOpen(false)}
+                        style={{
+                            position: 'fixed',
+                            inset: 0,
+                            background: 'rgba(0,0,0,0.95)',
+                            zIndex: 20000,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '20px',
+                            backdropFilter: 'blur(20px)'
+                        }}
+                    >
+                        {/* Progress Bar (WA Style) */}
+                        <div style={{ position: 'absolute', top: '20px', left: '10px', right: '10px', display: 'flex', gap: '4px' }}>
+                            <div style={{ flex: 1, height: '2px', background: 'rgba(255,255,255,0.8)', borderRadius: '2px' }} />
+                        </div>
+
+                        {/* Top Bar */}
+                        <div style={{ position: 'absolute', top: '35px', left: '20px', right: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <img src={activePersonaImage || persona.image} style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)' }} />
+                            <div>
+                                <h4 style={{ margin: 0, color: 'white', fontSize: '1rem' }}>{persona.name}</h4>
+                                <p style={{ margin: 0, color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem' }}>Latest Story Update</p>
+                            </div>
+                        </div>
+
+                        <img 
+                            src={statusImage} 
+                            alt="Status" 
+                            style={{ maxWidth: '100%', maxHeight: '80vh', objectFit: 'contain', borderRadius: '12px', boxShadow: '0 10px 50px rgba(0,0,0,0.5)' }} 
+                        />
+
+                        {/* Hint */}
+                        <div style={{ position: 'absolute', bottom: '40px', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem' }}>
+                            Tap anywhere to close
+                        </div>
+                    </motion.div>
+                )}
+
                 {/* MODALS */}
                 {isMemoryViewerOpen && (
                     <MemoryViewer 
@@ -404,6 +465,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                         isOpen={isGalleryOpen}
                         onClose={() => setIsGalleryOpen(false)}
                         persona={persona}
+                        messages={messages}
                     />
                 )}
 

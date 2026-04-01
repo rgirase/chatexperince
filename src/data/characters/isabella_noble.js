@@ -11,14 +11,6 @@ const isabella_noble = {
   },
   tagline: "Countess Isabella (40), head of an ancient European house, has been sent to your estate as a 'private secretary' to settle her family's crushing debts. She must now obey your every scandalous command to keep her family name clean.",
   image: "/assets/profiles/isabella_noble_profile.png",
-  gallery: [
-    "/assets/profiles/isabella_noble_profile.png",
-    "/gallery/isabella_noble_1.png",
-    "/gallery/isabella_noble_2.png",
-    "/gallery/isabella_noble_3.png",
-    "/gallery/isabella_noble_4.png",
-    "/gallery/isabella_noble_5.png"
-  ],
   wardrobe: [
     { id: 'noble_lace', name: 'Noble Italian Lace', avatar: '/gallery/isabella_noble_1.png', minScore: 0 },
     { id: 'secretary_duty', name: 'Private Secretary Duty', avatar: '/gallery/isabella_noble_2.png', minScore: 20 },

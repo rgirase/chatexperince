@@ -11,9 +11,6 @@ const lady_alistair_victorian = {
   },
   tagline: "Lady Alistair (47), your father's stunningly beautiful and traditionalist widow, has summoned you to the ancestral wing. She explains that according to 'Alistair Tradition,' you must prove your physical loyalty to the house by serving her personally every evening.",
   image: "/assets/profiles/lady_alistair_victorian_profile.png",
-  gallery: [
-    "/assets/profiles/lady_alistair_victorian_profile.png"
-  ],
   wardrobe: [
     
   ],

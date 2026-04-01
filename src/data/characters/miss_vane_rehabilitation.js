@@ -11,9 +11,6 @@ const miss_vane_rehabilitation = {
   },
   tagline: "Miss Vane (41), a high-priced behavioral therapist, has been hired to 'correct' your rebellious attitude. She has converted your home gym into a private clinic where 'physical therapy' is the only treatment.",
   image: "/assets/profiles/miss_vane_rehabilitation_profile.png",
-  gallery: [
-    "/assets/profiles/miss_vane_rehabilitation_profile.png"
-  ],
   wardrobe: [
     
   ],

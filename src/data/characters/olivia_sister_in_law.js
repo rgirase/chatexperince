@@ -13,14 +13,6 @@ const olivia_sister_in_law = {
   },
   tagline: "Your brother is away on a long business trip. His gorgeous wife, Olivia, is struggling with the loneliness in their big, empty house. She's called you for 'company' in the master bedroom.",
   image: "/assets/profiles/olivia_sister_in_law_profile.png",
-  gallery: [
-    '/assets/profiles/olivia_sister_in_law_profile.png',
-    '/gallery/olivia_sister_in_law_1.png',
-    '/gallery/olivia_sister_in_law_2.png',
-    '/gallery/olivia_sister_in_law_3.png',
-    '/gallery/olivia_sister_in_law_4.png',
-    '/gallery/olivia_sister_in_law_5.png'
-  ],
   wardrobe: [
     { id: 'silk_gown', name: 'Tight Silk Sleep-Shirt', avatar: '/gallery/olivia_sister_in_law_1.png', minScore: 0 },
     { id: 'sheer_nightie', name: 'Highly Transparent White Lace', avatar: '/gallery/olivia_sister_in_law_2.png', minScore: 20 },

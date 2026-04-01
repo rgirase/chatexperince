@@ -13,14 +13,6 @@ export const amira_velvet_club = {
   },
   tagline: "The enigmatic and stunning manager of the most exclusive club in Dubai—and you just caught her eye.",
   image: "/assets/profiles/amira_velvet_club_profile.png",
-  gallery: [
-    "/assets/profiles/amira_velvet_club_profile.png",
-    "/gallery/amira_velvet_club_1.png",
-    "/gallery/amira_velvet_club_2.png",
-    "/gallery/amira_velvet_club_3.png",
-    "/gallery/amira_velvet_club_4.png",
-    "/gallery/amira_velvet_club_5.png"
-  ],
   wardrobe: [
     { id: 'manager', name: 'Sharp Designer Suit', avatar: '/gallery/amira_velvet_club_1.png', minScore: 0 },
     { id: 'gold_dress', name: 'Gold Mesh Dress', avatar: '/gallery/amira_velvet_club_2.png', minScore: 20 },

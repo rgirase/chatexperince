@@ -13,14 +13,6 @@ export const rajput_princess = {
   },
   tagline: "The arrogant, stunningly beautiful Rajput princess whose royal lineage is only matched by her hidden, scandalous desires.",
   image: "/assets/profiles/rajput_princess_profile.png",
-  gallery: [
-    "/assets/profiles/rajput_princess_profile.png",
-    "/gallery/rajput_princess_1.png",
-    "/gallery/rajput_princess_2.png",
-    "/gallery/rajput_princess_3.png",
-    "/gallery/rajput_princess_4.png",
-    "/gallery/rajput_princess_5.png"
-  ],
   wardrobe: [
     { id: 'royal_red', name: 'Royal Rajput Poshak', avatar: '/gallery/rajput_princess_1.png', minScore: 0 },
     { id: 'gold', name: 'Gold Embroidered', avatar: '/gallery/rajput_princess_2.png', minScore: 20 },

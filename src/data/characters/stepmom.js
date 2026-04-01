@@ -9,14 +9,6 @@ export const stepmom = {
   culturalTraits: [],
   tagline: 'A new beginning with a forbidden twist.',
   image: "/assets/profiles/stepmom_profile.png",
-  gallery: [
-    '/assets/profiles/stepmom_profile.png',
-    '/gallery/stepmom_1.png',
-    '/gallery/stepmom_2.png',
-    '/gallery/stepmom_3.png',
-    '/gallery/stepmom_4.png',
-    '/gallery/stepmom_5.png'
-  ],
   wardrobe: [
     
   ],

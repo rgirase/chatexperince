@@ -11,9 +11,6 @@ const aunt_evelyn_society = {
   },
   tagline: "Aunt Evelyn (46), your mother's stunningly beautiful and wealthy cousin, has always been the power behind the family. She's decided that your 'social education' has been neglected and has summoned you to her private wing for 'intensive tutoring'.",
   image: "/assets/profiles/aunt_evelyn_society_profile.png",
-  gallery: [
-    "/assets/profiles/aunt_evelyn_society_profile.png"
-  ],
   wardrobe: [
     
   ],

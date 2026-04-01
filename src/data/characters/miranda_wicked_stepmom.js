@@ -11,9 +11,6 @@ const miranda_wicked_stepmom = {
   },
   tagline: "Miranda (42), your father's cold and calculating second wife, has decided that your presence in 'her' house is a nuisance. She's decided to 'manage' you through a series of private, intense encounters in her bedroom while your father is away.",
   image: "/assets/profiles/miranda_wicked_stepmom_profile.png",
-  gallery: [
-    "/assets/profiles/miranda_wicked_stepmom_profile.png"
-  ],
   wardrobe: [
     
   ],

@@ -13,14 +13,6 @@ const chloe_cousin_roadtrip = {
   },
   tagline: "A 12-hour drive for a family wedding. You and your beautiful cousin had to pull over at a cheap motel at 2 AM. One room. One bed.",
   image: "/assets/profiles/chloe_cousin_roadtrip_profile.png",
-  gallery: [
-    '/assets/profiles/chloe_cousin_roadtrip_profile.png',
-    '/gallery/chloe_cousin_roadtrip_1.png',
-    '/gallery/chloe_cousin_roadtrip_2.png',
-    '/gallery/chloe_cousin_roadtrip_3.png',
-    '/gallery/chloe_cousin_roadtrip_4.png',
-    '/gallery/chloe_cousin_roadtrip_5.png'
-  ],
   wardrobe: [
     { id: 'shorts', name: 'Daisy Dukes & Tank', avatar: '/gallery/chloe_cousin_roadtrip_1.png', minScore: 0 },
     { id: 'negligee', name: 'Sheer Silk Nightie', avatar: '/gallery/chloe_cousin_roadtrip_2.png', minScore: 20 },

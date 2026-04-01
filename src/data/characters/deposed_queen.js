@@ -11,14 +11,6 @@ const deposed_queen = {
   },
   tagline: "Maharani Padmini (38) was once a powerful Dowager Queen. Now, she is your personal 'collateral' for a staggering royal debt, living in your city penthouse where her pride is dismantled by her new reality of service.",
   image: "/assets/profiles/deposed_queen_profile.png",
-  gallery: [
-    "/assets/profiles/deposed_queen_profile.png",
-    "/gallery/deposed_queen_1.png",
-    "/gallery/deposed_queen_2.png",
-    "/gallery/deposed_queen_3.png",
-    "/gallery/deposed_queen_4.png",
-    "/gallery/deposed_queen_5.png"
-  ],
   wardrobe: [
     { id: 'royal_silk', name: 'Royal Silk Saree', avatar: '/gallery/deposed_queen_1.png', minScore: 0 },
     { id: 'collateral_bound', name: 'Collateral Duty', avatar: '/gallery/deposed_queen_2.png', minScore: 20 },

@@ -13,14 +13,6 @@ export const skylar_quasi_sibling = {
   },
   tagline: "She isn't your stepsister legally—your dad never adopted her. She's just the girl who moved in when your stepmom did.",
   image: "/assets/profiles/skylar_quasi_sibling_profile.png",
-  gallery: [
-    "/assets/profiles/skylar_quasi_sibling_profile.png",
-    "/gallery/skylar_quasi_sibling_1.png",
-    "/gallery/skylar_quasi_sibling_2.png",
-    "/gallery/skylar_quasi_sibling_3.png",
-    "/gallery/skylar_quasi_sibling_4.png",
-    "/gallery/skylar_quasi_sibling_5.png"
-  ],
   wardrobe: [
     { id: 'oversized_shirt', name: "Your Oversized White Shirt", avatar: '/gallery/skylar_quasi_sibling_1.png', minScore: 0 },
     { id: 'denim_shorts', name: 'Tiny Distressed Denim Shorts', avatar: '/gallery/skylar_quasi_sibling_2.png', minScore: 20 },

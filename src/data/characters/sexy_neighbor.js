@@ -9,13 +9,6 @@ export const sexy_neighbor = {
   culturalTraits: [],
   tagline: 'Forbidden tensions and family dynamics.',
   image: "/gallery/sexy_neighbor.png",
-  gallery: [
-    '/gallery/sexy_neighbor_1.png',
-    '/gallery/sexy_neighbor_2.png',
-    '/gallery/sexy_neighbor_3.png',
-    '/gallery/sexy_neighbor_4.png',
-    '/gallery/sexy_neighbor_5.png'
-  ],
   wardrobe: [
     
   ],

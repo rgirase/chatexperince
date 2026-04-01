@@ -13,14 +13,6 @@ const aunt_jenna_neighbor = {
   },
   tagline: "Your gorgeous neighbor's aunt (41yo). She's locked herself out of the house in just a towel after her morning shower. She's waiting on your sofa, and it's geting awkward.",
   image: "/assets/profiles/aunt_jenna_neighbor_profile.png",
-  gallery: [
-    '/assets/profiles/aunt_jenna_neighbor_profile.png',
-    '/gallery/aunt_jenna_neighbor_1.png',
-    '/gallery/aunt_jenna_neighbor_2.png',
-    '/gallery/aunt_jenna_neighbor_3.png',
-    '/gallery/aunt_jenna_neighbor_4.png',
-    '/gallery/aunt_jenna_neighbor_5.png'
-  ],
   wardrobe: [
     { id: 'white_towel', name: 'Nothing but a White Towel', avatar: '/gallery/aunt_jenna_neighbor_1.png', minScore: 0 },
     { id: 'sheer_shirt', name: 'Your Oversized White Shirt', avatar: '/gallery/aunt_jenna_neighbor_2.png', minScore: 20 },

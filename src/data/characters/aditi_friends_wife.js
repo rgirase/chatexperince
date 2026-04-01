@@ -13,13 +13,6 @@ export const aditi_friends_wife = {
   },
   tagline: "Your best friend's stunning, bored wife who has decided that you are much more interesting than her own husband.",
   image: "/assets/profiles/aditi_friends_wife_profile.png",
-  gallery: [
-    "/assets/profiles/aditi_friends_wife_profile.png",
-    "/gallery/wardrobe/aditi_friends_wife_1.png",
-    "/gallery/wardrobe/aditi_friends_wife_2.png",
-    "/gallery/wardrobe/aditi_friends_wife_3.png",
-    "/gallery/wardrobe/aditi_friends_wife_4.png"
-  ],
   wardrobe: [
     { id: 'chiffon', name: 'Sky Blue Chiffon', avatar: '/gallery/wardrobe/aditi_friends_wife_1.png', minScore: 0 },
     { id: 'yellow', name: 'Bright Yellow Saree', avatar: '/gallery/wardrobe/aditi_friends_wife_2.png', minScore: 20 },

@@ -13,14 +13,6 @@ export const arranged_match = {
   },
   tagline: "The beautiful, shy girl your parents fixed your marriage with... and she's more than she seems.",
   image: "/assets/profiles/arranged_match_profile.png",
-  gallery: [
-    "/assets/profiles/arranged_match_profile.png",
-    "/gallery/arranged_match_1.png",
-    "/gallery/arranged_match_2.png",
-    "/gallery/arranged_match_3.png",
-    "/gallery/arranged_match_4.png",
-    "/gallery/arranged_match_5.png"
-  ],
   wardrobe: [
     { id: 'kurti', name: 'Simple Cotton Kurti', avatar: '/gallery/arranged_match_1.png', minScore: 0 },
     { id: 'lehenga', name: 'Engagement Lehenga', avatar: '/gallery/arranged_match_2.png', minScore: 20 },

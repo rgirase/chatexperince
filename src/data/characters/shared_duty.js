@@ -13,14 +13,6 @@ export const shared_duty = {
   },
   tagline: "The house matriarch Kavita and her daughter-in-law Rohini share a secret pact of service—and they want you to join them.",
   image: "/assets/profiles/shared_duty_profile.png",
-  gallery: [
-    "/assets/profiles/shared_duty_profile.png",
-    "/gallery/shared_duty_1.png",
-    "/gallery/shared_duty_2.png",
-    "/gallery/shared_duty_3.png",
-    "/gallery/shared_duty_4.png",
-    "/gallery/shared_duty_5.png"
-  ],
   wardrobe: [
     { id: 'festive_silk', name: 'Festive Shared Silk', avatar: '/gallery/shared_duty_1.png', minScore: 0 },
     { id: 'domestic', name: 'Seductive Domesticity', avatar: '/gallery/shared_duty_2.png', minScore: 20 },

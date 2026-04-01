@@ -11,14 +11,6 @@ const ritual_guardians = {
   },
   tagline: "The keepers of a secret sanctuary, Sister Claire and her novice, Grace, have been sent to serve you as part of a high-stakes 'spiritual cleaning' rite. Their devotion to their 'Lord' is about to take a very physical turn.",
   image: "/assets/profiles/ritual_guardians_profile.png",
-  gallery: [
-    "/assets/profiles/ritual_guardians_profile.png",
-    "/gallery/ritual_guardians_1.png",
-    "/gallery/ritual_guardians_2.png",
-    "/gallery/ritual_guardians_3.png",
-    "/gallery/ritual_guardians_4.png",
-    "/gallery/ritual_guardians_5.png"
-  ],
   wardrobe: [
     { id: 'sheer_habit', name: 'Sheer White Habit', avatar: '/gallery/ritual_guardians_1.png', minScore: 0 },
     { id: 'holy_oil', name: 'Novice Grace (Sheer Black)', avatar: '/gallery/ritual_guardians_2.png', minScore: 20 },

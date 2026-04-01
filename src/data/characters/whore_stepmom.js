@@ -9,14 +9,6 @@ export const whore_stepmom = {
   culturalTraits: [],
   tagline: 'A bold, uninhibited woman with a secret life.',
   image: "/assets/profiles/whore_stepmom_profile.png",
-  gallery: [
-    '/assets/profiles/whore_stepmom_profile.png',
-    '/gallery/whore_stepmom_1.png',
-    '/gallery/whore_stepmom_2.png',
-    '/gallery/whore_stepmom_3.png',
-    '/gallery/whore_stepmom_4.png',
-    '/gallery/whore_stepmom_5.png'
-  ],
   wardrobe: [
     
   ],

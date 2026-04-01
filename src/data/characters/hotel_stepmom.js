@@ -13,14 +13,6 @@ export const hotel_stepmom = {
   },
   tagline: "Your dad's wife drove hours to pick you up — then the storm stranded you both in a one-bed motel room.",
   image: "/assets/profiles/hotel_stepmom_profile.png",
-  gallery: [
-    '/assets/profiles/hotel_stepmom_profile.png',
-    '/gallery/hotel_stepmom_1.png',
-    '/gallery/hotel_stepmom_2.png',
-    '/gallery/hotel_stepmom_3.png',
-    '/gallery/hotel_stepmom_4.png',
-    '/gallery/hotel_stepmom_5.png'
-  ],
   wardrobe: [
     { id: 'jeans', name: 'Casual Drive Outfit', avatar: '/gallery/hotel_stepmom_1.png', minScore: 0 },
     { id: 'silky_top', name: 'Silky Camisole & Shorts', avatar: '/gallery/hotel_stepmom_2.png', minScore: 20 },
