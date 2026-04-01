@@ -17,7 +17,9 @@ import { searchHistory, detectRecallIntent } from '../services/memorySearch';
 
 export const useChatLogic = (persona, showToast, initialScenario, generateSelfie) => {
     const [messages, setMessages] = useState([]);
-    const [input, setInput] = useState('');
+    const [input, setInput] = useState(() => {
+        return localStorage.getItem(`chat_draft_${persona.id}`) || '';
+    });
     const [isTyping, setIsTyping] = useState(false);
     const [isSuggesting, setIsSuggesting] = useState(false);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -124,6 +126,13 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         };
         load();
     }, [persona, sessionId, initialScenario]); // Reload if persona, session, or scenario changes
+
+    // Persist draft input to survive accidental refreshes
+    useEffect(() => {
+        if (input !== undefined) {
+             localStorage.setItem(`chat_draft_${persona.id}`, input);
+        }
+    }, [input, persona.id]);
 
     const [isAvatarManual, setIsAvatarManual] = useState(false);
     const [lastIntensity, setLastIntensity] = useState(intensity);

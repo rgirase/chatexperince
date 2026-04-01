@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Settings as SettingsIcon, Server, Shield, Smartphone, Zap, Image as ImageIcon, Sparkles, Heart } from 'lucide-react';
+import { Home, Settings as SettingsIcon, Server, Shield, Smartphone, Zap, Image as ImageIcon, Sparkles, Heart, MessageCircle } from 'lucide-react';
 import { updateAura } from './services/reputation';
 import PersonaList from './components/PersonaList';
 import ChatInterface from './components/ChatInterface';
@@ -530,6 +530,23 @@ function App() {
           >
             <Home size={22} color={activeView === 'home' ? '#a855f7' : '#71717a'} />
             <span style={{ color: activeView === 'home' ? '#fff' : '#71717a' }}>Home</span>
+          </button>
+
+          <button 
+            className={`nav-item ${activeView === 'chat' && selectedPersona?.id !== personal_gf.id ? 'active' : ''}`}
+            onClick={() => {
+              const lastId = localStorage.getItem('lastPersonaId');
+              if (lastId) {
+                const persona = processedPersonas.find(p => p.id === lastId);
+                if (persona) handleSelectPersona(persona);
+                else handleGoHome();
+              } else {
+                handleGoHome();
+              }
+            }}
+          >
+            <MessageCircle size={22} color={activeView === 'chat' && selectedPersona?.id !== personal_gf.id ? '#a855f7' : '#71717a'} />
+            <span style={{ color: activeView === 'chat' && selectedPersona?.id !== personal_gf.id ? '#fff' : '#71717a' }}>Chat</span>
           </button>
           
           <button 

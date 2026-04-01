@@ -5,6 +5,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    watch: {
+      ignored: ['**/public/**', '**/scripts/**', '**/temp/**']
+    },
     proxy: {
       // Generic proxy: any direct LM Studio IP request is proxied through Vite to bypass CORS
       // Mac (default)
