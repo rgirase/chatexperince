@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, X, Wand2, Sparkles, Droplets, Flame, Skull, Utensils, Shirt, Palette, MapPin } from 'lucide-react';
+import { Camera, X, Wand2, Sparkles, Droplets, Flame, Skull, Utensils, Shirt, Palette, MapPin, Zap, Sun } from 'lucide-react';
 import { AVAILABLE_PONY_MODELS } from '../../config';
-import { CLOTHING_TYPES, COLORS } from '../../data/imageGenOptions';
+import { CLOTHING_TYPES, COLORS, SKIN_TEXTURES, LIGHTING_MODES } from '../../data/imageGenOptions';
 
 const ACTION_CATEGORIES = {
+// ... existing categories ...
     "Outfits": [
         { label: "Sheer Lace Dress", text: "wearing a highly transparent sheer black Italian designer lace dress WITHOUT LINGERIE, highly seductive" },
         { label: "Transparent Saree", text: "wearing a highly seductive, transparent party wear saree without blouse" },
@@ -89,11 +90,14 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
     const [selectedModel, setSelectedModel] = useState(localStorage.getItem('lastSelectedPonyModel') || "realismByStableYogi_ponyV3VAE.safetensors");
     const [selectedClothing, setSelectedClothing] = useState('none');
     const [selectedColor, setSelectedColor] = useState('none');
+    const [selectedSkin, setSelectedSkin] = useState('none');
+    const [selectedLighting, setSelectedLighting] = useState('cinematic');
+    const [isRealismHigh, setIsRealismHigh] = useState(true);
 
     const AVAILABLE_MODELS = AVAILABLE_PONY_MODELS;
 
     const handleSubmit = () => {
-        onConfirm(prompt, aspectRatio, selectedModel, selectedClothing, selectedColor);
+        onConfirm(prompt, aspectRatio, selectedModel, selectedClothing, selectedColor, selectedSkin, selectedLighting, isRealismHigh);
         setPrompt("");
         onClose();
     };
@@ -120,9 +124,48 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                             </button>
                         </div>
                         <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto', paddingBottom: '90px' }}>
-                            <p style={{ color: '#ccc', fontSize: '0.9rem', marginBottom: '1rem' }}>
-                                Describe exactly what you want to see. The character's current appearance and location will be added automatically.
-                            </p>
+                            {/* REALISM BOOST TOGGLE */}
+                            <div 
+                                onClick={() => setIsRealismHigh(!isRealismHigh)}
+                                style={{
+                                    background: isRealismHigh ? 'rgba(168, 85, 247, 0.15)' : 'rgba(255,255,255,0.05)',
+                                    border: `1px solid ${isRealismHigh ? 'var(--primary-color)' : '#3f3f46'}`,
+                                    padding: '12px',
+                                    borderRadius: '12px',
+                                    marginBottom: '1.5rem',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    transition: 'all 0.3s'
+                                }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <div style={{ 
+                                        width: '40px', height: '40px', borderRadius: '10px', 
+                                        background: isRealismHigh ? 'var(--primary-color)' : '#3f3f46',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    }}>
+                                        <Zap size={20} color={isRealismHigh ? 'white' : '#71717a'} />
+                                    </div>
+                                    <div>
+                                        <div style={{ color: 'white', fontWeight: 'bold', fontSize: '0.9rem' }}>Realism Ultra Boost</div>
+                                        <div style={{ color: '#a1a1aa', fontSize: '0.75rem' }}>Macro-skin & Film Grain mixing</div>
+                                    </div>
+                                </div>
+                                <div style={{ 
+                                    width: '44px', height: '24px', borderRadius: '12px',
+                                    background: isRealismHigh ? '#22c55e' : '#3f3f46',
+                                    position: 'relative', transition: 'all 0.3s'
+                                }}>
+                                    <div style={{ 
+                                        width: '18px', height: '18px', borderRadius: '50%', background: 'white',
+                                        position: 'absolute', top: '3px',
+                                        left: isRealismHigh ? '23px' : '3px',
+                                        transition: 'all 0.3s'
+                                    }} />
+                                </div>
+                            </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '1.5rem' }}>
                                 <div>
@@ -132,20 +175,10 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                     <select 
                                         value={selectedClothing}
                                         onChange={(e) => setSelectedClothing(e.target.value)}
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px 12px',
-                                            borderRadius: '8px',
-                                            background: 'rgba(0,0,0,0.4)',
-                                            border: '1px solid #3f3f46',
-                                            color: 'white',
-                                            fontSize: '0.9rem',
-                                            outline: 'none',
-                                            cursor: 'pointer'
-                                        }}
+                                        className="premium-select"
                                     >
                                         {CLOTHING_TYPES.map(type => (
-                                            <option key={type.id} value={type.id} style={{ background: '#1e1e2e' }}>{type.label}</option>
+                                            <option key={type.id} value={type.id}>{type.label}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -156,20 +189,41 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                     <select 
                                         value={selectedColor}
                                         onChange={(e) => setSelectedColor(e.target.value)}
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px 12px',
-                                            borderRadius: '8px',
-                                            background: 'rgba(0,0,0,0.4)',
-                                            border: '1px solid #3f3f46',
-                                            color: 'white',
-                                            fontSize: '0.9rem',
-                                            outline: 'none',
-                                            cursor: 'pointer'
-                                        }}
+                                        className="premium-select"
                                     >
                                         {COLORS.map(color => (
-                                            <option key={color.id} value={color.id} style={{ background: '#1e1e2e' }}>{color.label}</option>
+                                            <option key={color.id} value={color.id}>{color.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '1.5rem' }}>
+                                <div>
+                                    <div style={{ color: '#f472b6', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        <Droplets size={14} /> Skin texture
+                                    </div>
+                                    <select 
+                                        value={selectedSkin}
+                                        onChange={(e) => setSelectedSkin(e.target.value)}
+                                        className="premium-select"
+                                    >
+                                        {SKIN_TEXTURES.map(skin => (
+                                            <option key={skin.id} value={skin.id}>{skin.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div style={{ color: '#f97316', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        <Sun size={14} /> Lighting
+                                    </div>
+                                    <select 
+                                        value={selectedLighting}
+                                        onChange={(e) => setSelectedLighting(e.target.value)}
+                                        className="premium-select"
+                                    >
+                                        {LIGHTING_MODES.map(mode => (
+                                            <option key={mode.id} value={mode.id}>{mode.label}</option>
                                         ))}
                                     </select>
                                 </div>

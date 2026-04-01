@@ -19,3 +19,17 @@ export const COLORS = [
     { id: 'gold', label: 'Gold', text: 'gold' },
     { id: 'silver', label: 'Silver', text: 'silver' }
 ];
+
+export const SKIN_TEXTURES = [
+    { id: 'none', label: 'Detailed (Natural)', text: '(highly detailed skin textures:1.4), macro photography, skin pores, moles, Physically-Based Rendering, ray tracing' },
+    { id: 'oily', label: 'Oily (Shine)', text: '(highly detailed oily skin texture:1.5), glistening, subsurface scattering, extreme skin detail, shiny body' },
+    { id: 'sweaty', label: 'Sweaty (Intense)', text: '(covered in sweat:1.5), (highly detailed sweaty skin texture:1.4), dripping sweat, goosebumps, glistening, intense' },
+    { id: 'smooth', label: 'Smooth (Soft)', text: '(highly detailed smooth skin:1.3), soft lighting, velvety skin texture, healthy glow' }
+];
+
+export const LIGHTING_MODES = [
+    { id: 'natural', label: 'Natural (Soft)', text: '(natural lighting:1.3), soft sunlight, realistic shadows, (film grain:0.5)' },
+    { id: 'cinematic', label: 'Cinematic (Dramatic)', text: '(cinematic lighting:1.4), volumetric lighting, dramatic shadows, rim lighting' },
+    { id: 'studio', label: 'Studio (Bright)', text: '(studio lighting:1.4), multi-point lighting, clean background, sharp focus, professional photography' },
+    { id: 'sunset', label: 'Sunset (Golden)', text: '(golden hour lighting:1.5), warm glow, sunset background, (lens flare:0.4)' }
+];

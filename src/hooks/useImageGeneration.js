@@ -1,12 +1,12 @@
 import { useState, useCallback, useRef } from 'react';
 import * as db from '../services/db';
 import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_COMFY_WORKFLOW } from '../config';
-import { CLOTHING_TYPES, COLORS } from '../data/imageGenOptions';
+import { CLOTHING_TYPES, COLORS, SKIN_TEXTURES, LIGHTING_MODES } from '../data/imageGenOptions';
 
 export const useImageGeneration = (persona, setMessages, showToast) => {
     const isMounted = useRef(true);
 
-    const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait', selectedModel = null, clothing = '', color = '') => {
+    const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait', selectedModel = null, clothing = '', color = '', skin = 'none', lighting = 'natural', realismHigh = false) => {
         const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
         const imageEngine = localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE;
 
@@ -16,7 +16,20 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
         const charAppearance = persona.prompt?.match(/APPEARANCE:\s*(.*?)(?=\n|BACKSTORY:|$)/is)?.[1] || "";
         const charIdentity = persona.prompt?.match(/You are\s*(.*?)(?=\n|$)/i)?.[1] || persona.name;
         
-        // Character-specific LoRA mapping for high-fidelity Pony generations
+        // --- REALISM OVERHAUL (v3.0) ---
+        // Score tags are better with weights on Pony
+        const SCORE_TAGS = "score_9, score_8_up, score_7_up, ";
+        const PHOTO_BOOSTERS = "(highly detailed skin textures:1.4), macro photography, skin pores, moles, Physically-Based Rendering, ray tracing, depth of field, sharp focus, (natural skin:1.2), ";
+        const REALISM_LORA = realismHigh ? "<lora:Pony_Realism_2:0.6>, " : "";
+
+        const PONY_PREFIX = `${SCORE_TAGS}${PHOTO_BOOSTERS}${REALISM_LORA}rating_explicit, masterpiece, photorealistic, 8k uhd, `;
+        const isPonyModel = selectedModel?.toLowerCase().includes('pony');
+        const finalPrefix = isPonyModel ? PONY_PREFIX : "masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ";
+
+        // NEGATIVE PROMPT (STRONG SUPPRESSION)
+        const PONY_NEGATIVE = "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature, (clothing:0.2), (clothes:0.2), (plastic skin:1.3), (doll:1.2), (airbrushed:1.2), flat color, 3D render, CGI, video game";
+        const negativePrompt = isPonyModel ? PONY_NEGATIVE : "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature, (clothing:0.2), (clothes:0.2)";
+
         const charLoras = {
             'hostage_brat_valentina': '<lora:valentina_pony_v1:0.9>',
             'isabella_noble': '<lora:isabella_noble_pony:0.9>'
@@ -24,25 +37,22 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
 
         const charLora = charLoras[persona.id] || "";
         
-        // PONY_PREFIX: High-fidelity quality and texture boosters
-        const PONY_PREFIX = "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_explicit, (highly detailed skin texture:1.3), sweat, (goosebumps:0.8), (subsurface scattering:1.1), (intricate details:1.3), physically-based rendering, (photorealistic:1.2), 8k uhd, masterpiece, ";
-
-        const isPonyModel = selectedModel?.toLowerCase().includes('pony');
-        const finalPrefix = isPonyModel ? PONY_PREFIX : "masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ";
-
-        // Construct clothing part using the text mapping
+        // --- SELECTIONS ---
         const selectedClothingObj = CLOTHING_TYPES.find(c => c.id === clothing);
         const selectedColorObj = COLORS.find(c => c.id === color);
+        const selectedSkinObj = SKIN_TEXTURES.find(s => s.id === skin);
+        const selectedLightingObj = LIGHTING_MODES.find(l => l.id === lighting);
 
         let clothingPart = "";
         if (selectedClothingObj && selectedClothingObj.id !== 'none') {
             const colorText = (selectedColorObj && selectedColorObj.id !== 'none') ? `${selectedColorObj.text} ` : "";
-            // Use a higher weight for the selected clothing to ensure it override defaults
             clothingPart = `(${selectedClothingObj.text.replace('wearing ', `wearing ${colorText}`)}:1.4)`;
         }
 
-        const fullPrompt = `${finalPrefix}${charIdentity}, ${clothingPart ? clothingPart + ', ' : ''}${charAppearance}, ${charLora}, ${prompt}`;
-        const negativePrompt = "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature, (clothing:0.2), (clothes:0.2)";
+        const skinPart = selectedSkinObj ? selectedSkinObj.text : "";
+        const lightingPart = selectedLightingObj ? selectedLightingObj.text : "";
+
+        const fullPrompt = `${finalPrefix}${charIdentity}, ${clothingPart ? clothingPart + ', ' : ''}${skinPart ? skinPart + ', ' : ''}${lightingPart ? lightingPart + ', ' : ''}${charAppearance}, ${charLora}, ${prompt}`;
 
         try {
             let base64Image = null;
