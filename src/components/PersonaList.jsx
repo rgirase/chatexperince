@@ -74,19 +74,33 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
         const fetchActiveChats = async () => {
             const activeMetadata = {};
             
+            // Helper to extract personaId from a key like 'chat_gauri_bhabhi_session_123'
+            const getPersonaIdFromKey = (key) => {
+                const idPart = key.replace('chat_', '');
+                // Find the longest matching persona ID that is a prefix of idPart
+                // (Longest match to handle overlapping prefixes if they exist)
+                const matches = allPersonas
+                    .filter(p => idPart.startsWith(p.id))
+                    .sort((a, b) => b.id.length - a.id.length);
+                return matches.length > 0 ? matches[0].id : null;
+            };
+
             // 1. Check Legacy LocalStorage
             try {
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
                     if (key && key.startsWith('chat_')) {
-                        const id = key.replace('chat_', '');
-                        if (allPersonas.find(p => p.id === id)) {
+                        const personaId = getPersonaIdFromKey(key);
+                        if (personaId) {
                             try {
                                 const messages = JSON.parse(localStorage.getItem(key) || '[]');
                                 if (messages.length >= 2) {
                                     const lastMsg = messages[messages.length - 1];
                                     const timestamp = lastMsg && lastMsg.id ? parseInt(lastMsg.id) : 0;
-                                    activeMetadata[id] = { lastTimestamp: timestamp };
+                                    
+                                    if (!activeMetadata[personaId] || timestamp > activeMetadata[personaId].lastTimestamp) {
+                                        activeMetadata[personaId] = { lastTimestamp: timestamp };
+                                    }
                                 }
                             } catch (e) {}
                         }
@@ -105,18 +119,16 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
                     request.onsuccess = () => {
                         const chats = request.result || [];
                         chats.forEach(chat => {
-                            const id = chat.id.startsWith('chat_') ? chat.id.replace('chat_', '') : chat.id;
+                            const personaId = getPersonaIdFromKey(chat.id);
                             const messages = chat.value || [];
                             
-                            if (messages.length >= 2) {
-                                if (allPersonas.find(p => p.id === id)) {
-                                    const lastMsg = messages[messages.length - 1];
-                                    const timestamp = lastMsg && lastMsg.id ? parseInt(lastMsg.id) : 0;
-                                    
-                                    // Prefer IndexedDB if it exists, or update if more recent
-                                    if (!activeMetadata[id] || timestamp > activeMetadata[id].lastTimestamp) {
-                                        activeMetadata[id] = { lastTimestamp: timestamp };
-                                    }
+                            if (personaId && messages.length >= 2) {
+                                const lastMsg = messages[messages.length - 1];
+                                const timestamp = lastMsg && lastMsg.id ? parseInt(lastMsg.id) : 0;
+                                
+                                // Aggregate sessions: keep the latest timestamp for this persona
+                                if (!activeMetadata[personaId] || timestamp > activeMetadata[personaId].lastTimestamp) {
+                                    activeMetadata[personaId] = { lastTimestamp: timestamp };
                                 }
                             }
                         });
