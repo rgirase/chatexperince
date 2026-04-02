@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, X, Wand2, Sparkles, Droplets, Flame, Skull, Utensils, Shirt, Palette, MapPin, Zap, Sun } from 'lucide-react';
+import { Camera, X, Wand2, Sparkles, Droplets, Flame, Skull, Utensils, Shirt, Palette, MapPin, Zap, Sun, Play } from 'lucide-react';
 import { AVAILABLE_PONY_MODELS } from '../../config';
 import { CLOTHING_TYPES, COLORS, SKIN_TEXTURES, LIGHTING_MODES } from '../../data/imageGenOptions';
 
