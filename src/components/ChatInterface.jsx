@@ -170,9 +170,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         handleClearChatLogic();
     };
 
-    const handleConfirmSelfie = (prompt, aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh) => {
+    const handleConfirmSelfie = (prompt, aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated) => {
         setIsSelfiePromptOpen(false);
-        generateSelfie(prompt, Date.now().toString(), aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh);
+        generateSelfie(prompt, Date.now().toString(), aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated);
     };
 
     const handleCheckStatus = async (msgId, promptId) => {

@@ -93,11 +93,12 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
     const [selectedSkin, setSelectedSkin] = useState('none');
     const [selectedLighting, setSelectedLighting] = useState('cinematic');
     const [isRealismHigh, setIsRealismHigh] = useState(true);
+    const [isAnimated, setIsAnimated] = useState(false);
 
     const AVAILABLE_MODELS = AVAILABLE_PONY_MODELS;
 
     const handleSubmit = () => {
-        onConfirm(prompt, aspectRatio, selectedModel, selectedClothing, selectedColor, selectedSkin, selectedLighting, isRealismHigh);
+        onConfirm(prompt, aspectRatio, selectedModel, selectedClothing, selectedColor, selectedSkin, selectedLighting, isRealismHigh, isAnimated);
         setPrompt("");
         onClose();
     };
@@ -226,6 +227,48 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                             <option key={mode.id} value={mode.id}>{mode.label}</option>
                                         ))}
                                     </select>
+                                </div>
+                            </div>
+
+                            <div 
+                                onClick={() => setIsAnimated(!isAnimated)}
+                                style={{
+                                    background: isAnimated ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255,255,255,0.05)',
+                                    border: `1px solid ${isAnimated ? '#3b82f6' : '#3f3f46'}`,
+                                    padding: '12px',
+                                    borderRadius: '12px',
+                                    marginBottom: '1.5rem',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    transition: 'all 0.3s'
+                                }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <div style={{ 
+                                        width: '40px', height: '40px', borderRadius: '10px', 
+                                        background: isAnimated ? '#3b82f6' : '#3f3f46',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    }}>
+                                        <Play size={20} color={isAnimated ? 'white' : '#71717a'} />
+                                    </div>
+                                    <div>
+                                        <div style={{ color: 'white', fontWeight: 'bold', fontSize: '0.9rem' }}>Live Photo (Animated)</div>
+                                        <div style={{ color: '#a1a1aa', fontSize: '0.75rem' }}>AnimateDiff 3s loop 🎬</div>
+                                    </div>
+                                </div>
+                                <div style={{ 
+                                    width: '44px', height: '24px', borderRadius: '12px',
+                                    background: isAnimated ? '#3b82f6' : '#3f3f46',
+                                    position: 'relative', transition: 'all 0.3s'
+                                }}>
+                                    <div style={{ 
+                                        width: '18px', height: '18px', borderRadius: '50%', background: 'white',
+                                        position: 'absolute', top: '3px',
+                                        left: isAnimated ? '23px' : '3px',
+                                        transition: 'all 0.3s'
+                                    }} />
                                 </div>
                             </div>
 

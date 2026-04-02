@@ -214,6 +214,19 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                                     });
                                     isComplete = true;
                                     break;
+                                } else if (outputs[nodeId].gifs || outputs[nodeId].videos) {
+                                    // Support for Animated/Video outputs
+                                    const videoData = (outputs[nodeId].gifs || outputs[nodeId].videos)[0];
+                                    const paramsObj = new URLSearchParams(videoData);
+                                    const viewRes = await fetch(`${sdUrl.replace(/\/$/, '')}/view?${paramsObj.toString()}`);
+                                    const blob = await viewRes.blob();
+                                    base64Image = await new Promise((resolve) => {
+                                        const reader = new FileReader();
+                                        reader.onloadend = () => resolve(reader.result);
+                                        reader.readAsDataURL(blob);
+                                    });
+                                    isComplete = true;
+                                    break;
                                 }
                             }
                         }

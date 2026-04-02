@@ -83,11 +83,22 @@ const MessageList = ({
                                 <div className="photo-container" style={{ margin: isImmersionMode ? '0 auto' : '0', maxWidth: isImmersionMode ? '100%' : '100%' }}>
                                     {msg.url ? (
                                         <>
-                                            <img src={msg.url} alt="Selfie" style={{ width: '100%', borderRadius: '12px', display: 'block' }} />
+                                            {msg.url.toLowerCase().endsWith('.mp4') ? (
+                                                <video 
+                                                    src={msg.url} 
+                                                    autoPlay 
+                                                    muted 
+                                                    loop 
+                                                    playsInline 
+                                                    style={{ width: '100%', borderRadius: '12px', display: 'block' }} 
+                                                />
+                                            ) : (
+                                                <img src={msg.url} alt="Selfie" style={{ width: '100%', borderRadius: '12px', display: 'block' }} />
+                                            )}
                                             <button 
                                                 className="download-btn"
-                                                onClick={() => handleDownload(msg.url, `selfie_${msg.id}.png`)}
-                                                title="Save Image"
+                                                onClick={() => handleDownload(msg.url, `selfie_${msg.id}.${msg.url.toLowerCase().endsWith('.mp4') ? 'mp4' : 'png'}`)}
+                                                title="Save Media"
                                             >
                                                 <Download size={18} />
                                             </button>

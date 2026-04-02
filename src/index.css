@@ -20,6 +20,35 @@
   animation: pulse-glow 2s infinite;
 }
 
+@keyframes pulse-ring {
+  0% { transform: scale(0.98); opacity: 0.8; }
+  50% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.98); opacity: 0.8; }
+}
+
+.premium-select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid #3f3f46;
+  color: white;
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  transition: all 0.2s;
+}
+
+.premium-select:focus {
+  border-color: #a855f7;
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+}
+
 :root {
   --bg-color: #050507;
   --panel-bg: rgba(18, 18, 23, 0.6);

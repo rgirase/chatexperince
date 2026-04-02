@@ -5,6 +5,7 @@ import { statusUpdates } from '../../data/statusUpdates';
 import * as relationshipService from '../../services/relationship';
 import { getDiaries } from '../../services/memory';
 import StatusInteraction from './StatusInteraction';
+import StatusViewer from './StatusViewer';
 
 const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, onOpenDetails, onOpenWardrobe, itemVariants }) => {
     const statusBubbleRef = useRef(null);
@@ -12,11 +13,25 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
     const [imageError, setImageError] = useState(false);
     const [hasDiary, setHasDiary] = useState(false);
     const [isStatusExpanded, setIsStatusExpanded] = useState(false);
+    const [isFullStatusOpen, setIsFullStatusOpen] = useState(false);
     const [equippedImage, setEquippedImage] = useState(persona.image);
     const [refreshKey, setRefreshKey] = useState(0);
     const isVideo = equippedImage?.toLowerCase().endsWith('.mp4');
     const isGif = equippedImage?.toLowerCase().endsWith('.gif');
     const isMediaLoop = isVideo || isGif;
+    
+    // Status Ring Logic
+    const hasStatus = statusUpdates[persona.id];
+    const [isStatusRead, setIsStatusRead] = useState(() => {
+        return localStorage.getItem(`status_read_${persona.id}`) === 'true';
+    });
+
+    const handleOpenStatus = (e) => {
+        e.stopPropagation();
+        setIsFullStatusOpen(true);
+        setIsStatusRead(true);
+        localStorage.setItem(`status_read_${persona.id}`, 'true');
+    };
     
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -64,9 +79,33 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
             variants={itemVariants}
             style={{ position: 'relative', overflow: 'visible' }}
         >
+            {/* STATUS RING OVERLAY */}
+            {hasStatus && !isStatusRead && (
+                <div 
+                    onClick={handleOpenStatus}
+                    style={{
+                        position: 'absolute',
+                        top: '-10px',
+                        left: '-10px',
+                        right: '-10px',
+                        bottom: '-10px',
+                        borderRadius: '34px',
+                        border: '3px solid transparent',
+                        background: 'linear-gradient(135deg, #f472b6, #a855f7) border-box',
+                        WebkitMask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)',
+                        WebkitMaskComposite: 'destination-out',
+                        maskComposite: 'exclude',
+                        zIndex: 2,
+                        cursor: 'pointer',
+                        animation: 'pulse-ring 2s infinite'
+                    }}
+                />
+            )}
+
             <div 
                 className="persona-card-inner"
                 onClick={() => onSelectPersona(persona)}
+                // ... rest of style ...
                 style={{
                     backgroundImage: (imageLoaded && !imageError && !isMediaLoop) ? `url(${equippedImage})` : 'linear-gradient(135deg, #27272a, #09090b)',
                     backgroundColor: '#111',
@@ -319,8 +358,14 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
                 </div>
             </div>
 
-            {/* Bubble Overlay - Outside the overflow:hidden card */}
             <AnimatePresence>
+                {isFullStatusOpen && (
+                    <StatusViewer 
+                        persona={persona}
+                        status={statusUpdates[persona.id]}
+                        onClose={() => setIsFullStatusOpen(false)}
+                    />
+                )}
                 {isStatusExpanded && (
                     <StatusInteraction 
                         persona={persona}
