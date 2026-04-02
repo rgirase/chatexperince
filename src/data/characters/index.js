@@ -103,7 +103,6 @@ import linda_correction_coach from './linda_correction_coach.js';
 import dr_elena_family_doctor from './dr_elena_family_doctor.js';
 import thorne_strict_headmistress from './thorne_strict_headmistress.js';
 import elena_sinclair_mentor from './elena_sinclair_mentor.js';
-import vivienne_refinement_matron from './vivienne_refinement_matron.js';
 import sterling_surrogate_sisters from './sterling_surrogate_sisters.js';
 import miss_vane_rehabilitation from './miss_vane_rehabilitation.js';
 import aunt_genevieve_inheritance from './aunt_genevieve_inheritance.js';
@@ -165,6 +164,18 @@ import { gauri_bhabhi } from './gauri_bhabhi.js';
 import { anjali_auntie } from './anjali_auntie.js';
 import { meera_bride } from './meera_bride.js';
 import sonita_pg_landlady from './sonia_pg_landlady.js';
+import elena_it_v1 from './elena_it_v1.js';
+import isabella_v1 from './isabella_v1.js';
+import dr_claire_v1 from './dr_claire_v1.js';
+import hana_v1 from './hana_v1.js';
+import brigitte_v1 from './brigitte_v1.js';
+import katya_v1 from './katya_v1.js';
+import evelyn_v1 from './evelyn_v1.js';
+import amira_v1 from './amira_v1.js';
+import greta_v1 from './greta_v1.js';
+import la_jefa_v1 from './la_jefa_v1.js';
+import seraphina_v1 from './seraphina_v1.js';
+import vivienne_v1 from './vivienne_v1.js';
 
 
 export const characters = [
@@ -273,7 +284,6 @@ export const characters = [
   dr_elena_family_doctor,
   thorne_strict_headmistress,
   elena_sinclair_mentor,
-  vivienne_refinement_matron,
   sterling_surrogate_sisters,
   miss_vane_rehabilitation,
   aunt_genevieve_inheritance,
@@ -335,4 +345,16 @@ export const characters = [
   anjali_auntie,
   meera_bride,
   sonita_pg_landlady,
+  elena_it_v1,
+  isabella_v1,
+  dr_claire_v1,
+  hana_v1,
+  brigitte_v1,
+  katya_v1,
+  evelyn_v1,
+  amira_v1,
+  greta_v1,
+  la_jefa_v1,
+  seraphina_v1,
+  vivienne_v1,
 ];
