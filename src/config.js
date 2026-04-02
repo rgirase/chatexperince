@@ -35,5 +35,6 @@ export const AVAILABLE_PONY_MODELS = [
     { id: "aimrimPonyIllusSDXL_v10ILLFP16.safetensors", name: "Pony: Aimrim Illustrious" },
     { id: "getphatPonyMysticEast_v30.safetensors", name: "Pony: Mystic East" },
     { id: "vendoPonyAnimated_v10.safetensors", name: "Pony: Vendo Animated" },
+    { id: "Juggernaut-XL_v9.safetensors", name: "SDXL: Juggernaut XL v9 (Cinematic Realism)" },
     { id: "v1-5-pruned-emaonly.safetensors", name: "SD 1.5: Base (Not Recommended)" }
 ];

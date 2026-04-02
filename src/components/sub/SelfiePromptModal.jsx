@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, X, Wand2, Sparkles, Droplets, Flame, Skull, Utensils, Shirt, Palette, MapPin, Zap, Sun, Play } from 'lucide-react';
+import { Camera, X, Wand2, Sparkles, Droplets, Flame, Skull, Utensils, Shirt, Palette, MapPin, Zap, Sun, Play, Layers, Settings, User, Search, Trash2, CheckCircle2 } from 'lucide-react';
 import { AVAILABLE_PONY_MODELS } from '../../config';
 import { CLOTHING_TYPES, COLORS, SKIN_TEXTURES, LIGHTING_MODES } from '../../data/imageGenOptions';
 
 const ACTION_CATEGORIES = {
-// ... existing categories ...
-    "Outfits": [
+    "Styles": [
         { label: "Sheer Lace Dress", text: "wearing a highly transparent sheer black Italian designer lace dress WITHOUT LINGERIE, highly seductive" },
         { label: "Transparent Saree", text: "wearing a highly seductive, transparent party wear saree without blouse" },
         { label: "Library Nude", text: "standing gracefully by a large window in a grand mahogany-paneled library, nude portrait" },
@@ -83,10 +82,22 @@ const ACTION_CATEGORIES = {
     ]
 };
 
+const CATEGORY_ICONS = {
+    "Styles": <Sparkles size={16} />,
+    "Positions": <Layers size={16} />,
+    "Fluids": <Droplets size={16} />,
+    "Kink & BD": <Skull size={16} />,
+    "Oral": <Utensils size={16} />,
+    "Hardcore": <Flame size={16} />,
+    "Scenarios": <MapPin size={16} />
+};
+
 const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
     const [prompt, setPrompt] = useState("");
-    const [aspectRatio, setAspectRatio] = useState('portrait');
+    const [activeTab, setActiveTab] = useState('Doing'); // 'Doing', 'Looking', 'Setting'
     const [activeCategory, setActiveCategory] = useState("Positions");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [aspectRatio, setAspectRatio] = useState('portrait');
     const [selectedModel, setSelectedModel] = useState(localStorage.getItem('lastSelectedPonyModel') || "realismByStableYogi_ponyV3VAE.safetensors");
     const [selectedClothing, setSelectedClothing] = useState('none');
     const [selectedColor, setSelectedColor] = useState('none');
@@ -103,6 +114,27 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
         onClose();
     };
 
+    const toggleAction = (text) => {
+        if (prompt.includes(text)) {
+            setPrompt(prev => prev.replace(text, '').replace(', ,', ',').replace(/^, /, '').trim());
+        } else {
+            setPrompt(prev => prev ? `${prev}, ${text}` : text);
+        }
+    };
+
+    const getSelectedCount = (cat) => {
+        return ACTION_CATEGORIES[cat].filter(act => prompt.includes(act.text)).length;
+    };
+
+    const filteredActions = searchQuery 
+        ? Object.values(ACTION_CATEGORIES).flat().filter(act => 
+            act.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
+            act.text.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        : ACTION_CATEGORIES[activeCategory];
+
+    const activeTagsByLabel = Object.values(ACTION_CATEGORIES).flat().filter(act => prompt.includes(act.text));
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -110,338 +142,325 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                     <motion.div 
                         className="modal-content glass-panel" 
                         onClick={(e) => e.stopPropagation()}
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        initial={{ opacity: 0, scale: 0.95, y: 30 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        style={{ maxWidth: '500px' }}
+                        exit={{ opacity: 0, scale: 0.95, y: 30 }}
+                        style={{ 
+                            maxWidth: '820px', 
+                            padding: '0', 
+                            overflow: 'hidden', 
+                            maxHeight: '85vh', 
+                            width: '95%',
+                            display: 'flex', 
+                            flexDirection: 'column',
+                            margin: 'auto'
+                        }}
                     >
-                        <div className="modal-header">
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <Camera className="premium-gradient-text" size={24} />
-                                <h2 style={{ margin: 0, fontSize: '1.25rem' }}>Magic Selfie</h2>
+                        {/* COMPACT HEADER */}
+                        <div className="modal-header" style={{ flexShrink: 0, padding: '12px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.4)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div className="premium-icon-glow">
+                                    <Camera className="premium-gradient-text" size={22} />
+                                </div>
+                                <h2 style={{ margin: 0, fontSize: '1.1rem', color: 'white' }}>Magic Selfie <span style={{ color: '#a1a1aa', fontWeight: 'lighter', fontSize: '0.75rem', marginLeft: '8px' }}>v2.5 Pro Hub</span></h2>
                             </div>
-                            <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}>
-                                <X size={24} />
+                            <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#a1a1aa', cursor: 'pointer', padding: '5px', borderRadius: '50%' }}>
+                                <X size={16} />
                             </button>
                         </div>
-                        <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto', paddingBottom: '90px' }}>
-                            {/* REALISM BOOST TOGGLE */}
-                            <div 
-                                onClick={() => setIsRealismHigh(!isRealismHigh)}
-                                style={{
-                                    background: isRealismHigh ? 'rgba(168, 85, 247, 0.15)' : 'rgba(255,255,255,0.05)',
-                                    border: `1px solid ${isRealismHigh ? 'var(--primary-color)' : '#3f3f46'}`,
-                                    padding: '12px',
-                                    borderRadius: '12px',
-                                    marginBottom: '1.5rem',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    transition: 'all 0.3s'
-                                }}
-                            >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <div style={{ 
-                                        width: '40px', height: '40px', borderRadius: '10px', 
-                                        background: isRealismHigh ? 'var(--primary-color)' : '#3f3f46',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                    }}>
-                                        <Zap size={20} color={isRealismHigh ? 'white' : '#71717a'} />
-                                    </div>
-                                    <div>
-                                        <div style={{ color: 'white', fontWeight: 'bold', fontSize: '0.9rem' }}>Realism Ultra Boost</div>
-                                        <div style={{ color: '#a1a1aa', fontSize: '0.75rem' }}>Macro-skin & Film Grain mixing</div>
-                                    </div>
-                                </div>
-                                <div style={{ 
-                                    width: '44px', height: '24px', borderRadius: '12px',
-                                    background: isRealismHigh ? '#22c55e' : '#3f3f46',
-                                    position: 'relative', transition: 'all 0.3s'
-                                }}>
-                                    <div style={{ 
-                                        width: '18px', height: '18px', borderRadius: '50%', background: 'white',
-                                        position: 'absolute', top: '3px',
-                                        left: isRealismHigh ? '23px' : '3px',
-                                        transition: 'all 0.3s'
-                                    }} />
-                                </div>
-                            </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '1.5rem' }}>
-                                <div>
-                                    <div style={{ color: '#fbbf24', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                        <Shirt size={14} /> Style
-                                    </div>
-                                    <select 
-                                        value={selectedClothing}
-                                        onChange={(e) => setSelectedClothing(e.target.value)}
-                                        className="premium-select"
-                                    >
-                                        {CLOTHING_TYPES.map(type => (
-                                            <option key={type.id} value={type.id}>{type.label}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <div style={{ color: '#60a5fa', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                        <Palette size={14} /> Color
-                                    </div>
-                                    <select 
-                                        value={selectedColor}
-                                        onChange={(e) => setSelectedColor(e.target.value)}
-                                        className="premium-select"
-                                    >
-                                        {COLORS.map(color => (
-                                            <option key={color.id} value={color.id}>{color.label}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '1.5rem' }}>
-                                <div>
-                                    <div style={{ color: '#f472b6', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                        <Droplets size={14} /> Skin texture
-                                    </div>
-                                    <select 
-                                        value={selectedSkin}
-                                        onChange={(e) => setSelectedSkin(e.target.value)}
-                                        className="premium-select"
-                                    >
-                                        {SKIN_TEXTURES.map(skin => (
-                                            <option key={skin.id} value={skin.id}>{skin.label}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <div style={{ color: '#f97316', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                        <Sun size={14} /> Lighting
-                                    </div>
-                                    <select 
-                                        value={selectedLighting}
-                                        onChange={(e) => setSelectedLighting(e.target.value)}
-                                        className="premium-select"
-                                    >
-                                        {LIGHTING_MODES.map(mode => (
-                                            <option key={mode.id} value={mode.id}>{mode.label}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div 
-                                onClick={() => setIsAnimated(!isAnimated)}
-                                style={{
-                                    background: isAnimated ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255,255,255,0.05)',
-                                    border: `1px solid ${isAnimated ? '#3b82f6' : '#3f3f46'}`,
-                                    padding: '12px',
-                                    borderRadius: '12px',
-                                    marginBottom: '1.5rem',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    transition: 'all 0.3s'
-                                }}
-                            >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <div style={{ 
-                                        width: '40px', height: '40px', borderRadius: '10px', 
-                                        background: isAnimated ? '#3b82f6' : '#3f3f46',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                    }}>
-                                        <Play size={20} color={isAnimated ? 'white' : '#71717a'} />
-                                    </div>
-                                    <div>
-                                        <div style={{ color: 'white', fontWeight: 'bold', fontSize: '0.9rem' }}>Live Photo (Animated)</div>
-                                        <div style={{ color: '#a1a1aa', fontSize: '0.75rem' }}>AnimateDiff 3s loop 🎬</div>
-                                    </div>
-                                </div>
-                                <div style={{ 
-                                    width: '44px', height: '24px', borderRadius: '12px',
-                                    background: isAnimated ? '#3b82f6' : '#3f3f46',
-                                    position: 'relative', transition: 'all 0.3s'
-                                }}>
-                                    <div style={{ 
-                                        width: '18px', height: '18px', borderRadius: '50%', background: 'white',
-                                        position: 'absolute', top: '3px',
-                                        left: isAnimated ? '23px' : '3px',
-                                        transition: 'all 0.3s'
-                                    }} />
-                                </div>
-                            </div>
-
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <div style={{ color: '#a855f7', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold' }}>Core Engine</div>
-                                <select 
-                                    value={selectedModel}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        setSelectedModel(val);
-                                        localStorage.setItem('lastSelectedPonyModel', val);
-                                    }}
+                        {/* COMPACT TAB NAV */}
+                        <div style={{ flexShrink: 0, display: 'flex', padding: '0 12px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                            {[
+                                { id: 'Doing', icon: Wand2, label: 'Scene' },
+                                { id: 'Looking', icon: User, label: 'Physical' },
+                                { id: 'Setting', icon: Settings, label: 'Config' }
+                            ].map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
                                     style={{
-                                        width: '100%',
-                                        padding: '10px 12px',
-                                        borderRadius: '8px',
-                                        background: 'rgba(0,0,0,0.4)',
-                                        border: '1px solid #3f3f46',
-                                        color: 'white',
-                                        fontSize: '0.9rem',
-                                        outline: 'none',
-                                        cursor: 'pointer'
+                                        padding: '12px 14px',
+                                        border: 'none',
+                                        background: 'transparent',
+                                        color: activeTab === tab.id ? '#c084fc' : '#71717a',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        position: 'relative',
+                                        fontSize: '0.8rem',
+                                        fontWeight: activeTab === tab.id ? 'bold' : 'normal',
+                                        transition: 'all 0.3s'
                                     }}
                                 >
-                                    {AVAILABLE_MODELS.map(model => (
-                                        <option key={model.id} value={model.id} style={{ background: '#1e1e2e', color: 'white' }}>
-                                            {model.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.1)' }} className="hide-scrollbar">
-                                    {Object.keys(ACTION_CATEGORIES).map(cat => (
-                                        <button
-                                            key={cat}
-                                            onClick={() => setActiveCategory(cat)}
-                                            style={{
-                                                padding: '6px 14px',
-                                                borderRadius: '20px',
-                                                whiteSpace: 'nowrap',
-                                                border: activeCategory === cat ? '1px solid #c084fc' : '1px solid transparent',
-                                                background: activeCategory === cat ? 'rgba(192, 132, 252, 0.2)' : 'rgba(255,255,255,0.05)',
-                                                color: activeCategory === cat ? 'white' : '#a1a1aa',
-                                                cursor: 'pointer',
-                                                fontSize: '0.85rem',
-                                                fontWeight: activeCategory === cat ? 'bold' : 'normal',
-                                                transition: 'all 0.2s',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '6px'
-                                            }}
-                                        >
-                                            {cat === 'Outfits' && <Sparkles size={14} />}
-                                            {cat === 'Fluids' && <Droplets size={14} />}
-                                            {cat === 'Hardcore' && <Flame size={14} />}
-                                            {cat === 'Kink & BD' && <Skull size={14} />}
-                                            {cat === 'Oral' && <Utensils size={14} />}
-                                            {cat === 'Scenarios' && <MapPin size={14} />}
-                                            {cat}
-                                        </button>
-                                    ))}
-                                </div>
-                                
-                                <div style={{ minHeight: '130px', position: 'relative' }}>
-                                    <AnimatePresence mode="wait">
-                                        <motion.div
-                                            key={activeCategory}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                            transition={{ duration: 0.15 }}
-                                            style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignContent: 'flex-start' }}
-                                        >
-                                            {ACTION_CATEGORIES[activeCategory].map((act, i) => (
-                                                <button
-                                                    key={`${activeCategory}-${i}`}
-                                                    onClick={() => setPrompt(prev => prev ? `${prev}, ${act.text}` : act.text)}
-                                                    style={{
-                                                        background: 'rgba(239, 68, 68, 0.1)',
-                                                        border: '1px solid rgba(239, 68, 68, 0.2)',
-                                                        color: '#ef4444',
-                                                        padding: '6px 12px',
-                                                        borderRadius: '8px',
-                                                        fontSize: '0.8rem',
-                                                        cursor: 'pointer',
-                                                        transition: 'all 0.2s',
-                                                        fontWeight: '600'
+                                    <tab.icon size={14} />
+                                    {tab.label}
+                                    {activeTab === tab.id && (
+                                        <motion.div 
+                                            layoutId="tab-underline"
+                                            style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '2px', background: 'var(--primary-color)' }} 
+                                        />
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* MAIN CONTENT AREA - DYNAMIC GROWTH */}
+                        <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                            <AnimatePresence mode="wait">
+                                {activeTab === 'Doing' && (
+                                    <motion.div
+                                        key="hub-doing"
+                                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                        style={{ display: 'flex', width: '100%', height: '100%', overflow: 'hidden' }}
+                                    >
+                                        {/* COMPACT SIDEBAR */}
+                                        <div style={{ width: '160px', flexShrink: 0, background: 'rgba(0,0,0,0.3)', borderRight: '1px solid rgba(255,255,255,0.05)', overflowY: 'auto', padding: '6px' }}>
+                                            <div style={{ padding: '6px', marginBottom: '6px' }}>
+                                                <div style={{ position: 'relative' }}>
+                                                    <Search size={10} style={{ position: 'absolute', left: '8px', top: '9px', color: '#71717a' }} />
+                                                    <input 
+                                                        type="text" 
+                                                        placeholder="Search..." 
+                                                        value={searchQuery}
+                                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                                        style={{ width: '100%', padding: '5px 8px 5px 24px', background: 'rgba(255,255,255,0.05)', border: '1px solid #3f3f46', borderRadius: '6px', color: 'white', fontSize: '0.7rem' }}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {Object.keys(ACTION_CATEGORIES).map(cat => {
+                                                const count = getSelectedCount(cat);
+                                                return (
+                                                    <button
+                                                        key={cat}
+                                                        onClick={() => { setActiveCategory(cat); setSearchQuery(""); }}
+                                                        style={{
+                                                            width: '100%', padding: '8px 10px', border: 'none', borderRadius: '6px',
+                                                            background: activeCategory === cat && !searchQuery ? 'rgba(168, 85, 247, 0.12)' : 'transparent',
+                                                            color: activeCategory === cat && !searchQuery ? 'white' : '#a1a1aa',
+                                                            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                                            marginBottom: '1px', transition: 'all 0.2s', gap: '6px'
+                                                        }}
+                                                    >
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
+                                                            {CATEGORY_ICONS[cat]}
+                                                            <span style={{ fontSize: '0.75rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: activeCategory === cat ? 'bold' : 'normal' }}>{cat}</span>
+                                                        </div>
+                                                        {count > 0 && (
+                                                            <span style={{ flexShrink: 0, background: 'var(--primary-color)', color: 'white', fontSize: '0.55rem', padding: '1px 4px', borderRadius: '6px', fontWeight: 'bold' }}>
+                                                                {count}
+                                                            </span>
+                                                        )}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* FLEXIBLE TAG GRID */}
+                                        <div style={{ flex: 1, padding: '16px', overflowY: 'auto', background: 'rgba(0,0,0,0.1)' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                                <div style={{ flex: 1 }}>
+                                                    <h3 style={{ margin: 0, color: 'white', fontSize: '0.9rem' }}>{searchQuery ? 'Search Results' : activeCategory}</h3>
+                                                    <p style={{ margin: '2px 0 0 0', fontSize: '0.65rem', color: '#71717a' }}>{searchQuery ? `Found ${filteredActions.length} matches` : `${activeCategory.toLowerCase()}`}</p>
+                                                </div>
+                                                {!searchQuery && (
+                                                  <button 
+                                                    onClick={() => {
+                                                        const texts = ACTION_CATEGORIES[activeCategory].map(a => a.text);
+                                                        let newPrompt = prompt;
+                                                        texts.forEach(t => {
+                                                            newPrompt = newPrompt.replace(t, '').replace(', ,', ',').replace(/^, /, '').trim();
+                                                        });
+                                                        setPrompt(newPrompt);
                                                     }}
-                                                    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; }}
-                                                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'; }}
-                                                >
-                                                    {act.label}
-                                                </button>
-                                            ))}
-                                        </motion.div>
-                                    </AnimatePresence>
-                                </div>
-                            </div>
+                                                    style={{ flexShrink: 0, background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '4px 8px', borderRadius: '4px', fontSize: '0.6rem', cursor: 'pointer' }}
+                                                  >
+                                                    Reset
+                                                  </button>
+                                                )}
+                                            </div>
 
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <div style={{ color: '#c084fc', fontSize: '0.85rem', marginBottom: '8px', fontWeight: 'bold' }}>Aspect Ratio</div>
-                                <div style={{ display: 'flex', gap: '8px' }}>
-                                    {[
-                                        { id: 'portrait', label: '📱 Portrait', desc: 'Tall' },
-                                        { id: 'landscape', label: '🖥️ Landscape', desc: 'Wide' },
-                                        { id: 'square', label: '🔲 Square', desc: '1:1' }
-                                    ].map(ar => (
-                                        <button
-                                            key={ar.id}
-                                            onClick={() => setAspectRatio(ar.id)}
-                                            style={{
-                                                flex: 1,
-                                                padding: '10px 5px',
-                                                borderRadius: '8px',
-                                                border: aspectRatio === ar.id ? '2px solid #c084fc' : '1px solid #3f3f46',
-                                                background: aspectRatio === ar.id ? 'rgba(192, 132, 252, 0.2)' : 'rgba(255,255,255,0.05)',
-                                                color: aspectRatio === ar.id ? 'white' : '#a1a1aa',
-                                                cursor: 'pointer',
-                                                transition: 'all 0.2s',
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                gap: '4px'
-                                            }}
-                                        >
-                                            <span style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{ar.label}</span>
-                                            <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>{ar.desc}</span>
-                                        </button>
+                                            {/* SPECIAL INJECTION FOR STYLES CATEGORY */}
+                                            {activeCategory === "Styles" && !searchQuery && (
+                                                <div style={{ marginBottom: '14px', padding: '10px', background: 'rgba(168, 85, 247, 0.08)', borderRadius: '10px', border: '1px solid rgba(168, 85, 247, 0.15)' }}>
+                                                    <div style={{ color: '#c084fc', fontSize: '0.7rem', marginBottom: '6px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                        <Shirt size={10} /> Base Foundation
+                                                    </div>
+                                                    <select 
+                                                        value={selectedClothing} 
+                                                        onChange={(e) => setSelectedClothing(e.target.value)} 
+                                                        className="premium-select" 
+                                                        style={{ width: '100%', padding: '6px 10px', background: 'rgba(0,0,0,0.4)', border: '1px solid #3f3f46', fontSize: '0.75rem' }}
+                                                    >
+                                                        {CLOTHING_TYPES.map(type => <option key={type.id} value={type.id}>{type.label}</option>)}
+                                                    </select>
+                                                </div>
+                                            )}
+
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '8px' }}>
+                                                {filteredActions.map((act, i) => {
+                                                    const isActive = prompt.includes(act.text);
+                                                    return (
+                                                        <motion.button
+                                                            key={`${activeCategory}-${i}`}
+                                                            onClick={() => toggleAction(act.text)}
+                                                            initial={{ opacity: 0, scale: 0.98 }}
+                                                            animate={{ opacity: 1, scale: 1 }}
+                                                            whileHover={{ scale: 1.01 }}
+                                                            whileTap={{ scale: 0.99 }}
+                                                            style={{
+                                                                background: isActive ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255,255,255,0.02)',
+                                                                border: `1px solid ${isActive ? '#c084fc' : 'rgba(255,255,255,0.06)'}`,
+                                                                color: isActive ? 'white' : '#a1a1aa',
+                                                                padding: '8px', borderRadius: '8px', fontSize: '0.7rem', cursor: 'pointer',
+                                                                textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '2px', position: 'relative'
+                                                            }}
+                                                        >
+                                                            {isActive && <CheckCircle2 size={10} style={{ position: 'absolute', right: '6px', top: '6px', color: '#c084fc' }} />}
+                                                            <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{act.label}</span>
+                                                        </motion.button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {activeTab === 'Looking' && (
+                                    <motion.div key="hub-looking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, padding: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', overflowY: 'auto' }}>
+                                        <div style={{ padding: '14px', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                                            <div style={{ color: '#60a5fa', fontSize: '0.75rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <Palette size={12} /> Ambient Color
+                                            </div>
+                                            <select value={selectedColor} onChange={(e) => setSelectedColor(e.target.value)} className="premium-select" style={{ width: '100%', padding: '8px', fontSize: '0.75rem' }}>
+                                                {COLORS.map(color => <option key={color.id} value={color.id}>{color.label}</option>)}
+                                            </select>
+                                        </div>
+                                        <div style={{ padding: '14px', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                                            <div style={{ color: '#f472b6', fontSize: '0.75rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <Droplets size={12} /> Skin Texture
+                                            </div>
+                                            <select value={selectedSkin} onChange={(e) => setSelectedSkin(e.target.value)} className="premium-select" style={{ width: '100%', padding: '8px', fontSize: '0.75rem' }}>
+                                                {SKIN_TEXTURES.map(skin => <option key={skin.id} value={skin.id}>{skin.label}</option>)}
+                                            </select>
+                                        </div>
+                                        <div style={{ gridColumn: 'span 2', padding: '14px', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                                            <div style={{ color: '#f97316', fontSize: '0.75rem', marginBottom: '10px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <Sun size={12} /> Cinematic Lighting & Atmosphere
+                                            </div>
+                                            <select value={selectedLighting} onChange={(e) => setSelectedLighting(e.target.value)} className="premium-select" style={{ width: '100%', padding: '8px', fontSize: '0.75rem' }}>
+                                                {LIGHTING_MODES.map(mode => <option key={mode.id} value={mode.id}>{mode.label}</option>)}
+                                            </select>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {activeTab === 'Setting' && (
+                                    <motion.div key="hub-setting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
+                                            <div 
+                                                onClick={() => setIsRealismHigh(!isRealismHigh)}
+                                                style={{
+                                                    background: isRealismHigh ? 'rgba(168, 85, 247, 0.1)' : 'rgba(255,255,255,0.02)',
+                                                    border: `1px solid ${isRealismHigh ? '#c084fc' : '#3f3f46'}`,
+                                                    padding: '14px', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.3s'
+                                                }}
+                                            >
+                                                <Zap size={18} color={isRealismHigh ? '#c084fc' : '#71717a'} />
+                                                <div style={{ color: 'white', fontWeight: 'bold', fontSize: '0.85rem', marginTop: '6px' }}>Realism Boost</div>
+                                                <div style={{ color: '#71717a', fontSize: '0.65rem' }}>Hi-res modules</div>
+                                            </div>
+                                            <div 
+                                                onClick={() => setIsAnimated(!isAnimated)}
+                                                style={{
+                                                    background: isAnimated ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255,255,255,0.02)',
+                                                    border: `1px solid ${isAnimated ? '#3b82f6' : '#3f3f46'}`,
+                                                    padding: '14px', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.3s'
+                                                }}
+                                            >
+                                                <Play size={18} color={isAnimated ? '#3b82f6' : '#71717a'} />
+                                                <div style={{ color: 'white', fontWeight: 'bold', fontSize: '0.85rem', marginTop: '6px' }}>Live Photo</div>
+                                                <div style={{ color: '#71717a', fontSize: '0.65rem' }}>3s Motion</div>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ marginBottom: '16px' }}>
+                                            <div style={{ color: '#c084fc', fontSize: '0.75rem', marginBottom: '6px', fontWeight: 'bold' }}>Aspect Ratio</div>
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                {['portrait', 'landscape', 'square'].map(ar => (
+                                                    <button
+                                                        key={ar}
+                                                        onClick={() => setAspectRatio(ar)}
+                                                        style={{
+                                                            flex: 1, padding: '10px', borderRadius: '8px',
+                                                            border: aspectRatio === ar ? '1.5px solid #c084fc' : '1px solid #3f3f46',
+                                                            background: aspectRatio === ar ? 'rgba(192, 132, 252, 0.12)' : 'rgba(255,255,255,0.02)',
+                                                            color: 'white', cursor: 'pointer', fontSize: '0.8rem'
+                                                        }}
+                                                    >
+                                                        {ar}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div style={{ color: '#c084fc', fontSize: '0.75rem', marginBottom: '6px', fontWeight: 'bold' }}>Diffusion Model</div>
+                                            <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} className="premium-select" style={{ width: '100%', padding: '10px', fontSize: '0.8rem' }}>
+                                                {AVAILABLE_MODELS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                                            </select>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        {/* FOOTER - ENSURED VISIBILITY */}
+                        <div style={{ flexShrink: 0, padding: '12px 16px', background: 'rgba(0,0,0,0.6)', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                            {/* ACTIVE TAGS SUMMARY */}
+                            {activeTagsByLabel.length > 0 && (
+                                <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '8px' }} className="hide-scrollbar">
+                                    <button onClick={() => setPrompt("")} style={{ flexShrink: 0, background: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#ef4444', padding: '2px 6px', borderRadius: '12px', fontSize: '0.6rem', display: 'flex', alignItems: 'center', gap: '3px', whiteSpace: 'nowrap' }}>
+                                        <Trash2 size={9} /> Reset
+                                    </button>
+                                    {activeTagsByLabel.map((act, i) => (
+                                        <span key={i} style={{ flexShrink: 0, background: 'rgba(168, 85, 247, 0.15)', border: '1px solid #c084fc', color: 'white', padding: '2px 6px', borderRadius: '12px', fontSize: '0.6rem', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                                            {act.label}
+                                            <X size={9} style={{ cursor: 'pointer' }} onClick={() => toggleAction(act.text)} />
+                                        </span>
                                     ))}
                                 </div>
-                            </div>
+                            )}
 
-                            <textarea
-                                value={prompt}
-                                onChange={(e) => setPrompt(e.target.value)}
-                                placeholder="Example: wearing a tight red dress, sitting on a leather sofa, looking seductive..."
-                                style={{
-                                    width: '100%',
-                                    background: 'rgba(0,0,0,0.3)',
-                                    border: '1px solid rgba(255,255,255,0.1)',
-                                    borderRadius: '12px',
-                                    color: 'white',
-                                    padding: '1rem',
-                                    height: '100px',
-                                    fontSize: '1rem',
-                                    outline: 'none',
-                                    resize: 'none',
-                                    marginBottom: '1.5rem'
-                                }}
-                                autoFocus
-                            />
-                            <button 
-                                onClick={handleSubmit}
-                                className="premium-gradient-btn"
-                                style={{
-                                    width: '100%',
-                                    padding: '1rem',
-                                    background: 'var(--user-msg-bg)',
-                                    border: 'none',
-                                    borderRadius: '12px',
-                                    color: 'white',
-                                    fontWeight: 'bold',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '10px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                <Wand2 size={20} /> Generate Magic Photo
-                            </button>
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                <div style={{ flex: 1 }}>
+                                    <textarea
+                                        value={prompt}
+                                        onChange={(e) => setPrompt(e.target.value)}
+                                        placeholder="Mood / Refinements..."
+                                        style={{
+                                            width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)',
+                                            borderRadius: '8px', color: 'white', padding: '8px 12px', height: '32px', fontSize: '0.8rem',
+                                            outline: 'none', resize: 'none', flexShrink: 0
+                                        }}
+                                    />
+                                </div>
+                                <button 
+                                    onClick={handleSubmit}
+                                    className="premium-gradient-btn"
+                                    style={{
+                                        padding: '10px 24px', borderRadius: '10px',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                                        fontSize: '0.9rem', fontWeight: 'bold',
+                                        flexShrink: 0
+                                    }}
+                                >
+                                    <Sparkles size={16} />
+                                    Generate
+                                </button>
+                            </div>
                         </div>
                     </motion.div>
                 </div>

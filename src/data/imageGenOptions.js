@@ -1,11 +1,23 @@
 export const CLOTHING_TYPES = [
     { id: 'none', label: 'None (Default)', text: '' },
     { id: 'lingerie', label: 'Lingerie', text: 'wearing seductive lace lingerie' },
+    { id: 'transparent_lingerie', label: 'Transparent Lingerie', text: 'wearing highly transparent, sheer lingerie' },
     { id: 'net_bra', label: 'Net Bra', text: 'wearing a provocative net bra and matching panties' },
     { id: 'thong', label: 'Thong', text: 'wearing a string thong, revealing' },
-    { id: 'one_piece', label: 'One Piece', text: 'wearing a tight one-piece bodysuit' },
-    { id: 'gown', label: 'Gown', text: 'wearing an elegant evening gown' },
-    { id: 'transparent_lingerie', label: 'Transparent Lingerie', text: 'wearing highly transparent, sheer lingerie' }
+    { id: 'micro_bikini', label: 'Micro-Bikini', text: 'wearing an extremely tiny micro-bikini, minimal coverage' },
+    { id: 'wet_tshirt', label: 'Wet White T-Shirt', text: 'wearing a soaking wet translucent white t-shirt, no bra, nipples visible through fabric' },
+    { id: 'open_shirt', label: 'Open Plaid Shirt', text: 'wearing an open plaid shirt, unbuttoned, no bra, breasts exposed' },
+    { id: 'secretary', label: 'Secretary Style', text: 'wearing a tight office pencil skirt and an unbuttoned white blouse, seductive' },
+    { id: 'business_suit', label: 'Business Suit (Professional)', text: 'wearing a professional business suit, jacket open, no shirt underneath, cleavage' },
+    { id: 'yoga_pants', label: 'Sports Bra & Yoga Pants', text: 'wearing a tight sports bra and form-fitting yoga pants, athletic body' },
+    { id: 'gym_leotard', label: 'Gym Leotard (High-Cut)', text: 'wearing a high-cut athletic gym leotard, revealing hips' },
+    { id: 'mini_skirt', label: 'Mini-Skirt & Crop Top', text: 'wearing a very short mini-skirt and a tight crop top' },
+    { id: 'gown', label: 'Elegant Gown', text: 'wearing an elegant, skin-tight evening gown with high slit' },
+    { id: 'raincoat', label: 'Transparent Raincoat', text: 'wearing a clear transparent plastic raincoat, naked underneath' },
+    { id: 'fishnets', label: 'Fishnets & Pasties', text: 'wearing black fishnet stockings and body tape pasties, provocative' },
+    { id: 'saree', label: 'Sheer Saree (Traditional)', text: 'wearing a highly transparent sheer party-wear saree, seductive look' },
+    { id: 'cheongsam', label: 'High-Slit Cheongsam', text: 'wearing a traditional cheongsam dress with extreme high-side slits' },
+    { id: 'one_piece', label: 'Tight bodysuit', text: 'wearing a tight one-piece bodysuit' }
 ];
 
 export const COLORS = [

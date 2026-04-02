@@ -6,7 +6,7 @@ import { CLOTHING_TYPES, COLORS, SKIN_TEXTURES, LIGHTING_MODES } from '../data/i
 export const useImageGeneration = (persona, setMessages, showToast) => {
     const isMounted = useRef(true);
 
-    const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait', selectedModel = null, clothing = '', color = '', skin = 'none', lighting = 'natural', realismHigh = false) => {
+    const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait', selectedModel = null, clothing = '', color = '', skin = 'none', lighting = 'natural', realismHigh = false, isAnimated = false) => {
         const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
         const imageEngine = localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE;
 
@@ -84,7 +84,9 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
             } else if (imageEngine === 'comfyui') {
                 let comfyWorkflow = localStorage.getItem('comfyWorkflow');
                 const isPonyModel = selectedModel?.toLowerCase().includes('pony');
-                if (!comfyWorkflow || !comfyWorkflow.includes('3')) {
+                
+                // Force default for animations to ensure node injection stability
+                if (isAnimated || !comfyWorkflow || !comfyWorkflow.includes('3')) {
                     comfyWorkflow = JSON.stringify(isPonyModel ? DEFAULT_PONY_WORKFLOW : DEFAULT_COMFY_WORKFLOW);
                 }
 
@@ -117,6 +119,93 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                         workflowObj["5"].inputs.width = aspectRatio === 'landscape' ? 1216 : (aspectRatio === 'square' ? 1024 : 832);
                         workflowObj["5"].inputs.height = aspectRatio === 'landscape' ? 832 : (aspectRatio === 'square' ? 1024 : 1216);
                     }
+                    // Animated Frame Support
+                    if (isAnimated) {
+                        workflowObj["5"].inputs.batch_size = 16;
+                    }
+                }
+
+                if (workflowObj) {
+                    const findNodeByType = (type) => Object.keys(workflowObj).find(k => workflowObj[k].class_type === type);
+                    
+                    const ckptId = findNodeByType('CheckpointLoaderSimple') || findNodeByType('CheckpointLoader');
+                    const samplerId = findNodeByType('KSampler');
+                    const latentId = findNodeByType('EmptyLatentImage');
+                    const vaeDecodeId = findNodeByType('VAEDecode');
+                    const saveImageId = findNodeByType('SaveImage') || findNodeByType('PreviewImage');
+
+                    // 1. CHASE THE MODEL LINK
+                    let currentModelLink = [ckptId, 0];
+                    let currentClipLink = [ckptId, 1];
+
+                    // 2. INJECT LORAS IF PRESENT
+                    if (loraMatches.length > 0 && ckptId) {
+                        let loraIdCounter = 900;
+                        for (const lora of loraMatches) {
+                            const newId = (loraIdCounter++).toString();
+                            workflowObj[newId] = {
+                                class_type: "LoraLoader",
+                                inputs: {
+                                    lora_name: lora.name,
+                                    strength_model: lora.weight,
+                                    strength_clip: lora.weight,
+                                    model: currentModelLink,
+                                    clip: currentClipLink
+                                }
+                            };
+                            currentModelLink = [newId, 0];
+                            currentClipLink = [newId, 1];
+                        }
+                    }
+
+                    // 3. INJECT ANIMATEDIFF IF NEEDED
+                    if (isAnimated && ckptId) {
+                        showToast("Generating Animated Live Photo...", "info");
+                        
+                        // Add AnimateDiff Loader (Node 1200)
+                        workflowObj["1200"] = {
+                            class_type: "ADE_AnimateDiffLoaderV1Advanced",
+                            inputs: {
+                                model_name: "v3_sdxl_mm.ckpt",
+                                beta_schedule: "linear (AnimateDiff)",
+                                motion_scale: 1,
+                                apply_v2_models_properly: true,
+                                model: currentModelLink
+                            }
+                        };
+                        currentModelLink = ["1200", 0];
+
+                        // Batch Size
+                        if (latentId) workflowObj[latentId].inputs.batch_size = 16;
+                        
+                        // Video Output (Replace SaveImage/PreviewImage)
+                        const targetOutputId = saveImageId || "9";
+                        workflowObj[targetOutputId] = {
+                            class_type: "VHS_VideoCombine",
+                            inputs: {
+                                images: [vaeDecodeId, 0],
+                                frame_rate: 8,
+                                loop_count: 0,
+                                filename_prefix: "LivePhoto",
+                                format: "video/h264-mp4",
+                                save_output: true
+                            }
+                        };
+                    }
+
+                    // 4. FINAL REDIRECT (SAMPLE & CLIP)
+                    if (samplerId) {
+                        workflowObj[samplerId].inputs.model = currentModelLink;
+                    }
+
+                    // Point all ClipTextEncoders to the end of the Clip Chain
+                    for (const nodeId in workflowObj) {
+                        if (workflowObj[nodeId].class_type === "CLIPTextEncode") {
+                            workflowObj[nodeId].inputs.clip = currentClipLink;
+                        } else if (workflowObj[nodeId].class_type === "CLIPSetLastLayer") {
+                            workflowObj[nodeId].inputs.clip = currentClipLink;
+                        }
+                    }
                 }
 
                 // POSITIVE PROMPT
@@ -136,47 +225,6 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                     const baseNeg = "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature";
                     const clothingSuppression = clothingPart ? ", (clothing:0.1), (clothes:0.1)" : "";
                     workflowObj["7"].inputs.text = baseNeg + clothingSuppression;
-                }
-
-                // Dynamically inject LoRA nodes if tags were found
-                if (loraMatches.length > 0) {
-                    const ckptId = Object.keys(workflowObj).find(k => workflowObj[k].class_type === 'CheckpointLoaderSimple' || workflowObj[k].class_type === 'CheckpointLoader');
-                    if (ckptId) {
-                        let currentModelLink = [ckptId, 0];
-                        let currentClipLink = [ckptId, 1];
-                        
-                        let loraIdCounter = 900;
-                        for (const lora of loraMatches) {
-                            const newId = (loraIdCounter++).toString();
-                            workflowObj[newId] = {
-                                class_type: "LoraLoader",
-                                inputs: {
-                                    lora_name: lora.name,
-                                    strength_model: lora.weight,
-                                    strength_clip: lora.weight,
-                                    model: currentModelLink,
-                                    clip: currentClipLink
-                                }
-                            };
-                            currentModelLink = [newId, 0];
-                            currentClipLink = [newId, 1];
-                        }
-
-                        // Redirect all nodes that referenced the base checkpoint directly
-                        for (const [nodeId, nodeConfig] of Object.entries(workflowObj)) {
-                            if (parseInt(nodeId) >= 900) continue;
-                            if (!nodeConfig.inputs) continue;
-                            for (const [inputKey, inputValue] of Object.entries(nodeConfig.inputs)) {
-                                if (Array.isArray(inputValue)) {
-                                    if (inputValue[0] === ckptId && inputValue[1] === 0) {
-                                        workflowObj[nodeId].inputs[inputKey] = currentModelLink;
-                                    } else if (inputValue[0] === ckptId && inputValue[1] === 1) {
-                                        workflowObj[nodeId].inputs[inputKey] = currentClipLink;
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
 
                 if (workflowObj["3"]) workflowObj["3"].inputs.seed = Math.floor(Math.random() * 1000000);
@@ -201,34 +249,42 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                         const histRes = await fetch(`${sdUrl.replace(/\/$/, '')}/history/${promptId}`);
                         const histData = await histRes.json();
                         if (histData[promptId]) {
-                            const outputs = histData[promptId].outputs;
-                            for (const nodeId in outputs) {
-                                if (outputs[nodeId].images && outputs[nodeId].images.length > 0) {
-                                    const paramsObj = new URLSearchParams(outputs[nodeId].images[0]);
-                                    const viewRes = await fetch(`${sdUrl.replace(/\/$/, '')}/view?${paramsObj.toString()}`);
-                                    const blob = await viewRes.blob();
-                                    base64Image = await new Promise((resolve) => {
-                                        const reader = new FileReader();
-                                        reader.onloadend = () => resolve(reader.result);
-                                        reader.readAsDataURL(blob);
-                                    });
-                                    isComplete = true;
-                                    break;
-                                } else if (outputs[nodeId].gifs || outputs[nodeId].videos) {
-                                    // Support for Animated/Video outputs
-                                    const videoData = (outputs[nodeId].gifs || outputs[nodeId].videos)[0];
-                                    const paramsObj = new URLSearchParams(videoData);
-                                    const viewRes = await fetch(`${sdUrl.replace(/\/$/, '')}/view?${paramsObj.toString()}`);
-                                    const blob = await viewRes.blob();
-                                    base64Image = await new Promise((resolve) => {
-                                        const reader = new FileReader();
-                                        reader.onloadend = () => resolve(reader.result);
-                                        reader.readAsDataURL(blob);
-                                    });
-                                    isComplete = true;
-                                    break;
-                                }
-                            }
+                                    const outputs = histData[promptId].outputs;
+                                    
+                                    // IF ANIMATED, PRIORITIZE VIDEO NODES
+                                    let foundMedia = null;
+                                    
+                                    if (isAnimated) {
+                                        for (const nodeId in outputs) {
+                                            if (outputs[nodeId].gifs || outputs[nodeId].videos) {
+                                                foundMedia = (outputs[nodeId].gifs || outputs[nodeId].videos)[0];
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    
+                                    // FALLBACK TO IMAGES
+                                    if (!foundMedia) {
+                                        for (const nodeId in outputs) {
+                                            if (outputs[nodeId].images && outputs[nodeId].images.length > 0) {
+                                                foundMedia = outputs[nodeId].images[0];
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (foundMedia) {
+                                        const paramsObj = new URLSearchParams(foundMedia);
+                                        const viewRes = await fetch(`${sdUrl.replace(/\/$/, '')}/view?${paramsObj.toString()}`);
+                                        const blob = await viewRes.blob();
+                                        base64Image = await new Promise((resolve) => {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => resolve(reader.result);
+                                            reader.readAsDataURL(blob);
+                                        });
+                                        isComplete = true;
+                                        break;
+                                    }
                         }
                     } catch (pollError) {
                         console.warn("ComfyUI polling blocked or timeout (normal during generation), retrying...", pollError);
