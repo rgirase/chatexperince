@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     ArrowLeft, Heart, Gift, Shirt, Book, History, Trash2, Home, Sparkles, 
-    Flame, UserPlus, Wand2, MapPin, Image as ImageIcon, MessageSquare, 
+    Flame, UserPlus, Wand2, MapPin, Map as MapIcon, Image as ImageIcon, MessageSquare, 
     Users, MoreVertical, Brain, Package, Sliders, Eye, EyeOff, Camera
 } from 'lucide-react';
 import AuraPulse from './AuraPulse';

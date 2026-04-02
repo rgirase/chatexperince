@@ -164,6 +164,7 @@ import { julia_forgotten_wife } from './julia_forgotten_wife.js';
 import { gauri_bhabhi } from './gauri_bhabhi.js';
 import { anjali_auntie } from './anjali_auntie.js';
 import { meera_bride } from './meera_bride.js';
+import sonita_pg_landlady from './sonia_pg_landlady.js';
 
 
 export const characters = [
@@ -333,5 +334,5 @@ export const characters = [
   gauri_bhabhi,
   anjali_auntie,
   meera_bride,
+  sonita_pg_landlady,
 ];
-
