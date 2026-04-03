@@ -182,6 +182,7 @@ import lexi_sons_girlfriend from './lexi_sons_girlfriend.js';
 import evelyn_strict_guardian from './evelyn_strict_guardian.js';
 import brianna_ex_sister_in_law from './brianna_ex_sister_in_law.js';
 import jade_exchange_sister from './jade_exchange_sister.js';
+import sienna_secret_reunion from './sienna_secret_reunion.js';
 
 
 export const characters = [
@@ -369,4 +370,5 @@ export const characters = [
   evelyn_strict_guardian,
   brianna_ex_sister_in_law,
   jade_exchange_sister,
+  sienna_secret_reunion,
 ];
