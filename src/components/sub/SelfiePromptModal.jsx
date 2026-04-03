@@ -259,7 +259,7 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                         </div>
 
                                         {/* FLEXIBLE TAG GRID */}
-                                        <div style={{ flex: 1, padding: '16px', overflowY: 'auto', background: 'rgba(0,0,0,0.1)' }}>
+                                        <div style={{ flex: 1, padding: '16px 16px 120px 16px', overflowY: 'auto', background: 'rgba(0,0,0,0.1)' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                                                 <div style={{ flex: 1 }}>
                                                     <h3 style={{ margin: 0, color: 'white', fontSize: '0.9rem' }}>{searchQuery ? 'Search Results' : activeCategory}</h3>
@@ -329,7 +329,7 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                 )}
 
                                 {activeTab === 'Looking' && (
-                                    <motion.div key="hub-looking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, padding: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', overflowY: 'auto' }}>
+                                    <motion.div key="hub-looking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, padding: '20px 20px 120px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', overflowY: 'auto' }}>
                                         <div style={{ padding: '14px', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.04)' }}>
                                             <div style={{ color: '#60a5fa', fontSize: '0.75rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                 <Palette size={12} /> Ambient Color
@@ -358,7 +358,7 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                 )}
 
                                 {activeTab === 'Setting' && (
-                                    <motion.div key="hub-setting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
+                                    <motion.div key="hub-setting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, padding: '20px 20px 120px 20px', overflowY: 'auto' }}>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
                                             <div 
                                                 onClick={() => setIsRealismHigh(!isRealismHigh)}
@@ -418,17 +418,26 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                         </div>
 
                         {/* FOOTER - ENSURED VISIBILITY */}
-                        <div style={{ flexShrink: 0, padding: '12px 16px', background: 'rgba(0,0,0,0.6)', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                        <div style={{ 
+                            flexShrink: 0, 
+                            padding: '16px 20px', 
+                            background: 'rgba(10, 10, 15, 0.98)', 
+                            backdropFilter: 'blur(15px)',
+                            borderTop: '1px solid rgba(168, 85, 247, 0.3)', 
+                            boxShadow: '0 -10px 40px rgba(0,0,0,0.7)',
+                            zIndex: 100,
+                            position: 'relative'
+                        }}>
                             {/* ACTIVE TAGS SUMMARY */}
                             {activeTagsByLabel.length > 0 && (
-                                <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '8px' }} className="hide-scrollbar">
-                                    <button onClick={() => setPrompt("")} style={{ flexShrink: 0, background: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#ef4444', padding: '2px 6px', borderRadius: '12px', fontSize: '0.6rem', display: 'flex', alignItems: 'center', gap: '3px', whiteSpace: 'nowrap' }}>
-                                        <Trash2 size={9} /> Reset
+                                <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.05)' }} className="hide-scrollbar">
+                                    <button onClick={() => setPrompt("")} style={{ flexShrink: 0, background: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#ef4444', padding: '3px 8px', borderRadius: '12px', fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', cursor: 'pointer' }}>
+                                        <Trash2 size={10} /> Reset
                                     </button>
                                     {activeTagsByLabel.map((act, i) => (
-                                        <span key={i} style={{ flexShrink: 0, background: 'rgba(168, 85, 247, 0.15)', border: '1px solid #c084fc', color: 'white', padding: '2px 6px', borderRadius: '12px', fontSize: '0.6rem', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                                        <span key={i} style={{ flexShrink: 0, background: 'rgba(168, 85, 247, 0.15)', border: '1px solid #c084fc', color: 'white', padding: '3px 8px', borderRadius: '12px', fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
                                             {act.label}
-                                            <X size={9} style={{ cursor: 'pointer' }} onClick={() => toggleAction(act.text)} />
+                                            <X size={10} style={{ cursor: 'pointer' }} onClick={() => toggleAction(act.text)} />
                                         </span>
                                     ))}
                                 </div>
@@ -451,14 +460,21 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                     onClick={handleSubmit}
                                     className="premium-gradient-btn"
                                     style={{
-                                        padding: '10px 24px', borderRadius: '10px',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                        fontSize: '0.9rem', fontWeight: 'bold',
-                                        flexShrink: 0
+                                        padding: '12px 28px', 
+                                        borderRadius: '12px',
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: 'center', 
+                                        gap: '10px',
+                                        fontSize: '1rem', 
+                                        fontWeight: '800',
+                                        flexShrink: 0,
+                                        boxShadow: '0 4px 20px rgba(168, 85, 247, 0.3)',
+                                        border: '1px solid rgba(255,255,255,0.1)'
                                     }}
                                 >
-                                    <Sparkles size={16} />
-                                    Generate
+                                    <Sparkles size={18} />
+                                    Generate Magic Selfie
                                 </button>
                             </div>
                         </div>

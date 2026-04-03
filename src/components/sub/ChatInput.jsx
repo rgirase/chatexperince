@@ -105,7 +105,7 @@ const ChatInput = ({
             
             <div className="input-container" style={{ position: 'relative' }}>
                 {/* ACTION HUB TOGGLE */}
-                <div ref={menuRef} style={{ display: 'flex', alignItems: 'center' }}>
+                <div ref={menuRef} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <button 
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                         disabled={isTyping}
@@ -116,6 +116,16 @@ const ChatInput = ({
                         <motion.div animate={{ rotate: isMenuOpen ? 45 : 0 }}>
                             <Plus size={22} />
                         </motion.div>
+                    </button>
+
+                    {/* ALWAYS VISIBLE MAGIC SELFIE */}
+                    <button 
+                        onClick={() => onOpenSelfiePrompt()}
+                        className="action-icon-btn"
+                        title="Magic Selfie (Generate Image)"
+                        style={{ color: '#f472b6' }}
+                    >
+                        <Camera size={22} />
                     </button>
 
                     <AnimatePresence>
@@ -159,14 +169,6 @@ const ChatInput = ({
                                     <Flame size={20} />
                                 </button>
 
-                                <button 
-                                    onClick={() => { onOpenSelfiePrompt(); setIsMenuOpen(false); }}
-                                    className="hub-item"
-                                    title="Request Selfie"
-                                    style={{ color: '#f472b6' }}
-                                >
-                                    <Camera size={20} />
-                                </button>
                             </motion.div>
                         )}
                     </AnimatePresence>

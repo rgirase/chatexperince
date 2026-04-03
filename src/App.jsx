@@ -504,7 +504,7 @@ function App() {
           borderRight: 'none', 
           borderRadius: '24px 24px 0 0',
           paddingBottom: 'env(safe-area-inset-bottom)',
-          zIndex: 999999 // Ultra-high z-index to stay above everything
+          zIndex: 5000 // Lowered from 999999 to allow modals to be on top
         }}>
           <button 
             className={`nav-item ${activeView === 'home' ? 'active' : ''}`}

@@ -283,7 +283,7 @@ body {
   right: 0;
   bottom: 80px; /* Offset for bottom navigation bar on all devices */
   background-color: var(--bg-color);
-  z-index: 10;
+  z-index: 11000;
   overflow-x: hidden;
 }
 
@@ -972,7 +972,7 @@ body {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--panel-border);
-  z-index: 999999;
+  z-index: 5000;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
 }
 
@@ -1236,7 +1236,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 10000;
   padding: 1rem;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);

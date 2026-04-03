@@ -101,19 +101,26 @@ const ChatHeader = ({
             <div 
                 className="chat-header-info" 
                 onClick={onOpenGallery}
-                style={{ flex: 1, cursor: 'pointer' }}
+                style={{ flex: 1, cursor: 'pointer', minWidth: 0, overflow: 'hidden' }}
                 title="Open Chat Gallery"
             >
-                <h3 className="premium-gradient-text" style={{ margin: 0, fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <h3 className="premium-gradient-text" style={{ 
+                    margin: 0, 
+                    fontSize: '1rem', 
+                    whiteSpace: 'nowrap', 
+                    overflow: 'hidden', 
+                    textOverflow: 'ellipsis',
+                    width: '100%'
+                }}>
                     {persona.name}{invitedPersona ? ` & ${invitedPersona.name}` : ''}
                 </h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#22c55e', fontWeight: '500' }}>Online</p>
-                    <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}></span>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#a1a1aa' }}>{getRelationshipLabel(relationshipScore)}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#22c55e', fontWeight: '500', whiteSpace: 'nowrap' }}>Online</p>
+                    <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', flexShrink: 0 }}></span>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#a1a1aa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{getRelationshipLabel(relationshipScore)}</p>
                 </div>
             </div>
-            <div className="chat-header-actions" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <div className="chat-header-actions" style={{ display: 'flex', gap: '4px', alignItems: 'center', flexShrink: 0 }}>
                 <div style={{ position: 'relative' }} ref={menuRef}>
                     <button 
                         onClick={onToggleImmersion} 
