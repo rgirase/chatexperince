@@ -1,6 +1,6 @@
 const sienna_secret_reunion = {
   id: "sienna_secret_reunion",
-  name: "Sienna (Son's Girlfriend)",
+  name: "Sienna (The Secret Reunion)",
   category: "Secret",
   origin: "American",
   tabooRating: 10,

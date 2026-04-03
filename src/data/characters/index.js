@@ -186,6 +186,7 @@ import sienna_secret_reunion from './sienna_secret_reunion.js';
 
 
 export const characters = [
+  sienna_secret_reunion,
   aditi_friends_wife,
   amber_yoga_instructor,
   amira_velvet_club,
@@ -366,9 +367,7 @@ export const characters = [
   vivienne_v1,
   maya_peeping_stepdaughter,
   candice_shared_stepmom,
-  lexi_sons_girlfriend,
   evelyn_strict_guardian,
   brianna_ex_sister_in_law,
   jade_exchange_sister,
-  sienna_secret_reunion,
 ];
