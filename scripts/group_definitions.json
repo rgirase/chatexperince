@@ -1,0 +1,167 @@
+[
+  {
+    "id": "elena_it_v1",
+    "name": "Elena (Italian)",
+    "prompts": [
+      "High-fidelity group scene, Elena (Italian Godmother, 40s, pearls, silk dress) presiding over a secret meeting with 3 athletic men in sharp suits in her dark mahogany office, heavy shadows, cinematic lighting, Juggernaut-XL style",
+      "Gala event, Elena (Italian Godmother) flanked by 4 younger socialites in a lavish marble hall, champagne glasses, evening gowns, sophisticated group dynamic, masterpiece quality",
+      "Private chamber, Elena (Italian Godmother) with 2 maidservants adjusting her silk robe, intimate group setting, soft warm lighting, kohl-rimmed eyes detail",
+      "Elena (Italian Godmother) at the head of a long dinner table with 5 associates, candlelight, intense expressions, power dynamic, hyper-realistic skin textures",
+      "Elena (Italian Godmother) walking through her estate gardens with 3 security guards in the background, authoritative presence, sun-drenched Italian villa vibe"
+    ]
+  },
+  {
+    "id": "isabella_v1",
+    "name": "Isabella (Latina)",
+    "prompts": [
+      "Isabella (Latina Step-Aunt, sun-kissed skin, floral wrap dress) dancing at a crowded Brazilian garden party, surrounded by 4 laughing relatives, vibrant colors, tropical atmosphere, high-fidelity",
+      "Isabella (Latina Step-Aunt) pool-side with 3 younger men, summer vibe, wet skin, vibrant swimwear, playful group interaction, Juggernaut-XL realism",
+      "Kitchen scene, Isabella (Latina Step-Aunt) teaching 2 students to cook, close proximity, tactile interaction, warm morning light, cinematic depth of field",
+      "Isabella (Latina Step-Aunt) at a beach club with a group of 5 friends, sunset lighting, golden hour, cocktails, joyful group dynamic",
+      "Carnival setting, Isabella (Latina Step-Aunt) in a feathered costume surrounded by a troupe of dancers, motion blur, energetic group scene, masterpiece"
+    ]
+  },
+  {
+    "id": "dr_claire_v1",
+    "name": "Dr. Claire (American)",
+    "prompts": [
+      "Dr. Claire (American Neighbor, blonde, athletic, poolside attire) hosting a suburban BBQ with 4 neighbors, casual group setting, bright daylight, high-fidelity textures",
+      "Dr. Claire (American Neighbor) in a yoga studio with 5 students, focus on stretching and close-up group interaction, serene atmosphere",
+      "Neighborhood meeting, Dr. Claire (American Neighbor) debating with 3 men in a cozy living room, coffee cups, intense gazes, sharp focus",
+      "Dr. Claire (American Neighbor) at a high-end spa with 2 female friends, white robes, cucumber slices, relaxed group vibe, Juggernaut-XL style",
+      "Evening party, Dr. Claire (American Neighbor) laughing with a group of 4 guests on a deck, fairy lights, wine glasses, sophisticated suburban night"
+    ]
+  },
+  {
+    "id": "hana_v1",
+    "name": "Hana-Sensei (Japanese)",
+    "prompts": [
+      "Hana-Sensei (Japanese Tutor, kimono, strict gaze) in a traditional dojo with 5 male students in kendo gear, authoritative group dynamic, soft light through paper screens",
+      "Tea ceremony, Hana-Sensei (Japanese Tutor) with 3 guests, precise movements, close-up on hands and ceramic, serene yet intense group focus",
+      "Hana-Sensei (Japanese Tutor) and 2 other teachers in a school hallway, dark uniforms, professional but high-tension group atmosphere, cinematic lighting",
+      "Hana-Sensei (Japanese Tutor) in a cherry blossom park with 4 students, falling petals, soft focus background, masterpiece quality",
+      "Hana-Sensei (Japanese Tutor) presiding over a formal exam room with 10 students, silent intensity, symmetrical composition, hyper-realistic"
+    ]
+  },
+  {
+    "id": "brigitte_v1",
+    "name": "Brigitte (French)",
+    "prompts": [
+      "Brigitte (French Au Pair Matron, silver hair, silk scarf) in a Parisian salon with 4 younger au pairs, refinement lesson, elegant group setting, soft morning light",
+      "Fashion show backstage, Brigitte (French Au Pair Matron) directing 3 models, high-fashion chaos, fabrics, intense focus, Juggernaut-XL textures",
+      "Brigitte (French Au Pair Matron) at an outdoor cafe with 3 sophisticated men, espresso, Parisian street background, blurred pedestrians, cinematic",
+      "Staircase of a grand hotel, Brigitte (French Au Pair Matron) leading a group of 5 staff members, authoritative posture, gold accents, royal atmosphere",
+      "Brigitte (French Au Pair Matron) in a wine cellar with 2 sommeliers, candlelight reflections on glass, intimate but professional group dynamic"
+    ]
+  },
+  {
+    "id": "katya_v1",
+    "name": "Katya (Russian)",
+    "prompts": [
+      "Katya (Russian Military Widow, fur coat) surrounded by 4 officers in a snow-covered military base, cold atmosphere, breath visible in air, high-fidelity",
+      "Katya (Russian Military Widow) at a formal gala with 3 associates, intense eye contact, vodka glasses, opulent ballroom, cinematic shadows",
+      "Katya (Russian Military Widow) in a library with 2 bodyguards, tactical gear vs silk dress contrast, protective group dynamic, Juggernaut-XL realism",
+      "Katya (Russian Military Widow) presiding over a round table with 6 men, blueprints on table, smoke-filled room, industrial aesthetic",
+      "Katya (Russian Military Widow) in a dacha with 3 family members, fireplace glow, warm but somber group setting, detailed textures"
+    ]
+  },
+  {
+    "id": "evelyn_v1",
+    "name": "Evelyn (British)",
+    "prompts": [
+      "Evelyn (British Estate Manager, lace dress) in the library of a manor with 3 groundskeepers, instructional group scene, dust motes in light beams, masterpiece",
+      "Horse stables, Evelyn (British Estate Manager) with 2 riders and a trainer, leather saddles, outdoor English countryside vibe, sharp focus",
+      "Evelyn (British Estate Manager) leading a group of 4 guests through a portrait gallery, candle lanterns, gothic atmosphere, high-tension group",
+      "Evelyn (British Estate Manager) at a croquet match with 5 socialites, white outfits, green grass, upper-class group dynamic, Juggernaut-XL style",
+      "Evelyn (British Estate Manager) in a dining room with 3 footmen, silver platter reflections, strict elegance, hyper-realistic"
+    ]
+  },
+  {
+    "id": "amira_v1",
+    "name": "Amira (Oasis)",
+    "prompts": [
+      "Amira (Oasis Heiress, gold jewelry, silk veil) in a desert tent with 4 guards, belly dancers in background, incense smoke, opulent group dynamic",
+      "Amira (Oasis Heiress) at an oasis pool with 3 handmaidens, floating lotus flowers, turquoise water, sun-drenched group scene",
+      "Amira (Oasis Heiress) on a terrace with 2 associates, overlooking a glowing Middle Eastern city at night, starry sky, cinematic lighting",
+      "Amira (Oasis Heiress) in a marketplace surrounded by a crowd of 5 merchants, vibrant spices, textile textures, busy group atmosphere",
+      "Amira (Oasis Heiress) leading a camel caravan with 3 scouts, vast sand dunes, heat haze, epic group composition"
+    ]
+  },
+  {
+    "id": "greta_v1",
+    "name": "Frau Greta (German)",
+    "prompts": [
+      "Frau Greta (German Governess, strict spectacles, white shirt) in a classroom with 5 male students, correction scene, high-tension group dynamic, cinematic lighting",
+      "Frau Greta (German Governess) in a castle courtyard with 3 guards, black uniforms, stark lighting, grey stone background, authoritative masterpiece",
+      "Frau Greta (German Governess) presiding over a group of 4 staff in a kitchen, stainless steel reflections, professional discipline, Juggernaut-XL style",
+      "Frau Greta (German Governess) in a dormitory with 2 other matrons, checking beds, symmetrical composition, cold blue lighting",
+      "Frau Greta (German Governess) at a formal gala with 3 high-ranking officials, medals, intense expressions, dark wood-paneled walls"
+    ]
+  },
+  {
+    "id": "la_jefa_v1",
+    "name": "Elena 'La Jefa' (Spanish)",
+    "prompts": [
+      "Elena 'La Jefa' (Spanish Matriarch, black lace) at a long table with 10 family members, Mediterranean courtyard, olive trees, powerful group dynamic",
+      "Elena 'La Jefa' (Spanish Matriarch) in a winery with 3 workers, wine barrels, dark cellar, warm lighting on faces, high-fidelity textures",
+      "Elena 'La Jefa' (Spanish Matriarch) at a bullring with 4 associates, dusty atmosphere, intense sun, red accents, cinematic composition",
+      "Elena 'La Jefa' (Spanish Matriarch) in a chapel with 3 priests, flickering candles, religious icons, somber but authoritative group",
+      "Elena 'La Jefa' (Spanish Matriarch) leading a procession through a Spanish village, 5 attendants, cobblestones, vibrant flowers, masterpiece"
+    ]
+  },
+  {
+    "id": "seraphina_v1",
+    "name": "Lady Seraphina (British)",
+    "prompts": [
+      "Lady Seraphina (British Hostess, tiara, diamonds) presiding over a masked meeting of 6 people in a candlelit vault, secret society vibe, intense group dynamic",
+      "Lady Seraphina (British Hostess) in a ballroom with 5 dancers in masquerade masks, swirling dresses, gold leaf walls, cinematic motion blur",
+      "Lady Seraphina (British Hostess) flanked by 2 silent guards in black suits, standing before a heavy iron door, high-security group scene, sharp focus",
+      "Lady Seraphina (British Hostess) in a private box at the opera with 3 guests, red velvet, opera glasses, backlit by stage glow, masterpiece",
+      "Lady Seraphina (British Hostess) leading an initiation ritual with 3 blindfolded candidates, dramatic shadows, mysterious group setting, Juggernaut-XL"
+    ]
+  },
+  {
+    "id": "vivienne_v1",
+    "name": "Madame Vivienne (French)",
+    "prompts": [
+      "Madame Vivienne (French Refinement Matron, silk turban, satin robe) in a luxury bedroom with 3 students, correction and refinement scene, softest lighting, high-fidelity",
+      "Madame Vivienne (French Refinement Matron) at a high-end fashion atelier with 4 tailors, pins, measuring tapes, intense professional group",
+      "Madame Vivienne (French Refinement Matron) in a garden labyrinth with 2 other instructors, topiary, symmetrical design, elegant group walk",
+      "Madame Vivienne (French Refinement Matron) presiding over a formal banquet with 8 guests, crystal chandeliers, table manners focus, cinematic depth",
+      "Madame Vivienne (French Refinement Matron) in a dressing room with 3 assistants, mirror reflections, multiple angles of the group, Juggernaut-XL style"
+    ]
+  },
+  {
+    "id": "maya_peeping_stepdaughter",
+    "name": "Maya (Step-Daughter)",
+    "prompts": [
+      "Maya (19y step-daughter, messy dark hair, mischievous expression) wearing an oversized white sleep tee that barely covers her thighs, standing in a dimly lit hallway, leaning against a mahogany wall, cinematic shadows, high-fidelity skin texture",
+      "Maya (19y step-daughter) in a short silk chemise, sitting on the edge of a bed, looking provocatively at the camera, soft amber room lighting, 4k realism, masterpiece",
+      "Maya (19y step-daughter) in a black lace bodysuit, peering through a cracked door, intense gaze, low key lighting, dramatic suspense atmosphere, Juggernaut-XL",
+      "Maya (19y step-daughter) in a revealing mesh set, standing in a modern bathroom, mirror reflection, wet hair, realistic skin pores, stunningly fit figure",
+      "Maya (19y step-daughter) completely exposed, laying on a plush rug by a fireplace, glowing skin, soft shadows, intimate atmosphere, masterpiece quality"
+    ]
+  },
+  {
+    "id": "candice_shared_stepmom",
+    "name": "Candice (Step-Mom)",
+    "prompts": [
+      "Candice (40y blonde step-mom, fit milf figure, seductive smile) wearing a sheer housewife apron over nothing else, leaning over a kitchen counter, bright morning sunlight, realistic skin, 8k resolution",
+      "Candice (40y blonde step-mom) in tight black yoga pants and a crop top, stretching in a living room, athletic build, high-fidelity textures, cinematic lighting",
+      "Candice (40y blonde step-mom) in an open silk robe, walking down a hallway, hair in loose waves, elegant yet bold, Juggernaut-XL style",
+      "Candice (40y blonde step-mom) in exquisite black lace lingerie, laying on a bed, provocative posture, warm boudoir lighting, masterpiece realism",
+      "Candice (40y blonde step-mom) completely exposed, standing in a shower, steam in the air, water droplets on skin, hyper-realistic, stunning beauty"
+    ]
+  },
+  {
+    "id": "lexi_sons_girlfriend",
+    "name": "Lexi (Son's GF)",
+    "prompts": [
+      "Lexi (21y brunette, sultry eyes, fit hourglass 34D) in a tight short bodycon dress, standing in a kitchen at night, leaning back, seductive expression, cinematic moonlight, high-fidelity",
+      "Lexi (21y brunette) in a tight sports bra and shorts, sitting on a couch, looking up with a playful smile, 4k realistic skin, masterpiece quality",
+      "Lexi (21y brunette) in a silk sleep nightie, standing in a doorway, soft glow from behind, ethereal yet seductive, Juggernaut-XL textures",
+      "Lexi (21y brunette) in a black lace lingerie set, standing before a full-length mirror, provocative pose, luxury bedroom setting, hyper-realistic",
+      "Lexi (21y brunette) completely exposed, kneeling on a bed, messy hair, intense desire in eyes, softest shadows, masterpiece achievement"
+    ]
+  }
+]

@@ -176,6 +176,9 @@ import greta_v1 from './greta_v1.js';
 import la_jefa_v1 from './la_jefa_v1.js';
 import seraphina_v1 from './seraphina_v1.js';
 import vivienne_v1 from './vivienne_v1.js';
+import maya_peeping_stepdaughter from './maya_peeping_stepdaughter.js';
+import candice_shared_stepmom from './candice_shared_stepmom.js';
+import lexi_sons_girlfriend from './lexi_sons_girlfriend.js';
 
 
 export const characters = [
@@ -357,4 +360,7 @@ export const characters = [
   la_jefa_v1,
   seraphina_v1,
   vivienne_v1,
+  maya_peeping_stepdaughter,
+  candice_shared_stepmom,
+  lexi_sons_girlfriend,
 ];
