@@ -6,8 +6,9 @@ A high-fidelity AI roleplay application with dynamic persona generation, memory 
 
 ### Local Development
 1. Install dependencies: `npm install`
-2. Run development server: `npm run dev`
-3. Ensure **LM Studio** and **ComfyUI** are running locally.
+2. **Launch all services**: Run `.\start.ps1` in PowerShell.
+   - This automatically starts **Vite** and **ComfyUI**.
+   - Ensure **LM Studio** is running on port 1234.
 
 ### 🌐 Deploying to NAS
 This project includes full support for deployment on specialized NAS hardware like the **Ugreen DXP 4800 Plus**.
