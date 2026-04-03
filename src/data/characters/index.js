@@ -178,15 +178,16 @@ import seraphina_v1 from './seraphina_v1.js';
 import vivienne_v1 from './vivienne_v1.js';
 import maya_peeping_stepdaughter from './maya_peeping_stepdaughter.js';
 import candice_shared_stepmom from './candice_shared_stepmom.js';
+import malia_secret_reunion from './malia_secret_reunion.js';
 import lexi_sons_girlfriend from './lexi_sons_girlfriend.js';
 import evelyn_strict_guardian from './evelyn_strict_guardian.js';
 import brianna_ex_sister_in_law from './brianna_ex_sister_in_law.js';
 import jade_exchange_sister from './jade_exchange_sister.js';
-import sienna_secret_reunion from './sienna_secret_reunion.js';
 
 
 export const characters = [
-  sienna_secret_reunion,
+  malia_secret_reunion,
+  lexi_sons_girlfriend,
   aditi_friends_wife,
   amber_yoga_instructor,
   amira_velvet_club,
