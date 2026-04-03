@@ -179,6 +179,9 @@ import vivienne_v1 from './vivienne_v1.js';
 import maya_peeping_stepdaughter from './maya_peeping_stepdaughter.js';
 import candice_shared_stepmom from './candice_shared_stepmom.js';
 import lexi_sons_girlfriend from './lexi_sons_girlfriend.js';
+import evelyn_strict_guardian from './evelyn_strict_guardian.js';
+import brianna_ex_sister_in_law from './brianna_ex_sister_in_law.js';
+import jade_exchange_sister from './jade_exchange_sister.js';
 
 
 export const characters = [
@@ -363,4 +366,7 @@ export const characters = [
   maya_peeping_stepdaughter,
   candice_shared_stepmom,
   lexi_sons_girlfriend,
+  evelyn_strict_guardian,
+  brianna_ex_sister_in_law,
+  jade_exchange_sister,
 ];
