@@ -160,12 +160,19 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     useEffect(() => {
         if (!isDataLoaded) return;
         
-        // Auto-Avatar Logic
+        // Auto-Avatar Logic — do NOT call setActivePersonaImage here (it's in deps, causes loop)
+        // Instead, compute the target and pass it directly to db.setItem
+        let imageToSave = activePersonaImage;
+        
+        // Fix missing leading slash for local assets (without calling setState)
+        if (imageToSave && imageToSave.startsWith('assets/')) {
+            imageToSave = '/' + imageToSave;
+        }
+
         if (!isAvatarManual && persona.wardrobe && persona.wardrobe.length > 0) {
             let targetImage = persona.image;
             const score = relationshipScore;
-            
-            // Logic: High score + High intensity = more intimate/flirty looks
+
             if (score >= 90 && intensity >= 4) {
                 targetImage = persona.wardrobe[persona.wardrobe.length - 1].avatar;
             } else if (score >= 70) {
@@ -175,7 +182,8 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             }
 
             if (targetImage !== activePersonaImage) {
-                setActivePersonaImage(targetImage);
+                // Use a timeout to break out of the render cycle before updating state
+                setTimeout(() => setActivePersonaImage(targetImage), 0);
             }
         }
 
@@ -189,11 +197,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         db.setItem('memories', `encounters${suffix}`, encounterStats);
         db.setItem('settings', `scene${suffix}`, currentSceneId);
         db.setItem('settings', `invited${suffix}`, invitedPersona);
-        db.setItem('settings', `active_image${suffix}`, activePersonaImage);
-        // Force leading slash for local assets if missing
-        if (activePersonaImage && activePersonaImage.startsWith('assets/')) {
-            setActivePersonaImage('/' + activePersonaImage);
-        }
+        db.setItem('settings', `active_image${suffix}`, imageToSave);
         db.setItem('settings', `location${suffix}`, currentLocationId);
         db.setItem('settings', `relation${suffix}`, customRelation);
         db.setItem('settings', `avatar_manual${suffix}`, isAvatarManual);
@@ -230,7 +234,10 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         };
         checkMilestones();
 
-    }, [messages, memory, relationshipScore, intensity, milestones, traits, encounterStats, currentSceneId, invitedPersona, activePersonaImage, currentLocationId, persona.id, sessionId, isDataLoaded, currentMood, inventory, narrativeSettings]);
+    // NOTE: activePersonaImage intentionally removed from deps to avoid self-triggering loop.
+    // It is read at the top of this effect and saved correctly.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [messages, memory, relationshipScore, intensity, milestones, traits, encounterStats, currentSceneId, invitedPersona, currentLocationId, persona.id, sessionId, isDataLoaded, currentMood, inventory, narrativeSettings, isAvatarManual, customRelation]);
 
     const startNewSession = async () => {
         setIsDataLoaded(false);
