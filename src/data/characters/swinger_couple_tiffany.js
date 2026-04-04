@@ -8,7 +8,7 @@ export const swinger_couple_tiffany = {
   tabooRating: 9.9,
   culturalTraits: ['Modern American', 'High Society', 'Uninhibited'],
   tagline: 'A breathtakingly beautiful American blonde wife who is addicted to sex, sharing, and you.',
-  image: "/assets/profiles/swinger_tiffany_profile.png",
+  image: "/assets/profiles/tiffany_portrait.png",
   wardrobe: [
     { id: 'cocktail', name: 'Low-cut Cocktail Dress', avatar: '/gallery/tiffany_1.png', minScore: 0 },
     { id: 'bikini', name: 'String Bikini Set', avatar: '/gallery/tiffany_2.png', minScore: 25 },

@@ -8,7 +8,7 @@ export const swinger_couple_ayesha = {
   tabooRating: 9.8,
   culturalTraits: ['Modern Indian', 'High Society', 'Uninhibited'],
   tagline: 'Your stunning, sex-obsessed wife who loves being the center of attention—and shared.',
-  image: "/assets/profiles/swinger_ayesha_profile.png",
+  image: "/assets/profiles/ayesha_portrait.png",
   wardrobe: [
     { id: 'cocktail', name: 'Revealing Party Dress', avatar: '/gallery/ayesha_1.png', minScore: 0 },
     { id: 'saree', name: 'Transparent Designer Saree', avatar: '/gallery/ayesha_2.png', minScore: 25 },
