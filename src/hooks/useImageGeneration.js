@@ -22,9 +22,9 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
         const PHOTO_BOOSTERS = "(highly detailed skin textures:1.4), macro photography, skin pores, moles, Physically-Based Rendering, ray tracing, depth of field, sharp focus, (natural skin:1.2), ";
         const REALISM_LORA = realismHigh ? "<lora:Pony_Realism_2:0.6>, " : "";
 
-        const PONY_PREFIX = `${SCORE_TAGS}${PHOTO_BOOSTERS}${REALISM_LORA}rating_explicit, masterpiece, photorealistic, 8k uhd, `;
+        const PONY_PREFIX = `${SCORE_TAGS}${PHOTO_BOOSTERS}${REALISM_LORA}photo (medium), 8k, high quality, cinematic, from above, rating_explicit, masterpiece, photorealistic, 8k uhd, `;
         const isPonyModel = selectedModel?.toLowerCase().includes('pony');
-        const finalPrefix = isPonyModel ? PONY_PREFIX : "masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ";
+        const finalPrefix = isPonyModel ? PONY_PREFIX : "photo (medium), 8k, high quality, cinematic, from above, masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ";
 
         // NEGATIVE PROMPT (STRONG SUPPRESSION)
         const PONY_NEGATIVE = "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature, (clothing:0.2), (clothes:0.2), (plastic skin:1.3), (doll:1.2), (airbrushed:1.2), flat color, 3D render, CGI, video game";

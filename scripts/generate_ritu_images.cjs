@@ -5,7 +5,7 @@ const http = require('http');
 const COMFY_URL = 'http://127.0.0.1:8000';
 const OUTPUT_DIR = 'c:/Users/rgira/chatexperince/public/gallery';
 const PROFILE_DIR = 'c:/Users/rgira/chatexperince/public/assets/profiles';
-const WORKFLOW_FILE = 'C:/Users/rgira/.gemini/antigravity/brain/8604d1fc-cb0d-4397-a9ec-09a14e5bc98d/comfy_workflow_sdxl.json';
+const WORKFLOW_FILE = 'c:/Users/rgira/chatexperince/scripts/comfy_workflow_hq.json';
 
 const REF_IMAGE_NAME = 'ref.png';
 const REF_IMAGE_PATH = path.join(PROFILE_DIR, REF_IMAGE_NAME);
@@ -49,7 +49,7 @@ async function uploadImage(imagePath, filename) {
 async function generateImage(prompt, index, targetPath) {
     console.log(` [${index}] Generating image...`);
     const workflow = JSON.parse(fs.readFileSync(WORKFLOW_FILE, 'utf8'));
-    workflow['6'].inputs.text = prompt;
+    workflow['6'].inputs.text = `photo (medium), 8k, high quality, cinematic, from above, ${prompt}`;
     workflow['3'].inputs.seed = 1774209096269 + index; // Use a fixed seed based on profile timestamp for consistency
     
     const postData = JSON.stringify({ prompt: workflow });

@@ -23,14 +23,14 @@ def get_workflow(prompt, filename):
                     "model": ["4", 0],
                     "positive": ["6", 0],
                     "negative": ["7", 0],
-                    "sampler_name": "dpmpp_2m_sde_gpu",
+                    "sampler_name": "dpmpp_2m_sde",
                     "scheduler": "karras",
                     "seed": int(time.time()),
-                    "steps": 30
+                    "steps": 50
                 }
             },
-            "4": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": "Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors"}},
-            "6": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["4", 1], "text": f"(high-fidelity, 3+ people, group focus, interaction, sharp focus, masterpiece, realistic skin textures, 8k) {prompt}"}},
+            "4": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": "bigLust_v16.safetensors"}},
+            "6": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["4", 1], "text": f"photo (medium), 8k, high quality, cinematic, from above, (high-fidelity, 3+ people, group focus, interaction, sharp focus, masterpiece, realistic skin textures, 8k) {prompt}"}},
             "7": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["4", 1], "text": "bad anatomy, blurry, distorted, extra limbs, low quality, simple background, text"}},
             "8": {"class_type": "VAEDecode", "inputs": {"samples": ["3", 0], "vae": ["4", 2]}},
             "9": {"class_type": "SaveImage", "inputs": {"filename_prefix": filename, "images": ["8", 0]}}

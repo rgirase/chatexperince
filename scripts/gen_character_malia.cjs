@@ -37,10 +37,10 @@ async function generateCharacter() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     "prompt": {
-                        "3": { "class_type": "KSampler", "inputs": { "seed": Math.floor(Math.random() * 1000000), "steps": 30, "cfg": 7, "sampler_name": "dpmpp_2m", "scheduler": "karras", "denoise": 1, "model": ["4", 0], "positive": ["6", 0], "negative": ["7", 0], "latent_image": ["5", 0] } },
-                        "4": { "class_type": "CheckpointLoaderSimple", "inputs": { "ckpt_name": "Juggernaut-XL_v9.safetensors" } },
+                        "3": { "class_type": "KSampler", "inputs": { "seed": Math.floor(Math.random() * 1000000), "steps": 50, "cfg": 7, "sampler_name": "dpmpp_2m_sde", "scheduler": "karras", "denoise": 1, "model": ["4", 0], "positive": ["6", 0], "negative": ["7", 0], "latent_image": ["5", 0] } },
+                            "4": { "class_type": "CheckpointLoaderSimple", "inputs": { "ckpt_name": "bigLust_v16.safetensors" } },
                         "5": { "class_type": "EmptyLatentImage", "inputs": { "width": 832, "height": 1216, "batch_size": 1 } },
-                        "6": { "class_type": "CLIPTextEncode", "inputs": { "text": task.prompt, "clip": ["4", 1] } },
+                        "6": { "class_type": "CLIPTextEncode", "inputs": { "text": `photo (medium), 8k, high quality, cinematic, from above, ${task.prompt}`, "clip": ["4", 1] } },
                         "7": { "class_type": "CLIPTextEncode", "inputs": { "text": "bad eyes, bad hands, low quality, blurry, deformed, cartoon, anime, 3d, rendering", "clip": ["4", 1] } },
                         "8": { "class_type": "VAEDecode", "inputs": { "samples": ["3", 0], "vae": ["4", 2] } },
                         "9": { "class_type": "SaveImage", "inputs": { "filename_prefix": `new_premium_`, "images": ["8", 0] } }

@@ -16,10 +16,10 @@ const workflow_template = {
       "model": ["4", 0],
       "negative": ["7", 0],
       "positive": ["6", 0],
-      "sampler_name": "dpmpp_2m",
+      "sampler_name": "dpmpp_2m_sde",
       "scheduler": "karras",
       "seed": 0,
-      "steps": 35
+      "steps": 50
     }
   },
   "4": {
@@ -79,7 +79,7 @@ const workflow_template = {
   }
 };
 
-const PONY_PREFIX = "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_explicit, ";
+const PONY_PREFIX = "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, photo (medium), 8k, high quality, cinematic, from above, rating_explicit, ";
 
 const prompts = [
   {

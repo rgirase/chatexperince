@@ -16,24 +16,24 @@ const workflow_template = {
       "model": ["4", 0],
       "negative": ["7", 0],
       "positive": ["6", 0],
-      "sampler_name": "dpmpp_2m",
+      "sampler_name": "dpmpp_2m_sde",
       "scheduler": "karras",
       "seed": 0,
-      "steps": 30
+      "steps": 50
     }
   },
   "4": {
     "class_type": "CheckpointLoaderSimple",
     "inputs": {
-      "ckpt_name": "Juggernaut-XL_v9.safetensors"
+      "ckpt_name": "bigLust_v16.safetensors"
     }
   },
   "5": {
     "class_type": "EmptyLatentImage",
     "inputs": {
       "batch_size": 1,
-      "height": 1024,
-      "width": 1024
+      "height": 1216,
+      "width": 832
     }
   },
   "6": {
@@ -101,7 +101,7 @@ const prompts = [
 
 async function queuePrompt(promptText) {
   const workflow = JSON.parse(JSON.stringify(workflow_template));
-  workflow["6"]["inputs"]["text"] = promptText;
+  workflow["6"]["inputs"]["text"] = `photo (medium), 8k, high quality, cinematic, from above, ${promptText}`;
   workflow["3"]["inputs"]["seed"] = Math.floor(Math.random() * 1000000);
 
   return new Promise((resolve, reject) => {

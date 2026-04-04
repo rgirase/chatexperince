@@ -98,7 +98,7 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
     const [activeCategory, setActiveCategory] = useState("Positions");
     const [searchQuery, setSearchQuery] = useState("");
     const [aspectRatio, setAspectRatio] = useState('portrait');
-    const [selectedModel, setSelectedModel] = useState(localStorage.getItem('lastSelectedPonyModel') || "realismByStableYogi_ponyV3VAE.safetensors");
+    const [selectedModel, setSelectedModel] = useState(localStorage.getItem('lastSelectedPonyModel') || "bigLust_v16.safetensors");
     const [selectedClothing, setSelectedClothing] = useState('none');
     const [selectedColor, setSelectedColor] = useState('none');
     const [selectedSkin, setSelectedSkin] = useState('none');
@@ -408,7 +408,16 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
 
                                         <div>
                                             <div style={{ color: '#c084fc', fontSize: '0.75rem', marginBottom: '6px', fontWeight: 'bold' }}>Diffusion Model</div>
-                                            <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} className="premium-select" style={{ width: '100%', padding: '10px', fontSize: '0.8rem' }}>
+                                            <select 
+                                                value={selectedModel} 
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    setSelectedModel(val);
+                                                    localStorage.setItem('lastSelectedPonyModel', val);
+                                                }} 
+                                                className="premium-select" 
+                                                style={{ width: '100%', padding: '10px', fontSize: '0.8rem' }}
+                                            >
                                                 {AVAILABLE_MODELS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                             </select>
                                         </div>
