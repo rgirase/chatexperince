@@ -709,63 +709,154 @@ Return ONLY the summary sentence. No intros or outros.
     }
 };
 
-export const generateVisualPrompt = async (persona, messages) => {
-    const charName = getShortName(persona.name);
-    const url = getLmStudioUrl();
-    // Transcript (last 10 messages):
-    const recent = messages.slice(-10);
-    const transcript = recent.map(msg => {
-        const name = msg.role === 'user' ? 'User' : (msg.personaName || charName);
-        return `${name}: ${msg.content}`;
-    }).join('\n\n');
+export const generateComicPanels = async (persona, messages, situation, location, userProfile = {}) => {
+    try {
+        const charName = getShortName(persona.name);
+        const url = getLmStudioUrl();
+        const userName = userProfile.name || "User";
+        const userAppearance = userProfile.appearance || "a standard person";
+        
+        // Transcript (last 15 messages for more continuity)
+        const recent = Array.isArray(messages) ? messages.slice(-15) : [];
+        const transcript = recent.map(msg => {
+            const name = msg.role === 'user' ? userName : (msg.personaName || charName);
+            return `${name}: ${msg.content}`;
+        }).join('\n\n');
+        const appearance = (persona.systemPrompt || persona.prompt || "").match(/APPEARANCE:\s*(.*?)(?=\n|$)/i)?.[1] || "As described in roleplay";
+        
+        const prompt = `You are a cinematic comic board artist and image prompt engineer.
+Review the following roleplay interaction between ${userName} and ${charName}.
 
-    const prompt = `You are an AI image prompt engineer.
-Review the following recent roleplay interaction.
+### CONTEXT
+Location: ${location?.name || 'Unknown Location'} (${location?.description || 'N/A'})
+Current Situation: ${situation || 'None'}
+Persona (${charName}): ${persona.tagline}. Appearance: ${appearance}
+User (${userName}): ${userAppearance}
 
-Transcript (last 10 messages):
+### INTERACTION (Last 15 Messages)
 ${transcript}
 
-Task: Generate a high-quality visual prompt for an image that captures the CURRENT immediate scene.
-Focus on:
-1. Exact Poses and Physicality: (e.g., "sitting on the edge of the bed", "leaning against the counter", "naked with a sheet draped over her").
-2. Environment & Lighting: (e.g., "dimly lit bedroom", "warm golden hour light", "modern apartment background").
-3. Specific Clothing Status: (e.g., "wearing only a silk robe", "completely nude", "fully dressed in a business suit").
-4. Emotions & Facial Expression: (e.g., "seductive smirk", "breathless and wide-eyed", "looking away shyly").
+### TASK
+Generate 1 to 3 distinct visual prompts (panels) that visualize the progression of the scene right NOW.
+- Show the interaction between ${userName} and ${charName}.
+- Each panel should represent a sequential moment or a different angle of the current action.
+- Focus on environmental storytelling and scenario-specific items mentioned in the transcript.
+- [CRITICAL: The visual details MUST be derived directly from the provided roleplay interaction. Do NOT generate generic scenes.]
 
-Format: Provide the prompt as a single comma-separated list of visual tags. 
-Rules:
-- NO full sentences. 
-- NO meta-talk or intros.
-- Include ONLY visual details.
-- Avoid abstract words; use concrete physical descriptions.
+### FORMAT RULES
+- Return a VALID JSON object if possible.
+- Key: "panels" (array of strings).
+- If JSON is not possible, return each panel on a new line started with "1.", "2.", "3.".
+- Each string: comma-separated visual tags (no sentences).
+- Focus on: Exact poses, physical contact/proximity, clothing status, and background details.
 
-Example Output: "sitting cross-legged on a plush bed, wearing a translucent black nightie, messy hair, looking at camera with a playful smile, soft ambient lighting, high contrast"
+Example JSON Output:
+{
+  "panels": [
+    "sitting together on a leather sofa, ${charName} leaning head on ${userName}'s shoulder, ${userName} holding a wine glass, cozy living room, warm firelight",
+    "close up on ${charName}'s face, blushing and smiling at ${userName}, soft focus background"
+  ]
+}
 
-Return ONLY the prompt string.`;
+Return ONLY the JSON.`;
 
-    try {
+        const modelId = await ensureValidModel();
+        console.log(`[LLM] Generating comic panels using model: ${modelId}`);
+
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: await ensureValidModel(),
-                messages: [{ role: "user", content: prompt }],
-                temperature: 0.7,
-                max_tokens: 100,
-                stream: false,
+                model: modelId,
+                messages: [
+                    { role: "system", content: "You are a specialized JSON assistant that outputs visual image prompts for comics. You ONLY output valid JSON." },
+                    { role: "user", content: prompt }
+                ],
+                temperature: 0.8,
+                max_tokens: 800,
+                stream: false
+                // Removed response_format to prevent 400 errors on local models
             }),
         });
 
-        if (!response.ok) return null;
+        if (!response.ok) {
+            let errorText = "";
+            try {
+                const errorData = await response.json();
+                errorText = errorData.error?.message || response.statusText;
+            } catch (e) {
+                errorText = response.statusText;
+            }
+            console.error(`[LLM] Comic panels fetch failed: ${response.status} - ${errorText}`);
+            return null;
+        }
+
         const data = await response.json();
         let content = data.choices?.[0]?.message?.content || "";
-        return cleanLeakage(content.trim());
+        console.log(`[LLM] Comic Panels raw output (length: ${content.length})`);
+        
+        // --- ROBUST EXTRACTION ---
+        try {
+            // 1. Strip thinking blocks if present (DeepSeek effect)
+            content = content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
+            // 2. Try to find JSON within the string
+            const jsonMatch = content.match(/\{[\s\S]*\}/);
+            const jsonToParse = jsonMatch ? jsonMatch[0] : content;
+            const parsed = JSON.parse(jsonToParse);
+            
+            if (parsed && Array.isArray(parsed.panels) && parsed.panels.length > 0) {
+                return parsed.panels;
+            }
+            if (parsed && typeof parsed.panels === 'string') return [parsed.panels];
+            throw new Error("Invalid panels format in JSON");
+        } catch (e) {
+            console.warn(`[LLM] JSON parse failed for comic panels, trying robust fallbacks...`, e);
+            
+            // 3. Fallback: Check for a clear JSON-like array pattern [ "...", "..." ]
+            const arrayMatch = content.match(/\[\s*"[\s\S]*?"\s*\]/);
+            if (arrayMatch) {
+                try {
+                    const extractedArray = JSON.parse(arrayMatch[0]);
+                    if (Array.isArray(extractedArray)) return extractedArray;
+                } catch(e) {}
+            }
+
+            // 4. Fallback: Split by common list patterns (1., 2., 3., or Panels: ...)
+            // Remove the thinking block and JSON tags if they exist
+            let textOutput = content.replace(/\{[\s\S]*\}/g, '').trim();
+            if (!textOutput) textOutput = content; // If we stripped everything, use original
+
+            // Try splitting by newline-prefixed numbers or bullet points
+            const lines = textOutput.split(/\n(?:\d+\.|\*|-|Panel \d+:)/gi)
+                .map(l => l.trim())
+                .filter(l => l.length > 20 && !l.toLowerCase().includes('panels:'));
+            
+            if (lines.length > 0) {
+                console.log(`[LLM] Extracted ${lines.length} panels via list splitting.`);
+                return lines.slice(0, 3); // Max 3
+            }
+
+            // 5. Ultimate fallback: Use the whole thing if it looks like a visual prompt
+            const cleanRaw = textOutput.replace(/[{}\[\]]/g, '').trim();
+            if (cleanRaw.length > 10) {
+                return [cleanRaw];
+            }
+            
+            return null;
+        }
     } catch (error) {
-        console.error("Error generating visual prompt:", error);
+        console.error("Critical error in generateComicPanels:", error);
         return null;
     }
+};
+
+/**
+ * Backward compatibility wrapper for generating a single visual prompt.
+ */
+export const generateVisualPrompt = async (persona, messages) => {
+    const panels = await generateComicPanels(persona, messages);
+    return (panels && panels.length > 0) ? panels[0] : null;
 };
 
 export const generateDiaryEntry = async (persona, messages) => {

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     ArrowLeft, Heart, Gift, Shirt, Book, History, Trash2, Home, Sparkles, 
     Flame, UserPlus, Wand2, MapPin, Map as MapIcon, Image as ImageIcon, MessageSquare, 
-    Users, MoreVertical, Brain, Package, Sliders, Eye, EyeOff, Camera
+    Users, MoreVertical, Brain, Package, Sliders, Eye, EyeOff, Camera, BookOpen, Terminal
 } from 'lucide-react';
 import AuraPulse from './AuraPulse';
 import MoodOverlay from './MoodOverlay';
@@ -41,7 +41,9 @@ const ChatHeader = ({
     isImmersionMode, // Phase 4
     onToggleImmersion, // Phase 4
     onOpenDirector, // Phase 4
-    onOpenActionLibrary // Phase 4
+    onOpenActionLibrary, // Phase 4
+    onGenerateComic, // New Feature
+    onOpenLogs
 }) => {
     const menuRef = useRef(null);
 
@@ -123,6 +125,21 @@ const ChatHeader = ({
             <div className="chat-header-actions" style={{ display: 'flex', gap: '4px', alignItems: 'center', flexShrink: 0 }}>
                 <div style={{ position: 'relative' }} ref={menuRef}>
                     <button 
+                        onClick={onGenerateComic} 
+                        className="header-action-btn"
+                        title="Generate Comic Story Image"
+                        style={{ 
+                            background: 'rgba(244, 114, 182, 0.1)', 
+                            color: '#f472b6', 
+                            border: '1px solid rgba(244, 114, 182, 0.2)', 
+                            padding: '6px', 
+                            borderRadius: '10px' 
+                        }}
+                    >
+                        <BookOpen size={20} />
+                    </button>
+
+                    <button 
                         onClick={onToggleImmersion} 
                         className="header-action-btn"
                         title={isImmersionMode ? "Exit Immersion" : "Enter Immersion"}
@@ -136,7 +153,6 @@ const ChatHeader = ({
                     >
                         {isImmersionMode ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
-
                     <button 
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
                         className="header-action-btn"
@@ -194,6 +210,7 @@ const ChatHeader = ({
                                     
                                     <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
                                     
+                                    <button onClick={() => { onGenerateComic(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#f472b6' }}><BookOpen size={18} /> Comic Story Image</button>
                                     <button onClick={() => { onGenerateSceneImage(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#a855f7' }}><Wand2 size={18} /> Generate Scene Look</button>
                                     <button onClick={() => { onOpenStoryMap(); setIsMobileMenuOpen(false); }} className="menu-item"><MapIcon size={18} /> Story Progression Map</button>
                                     <button onClick={() => { onSceneChange(); setIsMobileMenuOpen(false); }} className="menu-item"><MapPin size={18} /> Change Location</button>
@@ -222,7 +239,8 @@ const ChatHeader = ({
                                     </div>
     
                                     <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
-                                    
+                                    <span style={{ padding: '0 0.75rem', fontSize: '0.65rem', color: '#71717a', textTransform: 'uppercase' }}>System & Debug</span>
+                                    <button onClick={() => { onOpenLogs(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#39a2db' }}><Terminal size={18} /> System Logs (Mobile Console)</button>
                                     <button onClick={() => { onClearChat(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#f43f5e' }}><Trash2 size={18} /> Reset Chat</button>
                                     <button onClick={() => { onGoHome(); setIsMobileMenuOpen(false); }} className="menu-item"><Home size={18} /> Exit to Home</button>
                                 </motion.div>

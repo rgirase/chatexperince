@@ -2,6 +2,10 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
+import logger from './services/logger'
+
+// Initialize in-app logging
+logger.init();
 
 console.log("%c [Aura] main.jsx v4 Loading...", "color: #8b5cf6; font-weight: bold;");
 

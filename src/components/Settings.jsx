@@ -3,7 +3,11 @@ import { ArrowLeft, Save, Plus, Trash2, Home, RefreshCw, Sparkles } from 'lucide
 import { fetchAvailableModels, getLmStudioUrl, getSdUrl } from '../services/llm';
 import * as db from '../services/db';
 
-import { DEFAULT_LM_STUDIO_URL, DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_LM_STUDIO_MODEL, DEFAULT_COMFY_WORKFLOW, DEFAULT_PONY_WORKFLOW } from '../config';
+import { 
+    DEFAULT_LM_STUDIO_URL, DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, 
+    DEFAULT_LM_STUDIO_MODEL, DEFAULT_COMFY_WORKFLOW, DEFAULT_PONY_WORKFLOW,
+    AVAILABLE_PONY_MODELS 
+} from '../config';
 
 const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitchServer }) => {
     const [lmStudioUrl, setLmStudioUrl] = useState('');
@@ -21,6 +25,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
     const [userName, setUserName] = useState('');
     const [userAppearance, setUserAppearance] = useState('');
     const [userBackground, setUserBackground] = useState('');
+    const [preferredComicModel, setPreferredComicModel] = useState('disneyrealcartoonmix_v10.safetensors');
 
     // Endpoint Management States
     const [lmSavedEndpoints, setLmSavedEndpoints] = useState([]);
@@ -40,6 +45,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
         setUserName(localStorage.getItem('userName') || '');
         setUserAppearance(localStorage.getItem('userAppearance') || '');
         setUserBackground(localStorage.getItem('userBackground') || '');
+        setPreferredComicModel(localStorage.getItem('preferredComicModel') || 'disneyrealcartoonmix_v10.safetensors');
 
         // Load saved endpoints
         try {
@@ -99,6 +105,7 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
         localStorage.setItem('userName', userName);
         localStorage.setItem('userAppearance', userAppearance);
         localStorage.setItem('userBackground', userBackground);
+        localStorage.setItem('preferredComicModel', preferredComicModel);
         
         localStorage.setItem('lmSavedEndpoints', JSON.stringify(lmSavedEndpoints));
         localStorage.setItem('sdSavedEndpoints', JSON.stringify(sdSavedEndpoints));
@@ -376,6 +383,20 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                         <option value="drawthings">Draw Things (Mac)</option>
                         <option value="diffusionbee">Diffusion Bee (Mac)</option>
                     </select>
+                </div>
+
+                <div style={{ marginBottom: '2rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#f472b6', fontWeight: 'bold' }}>Preferred Comic Story Model</label>
+                    <select
+                        value={preferredComicModel}
+                        onChange={(e) => setPreferredComicModel(e.target.value)}
+                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #f472b6', color: 'white' }}
+                    >
+                        {AVAILABLE_PONY_MODELS.map(m => (
+                            <option key={m.id} value={m.id}>{m.name}</option>
+                        ))}
+                    </select>
+                    <p style={{ margin: '8px 0 0 0', fontSize: '0.7rem', color: '#71717a' }}>This model will be used when you click the "Comic Story" button in a chat.</p>
                 </div>
 
                 <div style={{ marginBottom: '2rem' }}>

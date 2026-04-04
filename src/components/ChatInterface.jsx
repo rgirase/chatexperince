@@ -13,6 +13,7 @@ import { useChatLogic } from '../hooks/useChatLogic';
 import StoryMap from './sub/StoryMap';
 import { useImageGeneration } from '../hooks/useImageGeneration';
 import { getLocation } from '../services/LocationService';
+import { generateVisualPrompt, generateComicPanels } from '../services/llm';
 import LocationSwitcher from './sub/LocationSwitcher';
 import * as db from '../services/db';
 import ParticleEffect from './sub/ParticleEffect';
@@ -22,6 +23,7 @@ import AdultActionsModal from './sub/AdultActionsModal';
 import InventoryModal from './sub/InventoryModal';
 import DirectorSettingsModal from './sub/DirectorSettingsModal';
 import ActionLibraryModal from './sub/ActionLibraryModal';
+import LogViewerModal from './sub/LogViewerModal';
 
 const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, scenario }) => {
     // --- UI VIEW STATE ---
@@ -43,6 +45,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     const [isImmersionMode, setIsImmersionMode] = useState(false); // Phase 4
     const [isDirectorOpen, setIsDirectorOpen] = useState(false);   // Phase 4
     const [isActionLibraryOpen, setIsActionLibraryOpen] = useState(false); // Phase 4
+    const [isLogViewerOpen, setIsLogViewerOpen] = useState(false); // New log viewer
     
     // Phase 7 WhatsApp UI
     const [isStatusOpen, setIsStatusOpen] = useState(false);
@@ -175,6 +178,59 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         generateSelfie(prompt, Date.now().toString(), aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated);
     };
 
+    const handleGenerateComic = async () => {
+        try {
+            showToast("Analyzing story context for multi-panel comic...", "info");
+            
+            const userProfile = {
+                name: localStorage.getItem('userName') || 'User',
+                appearance: localStorage.getItem('userAppearance') || 'average height, casual clothing'
+            };
+            const location = getLocation(currentLocationId);
+
+            console.log(`[ComicGen] Starting generation for ${persona.name} at ${location.name}`);
+            const panels = await generateComicPanels(persona, messages, currentSituation, location, userProfile);
+            
+            if (!panels || !Array.isArray(panels) || panels.length === 0) {
+                console.error("[ComicGen] Failed to derive panels. Raw result:", panels);
+                showToast("Failed to derive visual context for panels.");
+                return;
+            }
+            
+            console.log(`[ComicGen] Successfully derived ${panels.length} panels:`, panels);
+            
+            // Use specialized cartoon model from settings
+            const comicModel = localStorage.getItem('preferredComicModel') || "disneyrealcartoonmix_v10.safetensors";
+            
+            for (let i = 0; i < panels.length; i++) {
+                const panelNum = i + 1;
+                const totalPanels = panels.length;
+                
+                showToast(`Generating Comic Panel ${panelNum}/${totalPanels}...`, "info");
+                
+                await generateSelfie(
+                    panels[i], 
+                    `${Date.now()}_panel_${i}`, 
+                    'portrait', 
+                    comicModel, 
+                    'none', 'none', 'none', 'cinematic', 
+                    false, 
+                    false, 
+                    true, // IS COMIC
+                    { index: panelNum, total: totalPanels } // Metadata for labeling
+                );
+                
+                // Small delay between panel triggers if there are more
+                if (i < panels.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                }
+            }
+        } catch (error) {
+            console.error("Comic generation failed:", error);
+            showToast("Failed to generate comic story.");
+        }
+    };
+
     const handleCheckStatus = async (msgId, promptId) => {
         try {
             showToast("Checking ComfyUI status...", "info");
@@ -304,6 +360,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 onToggleImmersion={() => setIsImmersionMode(!isImmersionMode)}
                 onOpenDirector={() => setIsDirectorOpen(true)}
                 onOpenActionLibrary={() => setIsActionLibraryOpen(true)}
+                onGenerateComic={handleGenerateComic}
+                onOpenLogs={() => setIsLogViewerOpen(true)}
             />
 
             <MessageList 
@@ -545,6 +603,13 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                         onClose={() => setIsInventoryOpen(false)}
                         items={inventory}
                         personaName={persona.name}
+                    />
+                )}
+
+                {isLogViewerOpen && (
+                    <LogViewerModal 
+                        isOpen={isLogViewerOpen}
+                        onClose={() => setIsLogViewerOpen(false)}
                     />
                 )}
             </AnimatePresence>

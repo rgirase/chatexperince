@@ -30,12 +30,16 @@ export const AVAILABLE_PONY_MODELS = [
     { id: "bigLust_v16.safetensors", name: "Premium: Big Lust v16 (Latest Realism)" },
     { id: "0184PONYLordkamix_v10.safetensors", name: "Pony: LordKamix v10 (Default)" },
     { id: "vendoPonyRealistic_v13Lora.safetensors", name: "Pony: Vendo Realistic v13" },
-    { id: "pornmasterProPony_realismV1.safetensors", name: "Pony: Pornmaster Pro Realism" },
-    { id: "realismByStableYogi_ponyV3VAE.safetensors", name: "Pony: Stable Yogi Realism V3" },
-    { id: "ponyMegaMixXL_v20.safetensors", name: "Pony: Mega Mix XL v2" },
+    { id: "4gbPONY4STEP2GB_fp8FullCheckpoint.safetensors", name: "Pony: 4-Step 2GB (Lite/Fast)" },
     { id: "aimrimPonyIllusSDXL_v10ILLFP16.safetensors", name: "Pony: Aimrim Illustrious" },
-    { id: "getphatPonyMysticEast_v30.safetensors", name: "Pony: Mystic East" },
+    { id: "ponyLoraLover_v10.safetensors", name: "Pony: Lora Lover v1.0" },
+    { id: "ponyMegaMixXL_v20.safetensors", name: "Pony: Mega Mix XL v2" },
+    { id: "cartoonStyle_v02.safetensors", name: "Pony: Cartoon Style v0.2" },
+    { id: "disneyrealcartoonmix_v10.safetensors", name: "Pony: Disney Real Cartoon Mix v1.0" },
+    { id: "alchemistMixReal_v20.safetensors", name: "Pony: Alchemist Mix Real v2.0 (New)" },
     { id: "vendoPonyAnimated_v10.safetensors", name: "Pony: Vendo Animated" },
+    { id: "realismByStableYogi_ponyV3VAE.safetensors", name: "Pony: Stable Yogi Realism V3" },
     { id: "Juggernaut-XL_v9.safetensors", name: "SDXL: Juggernaut XL v9 (Cinematic Realism)" },
-    { id: "v1-5-pruned-emaonly.safetensors", name: "SD 1.5: Base (Not Recommended)" }
+    { id: "realisticVisionV60B1_v51HyperVAE.safetensors", name: "SD 1.5: Realistic Vision V6.0 B1 (Hyper VAE)" },
+    { id: "Realistic_Vision_V6.0_NV_B1.safetensors", name: "SD 1.5: Realistic Vision V6.0 NV" }
 ];

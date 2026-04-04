@@ -6,29 +6,36 @@ import { CLOTHING_TYPES, COLORS, SKIN_TEXTURES, LIGHTING_MODES } from '../data/i
 export const useImageGeneration = (persona, setMessages, showToast) => {
     const isMounted = useRef(true);
 
-    const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait', selectedModel = null, clothing = '', color = '', skin = 'none', lighting = 'natural', realismHigh = false, isAnimated = false) => {
+    const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait', selectedModel = null, clothing = '', color = '', skin = 'none', lighting = 'natural', realismHigh = false, isAnimated = false, isComic = false, comicPanelInfo = null) => {
         const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
         const imageEngine = localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE;
 
         const photoMsgId = aiMessageId + "_photo";
-        setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: '*Sends a photo*', url: null }]);
+        
+        let msgContent = '*Sends a photo*';
+        if (isComic) {
+            msgContent = comicPanelInfo ? `*Generates comic panel ${comicPanelInfo.index}/${comicPanelInfo.total}*` : '*Generates a comic illustration*';
+        }
+
+        setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: msgContent, url: null }]);
 
         const charAppearance = persona.prompt?.match(/APPEARANCE:\s*(.*?)(?=\n|BACKSTORY:|$)/is)?.[1] || "";
         const charIdentity = persona.prompt?.match(/You are\s*(.*?)(?=\n|$)/i)?.[1] || persona.name;
         
-        // --- REALISM OVERHAUL (v3.0) ---
-        // Score tags are better with weights on Pony
+        // --- REALISM & COMIC OVERHAUL ---
         const SCORE_TAGS = "score_9, score_8_up, score_7_up, ";
-        const PHOTO_BOOSTERS = "(highly detailed skin textures:1.4), macro photography, skin pores, moles, Physically-Based Rendering, ray tracing, depth of field, sharp focus, (natural skin:1.2), ";
-        const REALISM_LORA = realismHigh ? "<lora:Pony_Realism_2:0.6>, " : "";
+        const PHOTO_BOOSTERS = "(highly detailed skin textures:1.4), macro photography, skin pores, skin textures, Physically-Based Rendering, ray tracing, depth of field, sharp focus, (natural skin:1.2), ";
+        const COMIC_BOOSTERS = "comic book style, bold lines, cel shaded, highly detailed illustration, vibrant colors, (ink outlines:1.2), masterpiece, (environmental storytelling:1.3), vivid background, ";
+        const REALISM_LORA = realismHigh && !isComic ? "<lora:Pony_Realism_2:0.6>, " : "";
 
-        const PONY_PREFIX = `${SCORE_TAGS}${PHOTO_BOOSTERS}${REALISM_LORA}photo (medium), 8k, high quality, cinematic, from above, rating_explicit, masterpiece, photorealistic, 8k uhd, `;
-        const isPonyModel = selectedModel?.toLowerCase().includes('pony');
-        const finalPrefix = isPonyModel ? PONY_PREFIX : "photo (medium), 8k, high quality, cinematic, from above, masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ";
+        const PONY_PREFIX = isComic ? COMIC_BOOSTERS : `${SCORE_TAGS}${PHOTO_BOOSTERS}${REALISM_LORA}photo (medium), 8k, high quality, cinematic, rating_explicit, masterpiece, photorealistic, 8k uhd, `;
+        const isPonyModel = selectedModel?.toLowerCase().includes('pony') || selectedModel?.toLowerCase().includes('lust') || selectedModel?.toLowerCase().includes('alchemist');
+        const finalPrefix = isPonyModel ? PONY_PREFIX : (isComic ? COMIC_BOOSTERS : "photo (medium), 8k, high quality, cinematic, masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ");
 
         // NEGATIVE PROMPT (STRONG SUPPRESSION)
-        const PONY_NEGATIVE = "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature, (clothing:0.2), (clothes:0.2), (plastic skin:1.3), (doll:1.2), (airbrushed:1.2), flat color, 3D render, CGI, video game";
-        const negativePrompt = isPonyModel ? PONY_NEGATIVE : "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature, (clothing:0.2), (clothes:0.2)";
+        const COMIC_NEGATIVE = "photorealistic, real life, 3d render, octane render, blurry, depth of field, realistic skin, photographic, photo, noise, grain, text, labels, watermarks";
+        const PONY_NEGATIVE = isComic ? COMIC_NEGATIVE : "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature, (clothing:0.2), (clothes:0.2), (plastic skin:1.3), (doll:1.2), (airbrushed:1.2), flat color, 3D render, CGI, video game";
+        const negativePrompt = isPonyModel ? PONY_NEGATIVE : (isComic ? COMIC_NEGATIVE : "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature, (clothing:0.2), (clothes:0.2)");
 
         const charLoras = {
             'hostage_brat_valentina': '<lora:valentina_pony_v1:0.9>',
@@ -49,7 +56,7 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
             clothingPart = `(${selectedClothingObj.text.replace('wearing ', `wearing ${colorText}`)}:1.4)`;
         }
 
-        const skinPart = selectedSkinObj ? selectedSkinObj.text : "";
+        const skinPart = (selectedSkinObj && !isComic) ? selectedSkinObj.text : "";
         const lightingPart = selectedLightingObj ? selectedLightingObj.text : "";
 
         const fullPrompt = `${finalPrefix}${charIdentity}, ${clothingPart ? clothingPart + ', ' : ''}${skinPart ? skinPart + ', ' : ''}${lightingPart ? lightingPart + ', ' : ''}${charAppearance}, ${charLora}, ${prompt}`;
@@ -83,7 +90,7 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 }
             } else if (imageEngine === 'comfyui') {
                 let comfyWorkflow = localStorage.getItem('comfyWorkflow');
-                const isPonyModel = selectedModel?.toLowerCase().includes('pony');
+                const isPonyModel = selectedModel?.toLowerCase().includes('pony') || selectedModel?.toLowerCase().includes('lust') || selectedModel?.toLowerCase().includes('alchemist');
                 
                 // Force default for animations to ensure node injection stability
                 if (isAnimated || !comfyWorkflow || !comfyWorkflow.includes('3')) {
@@ -210,7 +217,7 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
 
                 // POSITIVE PROMPT
                 if (workflowObj["6"]) {
-                    const isPonyModel = selectedModel?.toLowerCase().includes('pony');
+                    const isPonyModel = selectedModel?.toLowerCase().includes('pony') || selectedModel?.toLowerCase().includes('lust') || selectedModel?.toLowerCase().includes('alchemist');
                     const comfyPrefix = isPonyModel ? PONY_PREFIX : "masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ";
                     
                     if (workflowObj["6"].inputs.text.includes('__PROMPT__')) {
@@ -222,7 +229,7 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
 
                 // NEGATIVE PROMPT (NODE 7 IS STANDARD FOR NEGATIVE)
                 if (workflowObj["7"]) {
-                    const baseNeg = "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature";
+                    const baseNeg = isComic ? COMIC_NEGATIVE : "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature";
                     const clothingSuppression = clothingPart ? ", (clothing:0.1), (clothes:0.1)" : "";
                     workflowObj["7"].inputs.text = baseNeg + clothingSuppression;
                 }
@@ -295,7 +302,7 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
 
             if (base64Image) {
                 setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
-                showToast("Selfie received!", "success");
+                showToast(isComic ? `Panel ${comicPanelInfo?.index || ''} complete!` : "Selfie received!", "success");
                 
                 // Persistence
                 const saved = await db.getItem('chats', `chat_${persona.id}`);

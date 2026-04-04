@@ -250,9 +250,9 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
         return matchesSearch && matchesCategory && matchesRegion;
     }).map(p => {
         // Automatically flag the 31 most recent characters as "New"
-        // These are the Western Forbidden characters added in the last batches
+        // Also flag the first 10, as the user sometimes prepends new featured characters
         const index = uniquePersonas.findIndex(up => up.id === p.id);
-        const isRecent = index >= uniquePersonas.length - 31;
+        const isRecent = index < 10 || index >= uniquePersonas.length - 31;
         return { ...p, isNew: p.isNew || isRecent };
     }).sort((a, b) => {
         const aMeta = activeChatsMetadata[a.id];
@@ -271,10 +271,24 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
             }
         }
 
-        // 2. Default (including 'All' tab): Sort by 'Recently Added'
-        // Since characters are added to the end of the array, higher index = more recent
+        // 2. Default (including 'All' tab): Prioritize 'isNew'
+        if (a.isNew && !b.isNew) return -1;
+        if (!a.isNew && b.isNew) return 1;
+
+        // Both are new. Tiebreaker:
         const aIndex = uniquePersonas.findIndex(p => p.id === a.id);
         const bIndex = uniquePersonas.findIndex(p => p.id === b.id);
+
+        const aIsPrepended = aIndex < 10;
+        const bIsPrepended = bIndex < 10;
+
+        // Favor the prepended bucket (index 0 first) over the appended bucket
+        if (aIsPrepended && !bIsPrepended) return -1;
+        if (!aIsPrepended && bIsPrepended) return 1;
+
+        if (aIsPrepended && bIsPrepended) return aIndex - bIndex;
+
+        // 3. Fallback: Sort by index in array (higher index = more recent generally)
         return bIndex - aIndex;
     });
 
