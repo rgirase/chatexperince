@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, X, Wand2, Sparkles, Droplets, Flame, Skull, Utensils, Shirt, Palette, MapPin, Zap, Sun, Play, Layers, Settings, User, Search, Trash2, CheckCircle2 } from 'lucide-react';
 import { AVAILABLE_PONY_MODELS } from '../../config';
-import { CLOTHING_TYPES, COLORS, SKIN_TEXTURES, LIGHTING_MODES } from '../../data/imageGenOptions';
+import { CLOTHING_TYPES, COLORS, SKIN_TEXTURES, LIGHTING_MODES, PIERCING_TYPES, TATTOO_TYPES } from '../../data/imageGenOptions';
 
 const ACTION_CATEGORIES = {
     "Styles": [
@@ -103,13 +103,15 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
     const [selectedColor, setSelectedColor] = useState('none');
     const [selectedSkin, setSelectedSkin] = useState('none');
     const [selectedLighting, setSelectedLighting] = useState('cinematic');
+    const [selectedPiercing, setSelectedPiercing] = useState('none');
+    const [selectedTattoo, setSelectedTattoo] = useState('none');
     const [isRealismHigh, setIsRealismHigh] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
 
     const AVAILABLE_MODELS = AVAILABLE_PONY_MODELS;
 
     const handleSubmit = () => {
-        onConfirm(prompt, aspectRatio, selectedModel, selectedClothing, selectedColor, selectedSkin, selectedLighting, isRealismHigh, isAnimated);
+        onConfirm(prompt, aspectRatio, selectedModel, selectedClothing, selectedColor, selectedSkin, selectedLighting, isRealismHigh, isAnimated, false, null, selectedPiercing, selectedTattoo);
         setPrompt("");
         onClose();
     };
@@ -329,28 +331,49 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                 )}
 
                                 {activeTab === 'Looking' && (
-                                    <motion.div key="hub-looking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, padding: '20px 20px 120px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', overflowY: 'auto' }}>
-                                        <div style={{ padding: '14px', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.04)' }}>
-                                            <div style={{ color: '#60a5fa', fontSize: '0.75rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <motion.div key="hub-looking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, padding: '20px 20px 120px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', overflowY: 'auto' }}>
+                                        <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                                            <div style={{ color: '#60a5fa', fontSize: '0.75rem', marginBottom: '6px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                 <Palette size={12} /> Ambient Color
                                             </div>
-                                            <select value={selectedColor} onChange={(e) => setSelectedColor(e.target.value)} className="premium-select" style={{ width: '100%', padding: '8px', fontSize: '0.75rem' }}>
+                                            <select value={selectedColor} onChange={(e) => setSelectedColor(e.target.value)} className="premium-select" style={{ width: '100%', padding: '6px', fontSize: '0.75rem' }}>
                                                 {COLORS.map(color => <option key={color.id} value={color.id}>{color.label}</option>)}
                                             </select>
                                         </div>
-                                        <div style={{ padding: '14px', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.04)' }}>
-                                            <div style={{ color: '#f472b6', fontSize: '0.75rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                                            <div style={{ color: '#f472b6', fontSize: '0.75rem', marginBottom: '6px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                 <Droplets size={12} /> Skin Texture
                                             </div>
-                                            <select value={selectedSkin} onChange={(e) => setSelectedSkin(e.target.value)} className="premium-select" style={{ width: '100%', padding: '8px', fontSize: '0.75rem' }}>
+                                            <select value={selectedSkin} onChange={(e) => setSelectedSkin(e.target.value)} className="premium-select" style={{ width: '100%', padding: '6px', fontSize: '0.75rem' }}>
                                                 {SKIN_TEXTURES.map(skin => <option key={skin.id} value={skin.id}>{skin.label}</option>)}
                                             </select>
                                         </div>
-                                        <div style={{ gridColumn: 'span 2', padding: '14px', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.04)' }}>
-                                            <div style={{ color: '#f97316', fontSize: '0.75rem', marginBottom: '10px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+
+                                        {/* NEW PIERCING SECTION */}
+                                        <div style={{ padding: '12px', background: 'rgba(168, 85, 247, 0.04)', borderRadius: '12px', border: '1px solid rgba(168, 85, 247, 0.1)' }}>
+                                            <div style={{ color: '#c084fc', fontSize: '0.75rem', marginBottom: '6px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <Zap size={12} /> Body Piercings
+                                            </div>
+                                            <select value={selectedPiercing} onChange={(e) => setSelectedPiercing(e.target.value)} className="premium-select" style={{ width: '100%', padding: '6px', fontSize: '0.75rem', background: 'rgba(0,0,0,0.3)' }}>
+                                                {PIERCING_TYPES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+                                            </select>
+                                        </div>
+
+                                        {/* NEW TATTOO SECTION */}
+                                        <div style={{ padding: '12px', background: 'rgba(168, 85, 247, 0.04)', borderRadius: '12px', border: '1px solid rgba(168, 85, 247, 0.1)' }}>
+                                            <div style={{ color: '#c084fc', fontSize: '0.75rem', marginBottom: '6px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <Sparkles size={12} /> Body Tattoos
+                                            </div>
+                                            <select value={selectedTattoo} onChange={(e) => setSelectedTattoo(e.target.value)} className="premium-select" style={{ width: '100%', padding: '6px', fontSize: '0.75rem', background: 'rgba(0,0,0,0.3)' }}>
+                                                {TATTOO_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                                            </select>
+                                        </div>
+
+                                        <div style={{ gridColumn: 'span 2', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                                            <div style={{ color: '#f97316', fontSize: '0.75rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                 <Sun size={12} /> Cinematic Lighting & Atmosphere
                                             </div>
-                                            <select value={selectedLighting} onChange={(e) => setSelectedLighting(e.target.value)} className="premium-select" style={{ width: '100%', padding: '8px', fontSize: '0.75rem' }}>
+                                            <select value={selectedLighting} onChange={(e) => setSelectedLighting(e.target.value)} className="premium-select" style={{ width: '100%', padding: '6px', fontSize: '0.75rem' }}>
                                                 {LIGHTING_MODES.map(mode => <option key={mode.id} value={mode.id}>{mode.label}</option>)}
                                             </select>
                                         </div>

@@ -1,12 +1,12 @@
 import { useState, useCallback, useRef } from 'react';
 import * as db from '../services/db';
-import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_COMFY_WORKFLOW } from '../config';
-import { CLOTHING_TYPES, COLORS, SKIN_TEXTURES, LIGHTING_MODES } from '../data/imageGenOptions';
+import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_COMFY_WORKFLOW, DEFAULT_PONY_WORKFLOW } from '../config';
+import { CLOTHING_TYPES, COLORS, SKIN_TEXTURES, LIGHTING_MODES, PIERCING_TYPES, TATTOO_TYPES } from '../data/imageGenOptions';
 
 export const useImageGeneration = (persona, setMessages, showToast) => {
     const isMounted = useRef(true);
 
-    const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait', selectedModel = null, clothing = '', color = '', skin = 'none', lighting = 'natural', realismHigh = false, isAnimated = false, isComic = false, comicPanelInfo = null) => {
+    const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait', selectedModel = null, clothing = '', color = '', skin = 'none', lighting = 'natural', realismHigh = false, isAnimated = false, isComic = false, comicPanelInfo = null, piercing = 'none', tattoo = 'none') => {
         const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
         const imageEngine = localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE;
 
@@ -29,7 +29,7 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
         const REALISM_LORA = realismHigh && !isComic ? "<lora:Pony_Realism_2:0.6>, " : "";
 
         const PONY_PREFIX = isComic ? COMIC_BOOSTERS : `${SCORE_TAGS}${PHOTO_BOOSTERS}${REALISM_LORA}photo (medium), 8k, high quality, cinematic, rating_explicit, masterpiece, photorealistic, 8k uhd, `;
-        const isPonyModel = selectedModel?.toLowerCase().includes('pony') || selectedModel?.toLowerCase().includes('lust') || selectedModel?.toLowerCase().includes('alchemist');
+        const isPonyModel = selectedModel && (selectedModel.toLowerCase().includes('pony') || selectedModel.toLowerCase().includes('lust') || selectedModel.toLowerCase().includes('alchemist'));
         const finalPrefix = isPonyModel ? PONY_PREFIX : (isComic ? COMIC_BOOSTERS : "photo (medium), 8k, high quality, cinematic, masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ");
 
         // NEGATIVE PROMPT (STRONG SUPPRESSION)
@@ -49,6 +49,8 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
         const selectedColorObj = COLORS.find(c => c.id === color);
         const selectedSkinObj = SKIN_TEXTURES.find(s => s.id === skin);
         const selectedLightingObj = LIGHTING_MODES.find(l => l.id === lighting);
+        const selectedPiercingObj = PIERCING_TYPES.find(p => p.id === piercing);
+        const selectedTattooObj = TATTOO_TYPES.find(t => t.id === tattoo);
 
         let clothingPart = "";
         if (selectedClothingObj && selectedClothingObj.id !== 'none') {
@@ -58,8 +60,10 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
 
         const skinPart = (selectedSkinObj && !isComic) ? selectedSkinObj.text : "";
         const lightingPart = selectedLightingObj ? selectedLightingObj.text : "";
+        const piercingPart = (selectedPiercingObj && selectedPiercingObj.id !== 'none') ? `(${selectedPiercingObj.text}:1.4)` : "";
+        const tattooPart = (selectedTattooObj && selectedTattooObj.id !== 'none') ? `(${selectedTattooObj.text}:1.5)` : "";
 
-        const fullPrompt = `${finalPrefix}${charIdentity}, ${clothingPart ? clothingPart + ', ' : ''}${skinPart ? skinPart + ', ' : ''}${lightingPart ? lightingPart + ', ' : ''}${charAppearance}, ${charLora}, ${prompt}`;
+        const fullPrompt = `${finalPrefix}${charIdentity}, ${clothingPart ? clothingPart + ', ' : ''}${skinPart ? skinPart + ', ' : ''}${lightingPart ? lightingPart + ', ' : ''}${piercingPart ? piercingPart + ', ' : ''}${tattooPart ? tattooPart + ', ' : ''}${charAppearance}, ${charLora}, ${prompt}`;
 
         try {
             let base64Image = null;
@@ -90,14 +94,14 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 }
             } else if (imageEngine === 'comfyui') {
                 let comfyWorkflow = localStorage.getItem('comfyWorkflow');
-                const isPonyModel = selectedModel?.toLowerCase().includes('pony') || selectedModel?.toLowerCase().includes('lust') || selectedModel?.toLowerCase().includes('alchemist');
+                const isPonyModel = selectedModel && (selectedModel.toLowerCase().includes('pony') || selectedModel.toLowerCase().includes('lust') || selectedModel.toLowerCase().includes('alchemist'));
                 
                 // Force default for animations to ensure node injection stability
                 if (isAnimated || !comfyWorkflow || !comfyWorkflow.includes('3')) {
                     comfyWorkflow = JSON.stringify(isPonyModel ? DEFAULT_PONY_WORKFLOW : DEFAULT_COMFY_WORKFLOW);
                 }
 
-                const targetPrompt = `${charIdentity}, ${clothingPart ? clothingPart + ', ' : ''}${charAppearance}, ${prompt}`;
+                const targetPrompt = `${charIdentity}, ${clothingPart ? clothingPart + ', ' : ''}${skinPart ? skinPart + ', ' : ''}${lightingPart ? lightingPart + ', ' : ''}${piercingPart ? piercingPart + ', ' : ''}${tattooPart ? tattooPart + ', ' : ''}${charAppearance}, ${prompt}`;
                 
                 let parsedPrompt = targetPrompt;
                 const loraRegex = /<lora:([^:>]+)(?::([0-9.]+))?>/g;

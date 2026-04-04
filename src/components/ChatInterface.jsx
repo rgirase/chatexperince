@@ -173,9 +173,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         handleClearChatLogic();
     };
 
-    const handleConfirmSelfie = (prompt, aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated) => {
+    const handleConfirmSelfie = (prompt, aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated, isComic = false, comicPanelInfo = null, piercing = 'none', tattoo = 'none') => {
         setIsSelfiePromptOpen(false);
-        generateSelfie(prompt, Date.now().toString(), aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated);
+        generateSelfie(prompt, Date.now().toString(), aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated, isComic, comicPanelInfo, piercing, tattoo);
     };
 
     const handleGenerateComic = async () => {
@@ -217,7 +217,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                     false, 
                     false, 
                     true, // IS COMIC
-                    { index: panelNum, total: totalPanels } // Metadata for labeling
+                    { index: panelNum, total: totalPanels }, // Metadata for labeling
+                    'none', // piercing
+                    'none'  // tattoo
                 );
                 
                 // Small delay between panel triggers if there are more

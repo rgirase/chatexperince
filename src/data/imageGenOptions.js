@@ -45,3 +45,23 @@ export const LIGHTING_MODES = [
     { id: 'studio', label: 'Studio (Bright)', text: '(studio lighting:1.4), multi-point lighting, clean background, sharp focus, professional photography' },
     { id: 'sunset', label: 'Sunset (Golden)', text: '(golden hour lighting:1.5), warm glow, sunset background, (lens flare:0.4)' }
 ];
+
+export const PIERCING_TYPES = [
+    { id: 'none', label: 'No Piercings', text: '' },
+    { id: 'navel', label: 'Navel Piercing', text: '(navel piercing, belly ring:1.2)' },
+    { id: 'nipples', label: 'Nipple Piercings', text: '(nipple piercings, nipple rings:1.3)' },
+    { id: 'clit', label: 'Genital Piercing', text: '(clit piercing, genital piercing:1.4)' },
+    { id: 'ears', label: 'Ear Piercings', text: '(multiple ear piercings, earrings:1.1)' },
+    { id: 'all', label: 'Multiple Body Piercings', text: '(multiple body piercings, navel piercing, nipple rings, ear piercings:1.3)' }
+];
+
+export const TATTOO_TYPES = [
+    { id: 'none', label: 'No Tattoos', text: '' },
+    { id: 'small_wrist', label: 'Small Wrist Tattoo', text: '(small delicate wrist tattoo:1.2)' },
+    { id: 'lower_back', label: 'Lower Back Tattoo', text: '(seductive lower back tattoo, tramp stamp:1.3)' },
+    { id: 'thigh', label: 'Thigh Tattoo', text: '(large detailed thigh tattoo, floral design:1.3)' },
+    { id: 'sleeve', label: 'Full Arm Sleeve', text: '(full arm sleeve tattoo, intricate blackwork:1.3)' },
+    { id: 'shoulder', label: 'Shoulder Tattoo', text: '(elegant shoulder blade tattoo:1.2)' },
+    { id: 'intimate', label: 'Intimate Pelvic Tattoo', text: '(intimate pelvic tattoo, butterfly near crotch:1.4)' },
+    { id: 'full_body', label: 'Full Body Art', text: '(multiple artistic body tattoos, cohesive style:1.3)' }
+];

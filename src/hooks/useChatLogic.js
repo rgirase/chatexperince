@@ -686,7 +686,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         }
     }, [persona, messages, showToast]);
 
-    const handlePerformAdultAction = useCallback(async (action, selectedModel, clothing, color, options = {}) => {
+    const handlePerformAdultAction = useCallback(async (action, selectedModel, clothing, color, piercing = 'none', tattoo = 'none', options = {}) => {
         if (isTyping) return;
 
         const isSilent = options.isSilent || false;
@@ -718,7 +718,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
                     ? `${action.prompt}, ${action.loras.map(l => `<lora:${l.name}:${l.weight}>`).join(', ')}`
                     : action.prompt;
                 
-                generateSelfie(combinedPrompt, aiMessageId, 'portrait', selectedModel, clothing, color);
+                generateSelfie(combinedPrompt, aiMessageId, 'portrait', selectedModel, clothing, color, 'none', 'natural', true, false, false, null, piercing, tattoo);
             }
 
             // 2. Trigger the AI Response
@@ -742,7 +742,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             }]);
             
             if (generateSelfie) {
-                generateSelfie(action.prompt, aiMessageId, 'portrait', selectedModel, clothing, color);
+                generateSelfie(action.prompt, aiMessageId, 'portrait', selectedModel, clothing, color, 'none', 'natural', true, false, false, null, piercing, tattoo);
             }
         }
     }, [messages, executeAiRequest, generateSelfie, isTyping, persona.id, activePersonaImage]);

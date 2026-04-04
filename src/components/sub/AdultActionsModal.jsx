@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Flame, Zap, Droplets, Heart, Shirt, Palette } from 'lucide-react';
+import { X, Flame, Zap, Droplets, Heart, Shirt, Palette, Sparkles } from 'lucide-react';
 import { AVAILABLE_PONY_MODELS } from '../../config';
 import { ADULT_ACTIONS } from '../../data/adultActions';
-import { CLOTHING_TYPES, COLORS } from '../../data/imageGenOptions';
+import { CLOTHING_TYPES, COLORS, PIERCING_TYPES, TATTOO_TYPES } from '../../data/imageGenOptions';
 
 const AdultActionsModal = ({ isOpen, onClose, onConfirm, relationshipScore }) => {
     const [selectedModel, setSelectedModel] = useState(localStorage.getItem('lastSelectedPonyModel') || "realismByStableYogi_ponyV3VAE.safetensors");
     const [selectedClothing, setSelectedClothing] = useState('none');
     const [selectedColor, setSelectedColor] = useState('none');
+    const [selectedPiercing, setSelectedPiercing] = useState('none');
+    const [selectedTattoo, setSelectedTattoo] = useState('none');
     const [hoveredAction, setHoveredAction] = useState(null);
 
     const handleActionClick = (action) => {
-        // Pass the new clothing and color options to the confirmation handler
-        onConfirm(action, selectedModel, selectedClothing, selectedColor);
+        // Pass the new clothing, color, piercing, and tattoo options to the confirmation handler
+        onConfirm(action, selectedModel, selectedClothing, selectedColor, selectedPiercing, selectedTattoo);
         onClose();
     };
 
@@ -45,53 +47,39 @@ const AdultActionsModal = ({ isOpen, onClose, onConfirm, relationshipScore }) =>
                             </p>
 
                             {/* OUTFIT CUSTOMIZATION */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '1.5rem', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '1.25rem', background: 'rgba(255,255,255,0.02)', padding: '0.9rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                                 <div>
-                                    <div style={{ color: '#fbbf24', fontSize: '0.75rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                        <Shirt size={14} /> STYLE
+                                    <div style={{ color: '#fbbf24', fontSize: '0.7rem', marginBottom: '6px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <Shirt size={12} /> STYLE
                                     </div>
-                                    <select 
-                                        value={selectedClothing}
-                                        onChange={(e) => setSelectedClothing(e.target.value)}
-                                        style={{
-                                            width: '100%',
-                                            padding: '8px 10px',
-                                            borderRadius: '8px',
-                                            background: 'rgba(0,0,0,0.5)',
-                                            border: '1px solid rgba(255,255,255,0.1)',
-                                            color: 'white',
-                                            fontSize: '0.85rem',
-                                            outline: 'none',
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        {CLOTHING_TYPES.map(type => (
-                                            <option key={type.id} value={type.id} style={{ background: '#1e1e2e' }}>{type.label}</option>
-                                        ))}
+                                    <select value={selectedClothing} onChange={(e) => setSelectedClothing(e.target.value)} className="premium-select" style={{ width: '100%', padding: '6px', fontSize: '0.75rem' }}>
+                                        {CLOTHING_TYPES.map(type => <option key={type.id} value={type.id}>{type.label}</option>)}
                                     </select>
                                 </div>
                                 <div>
-                                    <div style={{ color: '#60a5fa', fontSize: '0.75rem', marginBottom: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                        <Palette size={14} /> COLOR
+                                    <div style={{ color: '#60a5fa', fontSize: '0.7rem', marginBottom: '6px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <Palette size={12} /> COLOR
                                     </div>
-                                    <select 
-                                        value={selectedColor}
-                                        onChange={(e) => setSelectedColor(e.target.value)}
-                                        style={{
-                                            width: '100%',
-                                            padding: '8px 10px',
-                                            borderRadius: '8px',
-                                            background: 'rgba(0,0,0,0.5)',
-                                            border: '1px solid rgba(255,255,255,0.1)',
-                                            color: 'white',
-                                            fontSize: '0.85rem',
-                                            outline: 'none',
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        {COLORS.map(color => (
-                                            <option key={color.id} value={color.id} style={{ background: '#1e1e2e' }}>{color.label}</option>
-                                        ))}
+                                    <select value={selectedColor} onChange={(e) => setSelectedColor(e.target.value)} className="premium-select" style={{ width: '100%', padding: '6px', fontSize: '0.75rem' }}>
+                                        {COLORS.map(color => <option key={color.id} value={color.id}>{color.label}</option>)}
+                                    </select>
+                                </div>
+
+                                {/* NEW CUSTOMIZATIONS */}
+                                <div>
+                                    <div style={{ color: '#c084fc', fontSize: '0.7rem', marginBottom: '6px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <Zap size={12} /> PIERCING
+                                    </div>
+                                    <select value={selectedPiercing} onChange={(e) => setSelectedPiercing(e.target.value)} className="premium-select" style={{ width: '100%', padding: '6px', fontSize: '0.75rem', background: 'rgba(0,0,0,0.3)' }}>
+                                        {PIERCING_TYPES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div style={{ color: '#c084fc', fontSize: '0.7rem', marginBottom: '6px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <Sparkles size={12} /> TATTOO
+                                    </div>
+                                    <select value={selectedTattoo} onChange={(e) => setSelectedTattoo(e.target.value)} className="premium-select" style={{ width: '100%', padding: '6px', fontSize: '0.75rem', background: 'rgba(0,0,0,0.3)' }}>
+                                        {TATTOO_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                                     </select>
                                 </div>
                             </div>
