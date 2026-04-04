@@ -86,20 +86,18 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 window.appIsMounted = true;
 
 /**
- * Service Worker Strategy: Kill Switch Mode
+ * Service Worker Strategy: Disabled for Development Stability
  * 
- * We register sw.js once — but sw.js is a "kill switch" that immediately
- * clears all caches and then unregisters itself.
- * 
- * After run, no SW will be active, and the browser fetches fresh from network.
- * This permanently fixes stale-cache blank screens on mobile.
+ * We no longer register sw.js because it causes "Update on Focus" reload loops
+ * in certain browser environments. To fix a blank screen, use the "Fix & Reset" 
+ * button in the ErrorBoundary above or add '?reset=true' to the URL.
  */
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => {
-        console.log('[App] Kill-switch SW registered, caches will be cleared.', reg);
-      })
-      .catch(err => console.log('[App] SW registration failed:', err));
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    for(let reg of regs) {
+      console.log('[App] Unregistering orphan SW:', reg);
+      reg.unregister();
+    }
   });
 }
+

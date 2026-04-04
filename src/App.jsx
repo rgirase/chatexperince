@@ -24,6 +24,7 @@ function App() {
   const [activeServerUrl, setActiveServerUrl] = React.useState('');
   const [savedServers, setSavedServers] = React.useState([]);
   const [imageUpdateKey, setImageUpdateKey] = React.useState(0);
+  const [isBooting, setIsBooting] = React.useState(true);
   
   // Streak State
   const [streak, setStreak] = useState(0);
@@ -58,6 +59,17 @@ function App() {
 
   useEffect(() => {
     const loadAllData = async () => {
+      console.log(`[App] Initializing data at ${new Date().toLocaleTimeString()}...`);
+      const start = Date.now();
+      
+      // Safety timeout: Never stay in booting state longer than 2.5s
+      const timeoutId = setTimeout(() => {
+        if (isBooting) {
+            console.warn("[App] loadAllData is taking too long. Forcing boot completion.");
+            setIsBooting(false);
+        }
+      }, 2500);
+
       let loadedPersonas = [...defaultPersonas];
       
       // 1. Load Custom Personas (Migration + Fetch)
@@ -168,6 +180,10 @@ function App() {
         setStreak(newCount);
       } catch (e) {
         console.error("[App] Failed to update streak", e);
+      } finally {
+        clearTimeout(timeoutId);
+        setIsBooting(false);
+        console.log(`[App] Data loaded in ${Date.now() - start}ms`);
       }
     };
 
@@ -232,8 +248,19 @@ function App() {
 
     const aura = updateAura();
     setUserAura(aura);
+    
+    // Debugging Visibility/Refresh
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log(`[App] Resumed session at ${new Date().toLocaleTimeString()}`);
+      } else {
+        console.log(`[App] Backgrounded at ${new Date().toLocaleTimeString()}`);
+      }
+    };
+    window.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('devicemotion', handleMotion);
@@ -373,6 +400,16 @@ function App() {
     return (
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'white', zIndex: 9999 }}>
         <iframe src="https://en.wikipedia.org/wiki/Financial_modeling" style={{ width: '100%', height: '100%', border: 'none' }} title="Emergency Screen" />
+      </div>
+    );
+  }
+
+  if (isBooting) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#09090b', color: '#a855f7' }}>
+        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
+            <Zap size={32} />
+        </motion.div>
       </div>
     );
   }

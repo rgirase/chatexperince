@@ -8,6 +8,9 @@ export default defineConfig({
     watch: {
       ignored: ['**/public/**', '**/scripts/**', '**/temp/**']
     },
+    hmr: {
+      overlay: false
+    },
     proxy: {
       // Generic proxy: any direct LM Studio IP request is proxied through Vite to bypass CORS
       // Mac (default)
