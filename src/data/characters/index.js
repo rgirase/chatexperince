@@ -1,3 +1,5 @@
+import { swinger_couple_ayesha } from './swinger_couple_ayesha.js';
+import { swinger_couple_tiffany } from './swinger_couple_tiffany.js';
 import { aditi_friends_wife } from './aditi_friends_wife.js';
 import { amber_yoga_instructor } from './amber_yoga_instructor.js';
 import { amira_velvet_club } from './amira_velvet_club.js';
@@ -188,6 +190,8 @@ import jade_exchange_sister from './jade_exchange_sister.js';
 
 
 export const characters = [
+  swinger_couple_ayesha,
+  swinger_couple_tiffany,
   royal_harem_western,
   royal_harem_indian,
   malia_secret_reunion,
