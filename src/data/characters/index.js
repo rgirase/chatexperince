@@ -1,4 +1,5 @@
 import { swinger_couple_ayesha } from './swinger_couple_ayesha.js';
+import { girlfriend_and_daughter_rivalry } from './girlfriend_and_daughter_rivalry.js';
 import { swinger_couple_tiffany } from './swinger_couple_tiffany.js';
 import { aditi_friends_wife } from './aditi_friends_wife.js';
 import { amber_yoga_instructor } from './amber_yoga_instructor.js';
@@ -190,6 +191,7 @@ import jade_exchange_sister from './jade_exchange_sister.js';
 
 
 export const characters = [
+  girlfriend_and_daughter_rivalry,
   swinger_couple_ayesha,
   swinger_couple_tiffany,
   royal_harem_western,
