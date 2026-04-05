@@ -5,7 +5,7 @@
  */
 
 const DB_NAME = 'ChatExperienceDB';
-const DB_VERSION = 6; // Version 6 adds 'journals' for character-POV diary
+const DB_VERSION = 7; // Version 7 adds 'lore' for world facts and 'global_vault' for scrapbook
 
 export const openDB = () => {
     return new Promise((resolve, reject) => {
@@ -39,6 +39,12 @@ export const openDB = () => {
             }
             if (!db.objectStoreNames.contains('journals')) {
                 db.createObjectStore('journals', { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains('lore')) {
+                db.createObjectStore('lore', { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains('global_vault')) {
+                db.createObjectStore('global_vault', { keyPath: 'id' });
             }
         };
 
@@ -146,4 +152,29 @@ export const clear = async (storeName) => {
         request.onsuccess = () => resolve();
         request.onerror = () => reject(request.error);
     });
+};
+
+/**
+ * Clones all session-related data from one ID to another for a specific persona.
+ */
+export const cloneSession = async (personaId, sourceSid, targetSid) => {
+    const sourceSuffix = `_${personaId}_${sourceSid}`;
+    const targetSuffix = `_${personaId}_${targetSid}`;
+
+    const mappings = [
+        { store: 'chats', keys: ['chat'] },
+        { store: 'memories', keys: ['memory', 'milestones', 'traits', 'encounters'] },
+        { store: 'settings', keys: ['score', 'intensity', 'scene', 'invited', 'active_image', 'location', 'relation', 'avatar_manual', 'mood', 'inventory', 'narrative', 'recap'] }
+    ];
+
+    for (const mapping of mappings) {
+        for (const keyPrefix of mapping.keys) {
+            const sourceKey = `${keyPrefix}${sourceSuffix}`;
+            const targetKey = `${keyPrefix}${targetSuffix}`;
+            const data = await getItem(mapping.store, sourceKey);
+            if (data !== null) {
+                await setItem(mapping.store, targetKey, data);
+            }
+        }
+    }
 };

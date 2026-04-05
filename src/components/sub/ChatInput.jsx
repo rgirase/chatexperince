@@ -13,7 +13,8 @@ const ChatInput = ({
     onStopGeneration,
     suggestions = [],
     onOpenAdultActions,
-    onSelectSuggestion
+    onSelectSuggestion,
+    isImmersionMode
 }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const textareaRef = useRef(null);
@@ -54,40 +55,42 @@ const ChatInput = ({
 
     return (
         <div className="input-area">
-            <div className="quick-actions-container" style={{ display: 'flex', gap: '8px', marginBottom: '8px', overflowX: 'auto', padding: '4px 0', scrollbarWidth: 'none' }}>
-                {quickActions.map((action, i) => (
-                    <button 
-                        key={i} 
-                        onClick={() => {
-                            if (action.label === 'Gift') {
-                                // This could trigger the gift modal, but for now we'll just send text
-                                setInput(action.prompt);
-                            } else {
-                                setInput(action.prompt);
-                                // We don't auto-send so the user can edit if they want
-                            }
-                        }}
-                        className="quick-action-chip"
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            padding: '6px 12px',
-                            borderRadius: '16px',
-                            background: 'rgba(255,255,255,0.05)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            color: '#fff',
-                            fontSize: '0.75rem',
-                            whiteSpace: 'nowrap',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        <span>{action.icon}</span>
-                        <span>{action.label}</span>
-                    </button>
-                ))}
-            </div>
+            {!isImmersionMode && (
+                <div className="quick-actions-container" style={{ display: 'flex', gap: '8px', marginBottom: '8px', overflowX: 'auto', padding: '4px 0', scrollbarWidth: 'none' }}>
+                    {quickActions.map((action, i) => (
+                        <button 
+                            key={i} 
+                            onClick={() => {
+                                if (action.label === 'Gift') {
+                                    // This could trigger the gift modal, but for now we'll just send text
+                                    setInput(action.prompt);
+                                } else {
+                                    setInput(action.prompt);
+                                    // We don't auto-send so the user can edit if they want
+                                }
+                            }}
+                            className="quick-action-chip"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                padding: '6px 12px',
+                                borderRadius: '16px',
+                                background: 'rgba(255,255,255,0.05)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                color: '#fff',
+                                fontSize: '0.75rem',
+                                whiteSpace: 'nowrap',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <span>{action.icon}</span>
+                            <span>{action.label}</span>
+                        </button>
+                    ))}
+                </div>
+            )}
 
             {suggestions.length > 0 && (
                 <div className="suggestions-container" style={{ display: 'flex', gap: '8px', marginBottom: '12px', overflowX: 'auto', paddingBottom: '8px' }}>

@@ -64,8 +64,17 @@ const ChatHeader = ({
     }, [isMobileMenuOpen, setIsMobileMenuOpen]);
 
     return (
-        <header className="chat-header">
-            <button onClick={onBack} className="back-btn" title="Back to Personas">
+        <header className={`chat-header ${isImmersionMode ? 'cinematic-header' : ''}`} style={{
+            background: isImmersionMode ? 'transparent' : undefined,
+            borderBottom: isImmersionMode ? 'none' : undefined,
+            transition: 'all 0.5s ease'
+        }}>
+            <button 
+                onClick={onBack} 
+                className="back-btn" 
+                title="Back to Personas"
+                style={{ opacity: isImmersionMode ? 0 : 1, pointerEvents: isImmersionMode ? 'none' : 'auto' }}
+            >
                 <ArrowLeft size={24} />
             </button>
             <div 

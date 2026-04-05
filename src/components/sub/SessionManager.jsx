@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, BookOpen, Trash2, Clock, ChevronRight, Sparkles } from 'lucide-react';
 import * as db from '../../services/db';
 
-const SessionManager = ({ isOpen, onClose, sessions, currentSessionId, onSwitch, onStartNew, onDelete, personaName, currentRecap }) => {
+const SessionManager = ({ isOpen, onClose, sessions, currentSessionId, onSwitch, onStartNew, onBranch, onDelete, personaName, currentRecap }) => {
     const [recaps, setRecaps] = useState({});
 
     useEffect(() => {
@@ -138,9 +138,33 @@ const SessionManager = ({ isOpen, onClose, sessions, currentSessionId, onSwitch,
                                         fontStyle: 'italic',
                                         fontFamily: '"Handlee", cursive, sans-serif'
                                     }}>
-                                        {recaps[sid] || "A new page in your shared history, waiting to be written with depth and emotion..."}
                                     </p>
                                 </div>
+                                {sid === currentSessionId && (
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); onBranch(); }}
+                                        className="branch-btn"
+                                        style={{
+                                            marginTop: '1rem',
+                                            padding: '0.5rem',
+                                            borderRadius: '8px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '6px',
+                                            fontWeight: '600',
+                                            fontSize: '0.8rem',
+                                            background: 'rgba(168, 85, 247, 0.1)',
+                                            border: '1px solid rgba(168, 85, 247, 0.2)',
+                                            color: '#a855f7',
+                                            width: '100%',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        <Sparkles size={14} />
+                                        Branch This Timeline
+                                    </button>
+                                )}
                             </motion.div>
                         ))}
                     </div>

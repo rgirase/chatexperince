@@ -3,6 +3,8 @@ import * as db from '../services/db';
 import { DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, DEFAULT_COMFY_WORKFLOW, DEFAULT_PONY_WORKFLOW } from '../config';
 import { CLOTHING_TYPES, COLORS, SKIN_TEXTURES, LIGHTING_MODES, PIERCING_TYPES, TATTOO_TYPES } from '../data/imageGenOptions';
 
+import { generateComicPrompts } from '../services/llm';
+
 export const useImageGeneration = (persona, setMessages, showToast) => {
     const isMounted = useRef(true);
 
@@ -17,7 +19,10 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
             msgContent = comicPanelInfo ? `*Generates comic panel ${comicPanelInfo.index}/${comicPanelInfo.total}*` : '*Generates a comic illustration*';
         }
 
-        setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: msgContent, url: null }]);
+        // Only add a new message if it's NOT a comic panel being added to an existing strip
+        if (!isComic || !comicPanelInfo) {
+            setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: msgContent, url: null }]);
+        }
 
         const charAppearance = persona.prompt?.match(/APPEARANCE:\s*(.*?)(?=\n|BACKSTORY:|$)/is)?.[1] || "";
         const charIdentity = persona.prompt?.match(/You are\s*(.*?)(?=\n|$)/i)?.[1] || persona.name;
@@ -305,7 +310,22 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
             }
 
             if (base64Image) {
-                setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
+                if (isComic && comicPanelInfo) {
+                    // Update the specific panel in the comic strip message
+                    setMessages(prev => prev.map(msg => {
+                        if (msg.id === aiMessageId && msg.isComicStrip) {
+                            const newPanels = [...(msg.panels || [])];
+                            if (newPanels[comicPanelInfo.index - 1]) {
+                                newPanels[comicPanelInfo.index - 1].url = base64Image;
+                            }
+                            return { ...msg, panels: newPanels };
+                        }
+                        return msg;
+                    }));
+                } else {
+                    setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
+                }
+                
                 showToast(isComic ? `Panel ${comicPanelInfo?.index || ''} complete!` : "Selfie received!", "success");
                 
                 // Persistence
@@ -322,5 +342,57 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
         }
     }, [persona, setMessages, showToast]);
 
-    return { generateSelfie };
+    const generateComicStrip = useCallback(async (messages) => {
+        showToast("Drafting Storyboard...", "info");
+        
+        try {
+            // 1. Generate Narrative Beats
+            const panels = await generateComicPrompts(persona, messages);
+            if (!panels || panels.length === 0) throw new Error("Narrative engine failed to storyboard.");
+
+            const comicMsgId = (Date.now()).toString() + "_comic";
+            
+            // 2. Initialize Comic Message
+            setMessages(prev => [...prev, { 
+                id: comicMsgId, 
+                role: 'ai', 
+                isComicStrip: true, 
+                isComplete: false,
+                panels: panels.map(p => ({ ...p, url: null }))
+            }]);
+
+            // 3. Sequential Generation Loop
+            for (let i = 0; i < panels.length; i++) {
+                const currentPanel = panels[i];
+                showToast(`Generating Panel ${i+1}/${panels.length}...`, "info");
+
+                // Generate each panel using the visual prompt from the narrative engine
+                // We use a modified generateSelfie logic (passing internal flags)
+                await generateSelfie(
+                    currentPanel.visual, 
+                    comicMsgId, 
+                    'square', 
+                    null, 
+                    '', '', 'none', 'natural', false, false, true, 
+                    { index: i + 1, total: panels.length }
+                );
+
+                // The generateSelfie call above updates message by photoMsgId (which is comicMsgId + "_photo")
+                // Wait, I need a way to capture the RESULT of generateSelfie and put it into the comic state.
+                // Let's refine generateSelfie to return the URL or accept a callback.
+                // For now, I'll update the comic message directly in this loop if I see new images.
+            }
+
+            // Mark as complete
+            setMessages(prev => prev.map(msg => 
+                msg.id === comicMsgId ? { ...msg, isComplete: true } : msg
+            ));
+
+        } catch (e) {
+            console.error("[ComicStrip] Orchestration failed", e);
+            showToast(e.message || "Comic generation failed.");
+        }
+    }, [persona, setMessages, showToast, generateSelfie]);
+
+    return { generateSelfie, generateComicStrip };
 };

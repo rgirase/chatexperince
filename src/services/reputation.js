@@ -85,3 +85,22 @@ export const getRelationshipLabel = (score = 0) => {
     if (score <= 100) return "Soulmate";
     return "Unknown";
 };
+
+/**
+ * getUserTitle
+ * Returns a unique title based on the user's Aura and Relationship growth.
+ */
+export const getUserTitle = (auraId, globalReputation = 0) => {
+    const titles = {
+        'Protector': ['The Guarded Heart', 'The Stalwart Shield', 'The Eternal Protector'],
+        'Confidante': ['The Secret Keeper', 'The Soul Reader', 'The Ultimate Confidante'],
+        'Chamer': ['The Wandering Star', 'The Silver Tongue', 'The Heart\'s Desire'],
+        'Provocateur': ['The Flame Igniter', 'The Shadow Dancer', 'The Master of Desires'],
+        'Observer': ['The Silent Witness', 'The World Seer', 'The Oracle of Truth']
+    };
+
+    const choices = titles[auraId] || ['The Mysterious Stranger'];
+    if (globalReputation < 30) return choices[0];
+    if (globalReputation < 70) return choices[1];
+    return choices[2];
+};

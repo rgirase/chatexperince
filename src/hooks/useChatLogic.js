@@ -13,6 +13,8 @@ import {
 import { getDiaries } from '../services/memory';
 import { getLocation, getAllLocations } from '../services/LocationService';
 import { searchHistory, detectRecallIntent } from '../services/memorySearch';
+import { getLorePrompt, syncLoreFromSummary } from '../services/lore';
+import { vibrateOnTouch } from '../services/haptics';
 
 export const useChatLogic = (persona, showToast, initialScenario, generateSelfie) => {
     const [messages, setMessages] = useState([]);
@@ -270,6 +272,30 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         setAllSessions(newList);
     };
 
+    const handleBranchSession = async () => {
+        setIsDataLoaded(false);
+        const newSid = `branch_${Date.now()}`;
+        const newList = [...allSessions, newSid];
+        
+        showToast("Cloning timeline...", "info");
+        
+        try {
+            await db.cloneSession(persona.id, sessionId, newSid);
+            
+            await db.setItem('settings', `active_session_${persona.id}`, newSid);
+            localStorage.setItem(`active_session_fallback_${persona.id}`, newSid);
+            await db.setItem('settings', `sessions_list_${persona.id}`, newList);
+            
+            setSessionId(newSid);
+            setAllSessions(newList);
+            showToast("Timeline branched successfully!", "success");
+        } catch (err) {
+            console.error("[ChatLogic] Branch failed", err);
+            showToast("Failed to branch timeline.");
+            setIsDataLoaded(true);
+        }
+    };
+
     const executeAiRequest = useCallback(async (aiMessageId, context, options = {}) => {
         const { recalledMemory, overridePersona, ...restOptions } = options;
         abortControllerRef.current = new AbortController();
@@ -382,16 +408,23 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
                         generateSelfie(photoPrompt, aiMessageId);
                     }
 
+                    // Trigger haptics for physical immersion
+                    vibrateOnTouch(cleanedText);
+
                     // Background situational awareness (pass RAW for analysis)
                     const contextWithRaw = [...context, { role: 'ai', content: rawText }];
                     setMessageCountForScene(prev => {
                         const newCount = prev + 1;
-                        if (newCount >= 4) {
-                            extractSceneSummary(persona, [...context, { role: 'ai', content: rawText }]).then(summary => {
-                                if (summary) setCurrentSituation(summary);
+                        if (newCount >= 5) {
+                            extractSceneSummary(persona, contextWithRaw).then(async (summary) => {
+                                if (summary) {
+                                    setCurrentSituation(summary);
+                                    await syncLoreFromSummary(summary);
+                                    console.log("[Lore] World Knowledge Updated.");
+                                }
                             });
 
-                            analyzeIntimateEncounter(persona, [...context, { role: 'ai', content: rawText }]).then(result => {
+                            analyzeIntimateEncounter(persona, contextWithRaw).then(result => {
                                 if (result && result.detected) {
                                     setEncounterStats(prev => ({
                                         count: prev.count + 1,
@@ -732,7 +765,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             setMessages(prev => [...prev, { 
                 id: aiMessageId, 
                 role: 'ai', 
-                content: '', 
                 isPhoto: true, 
                 isError: false,
                 content: `[Generating ${action.label}...]`,
@@ -918,9 +950,18 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     }, [messages, isTyping, executeAiRequest, persona.id, activePersonaImage]);
 
     const handleLocationChange = useCallback(async (locationId) => {
+        // 3. Build context-aware system prompt
+        const lorePrompt = await getLorePrompt();
         const location = getLocation(locationId);
-        if (!location) return;
-
+        const contextPrompt = `
+[CURRENT SCENE]
+Location: ${location ? location.name : 'Unknown'}
+Mood: ${currentMood}
+Situation: ${currentSituation}
+Traits: ${traits.join(', ')}
+${lorePrompt}
+`;
+        
         setCurrentLocationId(locationId);
         setCurrentSituation(location.situation);
         
@@ -1042,11 +1083,12 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         currentSituation,
         activePersonaImage,
         currentSuggestions, setCurrentSuggestions,
-        messageCountForScene,
+        sessionId,
         startNewSession,
         switchSession,
         deleteSession,
-        sessionId,
+        handleBranchSession,
+        chapterRecap,
         allSessions,
         invitedPersona, setInvitedPersona,
         currentLocationId,

@@ -10,6 +10,7 @@ import { personas as defaultPersonas } from './data/personas';
 import { personal_gf } from './data/characters/personal_gf';
 import StreakBonus from './components/sub/StreakBonus';
 import * as db from './services/db';
+import VaultModal from './components/sub/VaultModal';
 
 let hasPushedHistory = false;
 
@@ -25,6 +26,7 @@ function App() {
   const [savedServers, setSavedServers] = React.useState([]);
   const [imageUpdateKey, setImageUpdateKey] = React.useState(0);
   const [isBooting, setIsBooting] = React.useState(true);
+  const [isVaultOpen, setIsVaultOpen] = React.useState(false);
   
   // Streak State
   const [streak, setStreak] = useState(0);
@@ -434,6 +436,11 @@ function App() {
               }}
             />
           )}
+          <VaultModal 
+            isOpen={isVaultOpen} 
+            onClose={() => setIsVaultOpen(false)} 
+            allPersonas={[...defaultPersonas, ...customPersonas]} 
+          />
         </AnimatePresence>
 
         {!selectedPersona && activeView === 'home' && (
@@ -473,13 +480,21 @@ function App() {
                 </div>
               )}
 
-              <button
-                onClick={handleOpenSettings}
-                style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', padding: '0.5rem' }}
+              <div 
+                className="sidebar-item" 
+                onClick={() => setIsVaultOpen(true)}
+                title="The Vault of Memories"
+              >
+                <Heart size={24} color="#ec4899" />
+              </div>
+
+              <div 
+                className="sidebar-item" 
+                onClick={() => setActiveView('settings')}
                 title="Settings"
               >
                 <SettingsIcon size={24} />
-              </button>
+              </div>
             </div>
           </header>
         )}

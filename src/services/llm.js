@@ -47,6 +47,55 @@ async function callLMStudio(prompt, temperature = 0.7, jsonMode = false) {
     }
 }
 
+/**
+ * VISION 20: COMIC STORY ENGINE
+ * Generates 3 vivid narrative beats based on the current chat context.
+ */
+export const generateComicPrompts = async (persona, messages) => {
+    const charName = persona.name.split('(')[0].trim();
+    const history = messages.slice(-10).map(m => `${m.role === 'user' ? 'User' : charName}: ${m.content}`).join('\n');
+    
+    const prompt = `[COMIC PANEL GENERATOR]
+Context:
+${history}
+
+Task:
+Analyze the current scene and generate 3 distinct sequentially ordered comic panel descriptions for ${charName}.
+Each panel must capture a vivid narrative moment with a visual description AND a caption.
+
+Output exactly this JSON format:
+{
+  "panels": [
+    {
+      "index": 1,
+      "visual": "vivid SDXL-style prompt for the image",
+      "caption": "short character dialogue or narrative caption"
+    },
+    ...
+  ]
+}
+
+Rules:
+- Focus on character expressions, lighting, and cinematic angles.
+- Use distinct narrative progression from panel 1 to 3.
+- Keep captions punchy and expressive.
+- Ensure the character remains consistent with their bible.
+`;
+
+    try {
+        const result = await callLMStudio(prompt, 0.7, true);
+        // Robust JSON parsing
+        const jsonMatch = result.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            const data = JSON.parse(jsonMatch[0]);
+            return data.panels || [];
+        }
+        return [];
+    } catch (e) {
+        console.error("[ComicEngine] Prompt generation failed", e);
+        return [];
+    }
+};
 
 const getModelId = () => {
     return localStorage.getItem('lmStudioModel') || DEFAULT_LM_STUDIO_MODEL;
@@ -247,6 +296,15 @@ TABOO THEME DYNAMICS (Intensity: ${effectiveTaboo}/10):
 `;
 };
 
+const MULTIPARTY_PROTOCOL = (mainName, guestName) => `
+[MULTIPARTY DIALOGUE PROTOCOL]
+- You are now responsible for the internal logic, actions, and dialogue of BOTH ${mainName} and ${guestName}.
+- Both characters are fully active and must react to each other and the User.
+- Ensure their voices remain distinct based on their individual bibles.
+- If the narrative warrants it, you may speak for both in a single response, or focus on one while describing the other's reactions.
+- NEVER break character for either persona.
+`;
+
 export const generateResponse = async (persona, messages, onChunk, onComplete, onError, signal, options = {}) => {
 
     const {
@@ -279,12 +337,11 @@ ${narrativeSettings.chaosMode ? `\n[CHAOS MODE ACTIVE: You are in a high-unpredi
     const timeSkipDirective = isTimeSkip ? 
         `\n\n[TIME_SKIP_EVENT: A significant amount of time has passed. Acknowledge this naturally.]` : "";
 
-    const multiCharDirective = invitedName ? 
-        `\n\n[MULTI-CHARACTER MODE: ${invitedName} is also present. You must manage BOTH characters. Use the character names at the start of dialogue if helpful, but primarily ensure their unique personalities and descriptions are distinct. You are acting as BOTH ${charName} and ${invitedName} in this scene.]` : "";
+    const multiCharDirective = invitedName ? MULTIPARTY_PROTOCOL(charName, invitedName) : "";
 
     const biblePrompt = `YOU ARE ${charName}${invitedName ? ` and ${invitedName}` : ""}.
 Roleplay identity of ${charName}: ${persona.systemPrompt}${timeSkipDirective}${multiCharDirective}${recalledMemoryDirective}${narrativeDirective}
-${options.invitedPersona ? `Roleplay identity of ${invitedName}: ${options.invitedPersona.systemPrompt}` : ""}
+${options.invitedPersona ? `\n\n[GUEST CHARACTER BIBLE: ${invitedName}]\n${options.invitedPersona.systemPrompt}` : ""}
 
 Voice: Immersive, descriptive, multi-paragraph narrative. Use *asterisks* for actions and natural dialogue.
 Goal: Respond ONLY as the characters. Never explain, never provide writing tips, and never refer to instructions.

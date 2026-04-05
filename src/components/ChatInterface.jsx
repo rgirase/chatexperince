@@ -68,7 +68,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     // We use a ref for setMessages to break the circular dependency between hooks
     const setMessagesRef = useRef(null);
 
-    const { generateSelfie } = useImageGeneration(
+    const { generateSelfie, generateComicStrip } = useImageGeneration(
         persona, 
         (updater) => {
             if (setMessagesRef.current) setMessagesRef.current(updater);
@@ -179,58 +179,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     };
 
     const handleGenerateComic = async () => {
-        try {
-            showToast("Analyzing story context for multi-panel comic...", "info");
-            
-            const userProfile = {
-                name: localStorage.getItem('userName') || 'User',
-                appearance: localStorage.getItem('userAppearance') || 'average height, casual clothing'
-            };
-            const location = getLocation(currentLocationId);
-
-            console.log(`[ComicGen] Starting generation for ${persona.name} at ${location.name}`);
-            const panels = await generateComicPanels(persona, messages, currentSituation, location, userProfile);
-            
-            if (!panels || !Array.isArray(panels) || panels.length === 0) {
-                console.error("[ComicGen] Failed to derive panels. Raw result:", panels);
-                showToast("Failed to derive visual context for panels.");
-                return;
-            }
-            
-            console.log(`[ComicGen] Successfully derived ${panels.length} panels:`, panels);
-            
-            // Use specialized cartoon model from settings
-            const comicModel = localStorage.getItem('preferredComicModel') || "disneyrealcartoonmix_v10.safetensors";
-            
-            for (let i = 0; i < panels.length; i++) {
-                const panelNum = i + 1;
-                const totalPanels = panels.length;
-                
-                showToast(`Generating Comic Panel ${panelNum}/${totalPanels}...`, "info");
-                
-                await generateSelfie(
-                    panels[i], 
-                    `${Date.now()}_panel_${i}`, 
-                    'portrait', 
-                    comicModel, 
-                    'none', 'none', 'none', 'cinematic', 
-                    false, 
-                    false, 
-                    true, // IS COMIC
-                    { index: panelNum, total: totalPanels }, // Metadata for labeling
-                    'none', // piercing
-                    'none'  // tattoo
-                );
-                
-                // Small delay between panel triggers if there are more
-                if (i < panels.length - 1) {
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                }
-            }
-        } catch (error) {
-            console.error("Comic generation failed:", error);
-            showToast("Failed to generate comic story.");
-        }
+        await generateComicStrip(messages);
     };
 
     const handleCheckStatus = async (msgId, promptId) => {
@@ -395,8 +344,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 isTyping={isTyping}
                 isSuggesting={isSuggesting}
                 onStopGeneration={handleStopGeneration}
-                suggestions={currentSuggestions}
                 onOpenAdultActions={() => setIsAdultActionsOpen(true)}
+                isImmersionMode={isImmersionMode}
             />
 
             <AnimatePresence>
@@ -543,6 +492,10 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                             startNewSession();
                             setIsArchiveOpen(false);
                         }}
+                        onBranch={() => {
+                            handleBranchSession();
+                            setIsArchiveOpen(false);
+                        }}
                         onDelete={deleteSession}
                         personaName={persona.name}
                         currentRecap={chapterRecap}
@@ -612,6 +565,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                     <LogViewerModal 
                         isOpen={isLogViewerOpen}
                         onClose={() => setIsLogViewerOpen(false)}
+                        messages={messages}
+                        personaName={persona.name}
                     />
                 )}
             </AnimatePresence>

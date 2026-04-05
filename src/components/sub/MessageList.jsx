@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit2, Check, X, Trash2, FastForward, Image as ImageIcon, RefreshCw, Hammer, Sparkles, Download } from 'lucide-react';
+import ComicStripMessage from './ComicStripMessage';
 
 const MessageList = ({ 
     messages, 
@@ -121,6 +122,8 @@ const MessageList = ({
                                 </div>
                             ) : msg.isSystem ? (
                                 <div className="system-message">{msg.content}</div>
+                            ) : msg.isComicStrip ? (
+                                <ComicStripMessage message={msg} onDownload={(m) => handleDownload(m.panels[0].url, `comic_${m.id}.png`)} />
                             ) : editingMessageId === msg.id ? (
                                 <div className="edit-container">
                                     <textarea 
