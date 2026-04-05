@@ -26,6 +26,16 @@
   100% { transform: scale(0.98); opacity: 0.8; }
 }
 
+@keyframes border-glow {
+  0%, 100% { border-color: rgba(168, 85, 247, 0.4); box-shadow: 0 0 15px rgba(168, 85, 247, 0.1); }
+  50% { border-color: rgba(236, 72, 153, 0.6); box-shadow: 0 0 30px rgba(236, 72, 153, 0.2); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
 .premium-select {
   width: 100%;
   padding: 10px 12px;
@@ -183,7 +193,7 @@ body {
   gap: 1.5rem;
 }
 
-.persona-card {
+.persona-card-inner {
   position: relative;
   border-radius: 20px;
   overflow: hidden;
@@ -1735,4 +1745,52 @@ body {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* --- CINEMATIC IMMERSION MODE (PHASE 4) --- */
+.messages-area.immersion-mode {
+    padding: 10vh 15% 20vh 15% !important;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0.95)) !important;
+    overflow-x: hidden !important;
+    scrollbar-width: none !important;
+}
+
+.messages-area.immersion-mode::-webkit-scrollbar {
+    display: none !important;
+}
+
+.message-wrapper.immersion {
+    margin-bottom: 4rem !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+.message-bubble.cinematic {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    max-width: 800px !important;
+    padding: 0 !important;
+    animation: fadeInText 1s ease-out forwards !important;
+}
+
+.cinematic-text {
+    font-family: 'Georgia', serif !important;
+    font-size: 1.5rem !important;
+    line-height: 1.8 !important;
+    color: #e2e2e2 !important;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+    text-align: center !important;
+}
+
+.cinematic-text .action {
+    color: #a855f7 !important;
+    font-style: italic !important;
+    opacity: 0.9 !important;
+}
+
+@keyframes fadeInText {
+    from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
+    to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Book, Map as MapIcon, Info, Shirt } from 'lucide-react';
+import { Book, Map as MapIcon, Info, Shirt, MessageSquare, Play } from 'lucide-react';
 import { statusUpdates } from '../../data/statusUpdates';
 import * as relationshipService from '../../services/relationship';
 import { getDiaries } from '../../services/memory';
@@ -105,24 +105,22 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
             <div 
                 className="persona-card-inner"
                 onClick={() => onSelectPersona(persona)}
-                // ... rest of style ...
                 style={{
                     backgroundImage: (imageLoaded && !imageError && !isMediaLoop) ? `url(${equippedImage})` : 'linear-gradient(135deg, #27272a, #09090b)',
                     backgroundColor: '#111',
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    borderRadius: '24px',
-                    cursor: 'pointer',
-                    height: '420px',
-                    border: '1px solid rgba(255,255,255,0.05)',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-                    transition: 'transform 0.3s ease',
-                    zIndex: 1
+                    backgroundPosition: 'center'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-10px) scale(1.02)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0) scale(1)'}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-12px) scale(1.03)';
+                    e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.4)';
+                    e.currentTarget.style.boxShadow = '0 20px 45px rgba(0,0,0,0.7), 0 0 20px rgba(168, 85, 247, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                    e.currentTarget.style.boxShadow = '0 15px 35px rgba(0,0,0,0.6)';
+                }}
             >
                 {isVideo ? (
                     <video
@@ -272,15 +270,42 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
                             )}
                         </div>
                         
-                        <h3 className="persona-name" style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, letterSpacing: '-0.02em' }}>
+                        <h3 className="persona-name" style={{ 
+                            fontSize: '1.75rem', 
+                            fontWeight: '900', 
+                            margin: '0', 
+                            letterSpacing: '-0.03em',
+                            textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+                            lineHeight: 1.1,
+                            color: '#fff'
+                        }}>
                             {persona.name}
                         </h3>
-                        <p className="persona-tagline" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '4px 0 0 0', lineHeight: 1.3, fontWeight: '500' }}>
+                        <p className="persona-tagline" style={{ 
+                            color: 'rgba(255,255,255,0.85)', 
+                            fontSize: '0.9rem', 
+                            margin: '8px 0 0 0', 
+                            lineHeight: 1.4, 
+                            fontWeight: '500',
+                            maxWidth: '90%'
+                        }}>
                             {persona.tagline}
                         </p>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ 
+                        marginTop: '0.75rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px'
+                    }}>
+
+                        <div style={{ 
+                            display: 'flex', 
+                            gap: '8px', 
+                            justifyContent: 'flex-start',
+                            alignItems: 'center'
+                        }}>
                         {statusUpdates[persona.id] && (
                             <motion.div 
                                 onClick={(e) => {
@@ -297,7 +322,7 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
                                     gap: '6px',
                                     background: 'rgba(244, 114, 182, 0.15)',
                                     backdropFilter: 'blur(10px)',
-                                    padding: '6px 12px',
+                                    padding: '4px 10px',
                                     borderRadius: '100px',
                                     width: 'fit-content',
                                     border: '1px solid rgba(244, 114, 182, 0.4)',
@@ -312,42 +337,41 @@ const CharacterCard = ({ persona, onSelectPersona, onOpenStoryMap, onOpenDiary, 
                             </motion.div>
                         )}
 
-                        <div style={{ display: 'flex', gap: '8px' }}>
                             {persona.wardrobe && persona.wardrobe.length > 0 && (
                                 <motion.button
-                                    whileHover={{ scale: 1.1, background: 'rgba(244, 114, 182, 0.2)' }}
+                                    whileHover={{ scale: 1.1, background: 'rgba(244, 114, 182, 0.2)', y: -2 }}
                                     whileTap={{ scale: 0.9 }}
                                     onClick={(e) => { e.stopPropagation(); onOpenWardrobe(persona); }}
-                                    style={{ background: 'rgba(244, 114, 182, 0.1)', border: '1px solid rgba(244, 114, 182, 0.2)', borderRadius: '12px', color: '#f472b6', padding: '10px', display: 'flex', alignItems: 'center', backdropFilter: 'blur(10px)' }}
+                                    style={{ background: 'rgba(244, 114, 182, 0.1)', border: '1px solid rgba(244, 114, 182, 0.2)', borderRadius: '10px', color: '#f472b6', padding: '6px', display: 'flex', alignItems: 'center' }}
                                 >
                                     <Shirt size={18} />
                                 </motion.button>
                             )}
 
                             <motion.button
-                                whileHover={{ scale: 1.1, background: 'rgba(255,255,255,0.2)' }}
+                                whileHover={{ scale: 1.1, background: 'rgba(255,255,255,0.15)', y: -2 }}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={(e) => { e.stopPropagation(); onOpenStoryMap(persona); }}
-                                style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', padding: '10px', display: 'flex', alignItems: 'center', backdropFilter: 'blur(10px)' }}
+                                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', padding: '6px', display: 'flex', alignItems: 'center' }}
                             >
                                 <MapIcon size={18} />
                             </motion.button>
 
                             <motion.button
-                                whileHover={{ scale: 1.1, background: 'rgba(59, 130, 246, 0.2)' }}
+                                whileHover={{ scale: 1.1, background: 'rgba(59, 130, 246, 0.2)', y: -2 }}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={(e) => { e.stopPropagation(); onOpenDetails(persona); }}
-                                style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '12px', color: '#60a5fa', padding: '10px', display: 'flex', alignItems: 'center', backdropFilter: 'blur(10px)' }}
+                                style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '10px', color: '#60a5fa', padding: '6px', display: 'flex', alignItems: 'center' }}
                             >
                                 <Info size={18} />
                             </motion.button>
 
                             {hasDiary && (
                                 <motion.button
-                                    whileHover={{ scale: 1.1, background: 'rgba(168, 85, 247, 0.2)' }}
+                                    whileHover={{ scale: 1.1, background: 'rgba(168, 85, 247, 0.2)', y: -2 }}
                                     whileTap={{ scale: 0.9 }}
                                     onClick={(e) => { e.stopPropagation(); onOpenDiary(persona); }}
-                                    style={{ background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.2)', borderRadius: '12px', color: '#c084fc', padding: '10px', display: 'flex', alignItems: 'center', backdropFilter: 'blur(10px)' }}
+                                    style={{ background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.2)', borderRadius: '10px', color: '#c084fc', padding: '6px', display: 'flex', alignItems: 'center' }}
                                 >
                                     <Book size={18} />
                                 </motion.button>
