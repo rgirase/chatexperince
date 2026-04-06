@@ -441,8 +441,18 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                                 className="premium-select" 
                                                 style={{ width: '100%', padding: '10px', fontSize: '0.8rem' }}
                                             >
-                                                {AVAILABLE_MODELS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                                                {AVAILABLE_PONY_MODELS.map(m => (
+                                                    <option key={m.id} value={m.id}>
+                                                        [{m.category}] {m.name}
+                                                    </option>
+                                                ))}
                                             </select>
+                                            <div style={{ marginTop: '10px', padding: '12px', background: 'rgba(192, 132, 252, 0.05)', borderRadius: '10px', borderLeft: '3px solid #c084fc' }}>
+                                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#a1a1aa', lineHeight: '1.4' }}>
+                                                    <strong style={{ color: '#c084fc', display: 'block', marginBottom: '2px' }}>Best for:</strong>
+                                                    {AVAILABLE_PONY_MODELS.find(m => m.id === selectedModel)?.description || "Standard generation"}
+                                                </p>
+                                            </div>
                                         </div>
                                     </motion.div>
                                 )}

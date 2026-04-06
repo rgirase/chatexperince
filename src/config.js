@@ -27,19 +27,88 @@ export const DEFAULT_PONY_WORKFLOW = {
 };
 
 export const AVAILABLE_PONY_MODELS = [
-    { id: "bigLust_v16.safetensors", name: "Premium: Big Lust v16 (Latest Realism)" },
-    { id: "0184PONYLordkamix_v10.safetensors", name: "Pony: LordKamix v10 (Default)" },
-    { id: "vendoPonyRealistic_v13Lora.safetensors", name: "Pony: Vendo Realistic v13" },
-    { id: "4gbPONY4STEP2GB_fp8FullCheckpoint.safetensors", name: "Pony: 4-Step 2GB (Lite/Fast)" },
-    { id: "aimrimPonyIllusSDXL_v10ILLFP16.safetensors", name: "Pony: Aimrim Illustrious" },
-    { id: "ponyLoraLover_v10.safetensors", name: "Pony: Lora Lover v1.0" },
-    { id: "ponyMegaMixXL_v20.safetensors", name: "Pony: Mega Mix XL v2" },
-    { id: "cartoonStyle_v02.safetensors", name: "Pony: Cartoon Style v0.2" },
-    { id: "disneyrealcartoonmix_v10.safetensors", name: "Pony: Disney Real Cartoon Mix v1.0" },
-    { id: "alchemistMixReal_v20.safetensors", name: "Pony: Alchemist Mix Real v2.0 (New)" },
-    { id: "vendoPonyAnimated_v10.safetensors", name: "Pony: Vendo Animated" },
-    { id: "realismByStableYogi_ponyV3VAE.safetensors", name: "Pony: Stable Yogi Realism V3" },
-    { id: "Juggernaut-XL_v9.safetensors", name: "SDXL: Juggernaut XL v9 (Cinematic Realism)" },
-    { id: "realisticVisionV60B1_v51HyperVAE.safetensors", name: "SD 1.5: Realistic Vision V6.0 B1 (Hyper VAE)" },
-    { id: "Realistic_Vision_V6.0_NV_B1.safetensors", name: "SD 1.5: Realistic Vision V6.0 NV" }
+    { 
+        id: "bigLust_v16.safetensors", 
+        name: "Big Lust v16", 
+        category: "Premium Realism",
+        description: "Latest high-fidelity character model. Best for hyper-realistic details and high-end aesthetics."
+    },
+    { 
+        id: "Juggernaut-XL_v9.safetensors", 
+        name: "Juggernaut XL v9", 
+        category: "Cinematic",
+        description: "High-quality general purpose SDXL model. Best for cinematic lighting, portraits, and environmental depth."
+    },
+    { 
+        id: "Realistic_Vision_V6.0_NV_B1.safetensors", 
+        name: "Realistic Vision V6", 
+        category: "Photorealistic",
+        description: "Standard for photorealistic human portraits (SD 1.5). Best for grounded, life-like results."
+    },
+    { 
+        id: "disneyrealcartoonmix_v10.safetensors", 
+        name: "Disney Real Cartoon", 
+        category: "3D Animation",
+        description: "Pixar/Disney movie style. Best for vibrant, expressive 3D animated character looks."
+    },
+    { 
+        id: "autismmixSDXL_autismmixPony.safetensors", 
+        name: "AutismMix Pony", 
+        category: "Pony Diffusion",
+        description: "Versatile Pony-based model. Excellent for both stylized and semi-realistic character art."
+    },
+    { 
+        id: "0184PONYLordkamix_v10.safetensors", 
+        name: "LordKamix v10", 
+        category: "Illustrative",
+        description: "Default sturdy Pony mix. Best for anime-style illustrations and clean character sheets."
+    },
+    { 
+        id: "aimrimPonyIllusSDXL_v10ILLFP16.safetensors", 
+        name: "Aimrim Illustrious", 
+        category: "Anime/Manga",
+        description: "Specialized for high-end illustrative anime styles. Best for comic panels and manga art."
+    },
+    { 
+        id: "ponyMegaMixXL_v20.safetensors", 
+        name: "Pony Mega Mix V2", 
+        category: "Comprehensive Mix",
+        description: "A blend of multiple Pony models. High flexibility for complex tags and poses."
+    },
+    { 
+        id: "alchemistMixReal_v20.safetensors", 
+        name: "Alchemist Mix Real", 
+        category: "Semi-Realistic",
+        description: "Bridging the gap between 2D and 3D. Best for fantasy characters and artistic realism."
+    },
+    { 
+        id: "realismByStableYogi_ponyV3VAE.safetensors", 
+        name: "Stable Yogi Realism", 
+        category: "Pony Realism",
+        description: "Retains Pony flexibility but targets realistic skin and lighting. Best for 'realistic' 2D art."
+    },
+    { 
+        id: "vendoPonyRealistic_v13Lora.safetensors", 
+        name: "Vendo Pony Real", 
+        category: "Stylized Realism",
+        description: "A popular mix for high-contrast, 'premium' rendered character looks."
+    },
+    { 
+        id: "vendoPonyAnimated_v10.safetensors", 
+        name: "Vendo Animated", 
+        category: "2D Animation",
+        description: "Flat, clean animated lines. Best for cell-shaded comic styles and cartoons."
+    },
+    { 
+        id: "ponyLoraLover_v10.safetensors", 
+        name: "Pony Lora Lover", 
+        category: "LoRA Compatible",
+        description: "Highly receptive to additional LoRAs. Best for specific character or clothing LoRAs."
+    },
+    { 
+        id: "v1-5-pruned-emaonly.safetensors", 
+        name: "SD 1.5 Base", 
+        category: "Standard",
+        description: "Standard SD 1.5 model. Best for traditional, fast generations or when using 1.5 LoRAs."
+    }
 ];

@@ -53,22 +53,22 @@ async function callLMStudio(prompt, temperature = 0.7, jsonMode = false) {
  */
 export const generateComicPrompts = async (persona, messages) => {
     const charName = persona.name.split('(')[0].trim();
-    const history = messages.slice(-10).map(m => `${m.role === 'user' ? 'User' : charName}: ${m.content}`).join('\n');
+    const history = messages.slice(-12).map(m => `${m.role === 'user' ? 'User' : charName}: ${m.content}`).join('\n');
     
-    const prompt = `[COMIC PANEL GENERATOR]
+    const prompt = `[COMIC STORYBOARD GENERATOR]
 Context:
 ${history}
 
 Task:
-Analyze the current scene and generate 3 distinct sequentially ordered comic panel descriptions for ${charName}.
-Each panel must capture a vivid narrative moment with a visual description AND a caption.
+Analyze the scene and generate 4 to 5 distinct sequentially ordered comic panel descriptions for ${charName}.
+Each panel must capture a vivid narrative moment.
 
 Output exactly this JSON format:
 {
   "panels": [
     {
       "index": 1,
-      "visual": "vivid SDXL-style prompt for the image",
+      "visual": "vivid comma-separated visual tags for SDXL",
       "caption": "short character dialogue or narrative caption"
     },
     ...
@@ -76,20 +76,68 @@ Output exactly this JSON format:
 }
 
 Rules:
+- Generate 4 to 5 panels to tell a complete mini-story.
 - Focus on character expressions, lighting, and cinematic angles.
-- Use distinct narrative progression from panel 1 to 3.
+- Use distinct narrative progression.
 - Keep captions punchy and expressive.
-- Ensure the character remains consistent with their bible.
+- Return ONLY the JSON.
 `;
 
     try {
-        const result = await callLMStudio(prompt, 0.7, true);
-        // Robust JSON parsing
-        const jsonMatch = result.match(/\{[\s\S]*\}/);
+        const result = await callLMStudio(prompt, 0.75, false); // Disabled jsonMode for better local model compatibility
+        if (!result) return [];
+        
+        let content = result;
+        // 1. Strip thinking blocks (DeepSeek/QwQ effect)
+        content = content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
+        // 2. Try to find JSON within the string
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-            const data = JSON.parse(jsonMatch[0]);
-            return data.panels || [];
+            try {
+                const data = JSON.parse(jsonMatch[0]);
+                if (data && Array.isArray(data.panels) && data.panels.length > 0) {
+                    return data.panels;
+                }
+            } catch (e) {
+                console.warn("[ComicEngine] JSON parse failed, trying robust extraction", e);
+            }
         }
+
+        // 3. Fallback: Manual extraction for non-perfect JSON or list formats
+        const panels = [];
+        const lines = content.split(/\n/);
+        let currentPanel = null;
+
+        for (const line of lines) {
+            const cleanLine = line.trim();
+            if (!cleanLine) continue;
+
+            // Detect start of a panel definition in various text formats
+            if (cleanLine.match(/^(?:Panel\s*)?\d+[:.]|index":\s*\d+/i)) {
+                if (currentPanel) panels.push(currentPanel);
+                currentPanel = { index: panels.length + 1, visual: "", caption: "" };
+            }
+
+            if (currentPanel) {
+                // Try to extract visual/caption from text lines
+                if (cleanLine.toLowerCase().includes("visual") || cleanLine.toLowerCase().includes("description")) {
+                    currentPanel.visual = cleanLine.split(/[:"']/).slice(1).join('').replace(/["'}]/g, '').trim();
+                } else if (cleanLine.toLowerCase().includes("caption") || cleanLine.toLowerCase().includes("dialogue")) {
+                    currentPanel.caption = cleanLine.split(/[:"']/).slice(1).join('').replace(/["'}]/g, '').trim();
+                }
+            }
+        }
+        if (currentPanel) panels.push(currentPanel);
+
+        // Final cleanup of extracted panels
+        const validPanels = panels.filter(p => p.visual && p.visual.length > 10);
+        if (validPanels.length > 0) {
+            console.log(`[ComicEngine] Robustly extracted ${validPanels.length} panels.`);
+            return validPanels;
+        }
+
+        console.error("[ComicEngine] Failed to extract any valid storyboard panels from:", content);
         return [];
     } catch (e) {
         console.error("[ComicEngine] Prompt generation failed", e);

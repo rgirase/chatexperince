@@ -123,7 +123,19 @@ const MessageList = ({
                             ) : msg.isSystem ? (
                                 <div className="system-message">{msg.content}</div>
                             ) : msg.isComicStrip ? (
-                                <ComicStripMessage message={msg} onDownload={(m) => handleDownload(m.panels[0].url, `comic_${m.id}.png`)} />
+                                <ComicStripMessage 
+                                    message={msg} 
+                                    onDownload={(m) => {
+                                        if (m.fetchPanelIdx !== undefined) {
+                                            const panel = m.panels[m.fetchPanelIdx];
+                                            if (panel && panel.comfyPromptId && onCheckStatus) {
+                                                onCheckStatus(m.id, panel.comfyPromptId, m.fetchPanelIdx);
+                                            }
+                                        } else {
+                                            handleDownload(m.panels[0].url, `comic_${m.id}.png`);
+                                        }
+                                    }} 
+                                />
                             ) : editingMessageId === msg.id ? (
                                 <div className="edit-container">
                                     <textarea 

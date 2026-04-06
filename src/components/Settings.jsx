@@ -393,10 +393,14 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                         style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #f472b6', color: 'white' }}
                     >
                         {AVAILABLE_PONY_MODELS.map(m => (
-                            <option key={m.id} value={m.id}>{m.name}</option>
+                            <option key={m.id} value={m.id}>[{m.category}] {m.name}</option>
                         ))}
                     </select>
-                    <p style={{ margin: '8px 0 0 0', fontSize: '0.7rem', color: '#71717a' }}>This model will be used when you click the "Comic Story" button in a chat.</p>
+                    <div style={{ marginTop: '8px', padding: '10px', background: 'rgba(244, 114, 182, 0.05)', borderRadius: '8px', borderLeft: '3px solid #f472b6' }}>
+                        <p style={{ margin: 0, fontSize: '0.8rem', color: '#f472b6', fontWeight: '500' }}>
+                            Best for: {AVAILABLE_PONY_MODELS.find(m => m.id === preferredComicModel)?.description || "Standard generation"}
+                        </p>
+                    </div>
                 </div>
 
                 <div style={{ marginBottom: '2rem' }}>

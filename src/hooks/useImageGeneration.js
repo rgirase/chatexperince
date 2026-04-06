@@ -254,12 +254,29 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 if (!queueData.prompt_id) throw new Error("ComfyUI failure.");
 
                 const promptId = queueData.prompt_id;
-                setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, comfyPromptId: promptId } : msg));
+                
+                // Store prompt ID for later "Manual Fetch" if needed
+                setMessages(prev => prev.map(msg => {
+                    const targetId = isComic ? aiMessageId : photoMsgId;
+                    if (msg.id === targetId) {
+                        if (isComic && comicPanelInfo) {
+                            const newPanels = [...(msg.panels || [])];
+                            if (newPanels[comicPanelInfo.index - 1]) {
+                                newPanels[comicPanelInfo.index - 1].comfyPromptId = promptId;
+                            }
+                            return { ...msg, panels: newPanels };
+                        }
+                        return { ...msg, comfyPromptId: promptId };
+                    }
+                    return msg;
+                }));
                 
                 let isComplete = false;
                 let attempts = 0;
-                while (!isComplete && attempts < 180) {
-                    await new Promise(r => setTimeout(r, 2000));
+                const pollInterval = (sdUrl.includes('127.0.0.1') || sdUrl.includes('localhost')) ? 1500 : 2500;
+
+                while (!isComplete && attempts < 120) {
+                    await new Promise(r => setTimeout(r, pollInterval));
                     attempts++;
                     try {
                         const histRes = await fetch(`${sdUrl.replace(/\/$/, '')}/history/${promptId}`);
@@ -361,14 +378,11 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 panels: panels.map(p => ({ ...p, url: null }))
             }]);
 
-            // 3. Sequential Generation Loop
-            for (let i = 0; i < panels.length; i++) {
-                const currentPanel = panels[i];
-                showToast(`Generating Panel ${i+1}/${panels.length}...`, "info");
-
-                // Generate each panel using the visual prompt from the narrative engine
-                // We use a modified generateSelfie logic (passing internal flags)
-                await generateSelfie(
+            // 3. Parallel Generation Orchestration
+            // We launch all generations at once. They will each update the state as they finish.
+            const panelPromises = panels.map((currentPanel, i) => {
+                console.log(`[ComicEngine] Launching Panel ${i+1}:`, currentPanel.visual);
+                return generateSelfie(
                     currentPanel.visual, 
                     comicMsgId, 
                     'square', 
@@ -376,21 +390,23 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                     '', '', 'none', 'natural', false, false, true, 
                     { index: i + 1, total: panels.length }
                 );
+            });
 
-                // The generateSelfie call above updates message by photoMsgId (which is comicMsgId + "_photo")
-                // Wait, I need a way to capture the RESULT of generateSelfie and put it into the comic state.
-                // Let's refine generateSelfie to return the URL or accept a callback.
-                // For now, I'll update the comic message directly in this loop if I see new images.
-            }
+            // Wait for all to finish (either success or failure)
+            await Promise.all(panelPromises);
 
-            // Mark as complete
+            // Mark message as complete
             setMessages(prev => prev.map(msg => 
                 msg.id === comicMsgId ? { ...msg, isComplete: true } : msg
             ));
 
         } catch (e) {
-            console.error("[ComicStrip] Orchestration failed", e);
-            showToast(e.message || "Comic generation failed.");
+            console.error("[ComicEngine] Storyboard orchestration failed. Detailed trace:", e);
+            if (e.message?.includes("Narrative engine failed")) {
+                showToast("Narrative engine is currently busy or model output was malformed. Please try again.", "error");
+            } else {
+                showToast(e.message || "Comic generation failed.");
+            }
         }
     }, [persona, setMessages, showToast, generateSelfie]);
 

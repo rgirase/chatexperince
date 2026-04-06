@@ -182,7 +182,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         await generateComicStrip(messages);
     };
 
-    const handleCheckStatus = async (msgId, promptId) => {
+    const handleCheckStatus = async (msgId, promptId, panelIndex = null) => {
         try {
             showToast("Checking ComfyUI status...", "info");
             const sdUrl = localStorage.getItem('sdUrl') || 'http://127.0.0.1:8188';
@@ -208,8 +208,20 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                             reader.readAsDataURL(blob);
                         });
                         
-                        setMessages(prev => prev.map(msg => msg.id === msgId ? { ...msg, url: base64Image } : msg));
-                        showToast("Selfie recovered successfully!", "success");
+                        setMessages(prev => prev.map(msg => {
+                            if (msg.id === msgId) {
+                                if (panelIndex !== null && msg.isComicStrip) {
+                                    const newPanels = [...(msg.panels || [])];
+                                    if (newPanels[panelIndex]) {
+                                        newPanels[panelIndex].url = base64Image;
+                                    }
+                                    return { ...msg, panels: newPanels };
+                                }
+                                return { ...msg, url: base64Image };
+                            }
+                            return msg;
+                        }));
+                        showToast(panelIndex !== null ? "Panel recovered successfully!" : "Selfie recovered successfully!", "success");
                         return;
                     }
                 }

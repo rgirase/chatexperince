@@ -70,8 +70,26 @@ const ComicStripMessage = ({ message, onDownload }) => {
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
                         ) : (
-                            <div className="skeleton" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <div className="skeleton" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                 <span style={{ fontSize: '0.8rem', color: '#555' }}>Panel {idx + 1}...</span>
+                                {panel.comfyPromptId && (
+                                    <button 
+                                        onClick={() => onDownload({ ...message, fetchPanelIdx: idx })}
+                                        className="fetch-panel-btn"
+                                        style={{ 
+                                            background: 'rgba(168, 85, 247, 0.2)', 
+                                            border: '1px solid rgba(168, 85, 247, 0.4)', 
+                                            color: '#a855f7', 
+                                            padding: '4px 8px', 
+                                            borderRadius: '8px', 
+                                            fontSize: '0.65rem',
+                                            cursor: 'pointer',
+                                            fontWeight: '700'
+                                        }}
+                                    >
+                                        RETRY FETCH
+                                    </button>
+                                )}
                             </div>
                         )}
                         
