@@ -110,7 +110,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         handleUpdateRelation,
         handleUpdateMilestones,
         handleUpdateEncounters,
-        handlePerformAdultAction, // <--- EXTRACTED FROM HOOK
+        handlePerformAdultAction, 
         customRelation,
         allSessions,
         sessionId,
@@ -128,6 +128,32 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         narrativeSettings,
         setNarrativeSettings
     } = useChatLogic(persona, showToast, scenario, generateSelfie);
+
+    // --- NEW: Per-Message Illustration logic ---
+    const handleIllustrateMessage = useCallback(async (msg) => {
+        showToast("Imagining this moment...", "info");
+        try {
+            // Find context (preceding messages)
+            const msgIdx = messages.findIndex(m => m.id === msg.id);
+            const context = messages.slice(Math.max(0, msgIdx - 4), msgIdx);
+            
+            const { generateMomentPrompt } = await import('../services/llm');
+            const visualPrompt = await generateMomentPrompt(persona, msg, context);
+            
+            if (!visualPrompt) throw new Error("Could not visualize this moment.");
+            
+            // Trigger generation as a new photo message
+            await generateSelfie(
+                visualPrompt, 
+                Date.now().toString(), 
+                'portrait', 
+                localStorage.getItem('preferredComicModel'), '', '', 'none', 'natural', true, false, false, null, 'none', 'none'
+            );
+        } catch (e) {
+            console.error("[Illustrate] Failed:", e);
+            showToast(e.message || "Failed to illustrate moment.", "error");
+        }
+    }, [messages, persona, generateSelfie, showToast]);
 
     // Update the ref whenever setMessages changes
     useEffect(() => {
@@ -342,6 +368,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 onResubmit={handleResubmit}
                 onRepair={handleRepair}
                 onCheckStatus={handleCheckStatus}
+                onIllustrateMessage={handleIllustrateMessage}
                 isTyping={isTyping}
                 messagesAreaRef={messagesAreaRef}
             />

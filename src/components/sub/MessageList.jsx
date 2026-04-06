@@ -17,6 +17,7 @@ const MessageList = ({
     onResubmit,
     onRepair,
     onCheckStatus,
+    onIllustrateMessage,
     isTyping,
     messagesAreaRef,
     isImmersionMode = false
@@ -106,7 +107,7 @@ const MessageList = ({
                                         </>
                                     ) : (
                                         <div className="photo-loading" style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', padding: '1rem' }}>
-                                            <span>Generating selfie...</span>
+                                            <span>{msg.isIllustration ? "Visualizing story..." : "Generating selfie..."}</span>
                                             {msg.comfyPromptId && onCheckStatus && (
                                                 <button 
                                                     onClick={() => onCheckStatus(msg.id, msg.comfyPromptId)}
@@ -174,6 +175,7 @@ const MessageList = ({
                             <div className={`message-meta-actions ${isImmersionMode ? 'immersion-actions' : ''}`} style={{ opacity: isImmersionMode ? 0.3 : undefined }}>
                                 <button onClick={() => onEditStart(msg)} title="Edit"><Edit2 size={12} /></button>
                                 <button onClick={() => onDeleteMessage(msg.id)} title="Delete"><Trash2 size={12} /></button>
+                                <button onClick={() => onIllustrateMessage(msg)} title="Illustrate this specific moment"><ImageIcon size={12} /></button>
                                 {msg.role === 'user' && (
                                     <button onClick={() => onResubmit(msg.id)} title="Resubmit / Regenerate"><RefreshCw size={12} /></button>
                                 )}

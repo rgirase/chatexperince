@@ -10,6 +10,11 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
     const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait', selectedModel = null, clothing = '', color = '', skin = 'none', lighting = 'natural', realismHigh = false, isAnimated = false, isComic = false, comicPanelInfo = null, piercing = 'none', tattoo = 'none') => {
         const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
         const imageEngine = localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE;
+        const preferredComicModel = localStorage.getItem('preferredComicModel') || 'disneyrealcartoonmix_v10.safetensors';
+        
+        // If it's a comic/illustration and no specific model passed, use the preferred comic model
+        const activeModel = selectedModel || (isComic ? preferredComicModel : null);
+        console.log(`[ImageGen] Triggering ${isComic ? 'Comic/Illustration' : 'Photo'}. Model: ${activeModel || 'Default'}`);
 
         const photoMsgId = aiMessageId + "_photo";
         
@@ -20,7 +25,7 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
 
         // Only add a new message if it's NOT a comic panel being added to an existing strip
         if (!isComic || !comicPanelInfo) {
-            setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: msgContent, url: null, image: null }]);
+            setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: msgContent, url: null, image: null, isIllustration: !!selectedModel && !isComic }]);
         }
 
         const charAppearance = persona.prompt?.match(/APPEARANCE:\s*(.*?)(?=\n|BACKSTORY:|$)/is)?.[1] || "";
@@ -33,7 +38,7 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
         const REALISM_LORA = realismHigh && !isComic ? "<lora:Pony_Realism_2:0.6>, " : "";
 
         const PONY_PREFIX = isComic ? COMIC_BOOSTERS : `${SCORE_TAGS}${PHOTO_BOOSTERS}${REALISM_LORA}photo (medium), 8k, high quality, cinematic, rating_explicit, masterpiece, photorealistic, 8k uhd, `;
-        const isPonyModel = selectedModel && (selectedModel.toLowerCase().includes('pony') || selectedModel.toLowerCase().includes('lust') || selectedModel.toLowerCase().includes('alchemist'));
+        const isPonyModel = activeModel && (activeModel.toLowerCase().includes('pony') || activeModel.toLowerCase().includes('lust') || activeModel.toLowerCase().includes('alchemist'));
         const finalPrefix = isPonyModel ? PONY_PREFIX : (isComic ? COMIC_BOOSTERS : "photo (medium), 8k, high quality, cinematic, masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ");
 
         // NEGATIVE PROMPT (STRONG SUPPRESSION)
@@ -98,7 +103,6 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 }
             } else if (imageEngine === 'comfyui') {
                 let comfyWorkflow = localStorage.getItem('comfyWorkflow');
-                const isPonyModel = selectedModel && (selectedModel.toLowerCase().includes('pony') || selectedModel.toLowerCase().includes('lust') || selectedModel.toLowerCase().includes('alchemist'));
                 
                 if (isAnimated || !comfyWorkflow || !comfyWorkflow.includes('3')) {
                     comfyWorkflow = JSON.stringify(isPonyModel ? DEFAULT_PONY_WORKFLOW : DEFAULT_COMFY_WORKFLOW);
@@ -117,10 +121,10 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
 
                 const workflowObj = JSON.parse(comfyWorkflow);
 
-                if (selectedModel) {
+                if (activeModel) {
                     const ckptNodeId = Object.keys(workflowObj).find(k => workflowObj[k].class_type === 'CheckpointLoaderSimple' || workflowObj[k].class_type === 'CheckpointLoader');
                     if (ckptNodeId) {
-                        workflowObj[ckptNodeId].inputs.ckpt_name = selectedModel;
+                        workflowObj[ckptNodeId].inputs.ckpt_name = activeModel;
                     }
                 }
 
@@ -209,7 +213,7 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 }
 
                 if (workflowObj["6"]) {
-                    const isPonyModel = selectedModel?.toLowerCase().includes('pony') || selectedModel?.toLowerCase().includes('lust') || selectedModel?.toLowerCase().includes('alchemist');
+                    const isPonyModel = activeModel?.toLowerCase().includes('pony') || activeModel?.toLowerCase().includes('lust') || activeModel?.toLowerCase().includes('alchemist');
                     const comfyPrefix = isPonyModel ? PONY_PREFIX : "masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ";
                     if (workflowObj["6"].inputs.text.includes('__PROMPT__')) {
                         workflowObj["6"].inputs.text = workflowObj["6"].inputs.text.replace('__PROMPT__', `${comfyPrefix}${parsedPrompt}`);
@@ -233,8 +237,16 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 if (!queueData.prompt_id) throw new Error("ComfyUI failure.");
 
                 const promptId = queueData.prompt_id;
+                const targetId = (isComic && comicPanelInfo) ? aiMessageId : photoMsgId;
+
+                // PREPARE PERSISTENCE
+                const currentSid = await db.getItem('settings', `active_session_${persona.id}`) || 'default';
+                const chatKey = `chat_${persona.id}_${currentSid}`;
+                const saved = await db.getItem('chats', chatKey);
+
+                console.log(`[ImageGen] Prompt queued: ${promptId}. Target ID: ${targetId}. History size: ${saved ? saved.length : 'NA'}`);
+
                 setMessages(prev => prev.map(msg => {
-                    const targetId = isComic ? aiMessageId : photoMsgId;
                     if (msg.id === targetId) {
                         if (isComic && comicPanelInfo) {
                             const newPanels = [...(msg.panels || [])];
@@ -245,6 +257,22 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                     }
                     return msg;
                 }));
+
+                // IMMEDIATE PERSISTENCE: Save comfyPromptId to DB so it survives a refresh
+                if (saved) {
+                    const updated = saved.map(msg => {
+                        if (msg.id === targetId) {
+                            if (isComic && comicPanelInfo) {
+                                const newPanels = [...(msg.panels || [])];
+                                if (newPanels[comicPanelInfo.index - 1]) newPanels[comicPanelInfo.index - 1].comfyPromptId = promptId;
+                                return { ...msg, panels: newPanels };
+                            }
+                            return { ...msg, comfyPromptId: promptId };
+                        }
+                        return msg;
+                    });
+                    await db.setItem('chats', chatKey, updated);
+                }
                 
                 let isComplete = false;
                 let attempts = 0;
@@ -366,7 +394,8 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 id: comicMsgId, role: 'ai', isComicStrip: true, isComplete: false,
                 panels: panels.map(p => ({ ...p, url: null }))
             }]);
-            const panelPromises = panels.map((p, i) => generateSelfie(p.visual, comicMsgId, 'square', null, '', '', 'none', 'natural', false, false, true, { index: i + 1, total: panels.length, caption: p.caption }));
+            const preferredComicModel = localStorage.getItem('preferredComicModel') || 'disneyrealcartoonmix_v10.safetensors';
+            const panelPromises = panels.map((p, i) => generateSelfie(p.visual, comicMsgId, 'square', preferredComicModel, '', '', 'none', 'natural', false, false, true, { index: i + 1, total: panels.length, caption: p.caption }));
             await Promise.all(panelPromises);
             setMessages(prev => prev.map(msg => msg.id === comicMsgId ? { ...msg, isComplete: true } : msg));
         } catch (e) {

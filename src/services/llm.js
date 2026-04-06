@@ -192,7 +192,9 @@ export const fetchAvailableModels = async () => {
     }
 };
 
-/// Helper to strip instructional patterns from AI output
+/**
+ * Helper to strip instructional patterns from AI output
+ */
 export const cleanLeakage = (text) => {
     if (!text) return text;
     
@@ -392,7 +394,7 @@ Roleplay identity of ${charName}: ${persona.systemPrompt}${timeSkipDirective}${m
 ${options.invitedPersona ? `\n\n[GUEST CHARACTER BIBLE: ${invitedName}]\n${options.invitedPersona.systemPrompt}` : ""}
 
 Voice: Immersive, descriptive, multi-paragraph narrative. Use *asterisks* for actions and natural dialogue.
-Goal: Respond ONLY as the characters. Never explain, never provide writing tips, and never refer to instructions.
+Voice Rules: Descriptive, immersive roleplay. Use *asterisks* for physical actions and sensory details. Dialogue should be natural and in-character.
 
 [CURRENT STORY BEAT]
 Memory: ${memory || "The story begins now."}
@@ -814,6 +816,53 @@ Return ONLY the summary sentence. No intros or outros.
     }
 };
 
+export const generateMomentPrompt = async (persona, targetMessage, recentHistory = []) => {
+    try {
+        const charName = getShortName(persona.name);
+        const url = getLmStudioUrl();
+        const historyText = recentHistory.map(msg => {
+            const name = msg.role === 'user' ? 'User' : (msg.personaName || charName);
+            return `${name}: ${msg.content}`;
+        }).join('\n');
+
+        const appearance = (persona.systemPrompt || persona.prompt || "").match(/APPEARANCE:\s*(.*?)(?=\n|$)/i)?.[1] || "As described in roleplay";
+
+        const prompt = `You are a cinematic image prompt engineer. 
+        Task: Create a detailed visual description of the following specific moment in a story.
+        
+        CHARACTER (${charName}): ${appearance}
+        SPECIFIC MOMENT: "${targetMessage.content}"
+        RECENT CONTEXT:
+        ${historyText}
+        
+        REQUIREMENTS:
+        - Return ONLY a comma-separated list of visual tags.
+        - Describe body language, physical contact, clothing, and environment.
+        - Focus on the actions of the SPECIFIC MOMENT.
+        - Return ONLY tags. No intros or full sentences.`;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: await ensureValidModel(),
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.7,
+                max_tokens: 200,
+                stream: false,
+            }),
+        });
+
+        if (!response.ok) return null;
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content || "";
+        return cleanLeakage(content.trim());
+    } catch (error) {
+        console.error("Error generating moment prompt:", error);
+        return null;
+    }
+};
+
 export const generateComicPanels = async (persona, messages, situation, location, userProfile = {}) => {
     try {
         const charName = getShortName(persona.name);
@@ -1142,6 +1191,7 @@ export const generateProfileImage = async (visualPrompt, personaName) => {
         return null;
     }
 };
+
 export const analyzeIntimateEncounter = async (persona, messages) => {
     const charName = getShortName(persona.name);
     const url = getLmStudioUrl();
