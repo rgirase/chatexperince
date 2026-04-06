@@ -34,18 +34,23 @@ const ChatHeader = ({
     intensity,
     setIntensity,
     invitedPersona,
-    currentMood, // Character Core 2.0
-    memory, // Character Core 2.0
-    onOpenMemory, // Character Core 2.0
-    onOpenInventory, // Character Core 2.0
-    isImmersionMode, // Phase 4
-    onToggleImmersion, // Phase 4
-    onOpenDirector, // Phase 4
-    onOpenActionLibrary, // Phase 4
-    onGenerateComic, // New Feature
-    onOpenLogs
+    currentMood,
+    memory,
+    onOpenMemory,
+    onOpenInventory,
+    isImmersionMode,
+    onToggleImmersion,
+    onOpenDirector,
+    onOpenActionLibrary,
+    onGenerateComic,
+    onOpenLogs,
+    customRelation,
+    onUpdateRelation
 }) => {
     const menuRef = useRef(null);
+    const [isRelationOpen, setIsRelationOpen] = React.useState(false);
+
+    const roles = ["Mother", "Sister", "Aunt", "Secretary", "Girlfriend"];
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -77,6 +82,7 @@ const ChatHeader = ({
             >
                 <ArrowLeft size={24} />
             </button>
+            
             <div 
                 className="chat-avatar-wrapper" 
                 onClick={onOpenStatus}
@@ -109,28 +115,143 @@ const ChatHeader = ({
                 </div>
                 <div className="status-online-indicator"></div>
             </div>
+
             <div 
                 className="chat-header-info" 
                 onClick={onOpenGallery}
-                style={{ flex: 1, cursor: 'pointer', minWidth: 0, overflow: 'hidden' }}
+                style={{ flex: 1, cursor: 'pointer', minWidth: 0, overflow: 'visible' }}
                 title="Open Chat Gallery"
             >
-                <h3 className="premium-gradient-text" style={{ 
-                    margin: 0, 
-                    fontSize: '1rem', 
-                    whiteSpace: 'nowrap', 
-                    overflow: 'hidden', 
-                    textOverflow: 'ellipsis',
-                    width: '100%'
-                }}>
-                    {persona.name}{invitedPersona ? ` & ${invitedPersona.name}` : ''}
-                </h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#22c55e', fontWeight: '500', whiteSpace: 'nowrap' }}>Online</p>
-                    <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', flexShrink: 0 }}></span>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#a1a1aa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{getRelationshipLabel(relationshipScore)}</p>
+                <div style={{ display: 'flex', flexDirection: 'column', overflow: 'visible' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <h3 className="premium-gradient-text" style={{ 
+                            margin: 0, 
+                            fontSize: '1rem', 
+                            fontWeight: 'bold',
+                            whiteSpace: 'nowrap', 
+                            overflow: 'hidden', 
+                            textOverflow: 'ellipsis' 
+                        }}>
+                            {persona.name}{invitedPersona ? ` & ${invitedPersona.name}` : ''}
+                        </h3>
+                        {intensity >= 70 && <Sparkles size={14} color="#facc15" />}
+                    </div>
+
+                    {persona.id === 'lyra_storyteller' ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                            <div style={{ position: 'relative' }}>
+                                <div 
+                                    onClick={(e) => { e.stopPropagation(); setIsRelationOpen(!isRelationOpen); }}
+                                    className="premium-action-btn"
+                                    style={{ 
+                                        margin: 0, 
+                                        fontSize: '0.7rem', 
+                                        background: 'rgba(250, 204, 21, 0.15)',
+                                        color: '#facc15', 
+                                        border: '1px solid rgba(250, 204, 21, 0.3)',
+                                        padding: '4px 8px',
+                                        borderRadius: '12px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer',
+                                        letterSpacing: '0.02em'
+                                    }}
+                                >
+                                     <Users size={12} />
+                                    {customRelation || "Set Relationship"}
+                                </div>
+                                
+                                <AnimatePresence>
+                                    {isRelationOpen && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                            className="glass-panel"
+                                            style={{ 
+                                                position: 'absolute', 
+                                                top: '100%', 
+                                                left: 0, 
+                                                zIndex: 1000, 
+                                                marginTop: '12px', 
+                                                minWidth: '150px', 
+                                                background: 'rgba(23,23,23,0.98)', 
+                                                backdropFilter: 'blur(15px)',
+                                                border: '1px solid rgba(255,255,255,0.15)',
+                                                borderRadius: '12px',
+                                                padding: '6px',
+                                                boxShadow: '0 15px 35px rgba(0,0,0,0.7)',
+                                                transformOrigin: 'top left'
+                                            }}
+                                        >
+                                            <div style={{ padding: '6px 12px', fontSize: '0.65rem', color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Choose Lyra's Role</div>
+                                            {roles.map(role => (
+                                                <button
+                                                    key={role}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onUpdateRelation(role);
+                                                        setIsRelationOpen(false);
+                                                    }}
+                                                    style={{
+                                                        width: '100%',
+                                                        textAlign: 'left',
+                                                        padding: '10px 14px',
+                                                        background: customRelation === role ? 'rgba(168, 85, 247, 0.2)' : 'transparent',
+                                                        border: 'none',
+                                                        color: customRelation === role ? '#a855f7' : '#eee',
+                                                        fontSize: '0.8rem',
+                                                        borderRadius: '8px',
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.2s ease',
+                                                        marginBottom: '2px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'space-between'
+                                                    }}
+                                                >
+                                                    {role}
+                                                    {customRelation === role && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#a855f7' }} />}
+                                                </button>
+                                            ))}
+                                            <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '6px 4px' }} />
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onUpdateRelation('');
+                                                    setIsRelationOpen(false);
+                                                }}
+                                                style={{
+                                                    width: '100%',
+                                                    textAlign: 'left',
+                                                    padding: '8px 14px',
+                                                    background: 'transparent',
+                                                    border: 'none',
+                                                    color: '#71717a',
+                                                    fontSize: '0.7rem',
+                                                    borderRadius: '8px',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                Clear Custom Role
+                                            </button>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#22c55e', fontWeight: '500', whiteSpace: 'nowrap' }}>Online</p>
+                            <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', flexShrink: 0 }}></span>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#a1a1aa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{getRelationshipLabel(relationshipScore)}</p>
+                        </div>
+                    )}
                 </div>
             </div>
+
             <div className="chat-header-actions" style={{ display: 'flex', gap: '4px', alignItems: 'center', flexShrink: 0 }}>
                 <div style={{ position: 'relative' }} ref={menuRef}>
                     <button 
@@ -162,6 +283,7 @@ const ChatHeader = ({
                     >
                         {isImmersionMode ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
+
                     <button 
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
                         className="header-action-btn"
@@ -173,7 +295,6 @@ const ChatHeader = ({
                     <AnimatePresence>
                         {isMobileMenuOpen && (
                             <>
-                                {/* Invisible Backdrop to close on click outside */}
                                 <div 
                                     style={{ position: 'fixed', inset: 0, zIndex: 999 }} 
                                     onClick={() => setIsMobileMenuOpen(false)}

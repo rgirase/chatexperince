@@ -189,9 +189,11 @@ import evelyn_strict_guardian from './evelyn_strict_guardian.js';
 import brianna_ex_sister_in_law from './brianna_ex_sister_in_law.js';
 import jade_exchange_sister from './jade_exchange_sister.js';
 import { sister_grace } from './sister_grace.js';
+import { lyra_storyteller } from './lyra_storyteller.js';
 
 
 export const characters = [
+  lyra_storyteller,
   sister_grace,
   girlfriend_and_daughter_rivalry,
   swinger_couple_ayesha,

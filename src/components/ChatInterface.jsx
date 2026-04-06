@@ -351,6 +351,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 onOpenActionLibrary={() => setIsActionLibraryOpen(true)}
                 onGenerateComic={handleGenerateComic}
                 onOpenLogs={() => setIsLogViewerOpen(true)}
+                customRelation={customRelation}
+                onUpdateRelation={handleUpdateRelation}
             />
 
             <MessageList 

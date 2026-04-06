@@ -91,10 +91,18 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
                 chat = []; // Start with an empty chat for the new session
             }
             
+            const suffix = `_${persona.id}_${currentSid}`;
+            const savedRelation = await db.getItem('settings', `relation${suffix}`) || (currentSid.startsWith('role_') ? currentSid.replace('role_', '') : '');
+            
             if (chat.length > 0) {
                 setMessages(chat.map(m => ({ ...m, content: cleanLeakage(m.content) })));
             } else {
-                const initialContent = scenarioPrompt || persona.initialMessage || "*Smiles softly* Hello...";
+                // Role-based initial content for special personas like Lyra
+                const roleKey = savedRelation ? (savedRelation.charAt(0).toUpperCase() + savedRelation.slice(1).toLowerCase()) : '';
+                const initialContent = scenarioPrompt || 
+                                     (persona.roleInitialMessages && roleKey && persona.roleInitialMessages[roleKey]) || 
+                                     persona.initialMessage || 
+                                     "*Smiles softly* Hello...";
                 
                 setMessages([{
                     id: Date.now().toString(),
@@ -111,7 +119,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
                 }
             }
 
-            const suffix = `_${persona.id}_${currentSid}`;
             setMemory(await db.getItem('memories', `memory${suffix}`) || '');
             setRelationshipScore(await db.getItem('settings', `score${suffix}`) || 50);
             setIntensity(await db.getItem('settings', `intensity${suffix}`) || 3);
@@ -127,7 +134,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             } else {
                 setActivePersonaImage(persona.image);
             }
-            setCustomRelation(await db.getItem('settings', `relation${suffix}`) || '');
+            setCustomRelation(savedRelation || '');
             setIsAvatarManual(await db.getItem('settings', `avatar_manual${suffix}`) || false);
             
             // Character Core 2.0
@@ -996,10 +1003,32 @@ ${lorePrompt}
         showToast("Memory manually updated", "success");
     }, [showToast]);
 
-    const handleUpdateRelation = useCallback((newRelation) => {
+    const handleUpdateRelation = useCallback(async (newRelation) => {
         setCustomRelation(newRelation);
-        showToast("Relation role updated", "success");
-    }, [showToast]);
+        
+        if (persona.id === 'lyra_storyteller') {
+            const roleSessionId = newRelation ? `role_${newRelation.toLowerCase()}` : 'default';
+            if (roleSessionId !== sessionId) {
+                // Ensure the session is in the list
+                if (!allSessions.includes(roleSessionId)) {
+                    const newList = [...allSessions, roleSessionId];
+                    await db.setItem('settings', `sessions_list_${persona.id}`, newList);
+                    setAllSessions(newList);
+                }
+                
+                // Switch session
+                await switchSession(roleSessionId);
+                
+                // Explicitly save the relation for this session to ensure it sticks
+                const suffix = `_${persona.id}_${roleSessionId}`;
+                await db.setItem('settings', `relation${suffix}`, newRelation);
+                
+                showToast(`Timeline shifted: ${newRelation || 'Classic Lyra'}`, "success");
+            }
+        } else {
+            showToast("Relation role updated", "success");
+        }
+    }, [persona.id, sessionId, allSessions, switchSession, showToast]);
 
     const handleUpdateMilestones = useCallback((newMilestones) => {
         setMilestones(newMilestones);

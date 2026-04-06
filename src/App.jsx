@@ -7,7 +7,7 @@ import ChatInterface from './components/ChatInterface';
 import Settings from './components/Settings';
 import GenesisWizard from './components/GenesisWizard';
 import { personas as defaultPersonas } from './data/personas';
-import { personal_gf } from './data/characters/personal_gf';
+import { lyra_storyteller } from './data/characters/lyra_storyteller';
 import StreakBonus from './components/sub/StreakBonus';
 import * as db from './services/db';
 import VaultModal from './components/sub/VaultModal';
@@ -310,7 +310,7 @@ function App() {
     setSelectedPersona(null);
     setActiveView('gf');
     localStorage.setItem('activeView', 'gf');
-    localStorage.setItem('lastPersonaId', personal_gf.id);
+    localStorage.setItem('lastPersonaId', lyra_storyteller.id);
   };
 
   const handlePersonaCreated = (newPersona) => {
@@ -511,8 +511,8 @@ function App() {
           />
         ) : activeView === 'gf' ? (
           <ChatInterface
-            key={personal_gf.id}
-            persona={personal_gf}
+            key={lyra_storyteller.id}
+            persona={lyra_storyteller}
             allPersonas={processedPersonas}
             onBack={handleBack}
             onGoHome={handleGoHome}
@@ -537,7 +537,7 @@ function App() {
           <PersonaList 
             onSelectPersona={handleSelectPersona} 
             customPersonas={customPersonas}
-            allPersonas={processedPersonas}
+            allPersonas={processedPersonas.filter(p => p.id !== 'lyra_storyteller')}
           />
         )}
 
@@ -567,7 +567,7 @@ function App() {
           </button>
 
           <button 
-            className={`nav-item ${activeView === 'chat' && selectedPersona?.id !== personal_gf.id ? 'active' : ''}`}
+            className={`nav-item ${activeView === 'chat' && selectedPersona?.id !== lyra_storyteller.id ? 'active' : ''}`}
             onClick={() => {
               const lastId = localStorage.getItem('lastPersonaId');
               if (lastId) {
@@ -579,8 +579,8 @@ function App() {
               }
             }}
           >
-            <MessageCircle size={22} color={activeView === 'chat' && selectedPersona?.id !== personal_gf.id ? '#a855f7' : '#71717a'} />
-            <span style={{ color: activeView === 'chat' && selectedPersona?.id !== personal_gf.id ? '#fff' : '#71717a' }}>Chat</span>
+            <MessageCircle size={22} color={activeView === 'chat' && selectedPersona?.id !== lyra_storyteller.id ? '#a855f7' : '#71717a'} />
+            <span style={{ color: activeView === 'chat' && selectedPersona?.id !== lyra_storyteller.id ? '#fff' : '#71717a' }}>Chat</span>
           </button>
           
           <button 

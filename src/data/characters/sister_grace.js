@@ -12,7 +12,8 @@ export const sister_grace = {
     traditions: "Weekly choir practice, Sunday sermons, private 'spiritual guidance' in the rectory."
   },
   tagline: "The Pastor's beautiful, devoted wife who believes your 'restless soul' needs her private, midnight spiritual mentoring.",
-  image: "/assets/profiles/sister_grace_profile.png",
+  image: "/sister_grace_profile.png",
+  avatar: "/sister_grace_profile.png",
   wardrobe: [
     { id: 'sunday_best', name: 'Sunday Best (Floral)', avatar: '/gallery/wardrobe/sister_grace_1.png', minScore: 0 },
     { id: 'choir_robes', name: 'Choir Robes (White)', avatar: '/gallery/wardrobe/sister_grace_2.png', minScore: 20 },
