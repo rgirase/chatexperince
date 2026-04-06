@@ -6,7 +6,6 @@ import { CLOTHING_TYPES, COLORS, SKIN_TEXTURES, LIGHTING_MODES, PIERCING_TYPES, 
 import { generateComicPrompts } from '../services/llm';
 
 export const useImageGeneration = (persona, setMessages, showToast) => {
-    const isMounted = useRef(true);
 
     const generateSelfie = useCallback(async (prompt, aiMessageId, aspectRatio = 'portrait', selectedModel = null, clothing = '', color = '', skin = 'none', lighting = 'natural', realismHigh = false, isAnimated = false, isComic = false, comicPanelInfo = null, piercing = 'none', tattoo = 'none') => {
         const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
@@ -21,7 +20,7 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
 
         // Only add a new message if it's NOT a comic panel being added to an existing strip
         if (!isComic || !comicPanelInfo) {
-            setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: msgContent, url: null }]);
+            setMessages(prev => [...prev, { id: photoMsgId, role: 'ai', isPhoto: true, content: msgContent, url: null, image: null }]);
         }
 
         const charAppearance = persona.prompt?.match(/APPEARANCE:\s*(.*?)(?=\n|BACKSTORY:|$)/is)?.[1] || "";
@@ -101,7 +100,6 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 let comfyWorkflow = localStorage.getItem('comfyWorkflow');
                 const isPonyModel = selectedModel && (selectedModel.toLowerCase().includes('pony') || selectedModel.toLowerCase().includes('lust') || selectedModel.toLowerCase().includes('alchemist'));
                 
-                // Force default for animations to ensure node injection stability
                 if (isAnimated || !comfyWorkflow || !comfyWorkflow.includes('3')) {
                     comfyWorkflow = JSON.stringify(isPonyModel ? DEFAULT_PONY_WORKFLOW : DEFAULT_COMFY_WORKFLOW);
                 }
@@ -135,7 +133,6 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                         workflowObj["5"].inputs.width = aspectRatio === 'landscape' ? 1216 : (aspectRatio === 'square' ? 1024 : 832);
                         workflowObj["5"].inputs.height = aspectRatio === 'landscape' ? 832 : (aspectRatio === 'square' ? 1024 : 1216);
                     }
-                    // Animated Frame Support
                     if (isAnimated) {
                         workflowObj["5"].inputs.batch_size = 16;
                     }
@@ -150,11 +147,9 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                     const vaeDecodeId = findNodeByType('VAEDecode');
                     const saveImageId = findNodeByType('SaveImage') || findNodeByType('PreviewImage');
 
-                    // 1. CHASE THE MODEL LINK
                     let currentModelLink = [ckptId, 0];
                     let currentClipLink = [ckptId, 1];
 
-                    // 2. INJECT LORAS IF PRESENT
                     if (loraMatches.length > 0 && ckptId) {
                         let loraIdCounter = 900;
                         for (const lora of loraMatches) {
@@ -174,11 +169,8 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                         }
                     }
 
-                    // 3. INJECT ANIMATEDIFF IF NEEDED
                     if (isAnimated && ckptId) {
                         showToast("Generating Animated Live Photo...", "info");
-                        
-                        // Add AnimateDiff Loader (Node 1200)
                         workflowObj["1200"] = {
                             class_type: "ADE_AnimateDiffLoaderV1Advanced",
                             inputs: {
@@ -190,11 +182,7 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                             }
                         };
                         currentModelLink = ["1200", 0];
-
-                        // Batch Size
                         if (latentId) workflowObj[latentId].inputs.batch_size = 16;
-                        
-                        // Video Output (Replace SaveImage/PreviewImage)
                         const targetOutputId = saveImageId || "9";
                         workflowObj[targetOutputId] = {
                             class_type: "VHS_VideoCombine",
@@ -209,26 +197,20 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                         };
                     }
 
-                    // 4. FINAL REDIRECT (SAMPLE & CLIP)
                     if (samplerId) {
                         workflowObj[samplerId].inputs.model = currentModelLink;
                     }
 
-                    // Point all ClipTextEncoders to the end of the Clip Chain
                     for (const nodeId in workflowObj) {
-                        if (workflowObj[nodeId].class_type === "CLIPTextEncode") {
-                            workflowObj[nodeId].inputs.clip = currentClipLink;
-                        } else if (workflowObj[nodeId].class_type === "CLIPSetLastLayer") {
+                        if (workflowObj[nodeId].class_type === "CLIPTextEncode" || workflowObj[nodeId].class_type === "CLIPSetLastLayer") {
                             workflowObj[nodeId].inputs.clip = currentClipLink;
                         }
                     }
                 }
 
-                // POSITIVE PROMPT
                 if (workflowObj["6"]) {
                     const isPonyModel = selectedModel?.toLowerCase().includes('pony') || selectedModel?.toLowerCase().includes('lust') || selectedModel?.toLowerCase().includes('alchemist');
                     const comfyPrefix = isPonyModel ? PONY_PREFIX : "masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ";
-                    
                     if (workflowObj["6"].inputs.text.includes('__PROMPT__')) {
                         workflowObj["6"].inputs.text = workflowObj["6"].inputs.text.replace('__PROMPT__', `${comfyPrefix}${parsedPrompt}`);
                     } else {
@@ -236,11 +218,8 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                     }
                 }
 
-                // NEGATIVE PROMPT (NODE 7 IS STANDARD FOR NEGATIVE)
                 if (workflowObj["7"]) {
-                    const baseNeg = isComic ? COMIC_NEGATIVE : "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs, watermark, text, signature";
-                    const clothingSuppression = clothingPart ? ", (clothing:0.1), (clothes:0.1)" : "";
-                    workflowObj["7"].inputs.text = baseNeg + clothingSuppression;
+                    workflowObj["7"].inputs.text = (isComic ? COMIC_NEGATIVE : "lowres, bad quality, anime, cartoon, sketch, ugly, blurry, deformed, mutated, extra limbs") + (clothingPart ? ", (clothing:0.1), (clothes:0.1)" : "");
                 }
 
                 if (workflowObj["3"]) workflowObj["3"].inputs.seed = Math.floor(Math.random() * 1000000);
@@ -254,16 +233,12 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 if (!queueData.prompt_id) throw new Error("ComfyUI failure.");
 
                 const promptId = queueData.prompt_id;
-                
-                // Store prompt ID for later "Manual Fetch" if needed
                 setMessages(prev => prev.map(msg => {
                     const targetId = isComic ? aiMessageId : photoMsgId;
                     if (msg.id === targetId) {
                         if (isComic && comicPanelInfo) {
                             const newPanels = [...(msg.panels || [])];
-                            if (newPanels[comicPanelInfo.index - 1]) {
-                                newPanels[comicPanelInfo.index - 1].comfyPromptId = promptId;
-                            }
+                            if (newPanels[comicPanelInfo.index - 1]) newPanels[comicPanelInfo.index - 1].comfyPromptId = promptId;
                             return { ...msg, panels: newPanels };
                         }
                         return { ...msg, comfyPromptId: promptId };
@@ -273,140 +248,130 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 
                 let isComplete = false;
                 let attempts = 0;
-                const pollInterval = (sdUrl.includes('127.0.0.1') || sdUrl.includes('localhost')) ? 1500 : 2500;
-
                 while (!isComplete && attempts < 120) {
-                    await new Promise(r => setTimeout(r, pollInterval));
+                    await new Promise(r => setTimeout(r, 2000));
                     attempts++;
                     try {
                         const histRes = await fetch(`${sdUrl.replace(/\/$/, '')}/history/${promptId}`);
                         const histData = await histRes.json();
                         if (histData[promptId]) {
-                                    const outputs = histData[promptId].outputs;
-                                    
-                                    // IF ANIMATED, PRIORITIZE VIDEO NODES
-                                    let foundMedia = null;
-                                    
-                                    if (isAnimated) {
-                                        for (const nodeId in outputs) {
-                                            if (outputs[nodeId].gifs || outputs[nodeId].videos) {
-                                                foundMedia = (outputs[nodeId].gifs || outputs[nodeId].videos)[0];
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    
-                                    // FALLBACK TO IMAGES
-                                    if (!foundMedia) {
-                                        for (const nodeId in outputs) {
-                                            if (outputs[nodeId].images && outputs[nodeId].images.length > 0) {
-                                                foundMedia = outputs[nodeId].images[0];
-                                                break;
-                                            }
-                                        }
-                                    }
-
-                                    if (foundMedia) {
-                                        const paramsObj = new URLSearchParams(foundMedia);
-                                        const viewRes = await fetch(`${sdUrl.replace(/\/$/, '')}/view?${paramsObj.toString()}`);
-                                        const blob = await viewRes.blob();
-                                        base64Image = await new Promise((resolve) => {
-                                            const reader = new FileReader();
-                                            reader.onloadend = () => resolve(reader.result);
-                                            reader.readAsDataURL(blob);
-                                        });
-                                        isComplete = true;
+                            const outputs = histData[promptId].outputs;
+                            let foundMedia = null;
+                            if (isAnimated) {
+                                for (const nodeId in outputs) {
+                                    if (outputs[nodeId].gifs || outputs[nodeId].videos) {
+                                        foundMedia = (outputs[nodeId].gifs || outputs[nodeId].videos)[0];
                                         break;
                                     }
+                                }
+                            }
+                            if (!foundMedia) {
+                                for (const nodeId in outputs) {
+                                    if (outputs[nodeId].images && outputs[nodeId].images.length > 0) {
+                                        foundMedia = outputs[nodeId].images[0];
+                                        break;
+                                    }
+                                }
+                            }
+                            if (foundMedia) {
+                                const paramsObj = new URLSearchParams(foundMedia);
+                                const viewRes = await fetch(`${sdUrl.replace(/\/$/, '')}/view?${paramsObj.toString()}`);
+                                const blob = await viewRes.blob();
+                                base64Image = await new Promise((resolve) => {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => resolve(reader.result);
+                                    reader.readAsDataURL(blob);
+                                });
+                                isComplete = true;
+                                break;
+                            }
                         }
-                    } catch (pollError) {
-                        console.warn("ComfyUI polling blocked or timeout (normal during generation), retrying...", pollError);
-                    }
+                    } catch (e) {}
                 }
-                if (!isComplete) throw new Error("ComfyUI timeout.");
             }
 
             if (base64Image) {
                 if (isComic && comicPanelInfo) {
-                    // Update the specific panel in the comic strip message
-                    setMessages(prev => prev.map(msg => {
-                        if (msg.id === aiMessageId && msg.isComicStrip) {
-                            const newPanels = [...(msg.panels || [])];
-                            if (newPanels[comicPanelInfo.index - 1]) {
-                                newPanels[comicPanelInfo.index - 1].url = base64Image;
+                    const panelId = `${aiMessageId}_panel_${comicPanelInfo.index}`;
+                    setMessages(prev => {
+                        const updated = prev.map(msg => {
+                            if (msg.id === aiMessageId && msg.isComicStrip) {
+                                const newPanels = [...(msg.panels || [])];
+                                if (newPanels[comicPanelInfo.index - 1]) newPanels[comicPanelInfo.index - 1].url = base64Image;
+                                return { ...msg, panels: newPanels };
                             }
-                            return { ...msg, panels: newPanels };
+                            return msg;
+                        });
+                        const exists = updated.some(m => m.id === panelId);
+                        if (!exists) {
+                            updated.push({
+                                id: panelId, role: 'ai', isPhoto: true, 
+                                content: comicPanelInfo.caption || `Panel ${comicPanelInfo.index}`,
+                                url: base64Image, image: base64Image, timestamp: new Date().toISOString()
+                            });
+                        } else {
+                            return updated.map(m => m.id === panelId ? { ...m, url: base64Image, image: base64Image } : m);
                         }
-                        return msg;
-                    }));
+                        return updated;
+                    });
                 } else {
-                    setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg));
+                    setMessages(prev => prev.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image, image: base64Image } : msg));
                 }
                 
                 showToast(isComic ? `Panel ${comicPanelInfo?.index || ''} complete!` : "Selfie received!", "success");
                 
                 // Persistence
-                const saved = await db.getItem('chats', `chat_${persona.id}`);
+                const currentSid = await db.getItem('settings', `active_session_${persona.id}`) || 'default';
+                const chatKey = `chat_${persona.id}_${currentSid}`;
+                const saved = await db.getItem('chats', chatKey);
                 if (saved) {
-                    const updated = saved.map(msg => msg.id === photoMsgId ? { ...msg, url: base64Image } : msg);
-                    await db.setItem('chats', `chat_${persona.id}`, updated);
+                    let updated = saved.map(msg => {
+                        if (isComic && msg.id === aiMessageId && msg.isComicStrip) {
+                            const newPanels = [...(msg.panels || [])];
+                            if (newPanels[comicPanelInfo.index - 1]) newPanels[comicPanelInfo.index - 1].url = base64Image;
+                            return { ...msg, panels: newPanels };
+                        }
+                        if (msg.id === photoMsgId) return { ...msg, url: base64Image, image: base64Image };
+                        return msg;
+                    });
+
+                    if (isComic && comicPanelInfo) {
+                        const panelId = `${aiMessageId}_panel_${comicPanelInfo.index}`;
+                        if (!updated.some(m => m.id === panelId)) {
+                             updated.push({
+                                id: panelId, role: 'ai', isPhoto: true,
+                                content: comicPanelInfo.caption || `Panel ${comicPanelInfo.index}`,
+                                url: base64Image, image: base64Image, timestamp: new Date().toISOString()
+                            });
+                        } else {
+                            updated = updated.map(m => m.id === panelId ? { ...m, url: base64Image, image: base64Image } : m);
+                        }
+                    }
+                    await db.setItem('chats', chatKey, updated);
                 }
             }
         } catch (e) {
             console.error('Image Generation Error:', e);
             showToast(e.message || "Image generation failed.");
-            setMessages(prev => prev.filter(msg => msg.id !== photoMsgId));
         }
     }, [persona, setMessages, showToast]);
 
     const generateComicStrip = useCallback(async (messages) => {
         showToast("Drafting Storyboard...", "info");
-        
         try {
-            // 1. Generate Narrative Beats
             const panels = await generateComicPrompts(persona, messages);
-            if (!panels || panels.length === 0) throw new Error("Narrative engine failed to storyboard.");
-
+            if (!panels || panels.length === 0) throw new Error("Narrative engine failed.");
             const comicMsgId = (Date.now()).toString() + "_comic";
-            
-            // 2. Initialize Comic Message
             setMessages(prev => [...prev, { 
-                id: comicMsgId, 
-                role: 'ai', 
-                isComicStrip: true, 
-                isComplete: false,
+                id: comicMsgId, role: 'ai', isComicStrip: true, isComplete: false,
                 panels: panels.map(p => ({ ...p, url: null }))
             }]);
-
-            // 3. Parallel Generation Orchestration
-            // We launch all generations at once. They will each update the state as they finish.
-            const panelPromises = panels.map((currentPanel, i) => {
-                console.log(`[ComicEngine] Launching Panel ${i+1}:`, currentPanel.visual);
-                return generateSelfie(
-                    currentPanel.visual, 
-                    comicMsgId, 
-                    'square', 
-                    null, 
-                    '', '', 'none', 'natural', false, false, true, 
-                    { index: i + 1, total: panels.length }
-                );
-            });
-
-            // Wait for all to finish (either success or failure)
+            const panelPromises = panels.map((p, i) => generateSelfie(p.visual, comicMsgId, 'square', null, '', '', 'none', 'natural', false, false, true, { index: i + 1, total: panels.length, caption: p.caption }));
             await Promise.all(panelPromises);
-
-            // Mark message as complete
-            setMessages(prev => prev.map(msg => 
-                msg.id === comicMsgId ? { ...msg, isComplete: true } : msg
-            ));
-
+            setMessages(prev => prev.map(msg => msg.id === comicMsgId ? { ...msg, isComplete: true } : msg));
         } catch (e) {
-            console.error("[ComicEngine] Storyboard orchestration failed. Detailed trace:", e);
-            if (e.message?.includes("Narrative engine failed")) {
-                showToast("Narrative engine is currently busy or model output was malformed. Please try again.", "error");
-            } else {
-                showToast(e.message || "Comic generation failed.");
-            }
+            console.error(e);
+            showToast("Comic generation failed.");
         }
     }, [persona, setMessages, showToast, generateSelfie]);
 

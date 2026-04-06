@@ -4,17 +4,34 @@ import { X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 const GalleryModal = ({ isOpen, onClose, persona, messages = [] }) => {
     const [selectedIndex, setSelectedIndex] = useState(null);
     
-    // Extract all images from message history (where msg.url exists)
-    const gallery = messages
-        .filter(msg => msg.url && msg.url.length > 20) // Ensure it's a valid data URI or path
-        .map(msg => msg.url);
+    // Extreme Harvesting: Scan history for any image references (url, image, or img)
+    const galleryItems = (messages || []).reduce((acc, msg) => {
+        const isValid = (val) => val && typeof val === 'string' && val.length > 5;
+        
+        // 1. Root level scan
+        if (isValid(msg.url)) acc.push(msg.url);
+        if (isValid(msg.image)) acc.push(msg.image);
+        if (isValid(msg.img)) acc.push(msg.img);
+        
+        // 2. Comic Panel scan
+        if (msg.panels && Array.isArray(msg.panels)) {
+            msg.panels.forEach(p => {
+                if (isValid(p.url)) acc.push(p.url);
+                if (isValid(p.image)) acc.push(p.image);
+                if (isValid(p.img)) acc.push(p.img);
+            });
+        }
+        return acc;
+    }, []);
     
-    // Add the current persona image as the "Profile" entry if the gallery is empty? 
+    // De-duplicate URLs (e.g. if a panel is both in a strip and standalone)
+    const uniqueGallery = [...new Set(galleryItems)];
+    
     // User said "keep the profile picture", but for the chat gallery, let's keep it strictly to generated content.
     
     if (!isOpen) return null;
 
-    const isEmpty = gallery.length === 0;
+    const isEmpty = uniqueGallery.length === 0;
 
     return (
         <div className="modal-overlay" style={{ zIndex: 10000 }}>
@@ -75,7 +92,7 @@ const GalleryModal = ({ isOpen, onClose, persona, messages = [] }) => {
                             gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
                             gap: '12px'
                         }}>
-                            {gallery.map((img, idx) => (
+                            {uniqueGallery.map((img, idx) => (
                                 <motion.div
                                     key={idx}
                                     whileHover={{ scale: 1.05 }}
@@ -141,19 +158,18 @@ const GalleryModal = ({ isOpen, onClose, persona, messages = [] }) => {
                             <button 
                                 onClick={(e) => { 
                                     e.stopPropagation(); 
-                                    setSelectedIndex((prev) => (prev > 0 ? prev - 1 : gallery.length - 1));
+                                    setSelectedIndex((prev) => (prev > 0 ? prev - 1 : uniqueGallery.length - 1));
                                 }}
                                 style={{ position: 'absolute', left: '20px', background: 'rgba(0,0,0,0.5)', border: 'none', color: '#fff', padding: '15px', borderRadius: '50%', zIndex: 1, cursor: 'pointer' }}
                             >
                                 <ChevronLeft size={30} />
                             </button>
-
                             <motion.img 
                                 key={selectedIndex}
                                 initial={{ x: 100, opacity: 0 }}
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: -100, opacity: 0 }}
-                                src={gallery[selectedIndex]}
+                                src={uniqueGallery[selectedIndex]}
                                 style={{ 
                                     maxWidth: '100%', 
                                     maxHeight: '100%', 
@@ -163,11 +179,10 @@ const GalleryModal = ({ isOpen, onClose, persona, messages = [] }) => {
                                 }}
                                 onClick={(e) => e.stopPropagation()}
                             />
-
                             <button 
                                 onClick={(e) => { 
                                     e.stopPropagation(); 
-                                    setSelectedIndex((prev) => (prev < gallery.length - 1 ? prev + 1 : 0));
+                                    setSelectedIndex((prev) => (prev < uniqueGallery.length - 1 ? prev + 1 : 0));
                                 }}
                                 style={{ position: 'absolute', right: '20px', background: 'rgba(0,0,0,0.5)', border: 'none', color: '#fff', padding: '15px', borderRadius: '50%', zIndex: 1, cursor: 'pointer' }}
                             >
@@ -175,7 +190,7 @@ const GalleryModal = ({ isOpen, onClose, persona, messages = [] }) => {
                             </button>
                             
                             <div style={{ position: 'absolute', bottom: '30px', color: '#fff', background: 'rgba(0,0,0,0.5)', padding: '6px 16px', borderRadius: '20px', fontSize: '0.9rem' }}>
-                                {selectedIndex + 1} / {gallery.length}
+                                {selectedIndex + 1} / {uniqueGallery.length}
                             </div>
                         </motion.div>
                     )}
