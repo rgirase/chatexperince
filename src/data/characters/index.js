@@ -188,9 +188,11 @@ import lexi_sons_girlfriend from './lexi_sons_girlfriend.js';
 import evelyn_strict_guardian from './evelyn_strict_guardian.js';
 import brianna_ex_sister_in_law from './brianna_ex_sister_in_law.js';
 import jade_exchange_sister from './jade_exchange_sister.js';
+import { sister_grace } from './sister_grace.js';
 
 
 export const characters = [
+  sister_grace,
   girlfriend_and_daughter_rivalry,
   swinger_couple_ayesha,
   swinger_couple_tiffany,

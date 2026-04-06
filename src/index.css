@@ -36,6 +36,17 @@
   50% { transform: translateY(-5px); }
 }
 
+@keyframes glass-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes sanctified-pulse {
+  0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); }
+  50% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
+  100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); }
+}
+
 .premium-select {
   width: 100%;
   padding: 10px 12px;
@@ -1793,4 +1804,37 @@ body {
 @keyframes fadeInText {
     from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
     to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* Sister Grace - Confessional Theme */
+.chat-container.sister_grace {
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 70%),
+        url('https://images.unsplash.com/photo-1548625313-2ab07f594580?q=80&w=2670&auto=format&fit=crop'); /* Subtle church stone/texture */
+    background-blend-mode: overlay;
+}
+
+.sister-grace-aura {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(circle at 50% 30%, rgba(168, 85, 247, 0.1) 0%, transparent 60%);
+    opacity: 0.6;
+}
+
+.confessional-msg-container .public-layer:hover {
+    animation: sanctified-pulse 2s infinite;
+    border-color: rgba(168, 85, 247, 0.4) !important;
+}
+
+.action-icon-btn.confess-btn:hover {
+    color: #ef4444;
+    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6));
+}
+
+.cinematic-text .action {
+    color: #f472b6;
+    font-style: italic;
+    font-weight: 500;
 }

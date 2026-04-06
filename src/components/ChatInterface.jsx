@@ -283,7 +283,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
 
     return (
         <div 
-            className="chat-container"
+            className={`chat-container ${persona.id}`}
             style={{ 
                 backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${currentBg})`,
                 backgroundSize: 'cover',

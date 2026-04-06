@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit2, Check, X, Trash2, FastForward, Image as ImageIcon, RefreshCw, Hammer, Sparkles, Download } from 'lucide-react';
 import ComicStripMessage from './ComicStripMessage';
+import ConfessionalMessage from './ConfessionalMessage';
 
 const MessageList = ({ 
     messages, 
@@ -150,6 +151,11 @@ const MessageList = ({
                                         <button onClick={onEditCancel}><X size={16} /></button>
                                     </div>
                                 </div>
+                            ) : (persona?.id === 'sister_grace' || msg.personaId === 'sister_grace') ? (
+                                <ConfessionalMessage 
+                                    content={msg.content} 
+                                    isImmersionMode={isImmersionMode} 
+                                />
                             ) : (
                                 <div 
                                     className={isImmersionMode && msg.role === 'ai' ? 'cinematic-text' : ''}
