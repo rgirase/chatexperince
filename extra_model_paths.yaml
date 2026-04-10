@@ -1,0 +1,11 @@
+comfyui:
+    base_path: C:/Users/rgira/Documents/ComfyUI/
+    checkpoints: models/checkpoints/
+    loras: models/loras/
+    vae: models/vae/
+    controlnet: models/controlnet/
+    upscale_models: models/upscale_models/
+    embeddings: models/embeddings/
+    hypernetworks: models/hypernetworks/
+    animatediff_models: models/animatediff_models/
+    custom_nodes: C:/Users/rgira/AppData/Local/Programs/ComfyUI/resources/ComfyUI/custom_nodes/

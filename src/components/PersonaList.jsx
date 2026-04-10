@@ -17,6 +17,7 @@ import SkeletonCard from './sub/SkeletonCard';
 import { scenarios } from '../data/scenarios';
 import { Sparkles as SparklesIcon, ChevronRight, RefreshCw } from 'lucide-react';
 import { generateFeaturedScenarios } from '../services/llm';
+import LiveLabWidget from './sub/LiveLabWidget';
 
 const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -317,7 +318,7 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
 
     return (
         <div className="persona-container" style={{ paddingBottom: '4rem' }}>
-            
+            <LiveLabWidget />
 
             {/* Scenario Spotlight Section */}
             {!searchTerm && activeCategory === 'All' && activeRegion === 'All' && activeTab === 'all' && (

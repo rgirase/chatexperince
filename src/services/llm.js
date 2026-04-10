@@ -20,6 +20,65 @@ export const getLmStudioUrl = (providedUrl) => {
 };
 
 /**
+ * Universal server status check
+ */
+export const checkServerStatus = async (type, url) => {
+    try {
+        if (type === 'lm') {
+            const baseUrl = (url || getLmStudioUrl()).replace('/chat/completions', '');
+            const res = await fetch(`${baseUrl}/models`, { method: 'GET' });
+            if (res.ok) {
+                const data = await res.json();
+                return { 
+                    online: true, 
+                    models: data.data || [], 
+                    activeModel: localStorage.getItem('lmStudioModel') || (data.data?.[0]?.id)
+                };
+            }
+        } else if (type === 'comfy') {
+            const baseUrl = (url || getSdUrl()).replace(/\/$/, '');
+            const res = await fetch(`${baseUrl}/system_stats`, { method: 'GET' });
+            if (res.ok) {
+                const data = await res.json();
+                return { online: true, stats: data };
+            }
+        }
+        return { online: false };
+    } catch (e) {
+        return { online: false, error: e.message };
+    }
+};
+
+/**
+ * Specifically for the "Live Lab" widget to get VRAM info if available
+ */
+export const fetchSystemStats = async () => {
+    const comfyUrl = getSdUrl();
+    try {
+        const res = await fetch(`${comfyUrl}/system_stats`);
+        if (res.ok) {
+            const data = await res.json();
+            // ComfyUI system_stats structure: { devices: [ { name: "...", vram_total: ..., vram_free: ... } ] }
+            const device = data.devices?.[0];
+            if (device) {
+                const total = device.vram_total / (1024**3);
+                const free = device.vram_free / (1024**3);
+                const used = total - free;
+                return {
+                    gpu: device.name,
+                    vramTotal: total.toFixed(1),
+                    vramUsed: used.toFixed(1),
+                    vramPct: Math.round((used / total) * 100)
+                };
+            }
+        }
+        return null;
+    } catch (e) {
+        return null;
+    }
+};
+
+/**
  * Internal helper to call LM Studio for simple, non-streaming completions
  */
 async function callLMStudio(prompt, temperature = 0.7, jsonMode = false) {

@@ -11,6 +11,7 @@ import { lyra_storyteller } from './data/characters/lyra_storyteller';
 import StreakBonus from './components/sub/StreakBonus';
 import * as db from './services/db';
 import VaultModal from './components/sub/VaultModal';
+import SignalBridge from './components/sub/SignalBridge';
 
 let hasPushedHistory = false;
 
@@ -27,6 +28,7 @@ function App() {
   const [imageUpdateKey, setImageUpdateKey] = React.useState(0);
   const [isBooting, setIsBooting] = React.useState(true);
   const [isVaultOpen, setIsVaultOpen] = React.useState(false);
+  const [showSignalBridge, setShowSignalBridge] = React.useState(false);
   
   // Streak State
   const [streak, setStreak] = useState(0);
@@ -180,6 +182,12 @@ function App() {
           setLastLoginDate(today);
         }
         setStreak(newCount);
+
+        // NUX Check for Signal Bridge
+        const nuxSignal = localStorage.getItem('nux_signal_complete');
+        if (!nuxSignal) {
+          setShowSignalBridge(true);
+        }
       } catch (e) {
         console.error("[App] Failed to update streak", e);
       } finally {
@@ -441,6 +449,14 @@ function App() {
             onClose={() => setIsVaultOpen(false)} 
             allPersonas={[...defaultPersonas, ...customPersonas]} 
           />
+          {showSignalBridge && (
+            <SignalBridge 
+              onComplete={() => {
+                localStorage.setItem('nux_signal_complete', 'true');
+                setShowSignalBridge(false);
+              }} 
+            />
+          )}
         </AnimatePresence>
 
         {!selectedPersona && activeView === 'home' && (
