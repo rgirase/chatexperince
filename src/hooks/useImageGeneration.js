@@ -38,19 +38,54 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
         }
 
         // 1. Initial UI Setup
-        if (!isComic || !comicPanelInfo) {
-            setMessages(prev => [...prev, { 
-                id: photoMsgId, role: 'ai', isPhoto: true, content: msgContent, url: null, 
-                image: null, isIllustration: !!selectedModel && !isComic 
-            }]);
-        }
+        setMessages(prev => {
+            if (isComic && comicPanelInfo) {
+                // Update the main comic strip message to track this panel's progress
+                return prev.map(msg => {
+                    if (msg.id === aiMessageId && msg.isComicStrip) {
+                        const newPanels = [...(msg.panels || [])];
+                        if (newPanels[comicPanelInfo.index - 1]) {
+                            // Link panel to this placeholder logic
+                        }
+                        return { ...msg, panels: newPanels };
+                    }
+                    return msg;
+                });
+            } else {
+                // Standard photo placeholder
+                if (!prev.some(m => m.id === photoMsgId)) {
+                    return [...prev, { 
+                        id: photoMsgId, role: 'ai', isPhoto: true, content: msgContent, url: null, 
+                        image: null, isIllustration: !!selectedModel && !isComic 
+                    }];
+                }
+                return prev;
+            }
+        });
 
         try {
             // 2. Delegate to Shared Service
             const base64Image = await generateImage({
                 persona, prompt, aspectRatio, isComic, activeModel,
                 clothing, color, skin, lighting, realismHigh,
-                isAnimated, piercing, tattoo, isRefinement, refinementImageId
+                isAnimated, piercing, tattoo, isRefinement, refinementImageId,
+                onStatus: (promptId) => {
+                    setMessages(prev => {
+                        if (isComic && comicPanelInfo) {
+                            return prev.map(msg => {
+                                if (msg.id === aiMessageId && msg.isComicStrip) {
+                                    const newPanels = [...(msg.panels || [])];
+                                    if (newPanels[comicPanelInfo.index - 1]) {
+                                        newPanels[comicPanelInfo.index - 1].comfyPromptId = promptId;
+                                    }
+                                    return { ...msg, panels: newPanels };
+                                }
+                                return msg;
+                            });
+                        }
+                        return prev.map(msg => msg.id === photoMsgId ? { ...msg, comfyPromptId: promptId } : msg);
+                    });
+                }
             });
 
             if (base64Image) {

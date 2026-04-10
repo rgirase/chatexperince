@@ -22,7 +22,8 @@ export const generateImage = async (params) => {
         piercing = 'none',
         tattoo = 'none',
         isRefinement = false,
-        refinementImageId = null
+        refinementImageId = null,
+        onStatus = null
     } = params;
 
     const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
@@ -105,6 +106,8 @@ export const generateImage = async (params) => {
             if (!queueData.prompt_id) throw new Error("Queue failed.");
 
             const promptId = queueData.prompt_id;
+            if (onStatus) onStatus(promptId);
+            
             let attempts = 0;
             while (attempts < 60) {
                 await new Promise(r => setTimeout(r, 2000));
