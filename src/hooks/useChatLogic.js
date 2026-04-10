@@ -778,6 +778,11 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         setIsSuggesting(false);
     }, [persona, messages]);
 
+    const handleSelectSuggestion = useCallback((suggestion) => {
+        setInput(suggestion);
+        setCurrentSuggestions([]);
+    }, []);
+
     const handleClearChat = useCallback(async () => {
         const confirmClear = window.confirm("Are you sure you want to archive and clear this chat history? This cannot be undone.");
         if (!confirmClear) return;
@@ -1101,6 +1106,7 @@ ${lorePrompt}
         handleUpdateRelation,
         handleUpdateEncounters,
         handlePerformAdultAction,
+        handleSelectSuggestion,
         customRelation,
         chapterRecap,
         currentMood,

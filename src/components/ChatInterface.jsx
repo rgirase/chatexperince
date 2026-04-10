@@ -384,6 +384,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 isSuggesting={isSuggesting}
                 onStopGeneration={handleStopGeneration}
                 onOpenAdultActions={() => setIsAdultActionsOpen(true)}
+                suggestions={currentSuggestions}
                 isImmersionMode={isImmersionMode}
             />
 
