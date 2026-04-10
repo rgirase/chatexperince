@@ -11,7 +11,9 @@ import { lyra_storyteller } from './data/characters/lyra_storyteller';
 import StreakBonus from './components/sub/StreakBonus';
 import * as db from './services/db';
 import VaultModal from './components/sub/VaultModal';
-import SignalBridge from './components/sub/SignalBridge';
+import NeuralLink from './components/sub/NeuralLink';
+import TheOracle from './components/sub/TheOracle';
+import { auraLife } from './services/AutonomousService';
 
 let hasPushedHistory = false;
 
@@ -28,7 +30,16 @@ function App() {
   const [imageUpdateKey, setImageUpdateKey] = React.useState(0);
   const [isBooting, setIsBooting] = React.useState(true);
   const [isVaultOpen, setIsVaultOpen] = React.useState(false);
-  const [showSignalBridge, setShowSignalBridge] = React.useState(false);
+  const [nuxStep, setNuxStep] = React.useState(() => {
+    try {
+      const complete = localStorage.getItem('nux_signal_complete') === 'true';
+      const step = localStorage.getItem('nux_step');
+      if (step) return parseInt(step);
+      return complete ? 2 : 0; // Migrate from old flag
+    } catch (e) {
+      return 0;
+    }
+  });
   
   // Streak State
   const [streak, setStreak] = useState(0);
@@ -43,6 +54,10 @@ function App() {
       return null;
     }
   });
+
+  useEffect(() => {
+    auraLife.boot();
+  }, []);
 
   // Universal View State Management
   const [activeView, setActiveView] = React.useState(() => {
@@ -184,10 +199,9 @@ function App() {
         setStreak(newCount);
 
         // NUX Check for Signal Bridge
-        const nuxSignal = localStorage.getItem('nux_signal_complete');
-        if (!nuxSignal) {
-          setShowSignalBridge(true);
-        }
+        if (nuxStep < 1 && localStorage.getItem('nux_signal_complete') !== 'true' && localStorage.getItem('nux_step') === null) {
+        setNuxStep(0);
+      }
       } catch (e) {
         console.error("[App] Failed to update streak", e);
       } finally {
@@ -449,11 +463,24 @@ function App() {
             onClose={() => setIsVaultOpen(false)} 
             allPersonas={[...defaultPersonas, ...customPersonas]} 
           />
-          {showSignalBridge && (
-            <SignalBridge 
+
+          {nuxStep === 0 && (
+            <NeuralLink 
               onComplete={() => {
+                localStorage.setItem('nux_step', '1');
+                setNuxStep(1);
+              }} 
+            />
+          )}
+
+          {nuxStep === 1 && (
+            <TheOracle 
+              onPick={(persona) => {
+                localStorage.setItem('nux_step', '2');
                 localStorage.setItem('nux_signal_complete', 'true');
-                setShowSignalBridge(false);
+                setNuxStep(2);
+                setSelectedPersona(persona);
+                setActiveView('chat');
               }} 
             />
           )}

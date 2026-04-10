@@ -8,12 +8,10 @@ const MemoryViewer = ({
     onClose, 
     persona, 
     memory, 
-    milestones, 
     encounterStats, 
     onScanIntimacy,
     onUpdateMemory,
     onUpdateRelation,
-    onUpdateMilestones,
     onUpdateEncounters,
     customRelation,
     relationshipScore,
@@ -22,7 +20,6 @@ const MemoryViewer = ({
     const [isEditing, setIsEditing] = useState(false);
     const [editMemory, setEditMemory] = useState(memory || "");
     const [editRelation, setEditRelation] = useState(customRelation || "");
-    const [editMilestones, setEditMilestones] = useState(milestones || []);
     const [editEncounters, setEditEncounters] = useState(encounterStats || { count: 0, history: [] });
     
     const [journals, setJournals] = useState([]);
@@ -53,23 +50,8 @@ const MemoryViewer = ({
     const handleSave = () => {
         onUpdateMemory(editMemory);
         onUpdateRelation(editRelation);
-        onUpdateMilestones(editMilestones);
         onUpdateEncounters(editEncounters);
         setIsEditing(false);
-    };
-
-    const handleAddMilestone = () => {
-        setEditMilestones([...editMilestones, "New milestone observed..."]);
-    };
-
-    const handleRemoveMilestone = (index) => {
-        setEditMilestones(editMilestones.filter((_, i) => i !== index));
-    };
-
-    const handleUpdateMilestone = (index, value) => {
-        const newM = [...editMilestones];
-        newM[index] = value;
-        setEditMilestones(newM);
     };
 
     const handleUpdateEncounter = (index, field, value) => {
@@ -259,47 +241,6 @@ const MemoryViewer = ({
                                     )}
                                 </section>
 
-                                <section style={{ display: 'block', width: '100%' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f472b6' }}>
-                                            <History size={18} />
-                                            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>Shared Milestones</h3>
-                                        </div>
-                                        {isEditing && (
-                                            <button 
-                                                onClick={handleAddMilestone}
-                                                style={{ background: 'rgba(244, 114, 182, 0.1)', border: '1px solid rgba(244, 114, 182, 0.2)', color: '#f472b6', padding: '4px 10px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                                            >
-                                                <Plus size={12} /> Add Milestone
-                                            </button>
-                                        )}
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                        {(isEditing ? editMilestones : milestones)?.length > 0 ? (isEditing ? editMilestones : milestones).map((m, i) => (
-                                            <div key={i} style={{ position: 'relative' }}>
-                                                {isEditing ? (
-                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                                        <input 
-                                                            value={m}
-                                                            onChange={(e) => handleUpdateMilestone(i, e.target.value)}
-                                                            style={{ flex: 1, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '8px', color: '#eee', fontSize: '0.8rem' }}
-                                                        />
-                                                        <button onClick={() => handleRemoveMilestone(i)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}>
-                                                            <Trash2 size={16} />
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <div style={{ background: 'rgba(244, 114, 182, 0.02)', padding: '0.75rem 1rem', borderRadius: '10px', borderLeft: '3px solid #f472b6', fontSize: '0.8rem', color: '#eee', lineHeight: '1.4' }}>
-                                                        {m.content || m}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )) : (
-                                            <p style={{ color: '#71717a', fontSize: '0.8rem', fontStyle: 'italic', textAlign: 'center', padding: '0.5rem' }}>No significant milestones recorded yet.</p>
-                                        )}
-                                    </div>
-                                </section>
-
                                 {(isEditing ? editEncounters.history : encounterStats?.history)?.length > 0 && (
                                     <section style={{ display: 'block', width: '100%' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', color: '#10b981' }}>
@@ -370,7 +311,7 @@ const MemoryViewer = ({
                         </div>
                         
                         <div className="modal-footer" style={{ textAlign: 'center', color: '#52525b', fontSize: '0.75rem', padding: '1.5rem' }}>
-                            {isEditing ? "Exit Edit Mode to scan for new intimacy or milestones automatically." : "Memories and milestones help the AI maintain personality continuity over time."}
+                            {isEditing ? "Exit Edit Mode to scan for new intimacy automatically." : "Memories and journals help the AI maintain personality continuity over time."}
                         </div>
                     </motion.div>
                 </div>

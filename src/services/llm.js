@@ -26,8 +26,9 @@ export const checkServerStatus = async (type, url) => {
     try {
         if (type === 'lm') {
             const baseUrl = (url || getLmStudioUrl()).replace('/chat/completions', '');
-            const res = await fetch(`${baseUrl}/models`, { method: 'GET' });
-            if (res.ok) {
+            // Try both /models and /v1/models for local/remote flexibility
+            const res = await fetch(`${baseUrl}/models`, { method: 'GET' }).catch(() => null);
+            if (res && res.ok) {
                 const data = await res.json();
                 return { 
                     online: true, 
@@ -81,7 +82,7 @@ export const fetchSystemStats = async () => {
 /**
  * Internal helper to call LM Studio for simple, non-streaming completions
  */
-async function callLMStudio(prompt, temperature = 0.7, jsonMode = false) {
+export async function callLMStudio(prompt, temperature = 0.7, jsonMode = false) {
     const url = getLmStudioUrl();
     try {
         const response = await fetch(url, {
@@ -105,6 +106,13 @@ async function callLMStudio(prompt, temperature = 0.7, jsonMode = false) {
         throw e;
     }
 }
+
+/**
+ * High-level utility for background tasks
+ */
+export const getCompletion = async (prompt, temperature = 0.7) => {
+    return await callLMStudio(prompt, temperature, false);
+};
 
 /**
  * VISION 20: COMIC STORY ENGINE
@@ -297,7 +305,6 @@ export const cleanLeakage = (text) => {
         .replace(/KEY RULES:[\s\S]*?(?=\n[A-Z*]|$)/gi, '')
         .replace(/\[CURRENT STORY BEAT\]/gi, '')
         .replace(/Memory:[\s\S]*?(?=\n|$)/gi, '')
-        .replace(/Recent Milestones:[\s\S]*?(?=\n|$)/gi, '')
         .replace(/Intensity: \d+\/\d+/gi, '')
         .replace(/Intensity: \d+\/5/gi, '') // Added for 5-point scale
         .replace(/Situation:.*?(?=\n|$)/gi, '')
@@ -417,7 +424,6 @@ const MULTIPARTY_PROTOCOL = (mainName, guestName) => `
 export const generateResponse = async (persona, messages, onChunk, onComplete, onError, signal, options = {}) => {
 
     const {
-        milestones = [],
         isContinuation = false,
         intensity = 3,
         memory = '',
@@ -457,7 +463,6 @@ Voice Rules: Descriptive, immersive roleplay. Use *asterisks* for physical actio
 
 [CURRENT STORY BEAT]
 Memory: ${memory || "The story begins now."}
-Recent Milestones: ${milestones.length > 0 ? milestones.slice(-5).join(". ") : "No major milestones."}
 Intensity: ${intensity}/5
 ${options.currentSituation ? `Situation: ${options.currentSituation}` : ""}
 ${localStorage.getItem('userName') ? "User's Name: " + localStorage.getItem('userName') : ""}
@@ -776,55 +781,6 @@ Return ONLY the new memory block.
     }
 };
 
-export const extractMilestones = async (persona, messages) => {
-    const charName = getShortName(persona.name);
-    const url = getLmStudioUrl();
-    const transcript = messages.map(msg => `${msg.role === 'user' ? 'User' : charName}: ${msg.content}`).join('\n\n');
-
-    const prompt = `You are a character development engine.
-Review the following recent interaction between the User and ${persona.name}.
-
-Transcript:
-${transcript}
-
-Task: Identify if any NEW significant milestones, shared secrets, or relationship breakthroughs occurred in this specific segment.
-Examples: 
-- They shared a secret about their past.
-- They agreed to go on a date.
-- They had their first kiss.
-- The User mentioned they love a specific food.
-
-If something important happened, describe it in one short, impactful sentence starting with "Remember that...".
-If multiple things happened, combine them into one sentence.
-If nothing significantly new happened, return ONLY the word "NONE".
-Return ONLY the sentence or "NONE". Do not include extra dialogue.
-[CRITICAL: DO NOT include JSON, code, or metadata tags. Return ONLY plain narrative text.]`;
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                model: await ensureValidModel(),
-                messages: [{ role: "user", content: prompt }],
-                temperature: 0.2,
-                max_tokens: 150,
-                stream: false,
-            }),
-        });
-
-        if (!response.ok) return null;
-        const data = await response.json();
-        const content = data.choices?.[0]?.message?.content || "NONE";
-        const result = cleanLeakage(content.trim());
-        return result.toUpperCase() === "NONE" ? null : result;
-    } catch (error) {
-        console.error("Error extracting milestones:", error);
-        return null;
-    }
-};
 
 export const extractSceneSummary = async (persona, messages) => {
     const charName = getShortName(persona.name);

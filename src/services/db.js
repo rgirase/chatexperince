@@ -5,7 +5,7 @@
  */
 
 const DB_NAME = 'ChatExperienceDB';
-const DB_VERSION = 7; // Version 7 adds 'lore' for world facts and 'global_vault' for scrapbook
+const DB_VERSION = 8; // Version 8 adds 'persona_events' for autonomous character moments
 
 export const openDB = () => {
     return new Promise((resolve, reject) => {
@@ -45,6 +45,9 @@ export const openDB = () => {
             }
             if (!db.objectStoreNames.contains('global_vault')) {
                 db.createObjectStore('global_vault', { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains('persona_events')) {
+                db.createObjectStore('persona_events', { keyPath: 'id' });
             }
         };
 
@@ -163,7 +166,7 @@ export const cloneSession = async (personaId, sourceSid, targetSid) => {
 
     const mappings = [
         { store: 'chats', keys: ['chat'] },
-        { store: 'memories', keys: ['memory', 'milestones', 'traits', 'encounters'] },
+        { store: 'memories', keys: ['memory', 'traits', 'encounters'] },
         { store: 'settings', keys: ['score', 'intensity', 'scene', 'invited', 'active_image', 'location', 'relation', 'avatar_manual', 'mood', 'inventory', 'narrative', 'recap'] }
     ];
 

@@ -209,7 +209,6 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
         setCustomPersonas(updated);
         await db.setItem('settings', 'customPersonas', updated);
         await db.removeItem('chats', `chat_${id}`);
-        await db.removeItem('memories', `milestones_${id}`);
         await db.removeItem('memories', `moments_${id}`);
         await db.removeItem('settings', `persona_img_${id}`);
         alert(`Deleted persona and all associated chat data.`);

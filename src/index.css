@@ -137,6 +137,15 @@ body {
   overflow: hidden;
 }
 
+/* Scrollbar Removal */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .header {
   padding: 1.5rem 2rem;
   display: flex;

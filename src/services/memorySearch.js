@@ -16,7 +16,8 @@ export const searchHistory = async (personaId, query) => {
         (async () => {
             try {
                 // 1. Get all archived conversations
-                const allConversations = await db.getAll('conversations') || [];
+                const rawConversations = await db.getAll('conversations') || [];
+                const allConversations = rawConversations.map(c => c.value || c);
                 
                 // 2. Filter for this persona
                 const personaConvos = allConversations.filter(c => c && c.personaId === personaId && Array.isArray(c.messages));

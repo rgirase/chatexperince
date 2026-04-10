@@ -84,7 +84,6 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         relationshipScore,
         memory,
         intensity, setIntensity,
-        milestones,
         encounterStats,
         currentSituation,
         currentLocationId,
@@ -108,7 +107,6 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         handleContinue,
         handleUpdateMemory,
         handleUpdateRelation,
-        handleUpdateMilestones,
         handleUpdateEncounters,
         handlePerformAdultAction, 
         customRelation,
@@ -444,12 +442,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                         onClose={() => setIsMemoryViewerOpen(false)}
                         persona={persona}
                         memory={memory}
-                        milestones={milestones}
-                        encounterStats={encounterStats}
-                        onScanIntimacy={handleScanIntimacy}
                         onUpdateMemory={handleUpdateMemory}
                         onUpdateRelation={handleUpdateRelation}
-                        onUpdateMilestones={handleUpdateMilestones}
                         onUpdateEncounters={handleUpdateEncounters}
                         customRelation={customRelation}
                         relationshipScore={relationshipScore}
@@ -457,13 +451,6 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                     />
                 )}
                 
-                {isStoryMapOpen && (
-                    <StoryMap 
-                        persona={persona}
-                        milestones={milestones}
-                        onClose={() => setIsStoryMapOpen(false)}
-                    />
-                )}
 
                 {isGiftsModalOpen && (
                     <GiftsModal 

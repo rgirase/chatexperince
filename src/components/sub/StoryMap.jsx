@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Map, Calendar, Heart, Award, ChevronRight, Zap } from 'lucide-react';
+import { X, Map, Calendar, Heart, ChevronRight, Zap } from 'lucide-react';
 import * as db from '../../services/db';
 
 const StoryMap = ({ isOpen, onClose, sessions, persona, currentSessionId }) => {
@@ -16,13 +16,11 @@ const StoryMap = ({ isOpen, onClose, sessions, persona, currentSessionId }) => {
                 const suffix = `_${persona.id}_${sid}`;
                 const recap = await db.getItem('settings', `recap${suffix}`);
                 const score = await db.getItem('settings', `score${suffix}`) || 50;
-                const milestones = await db.getItem('memories', `milestones${suffix}`) || [];
                 
                 details.push({
                     id: sid,
                     recap: recap || "A chapter yet to be fully defined...",
                     score,
-                    milestones,
                     isCurrent: sid === currentSessionId,
                     date: sid === 'default' ? 'The Beginning' : new Date(parseInt(sid.split('_')[1])).toLocaleDateString()
                 });
@@ -120,25 +118,12 @@ const StoryMap = ({ isOpen, onClose, sessions, persona, currentSessionId }) => {
                                     width: '120px'
                                 }}>
                                     <span style={{ fontSize: '0.75rem', color: chap.isCurrent ? '#fff' : '#a1a1aa', fontWeight: 'bold' }}>{chap.date}</span>
-                                    {chap.isCurrent && <div style={{ color: '#a855f7', fontSize: '0.6rem', fontWeight: 'bold' }}>ACTIVE NOW</div>}
-                                </div>
-
-                                {/* Milestone Indicator */}
-                                {chap.milestones.length > 0 && (
-                                    <div style={{ 
-                                        position: 'absolute', 
-                                        bottom: '75px', 
-                                        left: '50%', 
-                                        transform: 'translateX(-50%)',
-                                        color: '#ec4899'
-                                    }}>
-                                        <Award size={18} />
-                                    </div>
-                                )}
-                            </motion.div>
-                        ))}
-                    </div>
+                                {chap.isCurrent && <div style={{ color: '#a855f7', fontSize: '0.6rem', fontWeight: 'bold' }}>ACTIVE NOW</div>}
+                            </div>
+                        </motion.div>
+                    ))}
                 </div>
+            </div>
 
                 {/* Info Panel for Selected Chapter */}
                 <AnimatePresence mode="wait">
@@ -169,13 +154,6 @@ const StoryMap = ({ isOpen, onClose, sessions, persona, currentSessionId }) => {
                                 <div style={{ width: '150px', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '20px' }}>
                                     <div style={{ fontSize: '0.75rem', color: '#a1a1aa', marginBottom: '4px' }}>RELATIONSHIP</div>
                                     <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ec4899' }}>{selectedChapter.score}%</div>
-                                    
-                                    {selectedChapter.milestones.length > 0 && (
-                                        <div style={{ marginTop: '12px' }}>
-                                            <div style={{ fontSize: '0.65rem', color: '#a1a1aa', marginBottom: '4px' }}>KEY MOMENT</div>
-                                            <div style={{ fontSize: '0.75rem', color: '#fbbf24' }}>{selectedChapter.milestones[0]}</div>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         </motion.div>

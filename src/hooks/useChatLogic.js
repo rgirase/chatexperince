@@ -29,7 +29,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     const [relationshipScore, setRelationshipScore] = useState(50);
     const [memory, setMemory] = useState('');
     const [intensity, setIntensity] = useState(3);
-    const [milestones, setMilestones] = useState([]);
     const [traits, setTraits] = useState([]);
     const [encounterStats, setEncounterStats] = useState({ count: 0, history: [] });
     const [currentSituation, setCurrentSituation] = useState('Just starting the conversation...');
@@ -122,7 +121,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             setMemory(await db.getItem('memories', `memory${suffix}`) || '');
             setRelationshipScore(await db.getItem('settings', `score${suffix}`) || 50);
             setIntensity(await db.getItem('settings', `intensity${suffix}`) || 3);
-            setMilestones(await db.getItem('memories', `milestones${suffix}`) || []);
             setTraits(await db.getItem('memories', `traits${suffix}`) || []);
             setEncounterStats(await db.getItem('memories', `encounters${suffix}`) || { count: 0, lastLocation: 'Never', history: [] });
             setCurrentSceneId(await db.getItem('settings', `scene${suffix}`) || 'default');
@@ -201,7 +199,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         db.setItem('memories', `memory${suffix}`, memory);
         db.setItem('settings', `score${suffix}`, relationshipScore);
         db.setItem('settings', `intensity${suffix}`, intensity);
-        db.setItem('memories', `milestones${suffix}`, milestones);
         db.setItem('memories', `traits${suffix}`, traits);
         db.setItem('memories', `encounters${suffix}`, encounterStats);
         db.setItem('settings', `scene${suffix}`, currentSceneId);
@@ -216,37 +213,9 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         db.setItem('settings', `inventory${suffix}`, inventory);
         db.setItem('settings', `narrative${suffix}`, narrativeSettings);
 
-        // Milestone Unlocking Logic
-        const checkMilestones = async () => {
-            const unlocked = await db.getItem('unlocked_gallery', `unlocked${suffix}`) || [];
-            let changed = false;
-            
-            if (relationshipScore >= 80 && !unlocked.includes('milestone_80')) {
-                unlocked.push('milestone_80');
-                showToast("Milestone Reached: Level 80! Secret image unlocked.", "success");
-                changed = true;
-            }
-            if (relationshipScore >= 90 && !unlocked.includes('milestone_90')) {
-                unlocked.push('milestone_90');
-                showToast("Milestone Reached: Level 90! Deep Intimacy unlocked.", "success");
-                changed = true;
-            }
-            if (relationshipScore >= 100 && !unlocked.includes('milestone_100')) {
-                unlocked.push('milestone_100');
-                showToast("MAX RELATIONSHIP! Eternal Bond unlocked.", "success");
-                changed = true;
-            }
 
-            if (changed) {
-                await db.setItem('unlocked_gallery', `unlocked${suffix}`, unlocked);
-            }
-        };
-        checkMilestones();
-
-    // NOTE: activePersonaImage intentionally removed from deps to avoid self-triggering loop.
-    // It is read at the top of this effect and saved correctly.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [messages, memory, relationshipScore, intensity, milestones, traits, encounterStats, currentSceneId, invitedPersona, currentLocationId, persona.id, sessionId, isDataLoaded, currentMood, inventory, narrativeSettings, isAvatarManual, customRelation]);
+    }, [messages, memory, relationshipScore, intensity, traits, encounterStats, currentSceneId, invitedPersona, currentLocationId, persona.id, sessionId, isDataLoaded, currentMood, inventory, narrativeSettings, isAvatarManual, customRelation]);
 
     const startNewSession = async () => {
         setIsDataLoaded(false);
@@ -321,7 +290,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
 
         const finalOptions = {
             memory,
-            milestones,
             intensity,
             relationshipScore,
             currentSituation,
@@ -515,7 +483,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         } catch (e) {
             setIsTyping(false);
         }
-    }, [persona, memory, intensity, milestones, encounterStats, currentSituation, invitedPersona, traits, generateSelfie, showToast]);
+    }, [persona, memory, intensity, encounterStats, currentSituation, invitedPersona, traits, generateSelfie, showToast]);
 
     const handleSendMessage = useCallback(async (customInput) => {
         const text = customInput || input;
@@ -834,7 +802,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             await Promise.all([
                 db.removeItem('chats', `chat_${persona.id}`),
                 db.removeItem('memories', `memory_${persona.id}`),
-                db.removeItem('memories', `milestones_${persona.id}`),
                 db.removeItem('memories', `traits_${persona.id}`),
                 db.removeItem('memories', `encounters_${persona.id}`),
                 db.removeItem('settings', `score_${persona.id}`),
@@ -849,7 +816,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         // 2. CLEAR LEGACY STORAGE (LocalStorage)
         localStorage.removeItem(`chat_${persona.id}`);
         localStorage.removeItem(`memory_${persona.id}`);
-        localStorage.removeItem(`milestones_${persona.id}`);
         localStorage.removeItem(`encounters_${persona.id}`);
         localStorage.removeItem(`score_${persona.id}`);
         localStorage.removeItem(`intensity_${persona.id}`);
@@ -866,7 +832,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         
         setMessages([initialMsg]);
         setMemory("");
-        setMilestones([]);
         setTraits([]);
         setEncounterStats({ count: 0, lastLocation: "", history: [] });
         setCurrentSituation("");
@@ -1030,10 +995,6 @@ ${lorePrompt}
         }
     }, [persona.id, sessionId, allSessions, switchSession, showToast]);
 
-    const handleUpdateMilestones = useCallback((newMilestones) => {
-        setMilestones(newMilestones);
-        showToast("Milestones updated", "success");
-    }, [showToast]);
 
     const handleUpdateEncounters = useCallback((newStats) => {
         setEncounterStats(newStats);
@@ -1138,7 +1099,6 @@ ${lorePrompt}
         handleContinue,
         handleUpdateMemory,
         handleUpdateRelation,
-        handleUpdateMilestones,
         handleUpdateEncounters,
         handlePerformAdultAction,
         customRelation,

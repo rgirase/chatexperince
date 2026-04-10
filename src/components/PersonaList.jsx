@@ -5,7 +5,7 @@ import { personas } from '../data/personas';
 import { statusUpdates } from '../data/statusUpdates';
 import CharacterDetailsModal from './sub/CharacterDetailsModal';
 import WardrobeModal from './sub/WardrobeModal';
-import StoryMap from './StoryMap';
+import StoryMap from './sub/StoryMap';
 import { getDiaries, deleteDiaryEntry } from '../services/memory';
 import * as relationshipService from '../services/relationship';
 import * as db from '../services/db';
@@ -18,6 +18,7 @@ import { scenarios } from '../data/scenarios';
 import { Sparkles as SparklesIcon, ChevronRight, RefreshCw } from 'lucide-react';
 import { generateFeaturedScenarios } from '../services/llm';
 import LiveLabWidget from './sub/LiveLabWidget';
+import AuraFeed from './sub/AuraFeed';
 
 const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -319,6 +320,7 @@ const PersonaList = ({ onSelectPersona, allPersonas = [] }) => {
     return (
         <div className="persona-container" style={{ paddingBottom: '4rem' }}>
             <LiveLabWidget />
+            <AuraFeed onSelectPersona={onSelectPersona} />
 
             {/* Scenario Spotlight Section */}
             {!searchTerm && activeCategory === 'All' && activeRegion === 'All' && activeTab === 'all' && (
