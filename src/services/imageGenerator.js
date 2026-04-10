@@ -23,6 +23,8 @@ export const generateImage = async (params) => {
         tattoo = 'none',
         isRefinement = false,
         refinementImageId = null,
+        refinementImage = null, // Base64 image data
+        refinementStrength = 0.5,
         onStatus = null
     } = params;
 
@@ -72,6 +74,35 @@ export const generateImage = async (params) => {
 
     try {
         if (imageEngine === 'comfyui') {
+            // Helper to upload image if refining
+            let uploadedFilename = null;
+            if (isRefinement && refinementImage) {
+                try {
+                    const uploadFormData = new FormData();
+                    // Convert base64 to blob
+                    const base64Data = refinementImage.split(',')[1] || refinementImage;
+                    const byteCharacters = atob(base64Data);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], { type: 'image/png' });
+                    
+                    uploadFormData.append('image', blob, `refinement_${Date.now()}.png`);
+                    uploadFormData.append('overwrite', 'true');
+
+                    const uploadRes = await fetch(`${sdUrl.replace(/\/$/, '')}/upload/image`, {
+                        method: 'POST',
+                        body: uploadFormData
+                    });
+                    const uploadData = await uploadRes.json();
+                    uploadedFilename = uploadData.name;
+                } catch (err) {
+                    console.error("Image upload failed for refinement:", err);
+                }
+            }
+
             const comfyWorkflow = JSON.parse(JSON.stringify(isPonyModel ? DEFAULT_PONY_WORKFLOW : DEFAULT_COMFY_WORKFLOW));
             const findNodeByType = (type) => Object.keys(comfyWorkflow).find(k => comfyWorkflow[k].class_type === type);
             const ckptId = findNodeByType('CheckpointLoaderSimple') || findNodeByType('CheckpointLoader');
@@ -94,7 +125,36 @@ export const generateImage = async (params) => {
             }
 
             if (comfyWorkflow["6"]) comfyWorkflow["6"].inputs.text = fullPrompt;
-            if (comfyWorkflow["3"]) comfyWorkflow["3"].inputs.seed = Math.floor(Math.random() * 1000000);
+            if (comfyWorkflow["3"]) {
+                comfyWorkflow["3"].inputs.seed = Math.floor(Math.random() * 1000000);
+                if (isRefinement) {
+                    comfyWorkflow["3"].inputs.denoise = refinementStrength;
+                }
+            }
+
+            // REFINEMENT NODE INJECTION
+            if (isRefinement && uploadedFilename && samplerId) {
+                // Remove EmptyLatentImage
+                if (latentId) delete comfyWorkflow[latentId];
+
+                // Add LoadImage node
+                comfyWorkflow["100"] = {
+                    class_type: "LoadImage",
+                    inputs: { image: uploadedFilename }
+                };
+
+                // Add VAEEncode node
+                comfyWorkflow["101"] = {
+                    class_type: "VAEEncode",
+                    inputs: {
+                        pixels: ["100", 0],
+                        vae: [ckptId || "4", 2]
+                    }
+                };
+
+                // Connect to Sampler
+                comfyWorkflow[samplerId].inputs.latent_image = ["101", 0];
+            }
 
             const queueRes = await fetch(`${sdUrl.replace(/\/$/, '')}/prompt`, {
                 method: 'POST',

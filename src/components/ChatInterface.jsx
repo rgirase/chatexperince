@@ -22,6 +22,7 @@ import GalleryModal from './sub/GalleryModal';
 import AdultActionsModal from './sub/AdultActionsModal';
 import InventoryModal from './sub/InventoryModal';
 import DirectorSettingsModal from './sub/DirectorSettingsModal';
+import DirectorRefinementModal from './sub/DirectorRefinementModal';
 import ActionLibraryModal from './sub/ActionLibraryModal';
 import LogViewerModal from './sub/LogViewerModal';
 
@@ -43,8 +44,11 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     const [isAdultActionsOpen, setIsAdultActionsOpen] = useState(false);
     const [isInventoryOpen, setIsInventoryOpen] = useState(false); // Character Core 2.0
     const [isImmersionMode, setIsImmersionMode] = useState(false); // Phase 4
-    const [isDirectorOpen, setIsDirectorOpen] = useState(false);   // Phase 4
-    const [isActionLibraryOpen, setIsActionLibraryOpen] = useState(false); // Phase 4
+    const [isDirectorOpen, setIsDirectorOpen] = useState(false);
+    const [isRefinementOpen, setIsRefinementOpen] = useState(false);
+    const [refinementTarget, setRefinementTarget] = useState(null);
+    const [isActionLibraryOpen, setIsActionLibraryOpen] = useState(false);
+ // Phase 4
     const [isLogViewerOpen, setIsLogViewerOpen] = useState(false); // New log viewer
     
     // Phase 7 WhatsApp UI
@@ -258,6 +262,25 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         }
     };
 
+    const handleOpenRefinement = (msg) => {
+        setRefinementTarget(msg);
+        setIsRefinementOpen(true);
+    };
+
+    const handleConfirmRefinement = async (imageUrl, prompt, strength, originalMsgId) => {
+        setIsRefinementOpen(false);
+        showToast("Initiating Director Refinement...", "info");
+        
+        // Trigger a new generation based on the original
+        await generateSelfie(
+            prompt, 
+            Date.now().toString(), 
+            'portrait', 
+            null, '', '', 'none', 'natural', true, false, false, null, 'none', 'none',
+            true, originalMsgId, imageUrl, strength
+        );
+    };
+
     const handleSelectSuggestion = (text) => {
         handleSendMessage(text);
         setCurrentSuggestions([]);
@@ -368,6 +391,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 onResubmit={handleResubmit}
                 onRepair={handleRepair}
                 onCheckStatus={handleCheckStatus}
+                onOpenRefinement={handleOpenRefinement}
                 onIllustrateMessage={handleIllustrateMessage}
                 isTyping={isTyping}
                 messagesAreaRef={messagesAreaRef}
@@ -571,6 +595,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                         onPlotTwist={handlePlotTwist}
                     />
                 )}
+
+                <DirectorRefinementModal 
+                    isOpen={isRefinementOpen}
+                    onClose={() => setIsRefinementOpen(false)}
+                    targetImage={refinementTarget}
+                    onConfirm={handleConfirmRefinement}
+                    persona={persona}
+                />
 
                 {isActionLibraryOpen && (
                     <ActionLibraryModal 

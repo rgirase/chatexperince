@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit2, Check, X, Trash2, FastForward, Image as ImageIcon, RefreshCw, Hammer, Sparkles, Download } from 'lucide-react';
+import { Edit2, Check, X, Trash2, FastForward, Image as ImageIcon, RefreshCw, Hammer, Sparkles, Download, Wand2 } from 'lucide-react';
 import ComicStripMessage from './ComicStripMessage';
 import ConfessionalMessage from './ConfessionalMessage';
 
@@ -18,6 +18,7 @@ const MessageList = ({
     onResubmit,
     onRepair,
     onCheckStatus,
+    onOpenRefinement,
     onIllustrateMessage,
     isTyping,
     messagesAreaRef,
@@ -98,13 +99,24 @@ const MessageList = ({
                                             ) : (
                                                 <img src={msg.url} alt="Selfie" style={{ width: '100%', borderRadius: '12px', display: 'block' }} />
                                             )}
-                                            <button 
-                                                className="download-btn"
-                                                onClick={() => handleDownload(msg.url, `selfie_${msg.id}.${msg.url.toLowerCase().endsWith('.mp4') ? 'mp4' : 'png'}`)}
-                                                title="Save Media"
-                                            >
-                                                <Download size={18} />
-                                            </button>
+                                            <div style={{ position: 'absolute', top: '12px', right: '12px', display: 'flex', gap: '8px' }}>
+                                                <button 
+                                                    className="download-btn"
+                                                    onClick={() => handleDownload(msg.url, `selfie_${msg.id}.${msg.url.toLowerCase().endsWith('.mp4') ? 'mp4' : 'png'}`)}
+                                                    title="Save Media"
+                                                    style={{ position: 'static' }}
+                                                >
+                                                    <Download size={18} />
+                                                </button>
+                                                <button 
+                                                    className="download-btn"
+                                                    onClick={() => onOpenRefinement(msg)}
+                                                    title="Director's Refine (Img2Img)"
+                                                    style={{ position: 'static', background: 'rgba(168, 85, 247, 0.6)', border: '1px solid rgba(168, 85, 247, 0.4)' }}
+                                                >
+                                                    <Wand2 size={18} />
+                                                </button>
+                                            </div>
                                         </>
                                     ) : (
                                         <div className="photo-loading" style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', padding: '1rem' }}>

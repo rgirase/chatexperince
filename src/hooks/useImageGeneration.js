@@ -25,7 +25,9 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
         piercing = 'none', 
         tattoo = 'none', 
         isRefinement = false, 
-        refinementImageId = null
+        refinementImageId = null,
+        refinementImage = null,
+        refinementStrength = 0.5
     ) => {
         const preferredComicModel = localStorage.getItem('preferredComicModel') || 'disneyrealcartoonmix_v10.safetensors';
         const activeModel = selectedModel || (isComic ? preferredComicModel : null);
@@ -69,6 +71,7 @@ export const useImageGeneration = (persona, setMessages, showToast) => {
                 persona, prompt, aspectRatio, isComic, activeModel,
                 clothing, color, skin, lighting, realismHigh,
                 isAnimated, piercing, tattoo, isRefinement, refinementImageId,
+                refinementImage, refinementStrength,
                 onStatus: (promptId) => {
                     setMessages(prev => {
                         if (isComic && comicPanelInfo) {
