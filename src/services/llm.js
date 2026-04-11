@@ -1,6 +1,7 @@
 // Service to communicate with LM Studio local inference server
 import { DEFAULT_LM_STUDIO_URL, DEFAULT_LM_STUDIO_MODEL } from '../config';
 import { getSceneState, retrieveRelevantLore } from './memoryService';
+import { getAllLocations } from './LocationService';
 // Endpoint is proxied via Vite to bypass CORS issues constraints.
 
 export const getSdUrl = (providedUrl) => {
@@ -482,6 +483,7 @@ Intensity: ${intensity}/5
 ${options.currentSituation ? `Situation: ${options.currentSituation}` : ""}
 ${localStorage.getItem('userName') ? "User's Name: " + localStorage.getItem('userName') : ""}
 FINAL RULE: Always end your response with your current mood exactly like this: [MOOD: emotion].
+[SYSTEM DIRECTIVE: You are the Director. If the narrative physically moves to a new location, append [MOVE_TO: location_id] at the very end. Valid IDs: ${getAllLocations().map(l => l.id).join(", ")}]
 OPTIONAL: If you want to proactively suggest an action for the User to take next, add [PROACTIVE_ACTION: "short suggestion"] at the very end.
 ${options.isPlotTwist ? `[PLOT TWIST TRIGGERED: STOP the current conversational flow. You MUST introduce a sudden, dramatic, and unexpected external event or a massive shift in the character's behavior. Something has happened right NOW that changes the entire trajectory of the scene. Be vivid and bold with this twist.]` : ""}
 ${persona.id === 'sister_grace' ? `\n\n[CRITICAL: You MUST use the DUAL-VOICE format for every response. Start with [PUBLIC] for your pious facade, then [PRIVATE] for your dominant corrupted truth.]` : ""}`;

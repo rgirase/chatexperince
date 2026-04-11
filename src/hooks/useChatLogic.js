@@ -432,18 +432,20 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
                         return newCount;
                     });
 
-                    // Automatic Scene Detection
-                    const allLocs = getAllLocations();
-                    const textToScan = cleanedText.toLowerCase();
-                    const matchedLoc = allLocs.find(loc => 
-                        loc.keywords?.some(kw => textToScan.includes(kw.toLowerCase()))
-                    );
+                    // Intelligent Director: Scene Change Detection
+                    // Listens for explicit AI directives like [MOVE_TO: location_id]
+                    const moveToMatch = rawText.match(/\[MOVE_TO:\s*([a-z0-9_]+)\]/i);
+                    if (moveToMatch && moveToMatch[1]) {
+                        const newLocId = moveToMatch[1].trim().toLowerCase();
+                        const allLocs = getAllLocations();
+                        const matchedLoc = allLocs.find(loc => loc.id === newLocId);
 
-                    if (matchedLoc && matchedLoc.id !== currentLocationId) {
-                        console.log(`[ChatLogic] Auto-detected scene transition to: ${matchedLoc.name}`);
-                        setCurrentLocationId(matchedLoc.id);
-                        setCurrentSituation(matchedLoc.situation);
-                        showToast(`Scene changed to ${matchedLoc.name}`, "info");
+                        if (matchedLoc && matchedLoc.id !== currentLocationId) {
+                            console.log(`[Director] Scene transition requested: ${matchedLoc.name}`);
+                            setCurrentLocationId(matchedLoc.id);
+                            setCurrentSituation(matchedLoc.situation);
+                            showToast(`Scene changed to ${matchedLoc.name}`, "info");
+                        }
                     }
 
                     // Periodic Chapter Recap & Diary (Every 5-8 messages)
@@ -532,20 +534,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         }
 
         await executeAiRequest(aiMessageId, [...messages, userMsg], { isTimeSkip, recalledMemory });
-
-        // User-side Scene Detection
-        const allLocs = getAllLocations();
-        const textToScan = text.toLowerCase();
-        const matchedLoc = allLocs.find(loc => 
-            loc.keywords?.some(kw => textToScan.includes(kw.toLowerCase()))
-        );
-        if (matchedLoc && matchedLoc.id !== currentLocationId) {
-            console.log(`[ChatLogic] User-triggered scene transition: ${matchedLoc.name}`);
-            setCurrentLocationId(matchedLoc.id);
-            setCurrentSituation(matchedLoc.situation);
-            showToast(`Heading to ${matchedLoc.name}...`, "info");
-        }
-    }, [input, isTyping, messages, executeAiRequest, currentLocationId]);
+    }, [input, isTyping, messages, executeAiRequest, persona.id, activePersonaImage, showToast, detectRecallIntent, searchHistory]);
 
     const handleSendGift = useCallback(async (gift) => {
         const giftMsg = { 
