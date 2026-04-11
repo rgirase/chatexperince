@@ -25,6 +25,9 @@ import DirectorSettingsModal from './sub/DirectorSettingsModal';
 import DirectorRefinementModal from './sub/DirectorRefinementModal';
 import ActionLibraryModal from './sub/ActionLibraryModal';
 import LogViewerModal from './sub/LogViewerModal';
+import AtmosphericEngine from './AtmosphericEngine';
+import LoreCodexModal from './sub/LoreCodexModal';
+import { updateSceneState, extractLoreFromDialogue } from '../services/memoryService';
 
 const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, scenario }) => {
     // --- UI VIEW STATE ---
@@ -46,6 +49,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     const [isImmersionMode, setIsImmersionMode] = useState(false); // Phase 4
     const [isDirectorOpen, setIsDirectorOpen] = useState(false);
     const [isRefinementOpen, setIsRefinementOpen] = useState(false);
+    const [isLoreCodexOpen, setIsLoreCodexOpen] = useState(false);
     const [refinementTarget, setRefinementTarget] = useState(null);
     const [isActionLibraryOpen, setIsActionLibraryOpen] = useState(false);
  // Phase 4
@@ -169,6 +173,24 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         setStatusImage(imgToShow);
         setIsStatusOpen(true);
     }, [messages, persona.image, activePersonaImage]);
+
+    // --- MEMORY & SCENE UPDATES ---
+    useEffect(() => {
+        if (messages.length > 0 && messages.length % 5 === 0) {
+            console.log("[MemoryEngine] Running automated lore extraction...");
+            extractLoreFromDialogue(persona, messages);
+        }
+    }, [messages.length, persona]);
+
+    useEffect(() => {
+        // Sync scene state background
+        updateSceneState(persona.id, sessionId, {
+            location: getLocation(currentLocationId)?.name || 'Unknown',
+            wardrobe: 'Current Persona Image',
+            timeOfDay: 'Varies',
+            weather: 'Aura Sync'
+        });
+    }, [currentLocationId, persona.id, sessionId]);
 
     // --- EVENT HANDLERS ---
     const scrollToBottom = () => {
@@ -309,9 +331,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${currentBg})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                backgroundAttachment: 'fixed'
+                backgroundAttachment: 'fixed',
+                transform: isTyping ? 'scale(1.05)' : 'scale(1)',
+                transition: 'transform 8s ease-in-out, filter 1s ease',
+                filter: isTyping ? 'brightness(1.1) saturate(1.1)' : 'brightness(1) saturate(1)'
             }}
         >
+            <AtmosphericEngine mood={currentMood} intensity={intensity} />
+            
             {/* TOASTS */}
             <div className="toast-container">
                 <AnimatePresence>
@@ -370,6 +397,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 onToggleImmersion={() => setIsImmersionMode(!isImmersionMode)}
                 onOpenDirector={() => setIsDirectorOpen(true)}
                 onOpenActionLibrary={() => setIsActionLibraryOpen(true)}
+                onOpenLore={() => setIsLoreCodexOpen(true)}
                 onGenerateComic={handleGenerateComic}
                 onOpenLogs={() => setIsLogViewerOpen(true)}
                 customRelation={customRelation}
@@ -601,6 +629,12 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                     onClose={() => setIsRefinementOpen(false)}
                     targetImage={refinementTarget}
                     onConfirm={handleConfirmRefinement}
+                    persona={persona}
+                />
+
+                <LoreCodexModal 
+                    isOpen={isLoreCodexOpen}
+                    onClose={() => setIsLoreCodexOpen(false)}
                     persona={persona}
                 />
 

@@ -1,5 +1,6 @@
 // Service to communicate with LM Studio local inference server
 import { DEFAULT_LM_STUDIO_URL, DEFAULT_LM_STUDIO_MODEL } from '../config';
+import { getSceneState, retrieveRelevantLore } from './memoryService';
 // Endpoint is proxied via Vite to bypass CORS issues constraints.
 
 export const getSdUrl = (providedUrl) => {
@@ -428,8 +429,13 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
         intensity = 3,
         memory = '',
         isTimeSkip = false,
+        sessionId = 'default',
         narrativeSettings = { style: 'Novel', tension: 3, focus: 'Mixed' }
     } = options;
+
+    const sceneState = await getSceneState(persona.id, sessionId);
+    const userInput = messages.length > 0 ? messages[messages.length - 1].content : "";
+    const relevantLore = await retrieveRelevantLore(persona.id, userInput);
 
     const narrativeDirective = `
 [NARRATIVE STYLE: ${narrativeSettings.style}]
@@ -441,8 +447,17 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
 ${narrativeSettings.chaosMode ? `\n[CHAOS MODE ACTIVE: You are in a high-unpredictability state. Break conversational loops, introduce sudden internal or external conflict, and be more emotionally volatile or creative than usual. Do NOT be polite or predictable.]` : ""}
 `;
 
-    const recalledMemoryDirective = options.recalledMemory && options.recalledMemory.length > 0 ?
-        `\n\n[RECALLED HISTORY: You specifically remember these details from previous conversations: ${options.recalledMemory.map(m => `"${m.user}" (Your response: "${m.ai}")`).join(" | ")}]` : "";
+    const recalledMemoryDirective = relevantLore.length > 0 ?
+        `\n\n[WORLD CODEX - RELEVANT LORE: Use these facts to maintain continuity: ${relevantLore.map(l => l.fact).join(" | ")}]` : "";
+
+    const sceneDirective = sceneState ? `
+[CURRENT SCENE CONTEXT]
+- Location: ${sceneState.location}
+- Wardrobe: ${sceneState.wardrobe}
+- Time of Day: ${sceneState.timeOfDay}
+- Weather: ${sceneState.weather}
+- Recent Goal: ${sceneState.currentGoal}
+` : "";
 
     // 1. CHARACTER BIBLE (Strict identity enforcement)
     const charName = getShortName(persona.name);
@@ -455,7 +470,7 @@ ${narrativeSettings.chaosMode ? `\n[CHAOS MODE ACTIVE: You are in a high-unpredi
     const multiCharDirective = invitedName ? MULTIPARTY_PROTOCOL(charName, invitedName) : "";
 
     const biblePrompt = `YOU ARE ${charName}${invitedName ? ` and ${invitedName}` : ""}.
-Roleplay identity of ${charName}: ${persona.systemPrompt}${timeSkipDirective}${multiCharDirective}${recalledMemoryDirective}${narrativeDirective}
+Roleplay identity of ${charName}: ${persona.systemPrompt}${timeSkipDirective}${multiCharDirective}${recalledMemoryDirective}${sceneDirective}${narrativeDirective}
 ${options.invitedPersona ? `\n\n[GUEST CHARACTER BIBLE: ${invitedName}]\n${options.invitedPersona.systemPrompt}` : ""}
 
 Voice: Immersive, descriptive, multi-paragraph narrative. Use *asterisks* for actions and natural dialogue.

@@ -5,7 +5,7 @@
  */
 
 const DB_NAME = 'ChatExperienceDB';
-const DB_VERSION = 8; // Version 8 adds 'persona_events' for autonomous character moments
+const DB_VERSION = 9; // Version 9 adds 'scene_state' for high-fidelity environment tracking
 
 export const openDB = () => {
     return new Promise((resolve, reject) => {
@@ -48,6 +48,9 @@ export const openDB = () => {
             }
             if (!db.objectStoreNames.contains('persona_events')) {
                 db.createObjectStore('persona_events', { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains('scene_state')) {
+                db.createObjectStore('scene_state', { keyPath: 'id' });
             }
         };
 

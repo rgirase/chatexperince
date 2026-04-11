@@ -295,6 +295,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             currentSituation,
             recalledMemory,
             narrativeSettings,
+            sessionId,
             ...options,
             systemOverride: options.isRepair ? `[SYSTEM OVERRIDE: Your last response was invalid or contained metadata. This is a REPAIR ATTEMPT. You MUST respond ONLY with character dialogue and physical actions in pure narrative roleplay.]` : null
         };

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     ArrowLeft, Heart, Gift, Shirt, Book, History, Trash2, Home, Sparkles, 
     Flame, UserPlus, Wand2, MapPin, Map as MapIcon, Image as ImageIcon, MessageSquare, 
-    Users, MoreVertical, Brain, Package, Sliders, Eye, EyeOff, Camera, BookOpen, Terminal
+    Users, MoreVertical, Brain, Package, Sliders, Eye, EyeOff, Camera, BookOpen, Terminal, Zap
 } from 'lucide-react';
 import AuraPulse from './AuraPulse';
 import MoodOverlay from './MoodOverlay';
@@ -44,6 +44,7 @@ const ChatHeader = ({
     onOpenActionLibrary,
     onGenerateComic,
     onOpenLogs,
+    onOpenLore,
     customRelation,
     onUpdateRelation
 }) => {
@@ -255,6 +256,21 @@ const ChatHeader = ({
             <div className="chat-header-actions" style={{ display: 'flex', gap: '4px', alignItems: 'center', flexShrink: 0 }}>
                 <div style={{ position: 'relative' }} ref={menuRef}>
                     <button 
+                        onClick={onOpenLore} 
+                        className="header-action-btn"
+                        title="Open World Codex (Neural Memory)"
+                        style={{ 
+                            background: 'rgba(168, 85, 247, 0.15)', 
+                            color: '#a855f7', 
+                            border: '1px solid rgba(168, 85, 247, 0.2)', 
+                            padding: '6px', 
+                            borderRadius: '10px' 
+                        }}
+                    >
+                        <Zap size={20} />
+                    </button>
+
+                    <button 
                         onClick={onGenerateComic} 
                         className="header-action-btn"
                         title="Generate Comic Story Image"
@@ -321,6 +337,7 @@ const ChatHeader = ({
                                         </div>
                                     </div>
                                     
+                                    <button onClick={() => { onOpenLore(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#a855f7' }}><Zap size={18} /> World Codex (Lorebook)</button>
                                     <button onClick={() => { onOpenMemory(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#3b82f6' }}><Brain size={18} /> Chat Intel Brain</button>
                                     <button onClick={() => { onOpenInventory(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#fbbf24' }}><Package size={18} /> Collection / Inventory</button>
                                     
