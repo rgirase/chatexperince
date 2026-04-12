@@ -14,6 +14,7 @@ import StoryMap from './sub/StoryMap';
 import { useImageGeneration } from '../hooks/useImageGeneration';
 import { getLocation } from '../services/LocationService';
 import { generateVisualPrompt, generateComicPanels } from '../services/llm';
+import { DEFAULT_SD_URL } from '../config';
 import LocationSwitcher from './sub/LocationSwitcher';
 import * as db from '../services/db';
 import ParticleEffect from './sub/ParticleEffect';
@@ -235,7 +236,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     const handleCheckStatus = async (msgId, promptId, panelIndex = null) => {
         try {
             showToast("Checking ComfyUI status...", "info");
-            const sdUrl = localStorage.getItem('sdUrl') || 'http://127.0.0.1:8188';
+            const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
             const histRes = await fetch(`${sdUrl.replace(/\/$/, '')}/history/${promptId}`);
             
             if (!histRes.ok) {

@@ -21,7 +21,7 @@ const NeuralLink = ({ onComplete }) => {
         addLog(lm.online ? "NEURAL_CORE_SYNCHRONIZED" : "CORE_OFFLINE_DETACHED");
         
         await new Promise(r => setTimeout(r, 1000));
-        addLog("POLLING_VISUAL_ENGINE_AT_8188...");
+        addLog("POLLING_VISUAL_ENGINE_AT_8000...");
         const comfy = await checkServerStatus('comfy');
         setResults(prev => ({ ...prev, comfy: comfy.online }));
         addLog(comfy.online ? "VISUAL_ENGINE_SYNCHRONIZED" : "VISUAL_ENGINE_NOT_FOUND");

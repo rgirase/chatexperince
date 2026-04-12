@@ -151,7 +151,7 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                             maxWidth: '820px', 
                             padding: '0', 
                             overflow: 'hidden', 
-                            maxHeight: '85vh', 
+                            maxHeight: '90vh', 
                             width: '95%',
                             display: 'flex', 
                             flexDirection: 'column',
@@ -261,7 +261,7 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                         </div>
 
                                         {/* FLEXIBLE TAG GRID */}
-                                        <div style={{ flex: 1, padding: '16px 16px 120px 16px', overflowY: 'auto', background: 'rgba(0,0,0,0.1)' }}>
+                                        <div style={{ flex: 1, padding: '16px', overflowY: 'auto', background: 'rgba(0,0,0,0.1)' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                                                 <div style={{ flex: 1 }}>
                                                     <h3 style={{ margin: 0, color: 'white', fontSize: '0.9rem' }}>{searchQuery ? 'Search Results' : activeCategory}</h3>
@@ -331,7 +331,7 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                 )}
 
                                 {activeTab === 'Looking' && (
-                                    <motion.div key="hub-looking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, padding: '20px 20px 120px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', overflowY: 'auto' }}>
+                                    <motion.div key="hub-looking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, padding: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', overflowY: 'auto' }}>
                                         <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.04)' }}>
                                             <div style={{ color: '#60a5fa', fontSize: '0.75rem', marginBottom: '6px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                 <Palette size={12} /> Ambient Color
@@ -381,7 +381,7 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                                 )}
 
                                 {activeTab === 'Setting' && (
-                                    <motion.div key="hub-setting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, padding: '20px 20px 120px 20px', overflowY: 'auto' }}>
+                                    <motion.div key="hub-setting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
                                             <div 
                                                 onClick={() => setIsRealismHigh(!isRealismHigh)}
@@ -462,13 +462,14 @@ const SelfiePromptModal = ({ isOpen, onClose, onConfirm }) => {
                         {/* FOOTER - ENSURED VISIBILITY */}
                         <div style={{ 
                             flexShrink: 0, 
-                            padding: '16px 20px', 
+                            padding: '12px 20px', 
                             background: 'rgba(10, 10, 15, 0.98)', 
                             backdropFilter: 'blur(15px)',
                             borderTop: '1px solid rgba(168, 85, 247, 0.3)', 
                             boxShadow: '0 -10px 40px rgba(0,0,0,0.7)',
                             zIndex: 100,
-                            position: 'relative'
+                            position: 'relative',
+                            maxHeight: '40%'
                         }}>
                             {/* ACTIVE TAGS SUMMARY */}
                             {activeTagsByLabel.length > 0 && (

@@ -71,6 +71,7 @@ export const generateImage = async (params) => {
     const tattooPart = (selectedTattooObj && selectedTattooObj.id !== 'none') ? `(${selectedTattooObj.text}:1.5)` : "";
 
     const fullPrompt = `${finalPrefix}${charIdentity}, ${clothingPart ? clothingPart + ', ' : ''}${skinPart ? skinPart + ', ' : ''}${lightingPart ? lightingPart + ', ' : ''}${piercingPart ? piercingPart + ', ' : ''}${tattooPart ? tattooPart + ', ' : ''}${charAppearance}, ${charLora}, ${prompt}`;
+    const cleanPrompt = fullPrompt.replace(/<lora:.*?>/g, '').replace(/,\s*,/g, ',').replace(/,\s*$/g, '').trim();
 
     try {
         if (imageEngine === 'comfyui') {
@@ -124,12 +125,21 @@ export const generateImage = async (params) => {
                 }
             }
 
-            if (comfyWorkflow["6"]) comfyWorkflow["6"].inputs.text = fullPrompt;
+            if (comfyWorkflow["6"]) comfyWorkflow["6"].inputs.text = cleanPrompt;
             if (comfyWorkflow["3"]) {
-                comfyWorkflow["3"].inputs.seed = Math.floor(Math.random() * 1000000);
+                comfyWorkflow["3"].inputs.seed = Math.floor(Math.random() * 1000000000);
+                comfyWorkflow["3"].inputs.steps = 25; // Balanced for Euler Ancestral
+                comfyWorkflow["3"].inputs.sampler_name = 'euler_ancestral';
+                comfyWorkflow["3"].inputs.scheduler = 'normal';
                 if (isRefinement) {
                     comfyWorkflow["3"].inputs.denoise = refinementStrength;
+                } else {
+                    comfyWorkflow["3"].inputs.denoise = 1.0;
                 }
+            }
+            // Force VAE connection consistency
+            if (comfyWorkflow["8"]) {
+                comfyWorkflow["8"].inputs.vae = [ckptId || "4", 2];
             }
 
             // REFINEMENT NODE INJECTION

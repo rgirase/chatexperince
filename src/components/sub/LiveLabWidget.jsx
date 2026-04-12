@@ -110,7 +110,7 @@ const LiveLabWidget = ({ className = "" }) => {
                         {comfyStatus.loading ? 'Initializing...' : (comfyStatus.online ? 'ComfyUI Ready' : 'Disconnected')}
                     </div>
                     <div style={{ fontSize: '0.7rem', color: '#71717a', marginTop: '2px' }}>
-                        {comfyStatus.online ? 'SDXL Pipeline Active' : 'Start ComfyUI (Port 8188)'}
+                        {comfyStatus.online ? 'SDXL Pipeline Active' : 'Start ComfyUI (Port 8000)'}
                     </div>
                 </div>
             </div>

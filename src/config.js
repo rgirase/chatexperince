@@ -5,7 +5,7 @@ export const DEFAULT_IMAGE_ENGINE = 'comfyui';
 export const DEFAULT_LM_STUDIO_MODEL = 'local-model';
 
 export const DEFAULT_COMFY_WORKFLOW = {
-    "3": { "inputs": { "seed": 42, "steps": 50, "cfg": 7, "sampler_name": "dpmpp_2m_sde", "scheduler": "karras", "denoise": 1, "model": ["4", 0], "positive": ["6", 0], "negative": ["7", 0], "latent_image": ["5", 0] }, "class_type": "KSampler" },
+    "3": { "inputs": { "seed": 42, "steps": 25, "cfg": 7, "sampler_name": "euler_ancestral", "scheduler": "normal", "denoise": 1, "model": ["4", 0], "positive": ["6", 0], "negative": ["7", 0], "latent_image": ["5", 0] }, "class_type": "KSampler" },
     "4": { "inputs": { "ckpt_name": "bigLust_v16.safetensors" }, "class_type": "CheckpointLoaderSimple" },
     "5": { "inputs": { "width": 832, "height": 1216, "batch_size": 1 }, "class_type": "EmptyLatentImage" },
     "6": { "inputs": { "text": "__PROMPT__", "clip": ["4", 1] }, "class_type": "CLIPTextEncode" },
@@ -15,15 +15,14 @@ export const DEFAULT_COMFY_WORKFLOW = {
 };
 
 export const DEFAULT_PONY_WORKFLOW = {
-    "3": { "inputs": { "seed": 42, "steps": 50, "cfg": 7, "sampler_name": "dpmpp_2m_sde", "scheduler": "karras", "denoise": 1, "model": ["4", 0], "positive": ["6", 0], "negative": ["7", 0], "latent_image": ["5", 0] }, "class_type": "KSampler" },
+    "3": { "inputs": { "seed": 42, "steps": 25, "cfg": 7, "sampler_name": "euler_ancestral", "scheduler": "normal", "denoise": 1, "model": ["4", 0], "positive": ["6", 0], "negative": ["7", 0], "latent_image": ["5", 0] }, "class_type": "KSampler" },
     "4": { "inputs": { "ckpt_name": "bigLust_v16.safetensors" }, "class_type": "CheckpointLoaderSimple" },
     "5": { "inputs": { "width": 832, "height": 1216, "batch_size": 1 }, "class_type": "EmptyLatentImage" },
     "6": { "inputs": { "text": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_explicit, __PROMPT__", "clip": ["11", 0] }, "class_type": "CLIPTextEncode" },
     "7": { "inputs": { "text": "score_4, score_3, score_2, score_1, (worst quality:1.2), (low quality:1.2), (normal quality:1.2), lowres, bad anatomy, bad hands, text, error", "clip": ["11", 0] }, "class_type": "CLIPTextEncode" },
-    "8": { "inputs": { "samples": ["3", 0], "vae": ["12", 0] }, "class_type": "VAEDecode" },
+    "8": { "inputs": { "samples": ["3", 0], "vae": ["4", 2] }, "class_type": "VAEDecode" },
     "9": { "inputs": { "filename_prefix": "ChatExperience_Pony", "images": ["8", 0] }, "class_type": "SaveImage" },
-    "11": { "class_type": "CLIPSetLastLayer", "inputs": { "stop_at_clip_layer": -2, "clip": ["4", 1] } },
-    "12": { "class_type": "VAELoader", "inputs": { "vae_name": "sdxl_vae_fix.safetensors" } }
+    "11": { "class_type": "CLIPSetLastLayer", "inputs": { "stop_at_clip_layer": -2, "clip": ["4", 1] } }
 };
 
 export const AVAILABLE_PONY_MODELS = [
