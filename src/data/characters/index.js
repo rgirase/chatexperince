@@ -190,9 +190,11 @@ import brianna_ex_sister_in_law from './brianna_ex_sister_in_law.js';
 import jade_exchange_sister from './jade_exchange_sister.js';
 import { sister_grace } from './sister_grace.js';
 import { lyra_storyteller } from './lyra_storyteller.js';
+import { emily_summer_niece } from './emily_summer_niece.js';
 
 
 export const characters = [
+  emily_summer_niece,
   lyra_storyteller,
   sister_grace,
   girlfriend_and_daughter_rivalry,
