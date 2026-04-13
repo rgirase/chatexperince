@@ -9,7 +9,7 @@ export const DEFAULT_COMFY_WORKFLOW = {
     "4": { "inputs": { "ckpt_name": "bigLust_v16.safetensors" }, "class_type": "CheckpointLoaderSimple" },
     "5": { "inputs": { "width": 832, "height": 1216, "batch_size": 1 }, "class_type": "EmptyLatentImage" },
     "6": { "inputs": { "text": "__PROMPT__", "clip": ["4", 1] }, "class_type": "CLIPTextEncode" },
-    "7": { "inputs": { "text": "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry", "clip": ["4", 1] }, "class_type": "CLIPTextEncode" },
+    "7": { "inputs": { "text": "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, (unnatural skin:1.2), (monochrome:1.1), (grayscale:1.1), (headless:1.5), (out of frame:1.3), cropped head, blurry face", "clip": ["4", 1] }, "class_type": "CLIPTextEncode" },
     "8": { "inputs": { "samples": ["3", 0], "vae": ["4", 2] }, "class_type": "VAEDecode" },
     "9": { "inputs": { "filename_prefix": "ChatExperience", "images": ["8", 0] }, "class_type": "SaveImage" }
 };
@@ -19,7 +19,7 @@ export const DEFAULT_PONY_WORKFLOW = {
     "4": { "inputs": { "ckpt_name": "bigLust_v16.safetensors" }, "class_type": "CheckpointLoaderSimple" },
     "5": { "inputs": { "width": 832, "height": 1216, "batch_size": 1 }, "class_type": "EmptyLatentImage" },
     "6": { "inputs": { "text": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_explicit, __PROMPT__", "clip": ["11", 0] }, "class_type": "CLIPTextEncode" },
-    "7": { "inputs": { "text": "score_4, score_3, score_2, score_1, (worst quality:1.2), (low quality:1.2), (normal quality:1.2), lowres, bad anatomy, bad hands, text, error", "clip": ["11", 0] }, "class_type": "CLIPTextEncode" },
+    "7": { "inputs": { "text": "score_4, score_3, score_2, score_1, (worst quality:1.2), (low quality:1.2), (normal quality:1.2), lowres, bad anatomy, bad hands, text, error, (unnatural skin:1.2), (monochrome:1.1), (grayscale:1.1), (headless:1.5), (out of frame:1.3), cropped head, blurry face", "clip": ["11", 0] }, "class_type": "CLIPTextEncode" },
     "8": { "inputs": { "samples": ["3", 0], "vae": ["4", 2] }, "class_type": "VAEDecode" },
     "9": { "inputs": { "filename_prefix": "ChatExperience_Pony", "images": ["8", 0] }, "class_type": "SaveImage" },
     "11": { "class_type": "CLIPSetLastLayer", "inputs": { "stop_at_clip_layer": -2, "clip": ["4", 1] } }

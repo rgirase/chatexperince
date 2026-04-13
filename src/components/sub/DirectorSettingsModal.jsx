@@ -6,6 +6,7 @@ const DirectorSettingsModal = ({ isOpen, onClose, settings, onUpdate, onPlotTwis
 
     const styles = [
         { id: 'Novel', label: 'Novel Prose', desc: 'Descriptive, immersive, multi-paragraph storytelling.' },
+        { id: 'Comic', label: 'Comic Story', desc: 'Western comic book format with panels and punchy bubbles.' },
         { id: 'Casual', label: 'Casual Texting', desc: 'Fast-paced, modern, and direct dialogue.' },
         { id: 'Bratty', label: 'Bratty / Teasing', desc: 'High-attitude, defiant, and playful tone.' },
     ];

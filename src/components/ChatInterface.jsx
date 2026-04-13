@@ -133,7 +133,9 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         setInventory,
         setCurrentMood,
         narrativeSettings,
-        setNarrativeSettings
+        setNarrativeSettings,
+        isComicMode,
+        setIsComicMode
     } = useChatLogic(persona, showToast, scenario, generateSelfie);
 
     // --- NEW: Per-Message Illustration logic ---
@@ -226,7 +228,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
 
     const handleConfirmSelfie = (prompt, aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated, isComic = false, comicPanelInfo = null, piercing = 'none', tattoo = 'none') => {
         setIsSelfiePromptOpen(false);
-        generateSelfie(prompt, Date.now().toString(), aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated, isComic, comicPanelInfo, piercing, tattoo);
+        const finalIsComic = isComic || isComicMode;
+        generateSelfie(prompt, Date.now().toString(), aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated, finalIsComic, comicPanelInfo, piercing, tattoo);
     };
 
     const handleGenerateComic = async () => {
@@ -403,6 +406,13 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 onOpenLogs={() => setIsLogViewerOpen(true)}
                 customRelation={customRelation}
                 onUpdateRelation={handleUpdateRelation}
+                isComicMode={isComicMode}
+                onToggleComicMode={() => {
+                    const nextMode = !isComicMode;
+                    setIsComicMode(nextMode);
+                    setNarrativeSettings({ ...narrativeSettings, style: nextMode ? 'Comic' : 'Novel' });
+                    showToast(nextMode ? "Comic Story Mode Activated" : "Novel Mode Restored", "info");
+                }}
             />
 
             <MessageList 

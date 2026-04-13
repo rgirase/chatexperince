@@ -9,6 +9,12 @@ const LiveLabWidget = ({ className = "" }) => {
     const [vramStats, setVramStats] = useState(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
+    const handleModelChange = (e) => {
+        const newModel = e.target.value;
+        localStorage.setItem('lmStudioModel', newModel);
+        setLmStatus(prev => ({ ...prev, activeModel: newModel }));
+    };
+
     const refreshStats = async () => {
         setIsRefreshing(true);
         const [lm, comfy, vram] = await Promise.all([
@@ -78,8 +84,36 @@ const LiveLabWidget = ({ className = "" }) => {
                             boxShadow: lmStatus.online ? '0 0 8px #a855f7' : '0 0 8px #ef4444'
                         }} />
                     </div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: '600', color: lmStatus.online ? '#fff' : '#ef4444', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {lmStatus.loading ? 'Initializing...' : (lmStatus.online ? (lmStatus.activeModel || 'Active Model') : 'Disconnected')}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                        {lmStatus.loading ? (
+                            <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#fff' }}>Initializing...</div>
+                        ) : lmStatus.online ? (
+                            <select 
+                                value={lmStatus.activeModel || ''} 
+                                onChange={handleModelChange}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#fff',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    padding: '0',
+                                    cursor: 'pointer',
+                                    outline: 'none',
+                                    maxWidth: '180px',
+                                    textOverflow: 'ellipsis'
+                                }}
+                            >
+                                {lmStatus.models?.map(m => (
+                                    <option key={m.id} value={m.id} style={{ background: '#121217', color: '#fff' }}>
+                                        {m.id.split('/').pop().replace('.gguf', '')}
+                                    </option>
+                                ))}
+                                {!lmStatus.models?.length && <option>No models loaded</option>}
+                            </select>
+                        ) : (
+                            <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#ef4444' }}>Disconnected</div>
+                        )}
                     </div>
                     <div style={{ fontSize: '0.7rem', color: '#71717a', marginTop: '2px' }}>
                         {lmStatus.online ? `${lmStatus.models?.length || 0} Models Found` : 'Start LM Studio (Port 1234)'}

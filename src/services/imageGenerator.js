@@ -35,15 +35,42 @@ export const generateImage = async (params) => {
     const charAppearance = persona.prompt?.match(/APPEARANCE:\s*(.*?)(?=\n|BACKSTORY:|$)/is)?.[1] || "";
     const charIdentity = persona.prompt?.match(/You are\s*(.*?)(?=\n|$)/i)?.[1] || persona.name.split('(')[0].trim();
     
-    // --- REALISM & COMIC OVERHAUL ---
+    // --- ETHNICITY ANCHORING ---
+    const getEthnicityTags = (p) => {
+        const origin = (p.origin || "").toLowerCase();
+        const name = (p.name || "").toLowerCase();
+        const id = (p.id || "").toLowerCase();
+        const promptText = (p.systemPrompt || "").toLowerCase();
+
+        // 1. East Asian
+        if (id.includes('jisoo') || id.includes('hana') || id.includes('sato') || origin.includes('japanese') || origin.includes('korean')) {
+            return "(Asian ethnicity:1.2), (fair skin:1.1), ";
+        }
+        // 2. Indian / South Asian
+        if (origin.includes('indian') || name.includes('bhabhi') || name.includes('mami') || name.includes('masi') || id.includes('anjali') || id.includes('amira') || promptText.includes('india')) {
+            return "(Indian ethnicity:1.2), (brown skin:1.1), ";
+        }
+        // 3. Latina
+        if (origin.includes('latina') || name.includes('jefa') || id.includes('isabella') || origin.includes('brazilian') || origin.includes('rio')) {
+            return "(Latina ethnicity:1.2), (sun-kissed skin:1.1), ";
+        }
+        // 4. Caucasian / Western (Default for American/Western origins)
+        if (origin.includes('modern american') || origin.includes('western') || origin.includes('european') || id.includes('emily') || id.includes('lexi') || id.includes('chloe')) {
+            return "(Caucasian ethnicity:1.2), (white skin:1.1), ";
+        }
+        return "";
+    };
+
+    const ethnicityAnchor = getEthnicityTags(persona);
     const SCORE_TAGS = "score_9, score_8_up, score_7_up, ";
-    const PHOTO_BOOSTERS = "(highly detailed skin textures:1.4), macro photography, skin pores, skin textures, Physically-Based Rendering, ray tracing, depth of field, sharp focus, (natural skin:1.2), ";
+    const COMPOSITION_ANCHOR = "(beautiful detailed face:1.2), portrait focus, looking at viewer, ";
+    const PHOTO_BOOSTERS = "(detailed skin texture:1.1), Physically-Based Rendering, ray tracing, depth of field, sharp focus, (natural skin:1.1), ";
     const COMIC_BOOSTERS = "comic book style, bold lines, cel shaded, highly detailed illustration, vibrant colors, (ink outlines:1.2), masterpiece, (environmental storytelling:1.3), vivid background, ";
     const REALISM_LORA = realismHigh && !isComic ? "<lora:Pony_Realism_2:0.6>, " : "";
 
-    const PONY_PREFIX = isComic ? COMIC_BOOSTERS : `${SCORE_TAGS}${PHOTO_BOOSTERS}${REALISM_LORA}photo (medium), 8k, high quality, cinematic, rating_explicit, masterpiece, photorealistic, 8k uhd, `;
+    const PONY_PREFIX = isComic ? COMIC_BOOSTERS : `${SCORE_TAGS}${ethnicityAnchor}${COMPOSITION_ANCHOR}${PHOTO_BOOSTERS}${REALISM_LORA}photo (medium), 8k, high quality, cinematic, rating_explicit, masterpiece, photorealistic, 8k uhd, `;
     const isPonyModel = activeModel && (activeModel.toLowerCase().includes('pony') || activeModel.toLowerCase().includes('lust') || activeModel.toLowerCase().includes('alchemist'));
-    const finalPrefix = isPonyModel ? PONY_PREFIX : (isComic ? COMIC_BOOSTERS : "photo (medium), 8k, high quality, cinematic, masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, ");
+    const finalPrefix = isPonyModel ? PONY_PREFIX : (isComic ? COMIC_BOOSTERS : `${ethnicityAnchor}${COMPOSITION_ANCHOR}photo (medium), 8k, high quality, cinematic, masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, `);
 
     const charLoras = {
         'hostage_brat_valentina': '<lora:valentina_pony_v1:0.9>',
@@ -62,7 +89,8 @@ export const generateImage = async (params) => {
     let clothingPart = "";
     if (selectedClothingObj && selectedClothingObj.id !== 'none') {
         const colorText = (selectedColorObj && selectedColorObj.id !== 'none') ? `${selectedColorObj.text} ` : "";
-        clothingPart = `(${selectedClothingObj.text.replace('wearing ', `wearing ${colorText}`)}:1.4)`;
+        // Wrap color in a tight association with clothing to prevent race leak
+        clothingPart = `(wearing ${colorText}${selectedClothingObj.text.replace('wearing ', '')}:1.4)`;
     }
 
     const skinPart = (selectedSkinObj && !isComic) ? selectedSkinObj.text : "";

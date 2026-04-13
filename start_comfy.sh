@@ -12,6 +12,7 @@ cd "${COMFYUI_DIR}" || exit 1
 # Start ComfyUI
 # Using recommended flags from the project's Windows scripts
 # Adapted for Linux paths
+export CUDA_VISIBLE_DEVICES=0
 exec "${VENV_PYTHON}" main.py \
     --listen "${LISTEN_ADDR}" \
     --port "${PORT}" \

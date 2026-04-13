@@ -93,7 +93,8 @@ export async function callLMStudio(prompt, temperature = 0.7, jsonMode = false) 
             body: JSON.stringify({
                 model: await ensureValidModel(),
                 messages: [{ role: "user", content: prompt }],
-                temperature,
+                temperature: 0.7,
+                repetition_penalty: 1.1,
                 max_tokens: 2000,
                 stream: false,
                 ...(jsonMode ? { response_format: { type: "json_object" } } : {})
@@ -221,9 +222,10 @@ const getModelId = () => {
 // --- CONTEXT BUDGETING ---
 // 1 token ≈ 4 characters. 
 // Standard local context is 4096-8192 tokens.
-const MAX_CONTEXT_CHARS = 32000; // Safer default for 8k+ models
-const MAX_HISTORY_CHARS = 8000; // Reduced to provide larger buffer for system prompt
-const MAX_RESPONSE_TOKENS = 500; // Safer response allowance for 4096 context
+// TRIMMING AGGRESSIVELY FOR 8GB VRAM STABILITY
+const MAX_CONTEXT_CHARS = 32000; 
+const MAX_HISTORY_CHARS = 18000; 
+const MAX_RESPONSE_TOKENS = 600; 
 
 // Internal helper to ensure we have a valid model
 const ensureValidModel = async () => {
@@ -233,10 +235,13 @@ const ensureValidModel = async () => {
     if (models && models.length > 0) {
         // Check if current model is in the list
         const isAvailable = models.some(m => m.id === currentModel);
-        if (!isAvailable || currentModel === 'local-model') {
-            console.log(`[LLM] Model "${currentModel}" not available or default. Switching to: ${models[0].id}`);
+        if (!isAvailable) {
+            console.log(`[LLM] Model "${currentModel}" not available. Falling back to: ${models[0].id}`);
             currentModel = models[0].id;
-            localStorage.setItem('lmStudioModel', currentModel);
+            // We only auto-persist if it's the first time or the old one is gone
+            if (!localStorage.getItem('lmStudioModel')) {
+                localStorage.setItem('lmStudioModel', currentModel);
+            }
         }
     }
     return currentModel;
@@ -392,10 +397,9 @@ const injectCulturalTraits = (persona) => {
 
     return `
 CULTURAL EMBODIMENT:
-- Identity: ${origin} character who follows these habits: ${languageHabits}.
-- Core Values: ${values}.
-- Traditions: ${traditions}.
-- CRITICAL NARRATIVE RULE: Maintain full continuity of the current scene and environment. ${isSouthAsian ? 'Use Hinglish/Hindi terms naturally for emotional flavor, but ensure the core narrative actions and dialogue remain clear and progress the story in English.' : 'Ensure the core narrative actions and dialogue are clear and vivid.'}
+- Identity: ${origin} character.
+- Cultural Nuance: You may occasionally use very brief regional terms (e.g. from ${languageHabits}) ONLY for emotional flavor or specific cultural items.
+- CRITICAL LINGUISTIC RULE: Every full sentence of dialogue and all narrative descriptions MUST remain in English. Do not switch the primary language of the conversation.
 `;
 };
 
@@ -440,9 +444,10 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
 
     const narrativeDirective = `
 [NARRATIVE STYLE: ${narrativeSettings.style}]
-- Writing Style: ${narrativeSettings.style === 'Novel' ? 'Descriptive prose.' : 
-                   narrativeSettings.style === 'Bratty' ? 'Teasing and defiant.' : 
-                   'Casual and modern.'}
+- Writing Style: ${narrativeSettings.style === 'Novel' ? 'Descriptive multi-paragraph prose.' : 
+                   narrativeSettings.style === 'Bratty' ? 'Teasing, defiant, and sassy.' : 
+                   narrativeSettings.style === 'Comic' ? 'Western comic book format. Use [PANEL] markers for scene changes. Break dialogue into punchy bubbles. Describe actions visually and dramatically.' :
+                   'Casual and modern texting style.'}
 - Tension: ${narrativeSettings.tension}/5.
 - Focus: ${narrativeSettings.focus}.
 ${narrativeSettings.chaosMode ? `\n[CHAOS MODE ACTIVE: You are in a high-unpredictability state. Break conversational loops, introduce sudden internal or external conflict, and be more emotionally volatile or creative than usual. Do NOT be polite or predictable.]` : ""}
@@ -477,11 +482,17 @@ ${options.invitedPersona ? `\n\n[GUEST CHARACTER BIBLE: ${invitedName}]\n${optio
 Voice: Immersive, descriptive, multi-paragraph narrative. Use *asterisks* for actions and natural dialogue.
 Voice Rules: Descriptive, immersive roleplay. Use *asterisks* for physical actions and sensory details. Dialogue should be natural and in-character.
 
-[CURRENT STORY BEAT]
+[STORY BEAT & CONTEXT]
 Memory: ${memory || "The story begins now."}
 Intensity: ${intensity}/5
 ${options.currentSituation ? `Situation: ${options.currentSituation}` : ""}
 ${localStorage.getItem('userName') ? "User's Name: " + localStorage.getItem('userName') : ""}
+
+[DRACONIAN LINGUISTIC ANCHOR]
+- PRIMARY LANGUAGE: English.
+- CORE RULE: You are prohibited from replying in any language other than English. 
+- FORMAT: All dialogue and narrative must be 100% English prose.
+
 FINAL RULE: Always end your response with your current mood exactly like this: [MOOD: emotion].
 [SYSTEM DIRECTIVE: You are the Director. If the narrative physically moves to a new location, append [MOVE_TO: location_id] at the very end. Valid IDs: ${getAllLocations().map(l => l.id).join(", ")}]
 OPTIONAL: If you want to proactively suggest an action for the User to take next, add [PROACTIVE_ACTION: "short suggestion"] at the very end.
@@ -489,7 +500,11 @@ ${options.isPlotTwist ? `[PLOT TWIST TRIGGERED: STOP the current conversational 
 ${persona.id === 'sister_grace' ? `\n\n[CRITICAL: You MUST use the DUAL-VOICE format for every response. Start with [PUBLIC] for your pious facade, then [PRIVATE] for your dominant corrupted truth.]` : ""}`;
 
     // 2. CONSTRUCT HISTORY (Cleaned and formatted)
-    let rawHistory = trimHistory(messages, MAX_HISTORY_CHARS - biblePrompt.length);
+    // Dynamic history budgeting: Total Context - System Prompt - Anticipated Response - Buffer
+    const historyBudget = Math.max(MAX_HISTORY_CHARS, MAX_CONTEXT_CHARS - biblePrompt.length - (MAX_RESPONSE_TOKENS * 4 + 2000));
+    console.log(`[LLM] Context Budget - Total: ${MAX_CONTEXT_CHARS}, System: ${biblePrompt.length}, History Budget: ${historyBudget}`);
+
+    let rawHistory = trimHistory(messages, historyBudget);
     let safeMessages = [];
     
     for (let msg of rawHistory) {
@@ -547,10 +562,11 @@ ${persona.id === 'sister_grace' ? `\n\n[CRITICAL: You MUST use the DUAL-VOICE fo
                 messages: formattedMessages,
                 max_tokens: MAX_RESPONSE_TOKENS,
                 stream: true,
-                temperature: narrativeSettings.chaosMode ? 0.95 : 0.8,
-                top_p: 0.95,
-                frequency_penalty: narrativeSettings.chaosMode ? 1.0 : 0.5,
-                presence_penalty: narrativeSettings.chaosMode ? 1.0 : 0.5,
+                temperature: 0.7,
+                top_p: 0.9,
+                repetition_penalty: 1.1,
+                frequency_penalty: 0.5,
+                presence_penalty: 0.5,
                 stop: [
                     "User:", "Assistant:", "###", "System:",
                     "<|eot_id|>", "<|im_end|>", "<|endoftext|>", "<|end_of_text|>",

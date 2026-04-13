@@ -42,10 +42,12 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     const [customRelation, setCustomRelation] = useState('');
     const [currentMood, setCurrentMood] = useState('Neutral'); // Character Core 2.0
     const [inventory, setInventory] = useState([]); // Character Core 2.0 (RPG Update)
+    const [isComicMode, setIsComicMode] = useState(false);
     const [narrativeSettings, setNarrativeSettings] = useState({
-        style: 'Novel', // Novel, Fast, Casual, Bratty
+        style: 'Novel', // Novel, Fast, Casual, Bratty, Comic
         tension: 3,     // 1-5
-        focus: 'Mixed'  // Dialogue, Action, Mixed
+        focus: 'Mixed', // Dialogue, Action, Mixed
+        chaosMode: false
     });
 
     const abortControllerRef = useRef(null);
@@ -138,6 +140,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             // Character Core 2.0
             setCurrentMood(await db.getItem('settings', `mood${suffix}`) || 'Neutral');
             setInventory(await db.getItem('settings', `inventory${suffix}`) || []);
+            setIsComicMode(await db.getItem('settings', `is_comic${suffix}`) || false);
             setNarrativeSettings(await db.getItem('settings', `narrative${suffix}`) || {
                 style: 'Novel',
                 tension: 3,
@@ -211,6 +214,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         // Character Core 2.0
         db.setItem('settings', `mood${suffix}`, currentMood);
         db.setItem('settings', `inventory${suffix}`, inventory);
+        db.setItem('settings', `is_comic${suffix}`, isComicMode);
         db.setItem('settings', `narrative${suffix}`, narrativeSettings);
 
 
@@ -1104,6 +1108,8 @@ ${lorePrompt}
         setInventory,
         setCurrentMood,
         narrativeSettings,
-        setNarrativeSettings
+        setNarrativeSettings,
+        isComicMode,
+        setIsComicMode
     };
 };

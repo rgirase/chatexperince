@@ -46,7 +46,9 @@ const ChatHeader = ({
     onOpenLogs,
     onOpenLore,
     customRelation,
-    onUpdateRelation
+    onUpdateRelation,
+    isComicMode,
+    onToggleComicMode
 }) => {
     const menuRef = useRef(null);
     const [isRelationOpen, setIsRelationOpen] = React.useState(false);
@@ -254,10 +256,11 @@ const ChatHeader = ({
             </div>
 
             <div className="chat-header-actions" style={{ display: 'flex', gap: '4px', alignItems: 'center', flexShrink: 0 }}>
-                <div style={{ position: 'relative' }} ref={menuRef}>
+                {/* Desktop/Tablet view: Show icons directly */}
+                <div className="header-desktop-actions" style={{ display: 'flex', gap: '4px' }}>
                     <button 
                         onClick={onOpenLore} 
-                        className="header-action-btn"
+                        className="header-action-btn lore-btn"
                         title="Open World Codex (Neural Memory)"
                         style={{ 
                             background: 'rgba(168, 85, 247, 0.15)', 
@@ -272,32 +275,34 @@ const ChatHeader = ({
 
                     <button 
                         onClick={onGenerateComic} 
-                        className="header-action-btn"
-                        title="Generate Comic Story Image"
+                        className="header-action-btn comic-btn"
+                        title="Generate Multi-Panel Comic Story"
                         style={{ 
-                            background: 'rgba(244, 114, 182, 0.1)', 
+                            background: 'rgba(244, 114, 182, 0.15)', 
                             color: '#f472b6', 
                             border: '1px solid rgba(244, 114, 182, 0.2)', 
                             padding: '6px', 
                             borderRadius: '10px' 
                         }}
                     >
-                        <BookOpen size={20} />
+                        <Book size={20} />
                     </button>
+                </div>
 
+                <div style={{ position: 'relative' }} ref={menuRef}>
                     <button 
-                        onClick={onToggleImmersion} 
+                        onClick={onToggleComicMode} 
                         className="header-action-btn"
-                        title={isImmersionMode ? "Exit Immersion" : "Enter Immersion"}
+                        title={isComicMode ? "Exit Comic Story Mode" : "Enter Comic Story Mode"}
                         style={{ 
-                            background: isImmersionMode ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255, 255, 255, 0.05)', 
-                            color: isImmersionMode ? 'var(--primary-color)' : '#fff', 
-                            border: `1px solid ${isImmersionMode ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.1)'}`, 
+                            background: isComicMode ? 'rgba(244, 114, 182, 0.2)' : 'rgba(255, 255, 255, 0.05)', 
+                            color: isComicMode ? '#f472b6' : '#fff', 
+                            border: `1px solid ${isComicMode ? '#f472b6' : 'rgba(255, 255, 255, 0.1)'}`, 
                             padding: '6px', 
                             borderRadius: '10px' 
                         }}
                     >
-                        {isImmersionMode ? <EyeOff size={20} /> : <Eye size={20} />}
+                        {isComicMode ? <ImageIcon size={20} /> : <BookOpen size={20} />}
                     </button>
 
                     <button 
@@ -357,7 +362,8 @@ const ChatHeader = ({
                                     
                                     <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0.5rem 0' }}></div>
                                     
-                                    <button onClick={() => { onGenerateComic(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#f472b6' }}><BookOpen size={18} /> Comic Story Image</button>
+                                    <button onClick={() => { onGenerateComic(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#f472b6' }}><Book size={18} /> Generate Comic Story (Multi-Panel)</button>
+                                    <button onClick={() => { onToggleComicMode(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#ec4899' }}><BookOpen size={18} /> {isComicMode ? 'Exit Comic Mode' : 'Comic Style Mode'}</button>
                                     <button onClick={() => { onGenerateSceneImage(); setIsMobileMenuOpen(false); }} className="menu-item" style={{ color: '#a855f7' }}><Wand2 size={18} /> Generate Scene Look</button>
                                     <button onClick={() => { onOpenStoryMap(); setIsMobileMenuOpen(false); }} className="menu-item"><MapIcon size={18} /> Story Progression Map</button>
                                     <button onClick={() => { onSceneChange(); setIsMobileMenuOpen(false); }} className="menu-item"><MapPin size={18} /> Change Location</button>

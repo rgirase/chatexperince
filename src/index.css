@@ -1889,3 +1889,99 @@ body {
     font-style: italic;
     font-weight: 500;
 }
+
+/* Mobile Optimization Overhaul */
+@media (max-width: 768px) {
+  .chat-header {
+    padding: 0.6rem 0.75rem !important;
+    gap: 0.5rem !important;
+  }
+  
+  .chat-avatar {
+    width: 38px !important;
+    height: 38px !important;
+  }
+  
+  .chat-header-info h3 {
+    font-size: 0.95rem !important;
+  }
+  
+  .chat-header-info p {
+    font-size: 0.7rem !important;
+  }
+
+  .header-action-btn {
+    padding: 4px !important;
+  }
+
+  .header-action-btn svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .messages-area {
+    padding: 1rem 0.75rem !important;
+    gap: 0.75rem !important;
+  }
+
+  .message-bubble {
+    max-width: 85% !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.95rem !important;
+  }
+
+  .input-area {
+    padding: 0.5rem 0.75rem !important;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom)) !important;
+  }
+
+  .input-container {
+    padding: 2px 4px !important;
+  }
+
+  .message-input {
+    padding: 0.5rem !important;
+    font-size: 0.95rem !important;
+  }
+
+  .send-btn {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .quick-action-chip {
+    padding: 4px 10px !important;
+    font-size: 0.7rem !important;
+  }
+
+  .chat-container {
+    overflow-x: hidden !important;
+  }
+  
+  /* Fix right-side cutting issue */
+  .chat-header, .messages-area, .input-area {
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+}
+
+/* Ensure no horizontal overflow on small screens */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Hide non-essential header buttons on very small screens */
+@media (max-width: 450px) {
+  .header-desktop-actions {
+    display: none !important;
+  }
+}
+
+/* Reduce home header padding on mobile */
+@media (max-width: 768px) {
+  .header {
+    padding: 1rem 1.25rem !important;
+  }
+}
