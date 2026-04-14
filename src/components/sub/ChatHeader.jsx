@@ -53,7 +53,7 @@ const ChatHeader = ({
     const menuRef = useRef(null);
     const [isRelationOpen, setIsRelationOpen] = React.useState(false);
 
-    const roles = ["Mother", "Sister", "Aunt", "Secretary", "Girlfriend"];
+    const roles = ["Mother", "Sister", "Aunt", "Secretary", "Girlfriend", "Single mother"];
 
     useEffect(() => {
         const handleClickOutside = (event) => {

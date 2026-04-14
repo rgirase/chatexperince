@@ -159,13 +159,50 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
     };
 
     const handleResetToDefaults = async () => {
-        if (window.confirm("Reset all settings to system defaults? This will clear all local data.")) {
+        if (window.confirm("CRITICAL: This will perform a DEEP RESET of the system. This is required to fix the crash-induced corruption you are seeing. Proceed?")) {
             localStorage.clear();
-            await db.clear('chats');
-            await db.clear('memories');
-            await db.clear('personas');
+            
+            // Wipe every single table in IndexedDB to purge corruption
+            const stores = [
+                'chats', 'memories', 'settings', 'conversations', 
+                'wardrobe', 'logins', 'unlocked_gallery', 'rewards', 
+                'journals', 'lore', 'global_vault', 'persona_events', 'scene_state'
+            ];
+            
+            for (const store of stores) {
+                try {
+                    await db.clear(store);
+                } catch (e) {
+                    console.warn(`Could not clear store ${store}`, e);
+                }
+            }
+            
             window.location.reload();
         }
+    };
+
+    const addSavedEndpoint = (type, url) => {
+        if (!url || url.length < 5) return;
+        if (type === 'lm') {
+            if (!lmSavedEndpoints.includes(url)) {
+                setLmSavedEndpoints(prev => [...prev, url]);
+                setHasUnsavedChanges(true);
+            }
+        } else {
+            if (!sdSavedEndpoints.includes(url)) {
+                setSdSavedEndpoints(prev => [...prev, url]);
+                setHasUnsavedChanges(true);
+            }
+        }
+    };
+
+    const removeSavedEndpoint = (type, url) => {
+        if (type === 'lm') {
+            setLmSavedEndpoints(prev => prev.filter(e => e !== url));
+        } else {
+            setSdSavedEndpoints(prev => prev.filter(e => e !== url));
+        }
+        setHasUnsavedChanges(true);
     };
 
     const StatusBadge = ({ url }) => {
@@ -260,8 +297,35 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                                         className="premium-input"
                                         style={{ flex: 1 }}
                                     />
-                                    <button onClick={() => testEndpoint('lm', lmStudioUrl)} className="btn-secondary" style={{ whiteSpace: 'nowrap' }}>Test Connection</button>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button onClick={() => testEndpoint('lm', lmStudioUrl)} className="btn-secondary" style={{ whiteSpace: 'nowrap' }}>Test</button>
+                                        <button onClick={() => addSavedEndpoint('lm', lmStudioUrl)} className="icon-btn-outline" title="Save to History"><Plus size={18} /></button>
+                                    </div>
                                 </div>
+                                
+                                {lmSavedEndpoints.length > 0 && (
+                                    <div className="endpoint-history" style={{ marginTop: '12px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                        {lmSavedEndpoints.map(url => (
+                                            <div key={url} className={`endpoint-chip ${lmStudioUrl === url ? 'active' : ''}`} style={{
+                                                display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px',
+                                                background: 'rgba(255,255,255,0.05)', borderRadius: '20px', fontSize: '0.75rem',
+                                                border: lmStudioUrl === url ? '1px solid #c084fc' : '1px solid transparent',
+                                                cursor: 'pointer'
+                                            }} onClick={() => {
+                                                setLmStudioUrl(url);
+                                                testEndpoint('lm', url);
+                                            }}>
+                                                <span style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{url}</span>
+                                                <button onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    removeSavedEndpoint('lm', url);
+                                                }} style={{ background: 'transparent', border: 'none', color: '#ef4444', padding: 0, display: 'flex' }}>
+                                                    <Trash2 size={12} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="input-group">
@@ -302,8 +366,35 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                                         className="premium-input"
                                         style={{ flex: 1 }}
                                     />
-                                    <button onClick={() => testEndpoint('sd', sdUrl)} className="btn-secondary" style={{ whiteSpace: 'nowrap' }}>Test Connection</button>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button onClick={() => testEndpoint('sd', sdUrl)} className="btn-secondary" style={{ whiteSpace: 'nowrap' }}>Test</button>
+                                        <button onClick={() => addSavedEndpoint('sd', sdUrl)} className="icon-btn-outline" title="Save to History"><Plus size={18} /></button>
+                                    </div>
                                 </div>
+
+                                {sdSavedEndpoints.length > 0 && (
+                                    <div className="endpoint-history" style={{ marginTop: '12px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                        {sdSavedEndpoints.map(url => (
+                                            <div key={url} className={`endpoint-chip ${sdUrl === url ? 'active' : ''}`} style={{
+                                                display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px',
+                                                background: 'rgba(255,255,255,0.05)', borderRadius: '20px', fontSize: '0.75rem',
+                                                border: sdUrl === url ? '1px solid #f472b6' : '1px solid transparent',
+                                                cursor: 'pointer'
+                                            }} onClick={() => {
+                                                setSdUrl(url);
+                                                testEndpoint('sd', url);
+                                            }}>
+                                                <span style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{url}</span>
+                                                <button onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    removeSavedEndpoint('sd', url);
+                                                }} style={{ background: 'transparent', border: 'none', color: '#ef4444', padding: 0, display: 'flex' }}>
+                                                    <Trash2 size={12} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="input-group" style={{ marginBottom: '1.5rem' }}>
@@ -424,6 +515,15 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                     font-size: 0.9rem;
                     cursor: pointer;
                     transition: all 0.2s ease;
+                }
+                .endpoint-chip {
+                    transition: all 0.2s ease;
+                }
+                .endpoint-chip:hover {
+                    background: rgba(255,255,255,0.1) !important;
+                }
+                .endpoint-chip.active {
+                    background: rgba(192, 132, 252, 0.1) !important;
                 }
                 .tab-btn.active {
                     background: rgba(192, 132, 252, 0.15);

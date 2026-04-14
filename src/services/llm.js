@@ -223,8 +223,8 @@ const getModelId = () => {
 // 1 token ≈ 4 characters. 
 // Standard local context is 4096-8192 tokens.
 // TRIMMING AGGRESSIVELY FOR 8GB VRAM STABILITY
-const MAX_CONTEXT_CHARS = 32000; 
-const MAX_HISTORY_CHARS = 18000; 
+const MAX_CONTEXT_CHARS = 30000; 
+const MAX_HISTORY_CHARS = 14000; 
 const MAX_RESPONSE_TOKENS = 600; 
 
 // Internal helper to ensure we have a valid model
@@ -499,10 +499,13 @@ OPTIONAL: If you want to proactively suggest an action for the User to take next
 ${options.isPlotTwist ? `[PLOT TWIST TRIGGERED: STOP the current conversational flow. You MUST introduce a sudden, dramatic, and unexpected external event or a massive shift in the character's behavior. Something has happened right NOW that changes the entire trajectory of the scene. Be vivid and bold with this twist.]` : ""}
 ${persona.id === 'sister_grace' ? `\n\n[CRITICAL: You MUST use the DUAL-VOICE format for every response. Start with [PUBLIC] for your pious facade, then [PRIVATE] for your dominant corrupted truth.]` : ""}`;
 
-    // 2. CONSTRUCT HISTORY (Cleaned and formatted)
-    // Dynamic history budgeting: Total Context - System Prompt - Anticipated Response - Buffer
-    const historyBudget = Math.max(MAX_HISTORY_CHARS, MAX_CONTEXT_CHARS - biblePrompt.length - (MAX_RESPONSE_TOKENS * 4 + 2000));
-    console.log(`[LLM] Context Budget - Total: ${MAX_CONTEXT_CHARS}, System: ${biblePrompt.length}, History Budget: ${historyBudget}`);
+    // Dynamic history budgeting: Total Context - System Prompt - Anticipated Response - Safety Buffer
+    // We prioritize the character bible (system prompt) and trim history to fit.
+    const historyBudget = Math.min(
+        MAX_HISTORY_CHARS, 
+        Math.max(2000, MAX_CONTEXT_CHARS - biblePrompt.length - (MAX_RESPONSE_TOKENS * 4 + 4000))
+    );
+    console.log(`[LLM] Context Budget - Total: ${MAX_CONTEXT_CHARS}, System Prompt: ${biblePrompt.length}, Safe History Budget: ${historyBudget}`);
 
     let rawHistory = trimHistory(messages, historyBudget);
     let safeMessages = [];
@@ -551,6 +554,12 @@ ${persona.id === 'sister_grace' ? `\n\n[CRITICAL: You MUST use the DUAL-VOICE fo
 
     try {
         const url = getLmStudioUrl();
+        
+        // --- DEBUG CORRUPTION CHECK ---
+        console.log("--- [LLM] OUTGOING PROMPT TO LM STUDIO ---");
+        console.dir(formattedMessages);
+        // ------------------------------
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -562,11 +571,12 @@ ${persona.id === 'sister_grace' ? `\n\n[CRITICAL: You MUST use the DUAL-VOICE fo
                 messages: formattedMessages,
                 max_tokens: MAX_RESPONSE_TOKENS,
                 stream: true,
-                temperature: 0.7,
+                temperature: 0.8,
                 top_p: 0.9,
+                min_p: 0.05,
                 repetition_penalty: 1.1,
-                frequency_penalty: 0.5,
-                presence_penalty: 0.5,
+                frequency_penalty: 0.0,
+                presence_penalty: 0.0,
                 stop: [
                     "User:", "Assistant:", "###", "System:",
                     "<|eot_id|>", "<|im_end|>", "<|endoftext|>", "<|end_of_text|>",
