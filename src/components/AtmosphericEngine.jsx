@@ -30,21 +30,27 @@ const AtmosphericEngine = ({ mood, intensity }) => {
     }, [mood, intensity]);
 
     return (
-        <div className="atmospheric-layers" style={{
-            position: 'fixed',
-            inset: 0,
-            pointerEvents: 'none',
-            zIndex: 0,
-            overflow: 'hidden'
-        }}>
+        <div 
+            className="atmospheric-layers" 
+            style={{
+                position: 'fixed',
+                inset: 0,
+                pointerEvents: 'none',
+                zIndex: 0,
+                overflow: 'hidden',
+                '--glow-color': glowColor,
+                '--pulse-speed': `${pulseSpeed}s`,
+                '--intensity-filter': intensity >= 5 ? 'contrast(1.05) saturate(1.1)' : 'none'
+            }}
+        >
             {/* Bio-Metric Pulse Glow */}
             <div 
                 className="pulse-glow"
                 style={{
                     position: 'absolute',
                     inset: '-10%',
-                    background: `radial-gradient(circle at center, ${glowColor} 0%, transparent 70%)`,
-                    animation: `atmospheric-pulse ${pulseSpeed}s ease-in-out infinite`,
+                    background: `radial-gradient(circle at center, var(--glow-color) 0%, transparent 70%)`,
+                    animation: `atmospheric-pulse var(--pulse-speed) ease-in-out infinite`,
                     opacity: 0.6
                 }}
             />
@@ -62,22 +68,22 @@ const AtmosphericEngine = ({ mood, intensity }) => {
                 }}
             />
 
-            {/* CSS Animation injection */}
-            <style dangerouslySetInnerHTML={{ __html: `
+            {/* Fixed styles that don't change based on props */}
+            <style>{`
                 @keyframes atmospheric-pulse {
                     0% { transform: scale(1); opacity: 0.4; }
                     50% { transform: scale(1.1); opacity: 0.7; }
                     100% { transform: scale(1); opacity: 0.4; }
                 }
                 
-                /* Intensity-based aberration */
-                body {
+                /* Apply intensity filter to a specific layer instead of the whole body */
+                .atmospheric-layers {
+                    filter: var(--intensity-filter);
                     transition: filter 0.5s ease;
-                    ${intensity >= 5 ? 'filter: contrast(1.05) saturate(1.1);' : ''}
                 }
-            `}} />
+            `}</style>
         </div>
     );
 };
 
-export default AtmosphericEngine;
+export default React.memo(AtmosphericEngine);

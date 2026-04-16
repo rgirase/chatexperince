@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Server, Zap, Cpu, Activity, ShieldCheck, AlertCircle, RefreshCw, Terminal } from 'lucide-react';
 import { checkServerStatus, fetchSystemStats } from '../../services/llm';
@@ -230,4 +230,4 @@ const LiveLabWidget = ({ className = "" }) => {
     );
 };
 
-export default LiveLabWidget;
+export default memo(LiveLabWidget);

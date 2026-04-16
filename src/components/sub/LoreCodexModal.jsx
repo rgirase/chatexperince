@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Book, Trash2, Search, Info, Award, MapPin, Users, Zap } from 'lucide-react';
+import { X, Book, Trash2, Search, Info, Award, MapPin, Users, Zap, Plus } from 'lucide-react';
 import * as db from '../../services/db';
 
 const LoreCodexModal = ({ isOpen, onClose, persona }) => {
     const [lore, setLore] = useState([]);
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('all');
+    const [isAdding, setIsAdding] = useState(false);
+    const [newFact, setNewFact] = useState('');
+    const [newCategory, setNewCategory] = useState('relationship');
 
     useEffect(() => {
         if (isOpen) {
@@ -25,6 +28,25 @@ const LoreCodexModal = ({ isOpen, onClose, persona }) => {
 
     const handleDelete = async (id) => {
         await db.removeItem('lore', id);
+        loadLore();
+    };
+
+    const handleAddFact = async () => {
+        if (!newFact.trim()) return;
+        
+        const id = `lore_manual_${persona.id}_${Date.now()}`;
+        const item = {
+            fact: newFact.trim(),
+            category: newCategory,
+            personaId: persona.id,
+            timestamp: Date.now(),
+            importance: 5, // Manual facts are high priority
+            isManual: true
+        };
+
+        await db.setItem('lore', id, item);
+        setNewFact('');
+        setIsAdding(false);
         loadLore();
     };
 
@@ -95,9 +117,101 @@ const LoreCodexModal = ({ isOpen, onClose, persona }) => {
                             <option value="all">All Records</option>
                             <option value="user_info">User Insights</option>
                             <option value="relationship">Shared History</option>
-                            <option value="world_event">World Events</option>
+                             <option value="world_event">World Events</option>
                         </select>
+                        <button 
+                            onClick={() => setIsAdding(!isAdding)}
+                            style={{
+                                background: isAdding ? 'rgba(239, 68, 68, 0.15)' : 'rgba(168, 85, 247, 0.15)',
+                                border: '1px solid ' + (isAdding ? 'rgba(239, 68, 68, 0.3)' : 'rgba(168, 85, 247, 0.3)'),
+                                color: isAdding ? '#ef4444' : '#a855f7',
+                                borderRadius: '12px',
+                                padding: '10px 16px',
+                                fontSize: '0.85rem',
+                                fontWeight: 'bold',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }}
+                        >
+                            {isAdding ? <X size={18} /> : <Plus size={18} />}
+                            {isAdding ? 'Cancel' : 'Add Fact'}
+                        </button>
                     </div>
+
+                    <AnimatePresence>
+                        {isAdding && (
+                            <motion.div 
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                style={{ overflow: 'hidden', background: 'rgba(168, 85, 247, 0.05)', borderBottom: '1px solid rgba(168, 85, 247, 0.1)' }}
+                            >
+                                <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                                        <select 
+                                            value={newCategory}
+                                            onChange={(e) => setNewCategory(e.target.value)}
+                                            style={{
+                                                background: 'rgba(0,0,0,0.3)',
+                                                border: '1px solid rgba(255,255,255,0.1)',
+                                                borderRadius: '10px',
+                                                padding: '8px',
+                                                color: '#fff',
+                                                fontSize: '0.8rem',
+                                                outline: 'none',
+                                                minWidth: '120px'
+                                            }}
+                                        >
+                                            <option value="user_info">User Insight</option>
+                                            <option value="relationship">Shared History</option>
+                                            <option value="world_event">World Event</option>
+                                        </select>
+                                        <input 
+                                            type="text"
+                                            placeholder="What should the AI remember?"
+                                            value={newFact}
+                                            onChange={(e) => setNewFact(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleAddFact()}
+                                            style={{
+                                                flex: '1 1 200px',
+                                                background: 'rgba(0,0,0,0.3)',
+                                                border: '1px solid rgba(255,255,255,0.1)',
+                                                borderRadius: '10px',
+                                                padding: '8px 12px',
+                                                color: '#fff',
+                                                fontSize: '0.85rem',
+                                                minWidth: '150px'
+                                            }}
+                                        />
+                                        <button 
+                                            onClick={handleAddFact}
+                                            disabled={!newFact.trim()}
+                                            style={{
+                                                background: '#a855f7',
+                                                border: 'none',
+                                                borderRadius: '10px',
+                                                padding: '8px 20px',
+                                                color: 'white',
+                                                fontWeight: 'bold',
+                                                fontSize: '0.85rem',
+                                                cursor: newFact.trim() ? 'pointer' : 'not-allowed',
+                                                opacity: newFact.trim() ? 1 : 0.5,
+                                                flexShrink: 0,
+                                                whiteSpace: 'nowrap'
+                                            }}
+                                        >
+                                            Save Fact
+                                        </button>
+                                    </div>
+                                    <p style={{ margin: 0, fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
+                                        Manual facts are prioritized by the AI to ensure roleplay consistency.
+                                    </p>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     <div className="modal-body custom-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
                         {filteredLore.length === 0 ? (
@@ -152,10 +266,15 @@ const LoreCodexModal = ({ isOpen, onClose, persona }) => {
                                             <p style={{ margin: 0, fontSize: '0.95rem', color: '#fff', fontWeight: '500', lineHeight: '1.4' }}>
                                                 {item.fact}
                                             </p>
-                                            <div style={{ display: 'flex', gap: '4px', marginTop: '8px' }}>
+                                            <div style={{ display: 'flex', gap: '4px', marginTop: '8px', alignItems: 'center' }}>
                                                 {[...Array(item.importance || 1)].map((_, i) => (
                                                     <div key={i} style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#a855f7' }} />
                                                 ))}
+                                                {item.isManual && (
+                                                    <span style={{ marginLeft: '8px', fontSize: '0.65rem', color: '#a855f7', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                                        Anchor Point
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                         <button 

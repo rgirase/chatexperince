@@ -1,6 +1,8 @@
 // Central configuration for default values and fallbacks
 export const DEFAULT_LM_STUDIO_URL = `http://${window.location.hostname}:1234/v1`;
 export const DEFAULT_SD_URL = `http://${window.location.hostname}:8000`;
+export const DEFAULT_NEXUS_URL = `http://${window.location.hostname}:8001`;
+
 export const DEFAULT_IMAGE_ENGINE = 'comfyui';
 export const DEFAULT_LM_STUDIO_MODEL = 'local-model';
 

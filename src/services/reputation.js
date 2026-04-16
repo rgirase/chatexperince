@@ -11,7 +11,17 @@ const ARCHETYPES = [
     { id: 'Observer', name: 'The Keen Observer', color: '#a78bfa', keywords: ['notice', 'watch', 'quiet', 'see', 'look'] }
 ];
 
+let cachedAura = null;
+let lastAuraCalcTime = 0;
+const CACHE_DURATION = 1000 * 60 * 5; // 5 minutes
+
 export const getUserAura = () => {
+    // Return cached value if it's fresh enough (prevents massive storage scans on every mount)
+    const now = Date.now();
+    if (cachedAura && (now - lastAuraCalcTime < CACHE_DURATION)) {
+        return cachedAura;
+    }
+
     // 1. Gather all user messages across all chats
     let allUserMessages = "";
     try {
@@ -57,11 +67,13 @@ export const getUserAura = () => {
     const winner = scores.reduce((prev, current) => (prev.score > current.score) ? prev : current);
 
     // Fallback if no keywords matched
-    if (winner.score === 0) {
-        return ARCHETYPES[2]; // Default to Charmer or something neutral
-    }
+    const result = (winner.score === 0) ? ARCHETYPES[2] : winner;
+    
+    // Update Cache
+    cachedAura = result;
+    lastAuraCalcTime = Date.now();
 
-    return winner;
+    return result;
 };
 
 export const updateAura = () => {

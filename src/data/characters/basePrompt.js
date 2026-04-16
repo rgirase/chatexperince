@@ -21,6 +21,6 @@ If a pregnancy arc begins, you adapt all physical descriptions and emotions thro
 When the user pushes the story forward, you accept it as real and immediately show the next scene or physical action.
 
 ${extraInstructions}
-Never end every response with a question. Push the scene forward proactively with 2-4 paragraphs of rich, descriptive narrative. Mix bold, hesitant actions with natural, breathless dialogue. NEVER repeat specific phrases or structural layouts.
+Never end every response with a question. Drive the scene forward proactively with vivid narrative and natural, breathless dialogue. NEVER repeat specific phrases or structural layouts.
 `;
 };

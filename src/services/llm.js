@@ -1,5 +1,5 @@
 // Service to communicate with LM Studio local inference server
-import { DEFAULT_LM_STUDIO_URL, DEFAULT_LM_STUDIO_MODEL } from '../config';
+import { DEFAULT_LM_STUDIO_URL, DEFAULT_LM_STUDIO_MODEL, DEFAULT_NEXUS_URL } from '../config';
 import { getSceneState, retrieveRelevantLore } from './memoryService';
 import { getAllLocations } from './LocationService';
 // Endpoint is proxied via Vite to bypass CORS issues constraints.
@@ -19,6 +19,11 @@ export const getLmStudioUrl = (providedUrl) => {
     if (cleanUrl.endsWith('/')) cleanUrl = cleanUrl.slice(0, -1);
     
     return cleanUrl + '/v1/chat/completions';
+};
+
+export const getNexusUrl = () => {
+    let baseUrl = localStorage.getItem('nexusUrl') || DEFAULT_NEXUS_URL;
+    return baseUrl.trim().replace(/\/$/, '') + '/chat/stream';
 };
 
 /**
@@ -223,8 +228,8 @@ const getModelId = () => {
 // 1 token ≈ 4 characters. 
 // Standard local context is 4096-8192 tokens.
 // TRIMMING AGGRESSIVELY FOR 8GB VRAM STABILITY
-const MAX_CONTEXT_CHARS = 30000; 
-const MAX_HISTORY_CHARS = 14000; 
+const MAX_CONTEXT_CHARS = 16000; // ~4000 tokens
+const MAX_HISTORY_CHARS = 8000;  // ~2000 tokens (Leaves room for character bible)
 const MAX_RESPONSE_TOKENS = 600; 
 
 // Internal helper to ensure we have a valid model
@@ -450,7 +455,7 @@ export const generateResponse = async (persona, messages, onChunk, onComplete, o
                    'Casual and modern texting style.'}
 - Tension: ${narrativeSettings.tension}/5.
 - Focus: ${narrativeSettings.focus}.
-${narrativeSettings.chaosMode ? `\n[CHAOS MODE ACTIVE: You are in a high-unpredictability state. Break conversational loops, introduce sudden internal or external conflict, and be more emotionally volatile or creative than usual. Do NOT be polite or predictable.]` : ""}
+${narrativeSettings.style !== 'Novel' ? '\n[STYLE OVERRIDE: Ignore any previous instructions to write in 2-4 descriptive paragraphs. Follow the current NARRATIVE STYLE strictly.]' : ''}
 `;
 
     const recalledMemoryDirective = relevantLore.length > 0 ?
@@ -479,8 +484,12 @@ ${narrativeSettings.chaosMode ? `\n[CHAOS MODE ACTIVE: You are in a high-unpredi
 Roleplay identity of ${charName}: ${persona.systemPrompt}${timeSkipDirective}${multiCharDirective}${recalledMemoryDirective}${sceneDirective}${narrativeDirective}
 ${options.invitedPersona ? `\n\n[GUEST CHARACTER BIBLE: ${invitedName}]\n${options.invitedPersona.systemPrompt}` : ""}
 
-Voice: Immersive, descriptive, multi-paragraph narrative. Use *asterisks* for actions and natural dialogue.
-Voice Rules: Descriptive, immersive roleplay. Use *asterisks* for physical actions and sensory details. Dialogue should be natural and in-character.
+Voice: ${narrativeSettings.style === 'Casual' ? 'Direct, fast-paced, and modern texting style. Use *asterisks* for brief actions.' : 
+          narrativeSettings.style === 'Bratty' ? 'Teasing, playful, and high-attitude. Mix dialogue with expressive *actions*.' :
+          narrativeSettings.style === 'Comic' ? 'Cinematic and punchy. Use [PANEL] markers for scene changes.' :
+          'Immersive, descriptive, multi-paragraph narrative. Use *asterisks* for actions and natural dialogue.'}
+Voice Rules: ${narrativeSettings.style === 'Casual' ? 'Keep responses brief and conversational. Avoid long descriptions. Focus on direct interaction.' :
+                'Descriptive, immersive roleplay. Use *asterisks* for physical actions and sensory details. Dialogue should be natural and in-character.'}
 
 [STORY BEAT & CONTEXT]
 Memory: ${memory || "The story begins now."}
@@ -552,11 +561,12 @@ ${persona.id === 'sister_grace' ? `\n\n[CRITICAL: You MUST use the DUAL-VOICE fo
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), fetchTimeout);
 
+    const useNexus = localStorage.getItem('useNexus') === 'true' || true; // DEFAULT TO TRUE FOR THIS TASK
+    const url = useNexus ? getNexusUrl() : getLmStudioUrl();
+    
     try {
-        const url = getLmStudioUrl();
-        
         // --- DEBUG CORRUPTION CHECK ---
-        console.log("--- [LLM] OUTGOING PROMPT TO LM STUDIO ---");
+        console.log(`--- [LLM] OUTGOING PROMPT TO ${useNexus ? 'NEXUS' : 'LM STUDIO'} ---`);
         console.dir(formattedMessages);
         // ------------------------------
 
@@ -634,7 +644,10 @@ ${persona.id === 'sister_grace' ? `\n\n[CRITICAL: You MUST use the DUAL-VOICE fo
                         try {
                             const jsonStr = trimmedLine.slice(6);
                             const data = JSON.parse(jsonStr);
-                            const content = data.choices?.[0]?.delta?.content || "";
+                            
+                            // Handle both OpenAI format and custom Nexus format
+                            const content = data.choices?.[0]?.delta?.content || data.text || "";
+                            
                             if (content) {
                                 if (isFirstChunk) {
                                     onChunk(""); // Clear loading state

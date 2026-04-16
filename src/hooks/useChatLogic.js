@@ -166,60 +166,79 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     const [isAvatarManual, setIsAvatarManual] = useState(false);
     const [lastIntensity, setLastIntensity] = useState(intensity);
 
-    // Save data
+    // --- PERFORMANCE OPTIMIZATION: Debounced Save ---
+    // Instead of saving every character during streaming, we save on a timer
+    const saveTimerRef = useRef(null);
+    const lastSaveRef = useRef(Date.now());
+
     useEffect(() => {
         if (!isDataLoaded) return;
         
-        // Auto-Avatar Logic — do NOT call setActivePersonaImage here (it's in deps, causes loop)
-        // Instead, compute the target and pass it directly to db.setItem
-        let imageToSave = activePersonaImage;
-        
-        // Fix missing leading slash for local assets (without calling setState)
-        if (imageToSave && imageToSave.startsWith('assets/')) {
-            imageToSave = '/' + imageToSave;
-        }
+        // Clear any pending save
+        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
 
-        if (!isAvatarManual && persona.wardrobe && persona.wardrobe.length > 0) {
-            let targetImage = persona.image;
-            const score = relationshipScore;
+        // Schedule a new save after a short period of inactivity
+        // Or if it's been a while since the last save (to prevent loss in long streams)
+        const timeSinceLastSave = Date.now() - lastSaveRef.current;
+        const delay = timeSinceLastSave > 5000 ? 500 : 2000; 
 
-            if (score >= 90 && intensity >= 4) {
-                targetImage = persona.wardrobe[persona.wardrobe.length - 1].avatar;
-            } else if (score >= 70) {
-                targetImage = persona.wardrobe[Math.min(2, persona.wardrobe.length - 1)].avatar;
-            } else if (score >= 40) {
-                targetImage = persona.wardrobe[Math.min(1, persona.wardrobe.length - 1)].avatar;
-            }
+        saveTimerRef.current = setTimeout(() => {
+            const suffix = `_${persona.id}_${sessionId}`;
+            const imageToSave = activePersonaImage;
+            
+            console.log(`[ChatLogic] Persisting state to database (Debounced)... (${messages.length} messages)`);
+            
+            db.setItem('chats', `chat${suffix}`, messages);
+            db.setItem('memories', `memory${suffix}`, memory);
+            db.setItem('settings', `score${suffix}`, relationshipScore);
+            db.setItem('settings', `intensity${suffix}`, intensity);
+            db.setItem('memories', `traits${suffix}`, traits);
+            db.setItem('memories', `encounters${suffix}`, encounterStats);
+            db.setItem('settings', `scene${suffix}`, currentSceneId);
+            db.setItem('settings', `invited${suffix}`, invitedPersona);
+            db.setItem('settings', `active_image${suffix}`, imageToSave);
+            db.setItem('settings', `location${suffix}`, currentLocationId);
+            db.setItem('settings', `relation${suffix}`, customRelation);
+            db.setItem('settings', `avatar_manual${suffix}`, isAvatarManual);
+            
+            // Character Core 2.0
+            db.setItem('settings', `mood${suffix}`, currentMood);
+            db.setItem('settings', `inventory${suffix}`, inventory);
+            db.setItem('settings', `is_comic${suffix}`, isComicMode);
+            db.setItem('settings', `narrative${suffix}`, narrativeSettings);
+            
+            lastSaveRef.current = Date.now();
+        }, delay);
 
-            if (targetImage !== activePersonaImage) {
-                // Use a timeout to break out of the render cycle before updating state
-                setTimeout(() => setActivePersonaImage(targetImage), 0);
-            }
-        }
-
-        const suffix = `_${persona.id}_${sessionId}`;
-        db.setItem('chats', `chat${suffix}`, messages);
-        db.setItem('memories', `memory${suffix}`, memory);
-        db.setItem('settings', `score${suffix}`, relationshipScore);
-        db.setItem('settings', `intensity${suffix}`, intensity);
-        db.setItem('memories', `traits${suffix}`, traits);
-        db.setItem('memories', `encounters${suffix}`, encounterStats);
-        db.setItem('settings', `scene${suffix}`, currentSceneId);
-        db.setItem('settings', `invited${suffix}`, invitedPersona);
-        db.setItem('settings', `active_image${suffix}`, imageToSave);
-        db.setItem('settings', `location${suffix}`, currentLocationId);
-        db.setItem('settings', `relation${suffix}`, customRelation);
-        db.setItem('settings', `avatar_manual${suffix}`, isAvatarManual);
-        
-        // Character Core 2.0
-        db.setItem('settings', `mood${suffix}`, currentMood);
-        db.setItem('settings', `inventory${suffix}`, inventory);
-        db.setItem('settings', `is_comic${suffix}`, isComicMode);
-        db.setItem('settings', `narrative${suffix}`, narrativeSettings);
-
-
+        return () => {
+            if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+        };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [messages, memory, relationshipScore, intensity, traits, encounterStats, currentSceneId, invitedPersona, currentLocationId, persona.id, sessionId, isDataLoaded, currentMood, inventory, narrativeSettings, isAvatarManual, customRelation]);
+    }, [messages, memory, relationshipScore, intensity, traits, encounterStats, currentSceneId, invitedPersona, currentLocationId, persona.id, sessionId, isDataLoaded, currentMood, inventory, narrativeSettings, isAvatarManual, customRelation, activePersonaImage]);
+
+    // --- ISOLATED WARDROBE LOGIC ---
+    useEffect(() => {
+        if (!isDataLoaded || isAvatarManual) return;
+        if (!persona.wardrobe || persona.wardrobe.length === 0) return;
+
+        let targetImage = persona.image;
+        const score = relationshipScore;
+
+        if (score >= 90 && intensity >= 4) {
+            targetImage = persona.wardrobe[persona.wardrobe.length - 1].avatar;
+        } else if (score >= 70) {
+            targetImage = persona.wardrobe[Math.min(2, persona.wardrobe.length - 1)].avatar;
+        } else if (score >= 40) {
+            targetImage = persona.wardrobe[Math.min(1, persona.wardrobe.length - 1)].avatar;
+        }
+
+        if (targetImage && targetImage !== activePersonaImage) {
+            // Soft-fix missing slashes for locally served assets if needed
+            if (targetImage.startsWith('assets/')) targetImage = '/' + targetImage;
+            setActivePersonaImage(targetImage);
+        }
+    }, [isDataLoaded, isAvatarManual, relationshipScore, intensity, persona.wardrobe, persona.image]); 
+;
 
     const startNewSession = async () => {
         setIsDataLoaded(false);
@@ -304,14 +323,21 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             systemOverride: options.isRepair ? `[SYSTEM OVERRIDE: Your last response was invalid or contained metadata. This is a REPAIR ATTEMPT. You MUST respond ONLY with character dialogue and physical actions in pure narrative roleplay.]` : null
         };
 
+        let lastUpdateTime = 0;
+        const THROTTLE_MS = 60; // Throttled for UI smoothness
+
         try {
             await generateResponse(
                 personaWithExtras,
                 context,
                 (chunkText) => {
-                    setMessages(prev => prev.map(msg =>
-                        msg.id === aiMessageId ? { ...msg, content: chunkText, isError: false } : msg
-                    ));
+                    const now = Date.now();
+                    if (now - lastUpdateTime > THROTTLE_MS) {
+                        setMessages(prev => prev.map(msg =>
+                            msg.id === aiMessageId ? { ...msg, content: chunkText, isError: false } : msg
+                        ));
+                        lastUpdateTime = now;
+                    }
                 },
                 async (cleanedText, rawText) => {
                     setIsTyping(false);
@@ -490,7 +516,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         } catch (e) {
             setIsTyping(false);
         }
-    }, [persona, memory, intensity, encounterStats, currentSituation, invitedPersona, traits, generateSelfie, showToast]);
+    }, [persona, memory, intensity, encounterStats, currentSituation, invitedPersona, traits, generateSelfie, showToast, relationshipScore, narrativeSettings, sessionId, customRelation]);
 
     const handleSendMessage = useCallback(async (customInput) => {
         const text = customInput || input;

@@ -95,9 +95,22 @@ window.appIsMounted = true;
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(regs => {
     for(let reg of regs) {
-      console.log('[App] Unregistering orphan SW:', reg);
-      reg.unregister();
+      console.log('[App] Force-killing Service Worker:', reg);
+      reg.unregister().then(() => {
+        console.log('[App] SW Unregistered. Clearing caches...');
+        if (window.caches) {
+           caches.keys().then(names => {
+             for (let name of names) caches.delete(name);
+           });
+        }
+      });
     }
   });
+
+  // Prevent new registrations
+  navigator.serviceWorker.register = () => {
+    console.warn("[App] Service Worker registration blocked to prevent reload loops.");
+    return new Promise(() => {}); 
+  };
 }
 
