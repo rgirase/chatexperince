@@ -9,15 +9,54 @@ const DirectorRefinementModal = ({
     onConfirm, 
     persona 
 }) => {
-    const [strength, setStrength] = useState(0.4);
+    const [strength, setStrength] = useState(0.55);
     const [instruction, setInstruction] = useState('');
     const [aspectRatio, setAspectRatio] = useState('portrait');
+    const [isAutoBumping, setIsAutoBumping] = useState(false);
 
     if (!isOpen || !targetImage) return null;
 
+    // AI Instruction Translator (Converts user shorthand to effective AI tags)
+    const translateInstruction = (text) => {
+        let low = text.toLowerCase();
+        let tags = text;
+
+        const mapping = [
+            { rx: /\b(boobs|breasts|chest|tits|nipples)\b/g, tag: "exposed breasts, nipples, topless, bare breasts" },
+            { rx: /\b(naked|nude|nudeity|undress|no clothes)\b/g, tag: "fully naked, nude, uncensored, pubic hair, completely undressed" },
+            { rx: /\b(pussy|vagina|crotch|ass|butt)\b/g, tag: "exposed pussy, pussy lips, looking at clitoris, spreading legs, detailed anus" },
+            { rx: /\b(sex|fuck|cowgirl|missionary|penetration)\b/g, tag: "sexual intercourse, penetration, intense sex, (physical intimacy:1.3)" },
+            { rx: /\b(transparent|see through|sheer)\b/g, tag: "highly transparent clothes, see-through fabric, visible skin underneath" },
+            { rx: /\b(realistic|real life|hd)\b/g, tag: "hyper-realistic, high detail skin, 8k uhd, photorealistic, (realism:1.4)" }
+        ];
+
+        let needsForce = false;
+        mapping.forEach(m => {
+            if (m.rx.test(low)) {
+                tags = tags.replace(m.rx, m.tag);
+                needsForce = true;
+            }
+        });
+
+        return { tags, needsForce };
+    };
+
+    const handleInstructionChange = (text) => {
+        setInstruction(text);
+        const { needsForce } = translateInstruction(text);
+        
+        // AUTO-BUMP: If user asks for something heavy (like nudity), 
+        // they NEED high denoise (0.7+) or it won't change.
+        if (needsForce && strength < 0.7) {
+            setStrength(0.8);
+            setIsAutoBumping(true);
+            setTimeout(() => setIsAutoBumping(false), 2000);
+        }
+    };
+
     const handleConfirm = () => {
-        // Construct the refinement prompt
-        const prompt = instruction ? `(Refined: ${instruction}:1.3), ${persona.tagline}` : persona.tagline;
+        const { tags } = translateInstruction(instruction);
+        const prompt = instruction ? `(Refined: ${tags}:1.4)` : "";
         onConfirm(targetImage.url, prompt, strength, targetImage.id);
         onClose();
     };
@@ -68,23 +107,23 @@ const DirectorRefinementModal = ({
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '0.9rem', color: 'var(--primary-color)' }}>
                                     <Sliders size={16} /> REFINEMENT STRENGTH
                                 </label>
-                                <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--accent-color)' }}>
-                                    {strength < 0.3 ? "Subtle Touch-up" : strength < 0.5 ? "Detailed Fix" : "Scene Evolution"} ({strength})
+                                <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: isAutoBumping ? '#4ade80' : 'var(--accent-color)', transition: 'color 0.3s' }}>
+                                    {isAutoBumping ? "AUTO-BOOSTED FOR MAJOR CHANGE" : (strength < 0.35 ? "Composition Lock" : strength < 0.55 ? "Detail Refinement" : "Total Evolution")} ({strength})
                                 </span>
                             </div>
                             <input 
                                 type="range" 
                                 min="0.1" 
-                                max="0.75" 
+                                max="0.95" 
                                 step="0.05"
                                 value={strength} 
                                 onChange={(e) => setStrength(parseFloat(e.target.value))}
                                 className="intensity-slider"
-                                style={{ width: '100%' }}
+                                style={{ width: '100%', accentColor: isAutoBumping ? '#4ade80' : '' }}
                             />
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '8px' }}>
-                                <span>Preserve Identity</span>
-                                <span>Re-imagine Scene</span>
+                                <span>Keep Pose/Geometry</span>
+                                <span>Change Everything</span>
                             </div>
                         </section>
 
@@ -95,7 +134,7 @@ const DirectorRefinementModal = ({
                             </label>
                             <textarea 
                                 value={instruction}
-                                onChange={(e) => setInstruction(e.target.value)}
+                                onChange={(e) => handleInstructionChange(e.target.value)}
                                 placeholder="Example: fix hands, change outfit to a blue dress, add more jewelry, more realistic eyes..."
                                 style={{
                                     width: '100%',

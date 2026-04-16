@@ -78,7 +78,7 @@ export const generateImage = async (params) => {
     };
     const charLora = charLoras[persona.id] || "";
 
-    // --- SELECTIONS ---
+    // --- SELECTIONS (Only used for fresh gens or if not refining) ---
     const selectedClothingObj = CLOTHING_TYPES.find(c => c.id === clothing);
     const selectedColorObj = COLORS.find(c => c.id === color);
     const selectedSkinObj = SKIN_TEXTURES.find(s => s.id === skin);
@@ -87,9 +87,8 @@ export const generateImage = async (params) => {
     const selectedTattooObj = TATTOO_TYPES.find(t => t.id === tattoo);
 
     let clothingPart = "";
-    if (selectedClothingObj && selectedClothingObj.id !== 'none') {
+    if (selectedClothingObj && selectedClothingObj.id !== 'none' && !isRefinement) {
         const colorText = (selectedColorObj && selectedColorObj.id !== 'none') ? `${selectedColorObj.text} ` : "";
-        // Wrap color in a tight association with clothing to prevent race leak
         clothingPart = `(wearing ${colorText}${selectedClothingObj.text.replace('wearing ', '')}:1.4)`;
     }
 
@@ -98,7 +97,19 @@ export const generateImage = async (params) => {
     const piercingPart = (selectedPiercingObj && selectedPiercingObj.id !== 'none') ? `(${selectedPiercingObj.text}:1.4)` : "";
     const tattooPart = (selectedTattooObj && selectedTattooObj.id !== 'none') ? `(${selectedTattooObj.text}:1.5)` : "";
 
-    const fullPrompt = `${finalPrefix}${charIdentity}, ${clothingPart ? clothingPart + ', ' : ''}${skinPart ? skinPart + ', ' : ''}${lightingPart ? lightingPart + ', ' : ''}${piercingPart ? piercingPart + ', ' : ''}${tattooPart ? tattooPart + ', ' : ''}${charAppearance}, ${charLora}, ${prompt}`;
+    // REFINEMENT PRIORITY: Prepend the user instruction and STRIP conflicting base tags
+    let fullPrompt = "";
+    if (isRefinement) {
+        // Force explicit tags if instructions look sensitive
+        const isExplicitReq = /naked|nude|breasts|pussy|sex|fuck|exposed/i.test(prompt);
+        const explicitTag = isExplicitReq ? "rating_explicit, (uncensored:1.2), " : "";
+        
+        // In refinement, ignore the baseline clothing to allow the instruction to win
+        fullPrompt = `${explicitTag}${prompt}, ${finalPrefix}${charIdentity}, ${charAppearance}, ${charLora}`;
+    } else {
+        fullPrompt = `${finalPrefix}${charIdentity}, ${clothingPart ? clothingPart + ', ' : ''}${skinPart ? skinPart + ', ' : ''}${lightingPart ? lightingPart + ', ' : ''}${piercingPart ? piercingPart + ', ' : ''}${tattooPart ? tattooPart + ', ' : ''}${charAppearance}, ${charLora}, ${prompt}`;
+    }
+    
     const cleanPrompt = fullPrompt.replace(/<lora:.*?>/g, '').replace(/,\s*,/g, ',').replace(/,\s*$/g, '').trim();
 
     try {
@@ -107,17 +118,11 @@ export const generateImage = async (params) => {
             let uploadedFilename = null;
             if (isRefinement && refinementImage) {
                 try {
-                    const uploadFormData = new FormData();
-                    // Convert base64 to blob
-                    const base64Data = refinementImage.split(',')[1] || refinementImage;
-                    const byteCharacters = atob(base64Data);
-                    const byteNumbers = new Array(byteCharacters.length);
-                    for (let i = 0; i < byteCharacters.length; i++) {
-                        byteNumbers[i] = byteCharacters.charCodeAt(i);
-                    }
-                    const byteArray = new Uint8Array(byteNumbers);
-                    const blob = new Blob([byteArray], { type: 'image/png' });
+                    // Robust conversion for blob:, data: or remote URLs
+                    const blobRes = await fetch(refinementImage);
+                    const blob = await blobRes.blob();
                     
+                    const uploadFormData = new FormData();
                     uploadFormData.append('image', blob, `refinement_${Date.now()}.png`);
                     uploadFormData.append('overwrite', 'true');
 
@@ -125,10 +130,15 @@ export const generateImage = async (params) => {
                         method: 'POST',
                         body: uploadFormData
                     });
+                    
+                    if (!uploadRes.ok) throw new Error("Upload response not OK");
+                    
                     const uploadData = await uploadRes.json();
                     uploadedFilename = uploadData.name;
+                    console.log("[ImageGenerator] Refinement image uploaded as:", uploadedFilename);
                 } catch (err) {
                     console.error("Image upload failed for refinement:", err);
+                    throw new Error("Could not process source image for refinement. Please try again.");
                 }
             }
 
