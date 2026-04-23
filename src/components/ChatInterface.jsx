@@ -206,37 +206,37 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         scrollToBottom();
     }, [messages, isTyping]);
 
-    const handleEditStart = (msg) => {
+    const handleEditStart = useCallback((msg) => {
         setEditingMessageId(msg.id);
         setEditContent(msg.content);
-    };
+    }, []);
 
-    const handleEditSave = (id) => {
+    const handleEditSave = useCallback((id) => {
         setMessages(prev => prev.map(msg => msg.id === id ? { ...msg, content: editContent } : msg));
         setEditingMessageId(null);
-    };
+    }, [editContent, setMessages]);
 
-    const handleDeleteMessage = (id) => {
+    const handleDeleteMessage = useCallback((id) => {
         if (window.confirm("Delete this message?")) {
             setMessages(prev => prev.filter(msg => msg.id !== id));
         }
-    };
+    }, [setMessages]);
 
     const handleClearChat = () => {
         handleClearChatLogic();
     };
 
-    const handleConfirmSelfie = (prompt, aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated, isComic = false, comicPanelInfo = null, piercing = 'none', tattoo = 'none') => {
+    const handleConfirmSelfie = useCallback((prompt, aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated, isComic = false, comicPanelInfo = null, piercing = 'none', tattoo = 'none') => {
         setIsSelfiePromptOpen(false);
         const finalIsComic = isComic || isComicMode;
         generateSelfie(prompt, Date.now().toString(), aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated, finalIsComic, comicPanelInfo, piercing, tattoo);
-    };
+    }, [isComicMode, generateSelfie]);
 
-    const handleGenerateComic = async () => {
+    const handleGenerateComic = useCallback(async () => {
         await generateComicStrip(messages);
-    };
+    }, [generateComicStrip, messages]);
 
-    const handleCheckStatus = async (msgId, promptId, panelIndex = null) => {
+    const handleCheckStatus = useCallback(async (msgId, promptId, panelIndex = null) => {
         try {
             showToast("Checking ComfyUI status...", "info");
             const sdUrl = localStorage.getItem('sdUrl') || DEFAULT_SD_URL;
@@ -286,12 +286,12 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
             console.error("Recovery check failed:", error);
             showToast("Failed to connect to ComfyUI.", "error");
         }
-    };
+    }, [setMessages, showToast]);
 
-    const handleOpenRefinement = (msg) => {
+    const handleOpenRefinement = useCallback((msg) => {
         setRefinementTarget(msg);
         setIsRefinementOpen(true);
-    };
+    }, []);
 
     const handleConfirmRefinement = async (imageUrl, prompt, strength, originalMsgId) => {
         setIsRefinementOpen(false);
