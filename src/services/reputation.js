@@ -22,10 +22,22 @@ export const getUserAura = () => {
         return cachedAura;
     }
 
+    // 1. Check if we have a reasonably fresh saved aura before scanning
+    try {
+        const savedAura = localStorage.getItem('userAura');
+        const lastScan = parseInt(localStorage.getItem('last_aura_scan_time') || '0');
+        if (savedAura && (now - lastScan < CACHE_DURATION * 12)) { // Cache for 1 hour
+            const parsed = JSON.parse(savedAura);
+            cachedAura = parsed;
+            return parsed;
+        }
+    } catch (e) {}
+
     // 1. Gather all user messages across all chats
     let allUserMessages = "";
     try {
         if (typeof window !== 'undefined' && window.localStorage) {
+            console.log("[Reputation] Performing deep scan of histories...");
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (key && key.startsWith('chat_')) {
@@ -80,6 +92,7 @@ export const updateAura = () => {
     const aura = getUserAura();
     if (aura) {
         localStorage.setItem('userAura', JSON.stringify(aura));
+        localStorage.setItem('last_aura_scan_time', Date.now().toString());
     }
     return aura;
 };

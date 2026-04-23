@@ -224,11 +224,6 @@ function App() {
         }
         setSelectedPersona(null);
         hasPushedHistory = false;
-      } else if (stateView === 'chat') {
-          // Keep current selected persona if possible
-      } else {
-        setSelectedPersona(null);
-        hasPushedHistory = false;
       }
     };
 
@@ -236,49 +231,48 @@ function App() {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         const now = Date.now();
-        if (now - lastEscape < 500) {
-          setPanicMode(true);
-        }
+        if (now - lastEscape < 500) setPanicMode(true);
         lastEscape = now;
       }
     };
 
     let lastShake = 0;
-    const SHAKE_THRESHOLD = 20;
     const handleMotion = (e) => {
-      if (e.accelerationIncludingGravity) {
-        const { x, y, z } = e.accelerationIncludingGravity;
-        if (x !== null && y !== null && z !== null) {
-          const acceleration = Math.sqrt(x * x + y * y + z * z);
-          if (acceleration > SHAKE_THRESHOLD) {
-            const now = Date.now();
-            if (now - lastShake > 1000) {
-              setPanicMode(true);
-              lastShake = now;
+      try {
+        if (e.accelerationIncludingGravity) {
+          const { x, y, z } = e.accelerationIncludingGravity;
+          if (x !== null && y !== null && z !== null) {
+            const acceleration = Math.sqrt(x * x + y * y + z * z);
+            if (acceleration > 20) { // SHAKE_THRESHOLD
+              const now = Date.now();
+              if (now - lastShake > 1000) {
+                setPanicMode(true);
+                lastShake = now;
+              }
             }
           }
         }
-      }
+      } catch (err) {}
     };
 
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('keydown', handleKeyDown);
     
-    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-      console.log("DeviceMotion permission required");
-    } else if (typeof DeviceMotionEvent !== 'undefined') {
-      window.addEventListener('devicemotion', handleMotion);
-    }
+    try {
+      if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+        // iOS requires user gesture for this, so we just log and wait
+      } else if (typeof DeviceMotionEvent !== 'undefined') {
+        window.addEventListener('devicemotion', handleMotion);
+      }
+    } catch (e) {}
 
     const aura = updateAura();
     setUserAura(aura);
     
-    // Debugging Visibility/Refresh
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        console.log(`[App] Resumed session at ${new Date().toLocaleTimeString()}`);
-      } else {
-        console.log(`[App] Backgrounded at ${new Date().toLocaleTimeString()}`);
+        console.log(`[App] Resumed session. Syncing aura...`);
+        setUserAura(updateAura());
       }
     };
     window.addEventListener('visibilitychange', handleVisibilityChange);

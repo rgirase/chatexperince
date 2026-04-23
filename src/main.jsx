@@ -92,7 +92,8 @@ window.appIsMounted = true;
  * in certain browser environments. To fix a blank screen, use the "Fix & Reset" 
  * button in the ErrorBoundary above or add '?reset=true' to the URL.
  */
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && !window._swCleanupDone) {
+  window._swCleanupDone = true;
   navigator.serviceWorker.getRegistrations().then(regs => {
     for(let reg of regs) {
       console.log('[App] Force-killing Service Worker:', reg);
@@ -108,9 +109,13 @@ if ('serviceWorker' in navigator) {
   });
 
   // Prevent new registrations
-  navigator.serviceWorker.register = () => {
-    console.warn("[App] Service Worker registration blocked to prevent reload loops.");
-    return new Promise(() => {}); 
-  };
+  try {
+    navigator.serviceWorker.register = () => {
+      console.warn("[App] Service Worker registration blocked to prevent reload loops.");
+      return new Promise(() => {}); 
+    };
+  } catch (e) {
+    console.warn("[App] Failed to override sw.register", e);
+  }
 }
 

@@ -7,7 +7,11 @@
 const DB_NAME = 'ChatExperienceDB';
 const DB_VERSION = 9; // Version 9 adds 'scene_state' for high-fidelity environment tracking
 
+let dbInstance = null;
+
 export const openDB = () => {
+    if (dbInstance) return Promise.resolve(dbInstance);
+
     return new Promise((resolve, reject) => {
         const request = indexedDB.open(DB_NAME, DB_VERSION);
 
@@ -55,10 +59,12 @@ export const openDB = () => {
         };
 
         request.onsuccess = (event) => {
-            const db = event.target.result;
+            dbInstance = event.target.result;
+            const db = dbInstance;
             // Handle version changes from other tabs/instances
             db.onversionchange = () => {
                 db.close();
+                dbInstance = null;
                 console.warn("[DB] Database is out of date, please reload the page.");
             };
             resolve(db);
