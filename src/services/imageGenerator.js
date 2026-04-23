@@ -142,7 +142,13 @@ export const generateImage = async (params) => {
                 }
             }
 
-            const comfyWorkflow = JSON.parse(JSON.stringify(isPonyModel ? DEFAULT_PONY_WORKFLOW : DEFAULT_COMFY_WORKFLOW));
+            const savedWorkflow = localStorage.getItem('comfyWorkflow');
+            let comfyWorkflow;
+            try {
+                comfyWorkflow = savedWorkflow ? JSON.parse(savedWorkflow) : JSON.parse(JSON.stringify(isPonyModel ? DEFAULT_PONY_WORKFLOW : DEFAULT_COMFY_WORKFLOW));
+            } catch (e) {
+                comfyWorkflow = JSON.parse(JSON.stringify(isPonyModel ? DEFAULT_PONY_WORKFLOW : DEFAULT_COMFY_WORKFLOW));
+            }
             const findNodeByType = (type) => Object.keys(comfyWorkflow).find(k => comfyWorkflow[k].class_type === type);
             const ckptId = findNodeByType('CheckpointLoaderSimple') || findNodeByType('CheckpointLoader');
             const samplerId = findNodeByType('KSampler');
@@ -178,6 +184,20 @@ export const generateImage = async (params) => {
             // Force VAE connection consistency
             if (comfyWorkflow["8"]) {
                 comfyWorkflow["8"].inputs.vae = [ckptId || "4", 2];
+            }
+
+            // Ensure node 11 (FaceDetailer) has all required fields for newer Impact Pack versions
+            if (comfyWorkflow["11"] && comfyWorkflow["11"].class_type === 'FaceDetailer') {
+                const fdInputs = comfyWorkflow["11"].inputs;
+                if (fdInputs.wildcard === undefined) fdInputs.wildcard = "";
+                if (fdInputs.cycle === undefined) fdInputs.cycle = 1;
+                if (fdInputs.sam_bbox_expansion === undefined) fdInputs.sam_bbox_expansion = 0;
+                if (fdInputs.sam_detection_hint === undefined) fdInputs.sam_detection_hint = "center-1";
+                if (fdInputs.drop_size === undefined) fdInputs.drop_size = 10;
+                if (fdInputs.sam_mask_hint_use_negative === undefined) fdInputs.sam_mask_hint_use_negative = "False";
+                
+                // Update seed for FaceDetailer too
+                fdInputs.seed = Math.floor(Math.random() * 1000000000);
             }
 
             // REFINEMENT NODE INJECTION

@@ -27,7 +27,42 @@ export const DEFAULT_PONY_WORKFLOW = {
     "11": { "class_type": "CLIPSetLastLayer", "inputs": { "stop_at_clip_layer": -2, "clip": ["4", 1] } }
 };
 
+export const DEFAULT_REALISM_WORKFLOW = {
+    "3": { "inputs": { "seed": 42, "steps": 25, "cfg": 7, "sampler_name": "euler_ancestral", "scheduler": "normal", "denoise": 1, "model": ["4", 0], "positive": ["6", 0], "negative": ["7", 0], "latent_image": ["5", 0] }, "class_type": "KSampler" },
+    "4": { "inputs": { "ckpt_name": "realvisxlV50_v50LightningBakedvae.safetensors" }, "class_type": "CheckpointLoaderSimple" },
+    "5": { "inputs": { "width": 832, "height": 1216, "batch_size": 1 }, "class_type": "EmptyLatentImage" },
+    "6": { "inputs": { "text": "__PROMPT__", "clip": ["4", 1] }, "class_type": "CLIPTextEncode" },
+    "7": { "inputs": { "text": "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, (unnatural skin:1.2), (monochrome:1.1), (grayscale:1.1), (headless:1.5), (out of frame:1.3), cropped head, blurry face", "clip": ["4", 1] }, "class_type": "CLIPTextEncode" },
+    "8": { "inputs": { "samples": ["3", 0], "vae": ["4", 2] }, "class_type": "VAEDecode" },
+    "10": { "inputs": { "model_name": "bbox/face_yolov8m.pt" }, "class_type": "UltralyticsDetectorProvider" },
+    "11": { "inputs": { "image": ["8", 0], "model": ["4", 0], "clip": ["4", 1], "vae": ["4", 2], "positive": ["6", 0], "negative": ["7", 0], "bbox_detector": ["10", 0], "guide_size": 384, "guide_size_for": true, "max_size": 1024, "seed": 42, "steps": 20, "cfg": 8, "sampler_name": "euler_ancestral", "scheduler": "normal", "denoise": 0.5, "feather": 5, "noise_mask": true, "force_inpaint": true, "bbox_threshold": 0.5, "bbox_dilation": 10, "bbox_crop_factor": 3, "sam_detection_hint": "center-1", "sam_dilation": 0, "sam_threshold": 0.93, "sam_bbox_expansion": 0, "sam_mask_hint_threshold": 0.7, "sam_mask_hint_use_negative": "False", "drop_size": 10, "wildcard": "", "cycle": 1 }, "class_type": "FaceDetailer" },
+    "12": { "inputs": { "filename_prefix": "ChatExperience_Realism", "images": ["11", 0] }, "class_type": "SaveImage" }
+};
 export const AVAILABLE_PONY_MODELS = [
+    { 
+        id: "realvisxlV50_v50LightningBakedvae.safetensors", 
+        name: "RealVisXL V5.0", 
+        category: "Photorealistic",
+        description: "Latest benchmark for photorealism. Exceptional skin textures and lighting."
+    },
+    { 
+        id: "snofsSexNudesAndOtherFunStuff_v13Base.safetensors", 
+        name: "SNOFS v1.3", 
+        category: "Uncensored Realism",
+        description: "Specialized model for high-fidelity anatomical realism and detail."
+    },
+    { 
+        id: "unstableRevolution_V3Fp16.safetensors", 
+        name: "Unstable Revolution V3", 
+        category: "Premium Realism",
+        description: "Top-tier realism model with high dynamic range and crisp details."
+    },
+    { 
+        id: "realismIllustriousBy_v55FP16.safetensors", 
+        name: "Realism Illustrious V5.5", 
+        category: "Anime Realism",
+        description: "Bridges the gap between Illustrious anime styles and high-end realism."
+    },
     { 
         id: "bigLust_v16.safetensors", 
         name: "Big Lust v16", 
@@ -63,12 +98,6 @@ export const AVAILABLE_PONY_MODELS = [
         name: "LordKamix v10", 
         category: "Illustrative",
         description: "Default sturdy Pony mix. Best for anime-style illustrations and clean character sheets."
-    },
-    { 
-        id: "aimrimPonyIllusSDXL_v10ILLFP16.safetensors", 
-        name: "Aimrim Illustrious", 
-        category: "Anime/Manga",
-        description: "Specialized for high-end illustrative anime styles. Best for comic panels and manga art."
     },
     { 
         id: "ponyMegaMixXL_v20.safetensors", 
@@ -113,3 +142,4 @@ export const AVAILABLE_PONY_MODELS = [
         description: "Standard SD 1.5 model. Best for traditional, fast generations or when using 1.5 LoRAs."
     }
 ];
+

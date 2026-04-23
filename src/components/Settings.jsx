@@ -10,7 +10,7 @@ import * as db from '../services/db';
 import { 
     DEFAULT_LM_STUDIO_URL, DEFAULT_SD_URL, DEFAULT_IMAGE_ENGINE, 
     DEFAULT_LM_STUDIO_MODEL, DEFAULT_COMFY_WORKFLOW, DEFAULT_PONY_WORKFLOW,
-    AVAILABLE_PONY_MODELS 
+    DEFAULT_REALISM_WORKFLOW, AVAILABLE_PONY_MODELS 
 } from '../config';
 
 const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitchServer }) => {
@@ -435,6 +435,13 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                                     <div className="setup-title">Pony Diffusion XL</div>
                                     <div className="setup-desc">Optimized for high-fidelity 2D/3D and complex tags. (832x1216)</div>
                                 </button>
+                                <button className="setup-card realism" onClick={() => {
+                                    setComfyWorkflow(JSON.stringify(DEFAULT_REALISM_WORKFLOW, null, 2));
+                                    setSaveToast('✨ Optimized for Ultra Realism v5.0 (+FaceDetailer)');
+                                }}>
+                                    <div className="setup-title">Ultra Realism v5.0</div>
+                                    <div className="setup-desc">Activates FaceDetailer & RealVisXL v5.0 for high-fidelity faces.</div>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -584,6 +591,10 @@ const Settings = ({ onBack, onGoHome, setCustomPersonas, customPersonas, onSwitc
                 .setup-card.pony:hover {
                     border-color: #8b5cf6;
                     box-shadow: 0 10px 30px rgba(139, 92, 246, 0.1);
+                }
+                .setup-card.realism:hover {
+                    border-color: #10b981;
+                    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.1);
                 }
                 .setup-title {
                     font-weight: bold;
