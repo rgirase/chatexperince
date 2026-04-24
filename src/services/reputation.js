@@ -89,12 +89,9 @@ export const getUserAura = () => {
 };
 
 export const updateAura = () => {
-    const aura = getUserAura();
-    if (aura) {
-        localStorage.setItem('userAura', JSON.stringify(aura));
-        localStorage.setItem('last_aura_scan_time', Date.now().toString());
-    }
-    return aura;
+    // We no longer clear cachedAura here. 
+    // getUserAura already has its own 5-minute internal cache logic.
+    return getUserAura();
 };
 
 /**

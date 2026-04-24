@@ -271,8 +271,12 @@ function App() {
     
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        console.log(`[App] Resumed session. Syncing aura...`);
-        setUserAura(updateAura());
+        const start = Date.now();
+        // Delay heavy background work to ensure UI responsiveness on resume
+        setTimeout(() => {
+           console.log(`[App] Syncing aura in background...`);
+           setUserAura(updateAura());
+        }, 1500); 
       }
     };
     window.addEventListener('visibilitychange', handleVisibilityChange);

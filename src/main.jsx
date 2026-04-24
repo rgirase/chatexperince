@@ -35,9 +35,14 @@ const safeReset = () => {
     } catch (e) {
       console.warn("[SafeReset] Caches access failed", e);
     }
-    window.location.reload();
+    window.location.replace(window.location.pathname); // Clear UI and query params
   }
 };
+
+// Emergency URL-based Reset
+if (window.location.search.includes('reset=true')) {
+  safeReset();
+}
 
 // A true React class-based ErrorBoundary — the ONLY way to catch React render errors
 class ErrorBoundary extends React.Component {
@@ -92,30 +97,6 @@ window.appIsMounted = true;
  * in certain browser environments. To fix a blank screen, use the "Fix & Reset" 
  * button in the ErrorBoundary above or add '?reset=true' to the URL.
  */
-if ('serviceWorker' in navigator && !window._swCleanupDone) {
-  window._swCleanupDone = true;
-  navigator.serviceWorker.getRegistrations().then(regs => {
-    for(let reg of regs) {
-      console.log('[App] Force-killing Service Worker:', reg);
-      reg.unregister().then(() => {
-        console.log('[App] SW Unregistered. Clearing caches...');
-        if (window.caches) {
-           caches.keys().then(names => {
-             for (let name of names) caches.delete(name);
-           });
-        }
-      });
-    }
-  });
-
-  // Prevent new registrations
-  try {
-    navigator.serviceWorker.register = () => {
-      console.warn("[App] Service Worker registration blocked to prevent reload loops.");
-      return new Promise(() => {}); 
-    };
-  } catch (e) {
-    console.warn("[App] Failed to override sw.register", e);
-  }
-}
+// Only provide the tool, don't run it automatically to avoid reload loops
+window.auraSafeReset = safeReset;
 
