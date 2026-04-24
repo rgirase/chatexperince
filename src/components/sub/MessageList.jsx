@@ -21,14 +21,14 @@ const MessageList = memo(({
     messagesAreaRef,
     isImmersionMode = false
 }) => {
-    const handleDownload = (url, filename) => {
+    const handleDownload = React.useCallback((url, filename) => {
         const link = document.createElement('a');
         link.href = url;
         link.download = filename || `selfie_${Date.now()}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-    };
+    }, []);
 
     return (
         <div className={`messages-area ${isImmersionMode ? 'immersion-mode' : ''}`} ref={messagesAreaRef}>

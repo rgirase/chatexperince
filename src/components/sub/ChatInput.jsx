@@ -2,7 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Wand2, Camera, Sparkles, StopCircle, Flame, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const ChatInput = ({ 
+const QUICK_ACTIONS = [
+    { label: 'Hug', icon: '🤗', prompt: "*I pull you into a warm, tight hug, holding you close.*" },
+    { label: 'Tease', icon: '😏', prompt: "*I give you a playful, lingering look, a mischievous smirk on my lips.*" },
+    { label: 'Gift', icon: '🎁', prompt: "I have something special for you..." },
+    { label: 'Scene', icon: '🗺️', prompt: "I was thinking we could go somewhere else..." },
+    { label: 'Memory', icon: '💭', prompt: "Do you remember when we..." }
+];
+
+const ChatInput = React.memo(({ 
     input, 
     setInput, 
     onSendMessage, 
@@ -45,19 +53,11 @@ const ChatInput = ({
         }
     };
 
-    const quickActions = [
-        { label: 'Hug', icon: '🤗', prompt: "*I pull you into a warm, tight hug, holding you close.*" },
-        { label: 'Tease', icon: '😏', prompt: "*I give you a playful, lingering look, a mischievous smirk on my lips.*" },
-        { label: 'Gift', icon: '🎁', prompt: "I have something special for you..." },
-        { label: 'Scene', icon: '🗺️', prompt: "I was thinking we could go somewhere else..." },
-        { label: 'Memory', icon: '💭', prompt: "Do you remember when we..." }
-    ];
-
     return (
         <div className="input-area">
             {!isImmersionMode && (
                 <div className="quick-actions-container" style={{ display: 'flex', gap: '8px', marginBottom: '8px', overflowX: 'auto', padding: '4px 0', scrollbarWidth: 'none' }}>
-                    {quickActions.map((action, i) => (
+                    {QUICK_ACTIONS.map((action, i) => (
                         <button 
                             key={i} 
                             onClick={() => {
@@ -204,6 +204,6 @@ const ChatInput = ({
             </div>
         </div>
     );
-};
+});
 
 export default ChatInput;

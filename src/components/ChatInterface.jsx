@@ -77,6 +77,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     // We use a ref for setMessages to break the circular dependency between hooks
     const setMessagesRef = useRef(null);
 
+
     const { generateSelfie, generateComicStrip } = useImageGeneration(
         persona, 
         (updater) => {
@@ -138,20 +139,29 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         setIsComicMode
     } = useChatLogic(persona, showToast, scenario, generateSelfie);
 
+    // Stable refs for callbacks to prevent cascading re-renders
+    const messagesRef = useRef(messages);
+    const editContentRef = useRef(editContent);
+    const personaRef = useRef(persona);
+
+    useEffect(() => { messagesRef.current = messages; }, [messages]);
+    useEffect(() => { editContentRef.current = editContent; }, [editContent]);
+    useEffect(() => { personaRef.current = persona; }, [persona]);
+
     // --- NEW: Per-Message Illustration logic ---
     const handleIllustrateMessage = useCallback(async (msg) => {
         showToast("Imagining this moment...", "info");
         try {
-            // Find context (preceding messages)
-            const msgIdx = messages.findIndex(m => m.id === msg.id);
-            const context = messages.slice(Math.max(0, msgIdx - 4), msgIdx);
+            const currentMessages = messagesRef.current;
+            const currentPersona = personaRef.current;
+            const msgIdx = currentMessages.findIndex(m => m.id === msg.id);
+            const context = currentMessages.slice(Math.max(0, msgIdx - 4), msgIdx);
             
             const { generateMomentPrompt } = await import('../services/llm');
-            const visualPrompt = await generateMomentPrompt(persona, msg, context);
+            const visualPrompt = await generateMomentPrompt(currentPersona, msg, context);
             
             if (!visualPrompt) throw new Error("Could not visualize this moment.");
             
-            // Trigger generation as a new photo message
             await generateSelfie(
                 visualPrompt, 
                 Date.now().toString(), 
@@ -162,7 +172,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
             console.error("[Illustrate] Failed:", e);
             showToast(e.message || "Failed to illustrate moment.", "error");
         }
-    }, [messages, persona, generateSelfie, showToast]);
+    }, [generateSelfie, showToast]);
 
     // Update the ref whenever setMessages changes
     useEffect(() => {
@@ -170,12 +180,13 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     }, [setMessages]);
 
     const handleOpenStatus = useCallback(() => {
-        // Find last message with a URL (generated image)
-        const lastMediaMsg = [...messages].reverse().find(msg => msg.url && msg.url.length > 20);
-        const imgToShow = lastMediaMsg ? lastMediaMsg.url : (activePersonaImage || persona.image);
+        const currentMessages = messagesRef.current;
+        const currentPersona = personaRef.current;
+        const lastMediaMsg = [...currentMessages].reverse().find(msg => msg.url && msg.url.length > 20);
+        const imgToShow = lastMediaMsg ? lastMediaMsg.url : (activePersonaImage || currentPersona.image);
         setStatusImage(imgToShow);
         setIsStatusOpen(true);
-    }, [messages, persona.image, activePersonaImage]);
+    }, [activePersonaImage]);
 
     // --- MEMORY & SCENE UPDATES ---
     useEffect(() => {
@@ -196,15 +207,26 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     }, [currentLocationId, persona.id, sessionId]);
 
     // --- EVENT HANDLERS ---
-    const scrollToBottom = () => {
-        if (messagesAreaRef.current) {
-            messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
-        }
-    };
 
     useEffect(() => {
-        scrollToBottom();
-    }, [messages, isTyping]);
+        const chat = messagesAreaRef.current;
+        if (!chat) return;
+
+        const snap = () => {
+            chat.scrollTo({
+                top: chat.scrollHeight + 10000,
+                behavior: 'auto'
+            });
+        };
+
+        // Multi-snap: Fire repeatedly during the first second of any update
+        // to combat layout shifts from content-visibility or images
+        snap();
+        const timers = [10, 50, 150, 400, 1000].map(ms => setTimeout(snap, ms));
+        
+        return () => timers.forEach(clearTimeout);
+    }, [messages.length, isTyping]);
+
 
     const handleEditStart = useCallback((msg) => {
         setEditingMessageId(msg.id);
@@ -212,9 +234,13 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     }, []);
 
     const handleEditSave = useCallback((id) => {
-        setMessages(prev => prev.map(msg => msg.id === id ? { ...msg, content: editContent } : msg));
+        setMessages(prev => prev.map(msg => msg.id === id ? { ...msg, content: editContentRef.current } : msg));
         setEditingMessageId(null);
-    }, [editContent, setMessages]);
+    }, [setMessages]);
+
+    const handleEditCancel = useCallback(() => {
+        setEditingMessageId(null);
+    }, []);
 
     const handleDeleteMessage = useCallback((id) => {
         if (window.confirm("Delete this message?")) {
@@ -225,6 +251,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     const handleClearChat = () => {
         handleClearChatLogic();
     };
+
+    const handleOpenSelfiePrompt = useCallback(() => setIsSelfiePromptOpen(true), []);
+    const handleOpenAdultActions = useCallback(() => setIsAdultActionsOpen(true), []);
+    
+    // Stable wrapper for handleSendMessage to avoid inline arrow in JSX
+    const handleSendMessageStable = useCallback(() => {
+        handleSendMessage();
+    }, [handleSendMessage]);
 
     const handleConfirmSelfie = useCallback((prompt, aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated, isComic = false, comicPanelInfo = null, piercing = 'none', tattoo = 'none') => {
         setIsSelfiePromptOpen(false);
@@ -424,7 +458,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 setEditContent={setEditContent}
                 onEditStart={handleEditStart}
                 onEditSave={handleEditSave}
-                onEditCancel={() => setEditingMessageId(null)}
+                onEditCancel={handleEditCancel}
                 onDeleteMessage={handleDeleteMessage}
                 onContinue={handleContinue}
                 onResubmit={handleResubmit}
@@ -439,14 +473,14 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
             <ChatInput 
                 input={input}
                 setInput={setInput}
-                onSendMessage={() => handleSendMessage()}
+                onSendMessage={handleSendMessageStable}
                 onSelectSuggestion={handleSelectSuggestion}
                 onGenerateSuggestion={handleGenerateSuggestion}
-                onOpenSelfiePrompt={() => setIsSelfiePromptOpen(true)}
+                onOpenSelfiePrompt={handleOpenSelfiePrompt}
                 isTyping={isTyping}
                 isSuggesting={isSuggesting}
                 onStopGeneration={handleStopGeneration}
-                onOpenAdultActions={() => setIsAdultActionsOpen(true)}
+                onOpenAdultActions={handleOpenAdultActions}
                 suggestions={currentSuggestions}
                 isImmersionMode={isImmersionMode}
             />
