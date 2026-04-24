@@ -6,7 +6,14 @@ export default defineConfig({
   plugins: [react()],
   server: {
     watch: {
-      ignored: ['**/public/**', '**/scripts/**', '**/temp/**']
+      ignored: [
+        '**/public/**', 
+        '**/scripts/**', 
+        '**/temp/**', 
+        '**/nexus/**', 
+        '**/*.log', 
+        '**/aura_data.db*'
+      ]
     },
     hmr: {
       overlay: false

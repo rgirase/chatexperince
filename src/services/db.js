@@ -1,173 +1,160 @@
+import { DEFAULT_NEXUS_URL } from '../config';
+
+const NEXUS_URL = localStorage.getItem('nexusUrl') || DEFAULT_NEXUS_URL;
+
+// Simple in-memory cache to prevent redundant network requests during session
+const dbCache = {};
+
 /**
- * A lightweight IndexedDB wrapper for high-capacity storage.
- * Designed to handle 1000+ messages and large Base64 images.
- * Updated: Version 2 adds 'conversations' for chat archiving.
+ * A lightweight DB wrapper that proxies to the Nexus DB Service (FastAPI).
  */
 
-const DB_NAME = 'ChatExperienceDB';
-const DB_VERSION = 9; // Version 9 adds 'scene_state' for high-fidelity environment tracking
+const isBase64Image = (str) => {
+    return typeof str === 'string' && str.startsWith('data:image/') && str.length > 1000;
+};
 
-let dbInstance = null;
+const uploadToNexus = async (base64Data) => {
+    try {
+        const res = await fetch(`${NEXUS_URL}/upload/base64`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: base64Data })
+        });
+        const data = await res.json();
+        return `${NEXUS_URL}${data.url}`;
+    } catch (e) {
+        console.error("[DB] Image upload to Nexus failed", e);
+        return base64Data;
+    }
+};
 
-export const openDB = () => {
-    if (dbInstance) return Promise.resolve(dbInstance);
-
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-        request.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            if (!db.objectStoreNames.contains('chats')) {
-                db.createObjectStore('chats', { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains('memories')) {
-                db.createObjectStore('memories', { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains('settings')) {
-                db.createObjectStore('settings', { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains('conversations')) {
-                db.createObjectStore('conversations', { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains('wardrobe')) {
-                db.createObjectStore('wardrobe', { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains('logins')) {
-                db.createObjectStore('logins', { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains('unlocked_gallery')) {
-                db.createObjectStore('unlocked_gallery', { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains('rewards')) {
-                db.createObjectStore('rewards', { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains('journals')) {
-                db.createObjectStore('journals', { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains('lore')) {
-                db.createObjectStore('lore', { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains('global_vault')) {
-                db.createObjectStore('global_vault', { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains('persona_events')) {
-                db.createObjectStore('persona_events', { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains('scene_state')) {
-                db.createObjectStore('scene_state', { keyPath: 'id' });
-            }
-        };
-
-        request.onsuccess = (event) => {
-            dbInstance = event.target.result;
-            const db = dbInstance;
-            // Handle version changes from other tabs/instances
-            db.onversionchange = () => {
-                db.close();
-                dbInstance = null;
-                console.warn("[DB] Database is out of date, please reload the page.");
-            };
-            resolve(db);
-        };
-        request.onblocked = () => {
-            console.error("[DB] Upgrade blocked! Please close other tabs of this app.");
-            reject(new Error("Database upgrade blocked"));
-        };
-        request.onerror = (event) => reject(event.target.error);
-    });
+export const openDB = async () => {
+    return true;
 };
 
 export const getItem = async (storeName, key) => {
-    try {
-        const db = await openDB();
-        if (!db.objectStoreNames.contains(storeName)) {
-            console.warn(`[DB] Store ${storeName} not found. Returning null.`);
-            return null;
-        }
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(storeName, 'readonly');
-            const store = transaction.objectStore(storeName);
-            const request = store.get(key);
+    const cacheKey = `${storeName}:${key}`;
+    if (dbCache[cacheKey] !== undefined) {
+        return dbCache[cacheKey];
+    }
 
-            request.onsuccess = () => resolve(request.result ? request.result.value : null);
-            request.onerror = () => reject(request.error);
-        });
+    try {
+        const res = await fetch(`${NEXUS_URL}/db/${storeName}/${key}`);
+        const data = await res.json();
+        dbCache[cacheKey] = data.value;
+        return data.value;
     } catch (e) {
-        console.error(`[DB] getItem failed for ${storeName}/${key}`, e);
+        console.warn(`[DB] Nexus getItem failed for ${storeName}/${key}, returning null`, e);
         return null;
     }
 };
 
-export const getAll = async (storeName) => {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(storeName, 'readonly');
-        const store = transaction.objectStore(storeName);
-        const request = store.getAll();
+/**
+ * Fetches all items in a store as an object {key: value}
+ */
+export const getAllMapped = async (storeName) => {
+    try {
+        const res = await fetch(`${NEXUS_URL}/db/${storeName}/all`);
+        const data = await res.json();
+        
+        // Populate cache
+        Object.keys(data).forEach(key => {
+            dbCache[`${storeName}:${key}`] = data[key];
+        });
+        
+        return data || {};
+    } catch (e) {
+        console.error(`[DB] Nexus getAllMapped failed for ${storeName}`, e);
+        return {};
+    }
+};
 
-        request.onsuccess = () => resolve(request.result || []);
-        request.onerror = () => reject(request.error);
-    });
+export const getAll = async (storeName) => {
+    try {
+        const res = await fetch(`${NEXUS_URL}/db/${storeName}`);
+        const data = await res.json();
+        return data || [];
+    } catch (e) {
+        console.error(`[DB] Nexus getAll failed for ${storeName}`, e);
+        return [];
+    }
 };
 
 export const getAllKeys = async (storeName) => {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(storeName, 'readonly');
-        const store = transaction.objectStore(storeName);
-        const request = store.getAllKeys();
-
-        request.onsuccess = () => resolve(request.result || []);
-        request.onerror = () => reject(request.error);
-    });
+    try {
+        const items = await getAll(storeName);
+        return items.map(i => i.id);
+    } catch (e) {
+        return [];
+    }
 };
 
 export const setItem = async (storeName, key, value) => {
-    try {
-        const db = await openDB();
-        if (!db.objectStoreNames.contains(storeName)) {
-            console.error(`[DB] Cannot setItem: Store ${storeName} not found.`);
-            return;
-        }
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(storeName, 'readwrite');
-            const store = transaction.objectStore(storeName);
-            const request = store.put({ id: key, value: value });
+    const cacheKey = `${storeName}:${key}`;
+    dbCache[cacheKey] = value; // Optimistic update
 
-            request.onsuccess = () => resolve();
-            request.onerror = () => reject(request.error);
+    try {
+        let processedValue = value;
+        
+        if (isBase64Image(value)) {
+            processedValue = await uploadToNexus(value);
+        } else if (Array.isArray(value)) {
+            processedValue = await Promise.all(value.map(async (item) => {
+                if (item && typeof item === 'object') {
+                    const newItem = { ...item };
+                    if (isBase64Image(newItem.url)) {
+                        newItem.url = await uploadToNexus(newItem.url);
+                    }
+                    if (Array.isArray(newItem.panels)) {
+                        newItem.panels = await Promise.all(newItem.panels.map(async p => {
+                            if (isBase64Image(p.url)) return { ...p, url: await uploadToNexus(p.url) };
+                            return p;
+                        }));
+                    }
+                    return newItem;
+                }
+                return item;
+            }));
+        } else if (value && typeof value === 'object') {
+            // Handle single object overrides (like persona_img in settings)
+            if (isBase64Image(value.url)) {
+                processedValue = { ...value, url: await uploadToNexus(value.url) };
+            }
+        }
+
+        await fetch(`${NEXUS_URL}/db/${storeName}/${key}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ value: processedValue })
         });
     } catch (e) {
-        console.error(`[DB] setItem failed for ${storeName}/${key}`, e);
+        console.error(`[DB] Nexus setItem failed for ${storeName}/${key}`, e);
     }
 };
 
 export const removeItem = async (storeName, key) => {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(storeName, 'readwrite');
-        const store = transaction.objectStore(storeName);
-        const request = store.delete(key);
-
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-    });
+    try {
+        await fetch(`${NEXUS_URL}/db/${storeName}/${key}`, {
+            method: 'DELETE'
+        });
+    } catch (e) {
+        console.error(`[DB] Nexus removeItem failed for ${storeName}/${key}`, e);
+    }
 };
 
 export const clear = async (storeName) => {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(storeName, 'readwrite');
-        const store = transaction.objectStore(storeName);
-        const request = store.clear();
-
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-    });
+    try {
+        await fetch(`${NEXUS_URL}/db/${storeName}/clear`, {
+            method: 'POST'
+        });
+    } catch (e) {
+        console.error(`[DB] Nexus clear failed for ${storeName}`, e);
+    }
 };
 
 /**
  * Clones all session-related data from one ID to another for a specific persona.
+ * Modified for Nexus to do it server-side or via multiple requests.
  */
 export const cloneSession = async (personaId, sourceSid, targetSid) => {
     const sourceSuffix = `_${personaId}_${sourceSid}`;
@@ -190,3 +177,4 @@ export const cloneSession = async (personaId, sourceSid, targetSid) => {
         }
     }
 };
+

@@ -54,15 +54,27 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
 
     // Load initial data
     useEffect(() => {
+        let isMounted = true;
         const load = async () => {
+            if (!persona) return;
             setIsDataLoaded(false);
-            // 1. Get the current active sessionId for this persona (Double-redundant)
+
+            // Pre-fetch entire stores into cache to minimize individual network requests
+            await Promise.all([
+                db.getAllMapped('settings'),
+                db.getAllMapped('memories')
+            ]);
+            
+            if (!isMounted) return;
+
+            // 1. Get the current active sessionId for this persona
             let currentSid = await db.getItem('settings', `active_session_${persona.id}`) || 
                              localStorage.getItem(`active_session_fallback_${persona.id}`) || 
                              'default';
+            
             if (currentSid !== sessionId) {
                 setSessionId(currentSid);
-                return; // Let the next cycle handle the data loading with the correct ID
+                return; 
             }
 
             // 2. Load the list of all sessions for this persona
@@ -73,11 +85,9 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             let chatKey = `chat_${persona.id}_${currentSid}`;
             let chat = await db.getItem('chats', chatKey) || [];
             
-            // Check for scenario prompt: prioritize prop, then localStorage
             const scenarioPrompt = initialScenario?.prompt || localStorage.getItem(`scenarioPrompt_${persona.id}`);
 
             if (scenarioPrompt && chat.length > 0) {
-                // FORCE a new session if we're picking a specific scenario but the current session isn't fresh
                 const newSid = `session_${Date.now()}`;
                 const newList = [...sessions, newSid];
                 await db.setItem('settings', `active_session_${persona.id}`, newSid);
@@ -86,7 +96,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
                 currentSid = newSid;
                 setSessionId(newSid);
                 setAllSessions(newList);
-                chat = []; // Start with an empty chat for the new session
+                chat = []; 
             }
             
             const suffix = `_${persona.id}_${currentSid}`;
@@ -95,7 +105,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             if (chat.length > 0) {
                 setMessages(chat.map(m => ({ ...m, content: cleanLeakage(m.content) })));
             } else {
-                // Role-based initial content for special personas like Lyra
                 const roleKey = savedRelation ? (savedRelation.charAt(0).toUpperCase() + savedRelation.slice(1).toLowerCase()) : '';
                 const initialContent = scenarioPrompt || 
                                      (persona.roleInitialMessages && roleKey && persona.roleInitialMessages[roleKey]) || 
@@ -111,47 +120,57 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
                     personaAvatar: persona.image
                 }]);
                 
-                // Cleanup localStorage if it was used
                 if (!initialScenario && scenarioPrompt) {
                     localStorage.removeItem(`scenarioPrompt_${persona.id}`);
                 }
             }
 
-            setMemory(await db.getItem('memories', `memory${suffix}`) || '');
-            setRelationshipScore(await db.getItem('settings', `score${suffix}`) || 50);
-            setIntensity(await db.getItem('settings', `intensity${suffix}`) || 3);
-            setTraits(await db.getItem('memories', `traits${suffix}`) || []);
-            setEncounterStats(await db.getItem('memories', `encounters${suffix}`) || { count: 0, lastLocation: 'Never', history: [] });
-            setCurrentSceneId(await db.getItem('settings', `scene${suffix}`) || 'default');
-            setCurrentLocationId(await db.getItem('settings', `location${suffix}`) || 'kitchen_morning');
-            setInvitedPersona(await db.getItem('settings', `invited${suffix}`) || null);
-            const savedImg = await db.getItem('settings', `active_image${suffix}`);
-            if (savedImg && savedImg.length > 10) {
-                setActivePersonaImage(savedImg);
-            } else {
-                setActivePersonaImage(persona.image);
-            }
+            // These are now served from cache (instant)
+            const [
+                savedMemory, savedScore, savedIntensity, savedTraits,
+                savedEncounters, savedScene, savedLocation, savedInvited,
+                savedImg, savedAvatarManual, savedMood, savedInventory,
+                savedIsComic, savedNarrative, savedRecap
+            ] = await Promise.all([
+                db.getItem('memories', `memory${suffix}`),
+                db.getItem('settings', `score${suffix}`),
+                db.getItem('settings', `intensity${suffix}`),
+                db.getItem('memories', `traits${suffix}`),
+                db.getItem('memories', `encounters${suffix}`),
+                db.getItem('settings', `scene${suffix}`),
+                db.getItem('settings', `location${suffix}`),
+                db.getItem('settings', `invited${suffix}`),
+                db.getItem('settings', `active_image${suffix}`),
+                db.getItem('settings', `avatar_manual${suffix}`),
+                db.getItem('settings', `mood${suffix}`),
+                db.getItem('settings', `inventory${suffix}`),
+                db.getItem('settings', `is_comic${suffix}`),
+                db.getItem('settings', `narrative${suffix}`),
+                db.getItem('settings', `recap${suffix}`)
+            ]);
+
+            setMemory(savedMemory || '');
+            setRelationshipScore(savedScore || 50);
+            setIntensity(savedIntensity || 3);
+            setTraits(savedTraits || []);
+            setEncounterStats(savedEncounters || { count: 0, lastLocation: 'Never', history: [] });
+            setCurrentSceneId(savedScene || 'default');
+            setCurrentLocationId(savedLocation || 'kitchen_morning');
+            setInvitedPersona(savedInvited || null);
+            setActivePersonaImage((savedImg && savedImg.length > 10) ? savedImg : persona.image);
             setCustomRelation(savedRelation || '');
-            setIsAvatarManual(await db.getItem('settings', `avatar_manual${suffix}`) || false);
-            
-            // Character Core 2.0
-            setCurrentMood(await db.getItem('settings', `mood${suffix}`) || 'Neutral');
-            setInventory(await db.getItem('settings', `inventory${suffix}`) || []);
-            setIsComicMode(await db.getItem('settings', `is_comic${suffix}`) || false);
-            setNarrativeSettings(await db.getItem('settings', `narrative${suffix}`) || {
-                style: 'Novel',
-                tension: 3,
-                focus: 'Mixed',
-                chaosMode: false
-            });
-            
-            const savedRecap = await db.getItem('settings', `recap${suffix}`);
+            setIsAvatarManual(savedAvatarManual || false);
+            setCurrentMood(savedMood || 'Neutral');
+            setInventory(savedInventory || []);
+            setIsComicMode(savedIsComic || false);
+            setNarrativeSettings(savedNarrative || { style: 'Novel', tension: 3, focus: 'Mixed', chaosMode: false });
             setChapterRecap(savedRecap || "");
 
             setIsDataLoaded(true);
         };
         load();
-    }, [persona, sessionId, initialScenario]); // Reload if persona, session, or scenario changes
+        return () => { isMounted = false; };
+    }, [persona.id, sessionId, initialScenario]); 
 
     // Persist draft input to survive accidental refreshes
 

@@ -110,15 +110,19 @@ function App() {
         console.error('[App] Failed to load customPersonas', e);
       }
 
-      // 2. Load Image Overrides (Migration + Fetch)
+      // 2. Load Image Overrides (Migration + Batch Fetch)
       const finalPersonas = [];
+      const settingsMap = await db.getAllMapped('settings');
+      
       for (const p of loadedPersonas) {
-        let savedImg = await db.getItem('settings', `persona_img_${p.id}`);
+        const key = `persona_img_${p.id}`;
+        let savedImg = settingsMap[key];
+        
         if (!savedImg) {
-          const localImg = localStorage.getItem(`persona_img_${p.id}`);
+          const localImg = localStorage.getItem(key);
           if (localImg) {
             savedImg = localImg;
-            await db.setItem('settings', `persona_img_${p.id}`, savedImg);
+            await db.setItem('settings', key, savedImg);
           }
         }
         
