@@ -32,8 +32,8 @@ export const generateImage = async (params) => {
     const imageEngine = localStorage.getItem('imageEngine') || DEFAULT_IMAGE_ENGINE;
     
     // Core prompt construction (Sync with useImageGeneration.js)
-    const charAppearance = persona.prompt?.match(/APPEARANCE:\s*(.*?)(?=\n|BACKSTORY:|$)/is)?.[1] || "";
-    const charIdentity = persona.prompt?.match(/You are\s*(.*?)(?=\n|$)/i)?.[1] || persona.name.split('(')[0].trim();
+    const charAppearance = (persona.systemPrompt || persona.prompt || "").match(/APPEARANCE:\s*(.*?)(?=\n|BACKSTORY:|$)/is)?.[1] || "";
+    const charIdentity = (persona.systemPrompt || persona.prompt || "").match(/You are\s*(.*?)(?=\n|$)/i)?.[1] || persona.name.split('(')[0].trim();
     
     // --- ETHNICITY ANCHORING ---
     const getEthnicityTags = (p) => {
@@ -42,19 +42,15 @@ export const generateImage = async (params) => {
         const id = (p.id || "").toLowerCase();
         const promptText = (p.systemPrompt || "").toLowerCase();
 
-        // 1. East Asian
         if (id.includes('jisoo') || id.includes('hana') || id.includes('sato') || origin.includes('japanese') || origin.includes('korean')) {
             return "(Asian ethnicity:1.2), (fair skin:1.1), ";
         }
-        // 2. Indian / South Asian
         if (origin.includes('indian') || name.includes('bhabhi') || name.includes('mami') || name.includes('masi') || id.includes('anjali') || id.includes('amira') || promptText.includes('india')) {
             return "(Indian ethnicity:1.2), (brown skin:1.1), ";
         }
-        // 3. Latina
         if (origin.includes('latina') || name.includes('jefa') || id.includes('isabella') || origin.includes('brazilian') || origin.includes('rio')) {
             return "(Latina ethnicity:1.2), (sun-kissed skin:1.1), ";
         }
-        // 4. Caucasian / Western (Default for American/Western origins)
         if (origin.includes('modern american') || origin.includes('western') || origin.includes('european') || id.includes('emily') || id.includes('lexi') || id.includes('chloe')) {
             return "(Caucasian ethnicity:1.2), (white skin:1.1), ";
         }
@@ -68,8 +64,11 @@ export const generateImage = async (params) => {
     const COMIC_BOOSTERS = "comic book style, bold lines, cel shaded, highly detailed illustration, vibrant colors, (ink outlines:1.2), masterpiece, (environmental storytelling:1.3), vivid background, ";
     const REALISM_LORA = realismHigh && !isComic ? "<lora:Pony_Realism_2:0.6>, " : "";
 
+    const isPonyModel = activeModel && (activeModel.toLowerCase().includes('pony') || activeModel.toLowerCase().includes('lust') || activeModel.toLowerCase().includes('alchemist') || activeModel.toLowerCase().includes('autism'));
+    const isLightningModel = activeModel && (activeModel.toLowerCase().includes('lightning') || activeModel.toLowerCase().includes('turbo') || activeModel.toLowerCase().includes('hyper'));
+    
+    // ADJUST PONY PREFIX
     const PONY_PREFIX = isComic ? COMIC_BOOSTERS : `${SCORE_TAGS}${ethnicityAnchor}${COMPOSITION_ANCHOR}${PHOTO_BOOSTERS}${REALISM_LORA}photo (medium), 8k, high quality, cinematic, rating_explicit, masterpiece, photorealistic, 8k uhd, `;
-    const isPonyModel = activeModel && (activeModel.toLowerCase().includes('pony') || activeModel.toLowerCase().includes('lust') || activeModel.toLowerCase().includes('alchemist'));
     const finalPrefix = isPonyModel ? PONY_PREFIX : (isComic ? COMIC_BOOSTERS : `${ethnicityAnchor}${COMPOSITION_ANCHOR}photo (medium), 8k, high quality, cinematic, masterpiece, best quality, highly photorealistic, 8k uhd, cinematic lighting, `);
 
     const charLoras = {
@@ -110,7 +109,14 @@ export const generateImage = async (params) => {
         fullPrompt = `${finalPrefix}${charIdentity}, ${clothingPart ? clothingPart + ', ' : ''}${skinPart ? skinPart + ', ' : ''}${lightingPart ? lightingPart + ', ' : ''}${piercingPart ? piercingPart + ', ' : ''}${tattooPart ? tattooPart + ', ' : ''}${charAppearance}, ${charLora}, ${prompt}`;
     }
     
-    const cleanPrompt = fullPrompt.replace(/<lora:.*?>/g, '').replace(/,\s*,/g, ',').replace(/,\s*$/g, '').trim();
+    // Final prompt cleanup: Remove any accidentally leaked bracketed metadata and excessive whitespace
+    const cleanPrompt = fullPrompt
+        .replace(/\[[A-Z_]+:[\s\S]*?\]/gi, '') // Strip leaked [SCENE] or [MOOD] tags
+        .replace(/<lora:.*?>/g, '')             // Strip lora tags as we handle them locally
+        .replace(/,\s*,/g, ',')
+        .replace(/,\s*$/g, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
 
     try {
         if (imageEngine === 'comfyui') {
@@ -154,6 +160,16 @@ export const generateImage = async (params) => {
             const samplerId = findNodeByType('KSampler');
             const latentId = findNodeByType('EmptyLatentImage');
             
+            // 1. UPDATE POSITIVE PROMPT
+            if (comfyWorkflow["6"]) comfyWorkflow["6"].inputs.text = cleanPrompt;
+            
+            // 2. REINFORCE NEGATIVE PROMPT (Avoid distortion)
+            const negativePrompt = isPonyModel ? 
+                "score_6, score_5, score_4, (worst quality:1.2), (low quality:1.2), (normal quality:1.2), lowres, bad anatomy, bad hands, text, error, blurry, missing fingers, extra digit, fewer digits, cropped, jpeg artifacts, signature, watermark, username, blurry, (unnatural skin:1.2), (monochrome:1.1), (grayscale:1.1), (headless:1.5), (out of frame:1.3), cropped head, blurry face" :
+                "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, (unnatural skin:1.2), (monochrome:1.1), (grayscale:1.1), (headless:1.5), (out of frame:1.3), cropped head, blurry face";
+            
+            if (comfyWorkflow["7"]) comfyWorkflow["7"].inputs.text = negativePrompt;
+
             if (activeModel && ckptId) {
                 comfyWorkflow[ckptId].inputs.ckpt_name = activeModel;
             }
@@ -169,12 +185,27 @@ export const generateImage = async (params) => {
                 }
             }
 
-            if (comfyWorkflow["6"]) comfyWorkflow["6"].inputs.text = cleanPrompt;
             if (comfyWorkflow["3"]) {
                 comfyWorkflow["3"].inputs.seed = Math.floor(Math.random() * 1000000000);
-                comfyWorkflow["3"].inputs.steps = 25; // Balanced for Euler Ancestral
-                comfyWorkflow["3"].inputs.sampler_name = 'euler_ancestral';
-                comfyWorkflow["3"].inputs.scheduler = 'normal';
+                
+                // Dynamic Quality Scaling
+                if (isLightningModel) {
+                    comfyWorkflow["3"].inputs.steps = 6;
+                    comfyWorkflow["3"].inputs.cfg = 1.5;
+                    comfyWorkflow["3"].inputs.sampler_name = 'dpmpp_sde';
+                    comfyWorkflow["3"].inputs.scheduler = 'karras';
+                } else if (isPonyModel) {
+                    comfyWorkflow["3"].inputs.steps = 28;
+                    comfyWorkflow["3"].inputs.cfg = 6.0;
+                    comfyWorkflow["3"].inputs.sampler_name = 'dpmpp_2m';
+                    comfyWorkflow["3"].inputs.scheduler = 'karras';
+                } else {
+                    comfyWorkflow["3"].inputs.steps = 25;
+                    comfyWorkflow["3"].inputs.cfg = 7.5;
+                    comfyWorkflow["3"].inputs.sampler_name = 'euler_ancestral';
+                    comfyWorkflow["3"].inputs.scheduler = 'normal';
+                }
+
                 if (isRefinement) {
                     comfyWorkflow["3"].inputs.denoise = refinementStrength;
                 } else {
@@ -189,13 +220,21 @@ export const generateImage = async (params) => {
             // Ensure node 11 (FaceDetailer) has all required fields for newer Impact Pack versions
             if (comfyWorkflow["11"] && comfyWorkflow["11"].class_type === 'FaceDetailer') {
                 const fdInputs = comfyWorkflow["11"].inputs;
-                if (fdInputs.wildcard === undefined) fdInputs.wildcard = "";
-                if (fdInputs.cycle === undefined) fdInputs.cycle = 1;
-                if (fdInputs.sam_bbox_expansion === undefined) fdInputs.sam_bbox_expansion = 0;
-                if (fdInputs.sam_detection_hint === undefined) fdInputs.sam_detection_hint = "center-1";
-                if (fdInputs.drop_size === undefined) fdInputs.drop_size = 10;
-                if (fdInputs.sam_mask_hint_use_negative === undefined) fdInputs.sam_mask_hint_use_negative = "False";
-                
+                // Sync FaceDetailer with main sampler for Lightning models
+                if (isLightningModel) {
+                    fdInputs.steps = 6;
+                    fdInputs.cfg = 1.0;
+                    fdInputs.denoise = 0.35; // Lower denoise for lightning detailer
+                    fdInputs.sampler_name = 'dpmpp_sde';
+                    fdInputs.scheduler = 'karras';
+                } else if (isPonyModel) {
+                    fdInputs.steps = 20;
+                    fdInputs.cfg = 5.0;
+                    fdInputs.denoise = 0.45;
+                    fdInputs.sampler_name = 'dpmpp_2m';
+                    fdInputs.scheduler = 'karras';
+                }
+
                 // Update seed for FaceDetailer too
                 fdInputs.seed = Math.floor(Math.random() * 1000000000);
             }
