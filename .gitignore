@@ -22,3 +22,18 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+nexus/venv/
+nexus/__pycache__/
+
+# Database
+*.db
+
+# Nexus Storage
+nexus/storage/
