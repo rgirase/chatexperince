@@ -88,7 +88,6 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
 
     const {
         messages, setMessages,
-        input, setInput,
         isTyping,
         isSuggesting,
         relationshipScore,
@@ -256,8 +255,8 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
     const handleOpenAdultActions = useCallback(() => setIsAdultActionsOpen(true), []);
     
     // Stable wrapper for handleSendMessage to avoid inline arrow in JSX
-    const handleSendMessageStable = useCallback(() => {
-        handleSendMessage();
+    const handleSendMessageStable = useCallback((text) => {
+        handleSendMessage(text);
     }, [handleSendMessage]);
 
     const handleConfirmSelfie = useCallback((prompt, aspectRatio, selectedModel, clothing, color, skin, lighting, realismHigh, isAnimated, isComic = false, comicPanelInfo = null, piercing = 'none', tattoo = 'none') => {
@@ -471,8 +470,6 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
             />
 
             <ChatInput 
-                input={input}
-                setInput={setInput}
                 onSendMessage={handleSendMessageStable}
                 onSelectSuggestion={handleSelectSuggestion}
                 onGenerateSuggestion={handleGenerateSuggestion}
@@ -483,6 +480,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
                 onOpenAdultActions={handleOpenAdultActions}
                 suggestions={currentSuggestions}
                 isImmersionMode={isImmersionMode}
+                personaId={persona.id}
             />
 
             <AnimatePresence>

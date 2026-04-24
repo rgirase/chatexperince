@@ -18,9 +18,6 @@ import { vibrateOnTouch } from '../services/haptics';
 
 export const useChatLogic = (persona, showToast, initialScenario, generateSelfie) => {
     const [messages, setMessages] = useState([]);
-    const [input, setInput] = useState(() => {
-        return localStorage.getItem(`chat_draft_${persona.id}`) || '';
-    });
     const [isTyping, setIsTyping] = useState(false);
     const [isSuggesting, setIsSuggesting] = useState(false);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -157,11 +154,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     }, [persona, sessionId, initialScenario]); // Reload if persona, session, or scenario changes
 
     // Persist draft input to survive accidental refreshes
-    useEffect(() => {
-        if (input !== undefined) {
-             localStorage.setItem(`chat_draft_${persona.id}`, input);
-        }
-    }, [input, persona.id]);
 
     const [isAvatarManual, setIsAvatarManual] = useState(false);
     const [lastIntensity, setLastIntensity] = useState(intensity);
@@ -518,9 +510,8 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         }
     }, [persona, memory, intensity, encounterStats, currentSituation, invitedPersona, traits, generateSelfie, showToast, relationshipScore, narrativeSettings, sessionId, customRelation]);
 
-    const handleSendMessage = useCallback(async (customInput) => {
-        const text = customInput || input;
-        if (!text.trim() || isTyping) return;
+    const handleSendMessage = useCallback(async (text) => {
+        if (!text || !text.trim() || isTyping) return;
 
         // Detect Time-Skip keywords
         const timeSkipRegex = /\b(days? pass|weeks? pass|months? pass|next (morning|day|week|month)|every day|passed by|a long time|later that)\b/gi;
@@ -534,7 +525,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         };
         setMessages(prev => [...prev, userMsg]);
         setRelationshipScore(prev => Math.min(100, prev + 1)); // Interaction Reward
-        setInput('');
         localStorage.setItem('lastPersonaId', persona.id);
         setIsTyping(true);
 
@@ -564,7 +554,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         }
 
         await executeAiRequest(aiMessageId, [...messages, userMsg], { isTimeSkip, recalledMemory });
-    }, [input, isTyping, messages, executeAiRequest, persona.id, activePersonaImage, showToast, detectRecallIntent, searchHistory]);
+    }, [isTyping, messages, executeAiRequest, persona.id, activePersonaImage, showToast, detectRecallIntent, searchHistory]);
 
     const handleSendGift = useCallback(async (gift) => {
         const giftMsg = { 
@@ -799,7 +789,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     }, [persona, messages]);
 
     const handleSelectSuggestion = useCallback((suggestion) => {
-        setInput(suggestion);
         setCurrentSuggestions([]);
     }, []);
 
@@ -1085,7 +1074,6 @@ ${lorePrompt}
 
     return {
         messages, setMessages,
-        input, setInput,
         isTyping,
         isSuggesting,
         relationshipScore, setRelationshipScore,

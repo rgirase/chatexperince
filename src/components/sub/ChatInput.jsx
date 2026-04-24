@@ -11,8 +11,6 @@ const QUICK_ACTIONS = [
 ];
 
 const ChatInput = React.memo(({ 
-    input, 
-    setInput, 
     onSendMessage, 
     onGenerateSuggestion, 
     onOpenSelfiePrompt, 
@@ -22,8 +20,17 @@ const ChatInput = React.memo(({
     suggestions = [],
     onOpenAdultActions,
     onSelectSuggestion,
-    isImmersionMode
+    isImmersionMode,
+    personaId
 }) => {
+    const [input, setInput] = useState(() => {
+        return localStorage.getItem(`chat_draft_${personaId}`) || '';
+    });
+
+    // Handle draft persistence locally to avoid parent re-renders
+    useEffect(() => {
+        localStorage.setItem(`chat_draft_${personaId}`, input);
+    }, [input, personaId]);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const textareaRef = useRef(null);
     const menuRef = useRef(null);
@@ -49,7 +56,10 @@ const ChatInput = React.memo(({
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            onSendMessage();
+            if (input.trim() && !isTyping) {
+                onSendMessage(input);
+                setInput('');
+            }
         }
     };
 
@@ -97,7 +107,10 @@ const ChatInput = React.memo(({
                     {suggestions.map((s, i) => (
                         <button 
                             key={i} 
-                            onClick={() => onSelectSuggestion(s)}
+                            onClick={() => {
+                                setInput(s);
+                                if (onSelectSuggestion) onSelectSuggestion(s);
+                            }}
                             className="suggestion-bubble"
                         >
                             {s}
@@ -193,7 +206,12 @@ const ChatInput = React.memo(({
                     </button>
                 ) : (
                     <button 
-                        onClick={onSendMessage} 
+                        onClick={() => {
+                            if (input.trim()) {
+                                onSendMessage(input);
+                                setInput('');
+                            }
+                        }} 
                         disabled={!input.trim() || isTyping} 
                         className="send-btn"
                         title="Send message"
