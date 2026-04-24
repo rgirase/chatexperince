@@ -13,6 +13,7 @@ import * as db from './services/db';
 import VaultModal from './components/sub/VaultModal';
 import NeuralLink from './components/sub/NeuralLink';
 import TheOracle from './components/sub/TheOracle';
+import ProfileManager from './components/sub/ProfileManager'; // New import
 import { auraLife } from './services/AutonomousService';
 
 let hasPushedHistory = false;
@@ -44,6 +45,11 @@ function App() {
   // Streak State
   const [streak, setStreak] = useState(0);
   const [lastLoginDate, setLastLoginDate] = useState('');
+
+  // Profile State
+  const [profiles, setProfiles] = useState([]);
+  const [activeProfileId, setActiveProfileId] = useState(db.getCurrentUserId());
+  const [isProfileManagerOpen, setIsProfileManagerOpen] = useState(false);
 
   const [userAura, setUserAura] = React.useState(() => {
     try {
@@ -78,7 +84,7 @@ function App() {
 
   useEffect(() => {
     const loadAllData = async () => {
-      console.log(`[App] Initializing data at ${new Date().toLocaleTimeString()}...`);
+      console.log(`[App] Initializing data for user ${activeProfileId} at ${new Date().toLocaleTimeString()}...`);
       const start = Date.now();
       
       // Safety timeout: Never stay in booting state longer than 2.5s
@@ -89,6 +95,10 @@ function App() {
         }
       }, 2500);
 
+      // 0. Load Profiles
+      const currentProfiles = await db.getProfiles();
+      setProfiles(currentProfiles);
+      
       let loadedPersonas = [...defaultPersonas];
       
       // 1. Load Custom Personas (Migration + Fetch)
@@ -291,7 +301,7 @@ function App() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('devicemotion', handleMotion);
     };
-  }, []);
+  }, [activeProfileId]); // Reload when profile changes
 
   const processedPersonas = React.useMemo(() => {
     return [...defaultPersonas, ...customPersonas];
@@ -398,6 +408,41 @@ function App() {
     db.setItem('settings', `persona_img_${personaId}`, newImage);
     setImageUpdateKey(prev => prev + 1);
   };
+
+  const handleCreateProfile = async (newProfile) => {
+    const updated = [...profiles, newProfile];
+    setProfiles(updated);
+    await db.saveProfiles(updated);
+    handleSelectProfile(newProfile.id);
+  };
+
+  const handleUpdateProfile = async (updatedProfile) => {
+    const updated = profiles.map(p => p.id === updatedProfile.id ? { ...p, ...updatedProfile } : p);
+    setProfiles(updated);
+    await db.saveProfiles(updated);
+  };
+
+  const handleSelectProfile = (id) => {
+    db.setCurrentUserId(id);
+    setActiveProfileId(id);
+    setIsProfileManagerOpen(false);
+    // State reset for fresh boot into new profile
+    setSelectedPersona(null);
+    setIsBooting(true);
+    // useEffect [activeProfileId] will trigger loadAllData
+  };
+
+  const handleDeleteProfile = async (id) => {
+    if (id === 'default') return;
+    const updated = profiles.filter(p => p.id !== id);
+    setProfiles(updated);
+    await db.saveProfiles(updated);
+    if (activeProfileId === id) {
+      handleSelectProfile('default');
+    }
+  };
+
+  const activeProfile = profiles.find(p => p.id === activeProfileId) || profiles[0] || { name: 'User' };
 
   useEffect(() => {
     if (activeView !== 'settings') {
@@ -540,14 +585,35 @@ function App() {
               >
                 <SettingsIcon size={24} />
               </div>
+
+              <div 
+                className="sidebar-item" 
+                onClick={() => setIsProfileManagerOpen(true)}
+                style={{ position: 'relative', width: '36px', height: '36px', padding: 0, borderRadius: '50%', overflow: 'hidden', border: '1px solid rgba(168, 85, 247, 0.5)' }}
+                title="Profiles"
+              >
+                <img src={activeProfile?.avatar} alt="Me" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
             </div>
           </header>
         )}
+
+        <ProfileManager 
+            isOpen={isProfileManagerOpen}
+            onClose={() => setIsProfileManagerOpen(false)}
+            profiles={profiles}
+            activeProfileId={activeProfileId}
+            onSelect={handleSelectProfile}
+            onCreate={handleCreateProfile}
+            onDelete={handleDeleteProfile}
+            onUpdate={handleUpdateProfile}
+        />
 
         {selectedPersona ? (
           <ChatInterface
             key={selectedPersona.id}
             persona={selectedPersona}
+            userProfile={activeProfile}
             scenario={selectedScenario}
             allPersonas={processedPersonas}
             onBack={handleBack}
@@ -558,6 +624,7 @@ function App() {
           <ChatInterface
             key={lyra_storyteller.id}
             persona={lyra_storyteller}
+            userProfile={activeProfile}
             allPersonas={processedPersonas}
             onBack={handleBack}
             onGoHome={handleGoHome}

@@ -30,7 +30,7 @@ import AtmosphericEngine from './AtmosphericEngine';
 import LoreCodexModal from './sub/LoreCodexModal';
 import { updateSceneState, extractLoreFromDialogue } from '../services/memoryService';
 
-const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, scenario }) => {
+const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, scenario, userProfile }) => {
     // --- UI VIEW STATE ---
     const [toasts, setToasts] = useState([]);
     const [activeEffect, setActiveEffect] = useState(null);
@@ -136,7 +136,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         setNarrativeSettings,
         isComicMode,
         setIsComicMode
-    } = useChatLogic(persona, showToast, scenario, generateSelfie);
+    } = useChatLogic(persona, showToast, scenario, generateSelfie, userProfile);
 
     // Stable refs for callbacks to prevent cascading re-renders
     const messagesRef = useRef(messages);

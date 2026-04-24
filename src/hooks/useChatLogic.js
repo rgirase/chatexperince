@@ -16,7 +16,7 @@ import { searchHistory, detectRecallIntent } from '../services/memorySearch';
 import { getLorePrompt, syncLoreFromSummary } from '../services/lore';
 import { vibrateOnTouch } from '../services/haptics';
 
-export const useChatLogic = (persona, showToast, initialScenario, generateSelfie) => {
+export const useChatLogic = (persona, showToast, initialScenario, generateSelfie, userProfile) => {
     const [messages, setMessages] = useState([]);
     const [isTyping, setIsTyping] = useState(false);
     const [isSuggesting, setIsSuggesting] = useState(false);
@@ -316,6 +316,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         const personaWithExtras = {
             ...activeSpeaker,
             systemPrompt: `[RESPONDING AS: ${activeSpeaker.name}]\n` +
+                          `[USER PROFILE: Name=${userProfile?.name || 'User'}, Age=${userProfile?.details?.age || 'Unknown'}, Occupation=${userProfile?.details?.occupation || 'Unknown'}, Bio=${userProfile?.details?.bio || 'Unknown'}, Interests=${(userProfile?.details?.interests || []).join(', ')}]\n` +
                           (otherPersona ? `[SCENE PARTNER: ${otherPersona.name} is also present and interacting.]\n` : "") +
                           activeSpeaker.systemPrompt + 
                           (traits.length > 0 ? `\n\n[RECENT PERSONALITY EVOLUTION: ${traits.join(", ")}]` : "") +
