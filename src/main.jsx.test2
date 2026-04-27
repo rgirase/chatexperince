@@ -1,0 +1,65 @@
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.jsx'
+import './index.css'
+import logger from './services/logger'
+
+// Initialize in-app logging
+logger.init();
+
+console.log("%c [Aura] main.jsx v4 Loading...", "color: #8b5cf6; font-weight: bold;");
+
+const safeReset = () => {
+  if (confirm('This will clear corrupted data to fix the blank screen. Your chats are safe. Proceed?')) {
+    // Clear all settings keys but preserve chat histories
+    const keysToPreserve = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        try {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('chat_')) keysToPreserve.push([key, localStorage.getItem(key)]);
+        } catch(e) {}
+    }
+    localStorage.clear();
+    keysToPreserve.forEach(([k, v]) => localStorage.setItem(k, v));
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+    }
+    try {
+      if (typeof window !== 'undefined' && window.caches && typeof caches !== 'undefined' && caches.keys) {
+        caches.keys().then(names => {
+          if (Array.isArray(names)) {
+            Promise.all(names.map(n => caches.delete(n)));
+          }
+        }).catch(e => console.warn("[SafeReset] Cache clearing failed safely", e));
+      }
+    } catch (e) {
+      console.warn("[SafeReset] Caches access failed", e);
+    }
+    window.location.replace(window.location.pathname); // Clear UI and query params
+  }
+};
+
+// Emergency URL-based Reset
+if (window.location.search.includes('reset=true')) {
+  safeReset();
+}
+
+// A true React class-based ErrorBoundary — the ONLY way to catch React render errors
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>,
+)
+window.appIsMounted = true;
+
+/**
+ * Service Worker Strategy: Disabled for Development Stability
+ * 
+ * We no longer register sw.js because it causes "Update on Focus" reload loops
+ * in certain browser environments. To fix a blank screen, use the "Fix & Reset" 
+ * button in the ErrorBoundary above or add '?reset=true' to the URL.
+ */
+// Only provide the tool, don't run it automatically to avoid reload loops
+window.auraSafeReset = safeReset;
+

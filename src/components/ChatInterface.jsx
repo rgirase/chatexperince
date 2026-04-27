@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 import ChatHeader from './sub/ChatHeader';
 import MessageList from './sub/MessageList';
 import ChatInput from './sub/ChatInput';
@@ -91,6 +92,7 @@ const ChatInterface = ({ persona, allPersonas, onBack, onGoHome, onSelectImage, 
         isTyping,
         isSuggesting,
         relationshipScore,
+        traits,
         memory,
         intensity, setIntensity,
         encounterStats,

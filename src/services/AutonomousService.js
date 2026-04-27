@@ -27,15 +27,18 @@ class AutonomousService {
         this.isRunning = true;
         console.log("[Autonomous] Simulation Engine Booted.");
         
-        const rawEvents = await db.getAll('persona_events');
-        const existing = (rawEvents || []).map(item => item.value || item);
-        
-        if (existing.length === 0) {
-            console.log("[Autonomous] Seeding initial moments...");
-            await this.seedInitialEvents();
-        }
+        // Non-blocking initialization
+        setTimeout(async () => {
+            const rawEvents = await db.getAll('persona_events');
+            const existing = (rawEvents || []).map(item => item.value || item);
+            
+            if (existing.length === 0) {
+                console.log("[Autonomous] Seeding initial moments...");
+                await this.seedInitialEvents();
+            }
 
-        this.runSimulation();
+            this.runSimulation();
+        }, 1000);
     }
 
     async seedInitialEvents() {

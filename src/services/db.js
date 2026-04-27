@@ -75,25 +75,120 @@ const uploadToNexus = async (base64Data) => {
     }
 };
 
-export const openDB = async () => {
-    return true;
+// Fetch with timeout helper
+const fetchWithTimeout = async (url, options = {}, timeout = 3000) => {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(id);
+        return response;
+    } catch (e) {
+        clearTimeout(id);
+        throw e;
+    }
 };
 
+// Persistent local cache using IndexedDB
+let localDb = null;
+let localDbPromise = null;
+
+const initLocalDb = () => {
+    if (localDbPromise) return localDbPromise;
+    localDbPromise = new Promise((resolve) => {
+        const timeout = setTimeout(() => {
+            console.warn("[DB] IndexedDB init timed out.");
+            resolve(null);
+        }, 2000); 
+        
+        try {
+            const request = indexedDB.open('aura_local_cache', 1);
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('cache')) {
+                    db.createObjectStore('cache');
+                }
+            };
+            request.onsuccess = (e) => {
+                clearTimeout(timeout);
+                localDb = e.target.result;
+                resolve(localDb);
+            };
+            request.onerror = () => {
+                clearTimeout(timeout);
+                resolve(null);
+            };
+        } catch (e) {
+            clearTimeout(timeout);
+            resolve(null);
+        }
+    });
+    return localDbPromise;
+};
+
+const getLocal = async (key) => {
+    const db = localDb || await initLocalDb();
+    if (!db) return null;
+    return new Promise((resolve) => {
+        try {
+            const transaction = db.transaction(['cache'], 'readonly');
+            const store = transaction.objectStore('cache');
+            const request = store.get(key);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => resolve(null);
+        } catch (e) {
+            resolve(null);
+        }
+    });
+};
+
+const setLocal = async (key, value) => {
+    const db = localDb || await initLocalDb();
+    if (!db) return;
+    try {
+        const transaction = db.transaction(['cache'], 'readwrite');
+        const store = transaction.objectStore('cache');
+        store.put(value, key);
+    } catch (e) {}
+};
+
+// Initialize DB on script load
+initLocalDb();
+
 export const getItem = async (storeName, key) => {
-    // Special case: The users store itself is NOT namespaced (it holds the profiles)
     const storeIsGlobal = (storeName === 'users' || storeName === 'logins');
     const effectiveKey = storeIsGlobal ? key : getNamespacedKey(key);
-    
     const cacheKey = `${storeName}:${effectiveKey}`;
+    
+    // 1. Memory Cache Hit (Instant)
     if (dbCache[cacheKey] !== undefined) {
         return dbCache[cacheKey];
     }
 
+    // 2. Persistent Local Cache Hit (Fast)
+    const cached = await getLocal(cacheKey);
+    if (cached !== null && cached !== undefined) {
+        dbCache[cacheKey] = cached;
+        // Background sync
+        fetchWithTimeout(`${NEXUS_URL}/db/${storeName}/${effectiveKey}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.value !== undefined) {
+                    dbCache[cacheKey] = data.value;
+                    setLocal(cacheKey, data.value);
+                }
+            }).catch(() => {});
+        return cached;
+    }
+
+    // 3. Network Fetch (Slow)
     try {
-        const res = await fetch(`${NEXUS_URL}/db/${storeName}/${effectiveKey}`);
+        const res = await fetchWithTimeout(`${NEXUS_URL}/db/${storeName}/${effectiveKey}`);
         const data = await res.json();
-        dbCache[cacheKey] = data.value;
-        return data.value;
+        const val = data.value !== undefined ? data.value : null;
+        dbCache[cacheKey] = val;
+        setLocal(cacheKey, val);
+        return val;
     } catch (e) {
         console.warn(`[DB] Nexus getItem failed for ${storeName}/${effectiveKey}, returning null`, e);
         return null;
@@ -105,27 +200,47 @@ export const getItem = async (storeName, key) => {
  * Returns an object {key: value}
  */
 export const getAllMapped = async (storeName) => {
-    try {
-        const res = await fetch(`${NEXUS_URL}/db/${storeName}/all`);
-        const data = await res.json();
-        
-        const filtered = {};
-        const isGlobal = (storeName === 'users' || storeName === 'logins');
+    const localKey = `all_mapped:${storeName}`;
+    
+    // 1. Try local first
+    const cached = await getLocal(localKey);
+    if (cached) {
+        // Background sync
+        fetchWithTimeout(`${NEXUS_URL}/db/${storeName}/all`)
+            .then(res => res.json())
+            .then(data => {
+                const mapped = processMappedData(storeName, data);
+                setLocal(localKey, mapped);
+            }).catch(() => {});
+        return cached;
+    }
 
-        Object.keys(data).forEach(key => {
-            if (isGlobal || isKeyForCurrentUser(key)) {
-                const value = data[key];
-                const cleanKey = isGlobal ? key : stripNamespace(key);
-                filtered[cleanKey] = value;
-                dbCache[`${storeName}:${key}`] = value;
-            }
-        });
-        
-        return filtered;
+    try {
+        const res = await fetchWithTimeout(`${NEXUS_URL}/db/${storeName}/all`);
+        const data = await res.json();
+        const mapped = processMappedData(storeName, data);
+        setLocal(localKey, mapped);
+        return mapped;
     } catch (e) {
         console.error(`[DB] Nexus getAllMapped failed for ${storeName}`, e);
         return {};
     }
+};
+
+const processMappedData = (storeName, data) => {
+    const filtered = {};
+    const isGlobal = (storeName === 'users' || storeName === 'logins');
+
+    Object.keys(data).forEach(key => {
+        if (isGlobal || isKeyForCurrentUser(key)) {
+            const value = data[key];
+            const cleanKey = isGlobal ? key : stripNamespace(key);
+            filtered[cleanKey] = value;
+            dbCache[`${storeName}:${key}`] = value;
+            setLocal(`${storeName}:${key}`, value);
+        }
+    });
+    return filtered;
 };
 
 export const getAll = async (storeName) => {
@@ -162,39 +277,42 @@ export const setItem = async (storeName, key, value) => {
     const cacheKey = `${storeName}:${effectiveKey}`;
     dbCache[cacheKey] = value; // Optimistic update
 
-    try {
-        let processedValue = value;
-        
-        if (isBase64Image(value)) {
-            processedValue = await uploadToNexus(value);
-        } else if (Array.isArray(value)) {
-            processedValue = await Promise.all(value.map(async (item) => {
-                if (item && typeof item === 'object') {
-                    const newItem = { ...item };
-                    if (isBase64Image(newItem.url)) {
-                        newItem.url = await uploadToNexus(newItem.url);
-                    }
-                    if (Array.isArray(newItem.panels)) {
-                        newItem.panels = await Promise.all(newItem.panels.map(async p => {
-                            if (isBase64Image(p.url)) return { ...p, url: await uploadToNexus(p.url) };
-                            return p;
-                        }));
-                    }
-                    return newItem;
-                }
-                return item;
-            }));
-        } else if (value && typeof value === 'object') {
-            if (isBase64Image(value.url)) {
-                processedValue = { ...value, url: await uploadToNexus(value.url) };
-            }
+    // Recursive processor to find and upload all base64 images within an object or array
+    const processRecursive = async (item) => {
+        if (!item) return item;
+
+        if (isBase64Image(item)) {
+            return await uploadToNexus(item);
         }
 
+        if (Array.isArray(item)) {
+            return await Promise.all(item.map(processRecursive));
+        }
+
+        if (typeof item === 'object') {
+            const newItem = { ...item };
+            const keys = Object.keys(newItem);
+            for (const k of keys) {
+                newItem[k] = await processRecursive(newItem[k]);
+            }
+            return newItem;
+        }
+
+        return item;
+    };
+
+    try {
+        const processedValue = await processRecursive(value);
+        setLocal(cacheKey, processedValue); // Update persistent cache
+        
         await fetch(`${NEXUS_URL}/db/${storeName}/${effectiveKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ value: processedValue })
         });
+        
+        // Update memory cache with the processed version (containing URLs instead of B64)
+        dbCache[cacheKey] = processedValue;
     } catch (e) {
         console.error(`[DB] Nexus setItem failed for ${storeName}/${effectiveKey}`, e);
     }

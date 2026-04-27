@@ -20,7 +20,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     const [messages, setMessages] = useState([]);
     const [isTyping, setIsTyping] = useState(false);
     const [isSuggesting, setIsSuggesting] = useState(false);
-    const [isDataLoaded, setIsDataLoaded] = useState(false);
     
     // Core Game States
     const [relationshipScore, setRelationshipScore] = useState(50);
@@ -51,123 +50,160 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
 
     const [sessionId, setSessionId] = useState('default');
     const [allSessions, setAllSessions] = useState([]);
+    const lastLoadedRef = useRef(null);
 
     // Load initial data
     useEffect(() => {
         let isMounted = true;
+        let syncTimeout = null;
+
         const load = async () => {
             if (!persona) return;
-            setIsDataLoaded(false);
-
-            // Pre-fetch entire stores into cache to minimize individual network requests
-            await Promise.all([
-                db.getAllMapped('settings'),
-                db.getAllMapped('memories')
-            ]);
             
-            if (!isMounted) return;
+            const loadId = `${persona.id}:${sessionId}`;
+            const start = Date.now();
 
-            // 1. Get the current active sessionId for this persona
-            let currentSid = await db.getItem('settings', `active_session_${persona.id}`) || 
-                             localStorage.getItem(`active_session_fallback_${persona.id}`) || 
-                             'default';
-            
-            if (currentSid !== sessionId) {
-                setSessionId(currentSid);
-                return; 
-            }
-
-            // 2. Load the list of all sessions for this persona
-            const sessions = await db.getItem('settings', `sessions_list_${persona.id}`) || ['default'];
-            setAllSessions(sessions);
-
-            // 3. Load chat and state with sessionId suffix
-            let chatKey = `chat_${persona.id}_${currentSid}`;
-            let chat = await db.getItem('chats', chatKey) || [];
-            
-            const scenarioPrompt = initialScenario?.prompt || localStorage.getItem(`scenarioPrompt_${persona.id}`);
-
-            if (scenarioPrompt && chat.length > 0) {
-                const newSid = `session_${Date.now()}`;
-                const newList = [...sessions, newSid];
-                await db.setItem('settings', `active_session_${persona.id}`, newSid);
-                await db.setItem('settings', `sessions_list_${persona.id}`, newList);
-                
-                currentSid = newSid;
-                setSessionId(newSid);
-                setAllSessions(newList);
-                chat = []; 
-            }
-            
-            const suffix = `_${persona.id}_${currentSid}`;
-            const savedRelation = await db.getItem('settings', `relation${suffix}`) || (currentSid.startsWith('role_') ? currentSid.replace('role_', '') : '');
-            
-            if (chat.length > 0) {
-                setMessages(chat.map(m => ({ ...m, content: cleanLeakage(m.content) })));
-            } else {
-                const roleKey = savedRelation ? (savedRelation.charAt(0).toUpperCase() + savedRelation.slice(1).toLowerCase()) : '';
-                const initialContent = scenarioPrompt || 
-                                     (persona.roleInitialMessages && roleKey && persona.roleInitialMessages[roleKey]) || 
-                                     persona.initialMessage || 
-                                     "*Smiles softly* Hello...";
-                
-                setMessages([{
-                    id: Date.now().toString(),
-                    role: 'ai',
-                    content: cleanLeakage(initialContent),
-                    personaId: persona.id,
-                    personaName: persona.name,
-                    personaAvatar: persona.image
-                }]);
-                
-                if (!initialScenario && scenarioPrompt) {
-                    localStorage.removeItem(`scenarioPrompt_${persona.id}`);
+            // Safety timeout: Proceed no matter what after 3s
+            syncTimeout = setTimeout(() => {
+                if (isMounted) {
+                    console.warn(`[ChatLogic] Syncing for ${persona.name} timed out.`);
+                    setIsDataLoaded(true);
                 }
+            }, 3000);
+
+            try {
+                // 0. Immediate local greeting
+                const localChat = await db.getItem('chats', `chat_${persona.id}_${sessionId}`);
+                if (!localChat || localChat.length === 0) {
+                     setMessages([{
+                        id: 'initial',
+                        role: 'ai',
+                        content: cleanLeakage(persona.initialMessage || "*Smiles softly* Hello..."),
+                        personaId: persona.id,
+                        personaName: persona.name,
+                        personaAvatar: persona.image
+                    }]);
+                } else {
+                    setMessages(localChat.map(m => ({ ...m, content: cleanLeakage(m.content) })));
+                }
+
+                // 1. Pre-fetch entire stores into cache
+                await Promise.all([
+                    db.getAllMapped('settings'),
+                    db.getAllMapped('memories')
+                ]);
+                
+                if (!isMounted) return;
+
+                // 2. Get core session info and chat history in parallel
+                const [currentSid, sessions] = await Promise.all([
+                    db.getItem('settings', `active_session_${persona.id}`).then(sid => 
+                        sid || localStorage.getItem(`active_session_fallback_${persona.id}`) || 'default'
+                    ),
+                    db.getItem('settings', `sessions_list_${persona.id}`).then(list => list || ['default'])
+                ]);
+                
+                if (currentSid !== sessionId) {
+                    setSessionId(currentSid);
+                    setAllSessions(sessions);
+                    clearTimeout(syncTimeout);
+                    return; 
+                }
+                setAllSessions(sessions);
+
+                const suffix = `_${persona.id}_${currentSid}`;
+                const chatKey = `chat_${persona.id}_${currentSid}`;
+
+                // 3. Sync everything else in background
+                const [
+                    chat, savedRelation,
+                    savedMemory, savedScore, savedIntensity, savedTraits,
+                    savedEncounters, savedScene, savedLocation, savedInvited,
+                    savedImg, savedAvatarManual, savedMood, savedInventory,
+                    savedIsComic, savedNarrative, savedRecap
+                ] = await Promise.all([
+                    db.getItem('chats', chatKey).then(c => c || []),
+                    db.getItem('settings', `relation${suffix}`).then(r => r || (currentSid.startsWith('role_') ? currentSid.replace('role_', '') : '')),
+                    db.getItem('memories', `memory${suffix}`),
+                    db.getItem('settings', `score${suffix}`),
+                    db.getItem('settings', `intensity${suffix}`),
+                    db.getItem('memories', `traits${suffix}`),
+                    db.getItem('memories', `encounters${suffix}`),
+                    db.getItem('settings', `scene${suffix}`),
+                    db.getItem('settings', `location${suffix}`),
+                    db.getItem('settings', `invited${suffix}`),
+                    db.getItem('settings', `active_image${suffix}`),
+                    db.getItem('settings', `avatar_manual${suffix}`),
+                    db.getItem('settings', `mood${suffix}`),
+                    db.getItem('settings', `inventory${suffix}`),
+                    db.getItem('settings', `is_comic${suffix}`),
+                    db.getItem('settings', `narrative${suffix}`),
+                    db.getItem('settings', `recap${suffix}`)
+                ]);
+                
+                const scenarioPrompt = initialScenario?.prompt || localStorage.getItem(`scenarioPrompt_${persona.id}`);
+
+                if (scenarioPrompt && chat.length > 0) {
+                    const newSid = `session_${Date.now()}`;
+                    const newList = [...sessions, newSid];
+                    db.setItem('settings', `active_session_${persona.id}`, newSid);
+                    db.setItem('settings', `sessions_list_${persona.id}`, newList);
+                    
+                    setSessionId(newSid);
+                    setAllSessions(newList);
+                    setMessages([{
+                        id: Date.now().toString(),
+                        role: 'ai',
+                        content: cleanLeakage(scenarioPrompt),
+                        personaId: persona.id,
+                        personaName: persona.name,
+                        personaAvatar: persona.image
+                    }]);
+                } else if (chat.length > 0) {
+                    setMessages(chat.map(m => ({ ...m, content: cleanLeakage(m.content) })));
+                } else {
+                    const roleKey = savedRelation ? (savedRelation.charAt(0).toUpperCase() + savedRelation.slice(1).toLowerCase()) : '';
+                    const initialContent = scenarioPrompt || 
+                                        (persona.roleInitialMessages && roleKey && persona.roleInitialMessages[roleKey]) || 
+                                        persona.initialMessage || 
+                                        "*Smiles softly* Hello...";
+                    
+                    setMessages([{
+                        id: Date.now().toString(),
+                        role: 'ai',
+                        content: cleanLeakage(initialContent),
+                        personaId: persona.id,
+                        personaName: persona.name,
+                        personaAvatar: persona.image
+                    }]);
+                }
+
+                setMemory(savedMemory || '');
+                setRelationshipScore(savedScore || 50);
+                setIntensity(savedIntensity || 3);
+                setTraits(savedTraits || []);
+                setEncounterStats(savedEncounters || { count: 0, lastLocation: 'Never', history: [] });
+                setCurrentSceneId(savedScene || 'default');
+                setCurrentLocationId(savedLocation || 'kitchen_morning');
+                setInvitedPersona(savedInvited || null);
+                setActivePersonaImage((savedImg && savedImg.length > 10) ? savedImg : persona.image);
+                setCustomRelation(savedRelation || '');
+                setIsAvatarManual(savedAvatarManual || false);
+                setCurrentMood(savedMood || 'Neutral');
+                setInventory(savedInventory || []);
+                setIsComicMode(savedIsComic || false);
+                setNarrativeSettings(savedNarrative || { style: 'Novel', tension: 3, focus: 'Mixed', chaosMode: false });
+                setChapterRecap(savedRecap || "");
+
+                console.log(`[ChatLogic] Persona ${persona.name} synced in ${Date.now() - start}ms`);
+            } catch (err) {
+                console.error(`[ChatLogic] Critical load error for ${persona.name}:`, err);
+            } finally {
+                clearTimeout(syncTimeout);
+                lastLoadedRef.current = `${persona.id}:${sessionId}`;
             }
-
-            // These are now served from cache (instant)
-            const [
-                savedMemory, savedScore, savedIntensity, savedTraits,
-                savedEncounters, savedScene, savedLocation, savedInvited,
-                savedImg, savedAvatarManual, savedMood, savedInventory,
-                savedIsComic, savedNarrative, savedRecap
-            ] = await Promise.all([
-                db.getItem('memories', `memory${suffix}`),
-                db.getItem('settings', `score${suffix}`),
-                db.getItem('settings', `intensity${suffix}`),
-                db.getItem('memories', `traits${suffix}`),
-                db.getItem('memories', `encounters${suffix}`),
-                db.getItem('settings', `scene${suffix}`),
-                db.getItem('settings', `location${suffix}`),
-                db.getItem('settings', `invited${suffix}`),
-                db.getItem('settings', `active_image${suffix}`),
-                db.getItem('settings', `avatar_manual${suffix}`),
-                db.getItem('settings', `mood${suffix}`),
-                db.getItem('settings', `inventory${suffix}`),
-                db.getItem('settings', `is_comic${suffix}`),
-                db.getItem('settings', `narrative${suffix}`),
-                db.getItem('settings', `recap${suffix}`)
-            ]);
-
-            setMemory(savedMemory || '');
-            setRelationshipScore(savedScore || 50);
-            setIntensity(savedIntensity || 3);
-            setTraits(savedTraits || []);
-            setEncounterStats(savedEncounters || { count: 0, lastLocation: 'Never', history: [] });
-            setCurrentSceneId(savedScene || 'default');
-            setCurrentLocationId(savedLocation || 'kitchen_morning');
-            setInvitedPersona(savedInvited || null);
-            setActivePersonaImage((savedImg && savedImg.length > 10) ? savedImg : persona.image);
-            setCustomRelation(savedRelation || '');
-            setIsAvatarManual(savedAvatarManual || false);
-            setCurrentMood(savedMood || 'Neutral');
-            setInventory(savedInventory || []);
-            setIsComicMode(savedIsComic || false);
-            setNarrativeSettings(savedNarrative || { style: 'Novel', tension: 3, focus: 'Mixed', chaosMode: false });
-            setChapterRecap(savedRecap || "");
-
-            setIsDataLoaded(true);
         };
+        const start = Date.now();
         load();
         return () => { isMounted = false; };
     }, [persona.id, sessionId, initialScenario]); 
@@ -183,8 +219,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     const lastSaveRef = useRef(Date.now());
 
     useEffect(() => {
-        if (!isDataLoaded) return;
-        
         // Clear any pending save
         if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
 
@@ -225,11 +259,12 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [messages, memory, relationshipScore, intensity, traits, encounterStats, currentSceneId, invitedPersona, currentLocationId, persona.id, sessionId, isDataLoaded, currentMood, inventory, narrativeSettings, isAvatarManual, customRelation, activePersonaImage]);
+    }, [messages, memory, relationshipScore, intensity, traits, encounterStats, currentSceneId, invitedPersona, currentLocationId, persona.id, sessionId, currentMood, inventory, narrativeSettings, isAvatarManual, customRelation, activePersonaImage]);
 
     // --- ISOLATED WARDROBE LOGIC ---
     useEffect(() => {
-        if (!isDataLoaded || isAvatarManual) return;
+        // Auto-outfit check
+        if (isAvatarManual) return;
         if (!persona.wardrobe || persona.wardrobe.length === 0) return;
 
         let targetImage = persona.image;
@@ -248,11 +283,10 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
             if (targetImage.startsWith('assets/')) targetImage = '/' + targetImage;
             setActivePersonaImage(targetImage);
         }
-    }, [isDataLoaded, isAvatarManual, relationshipScore, intensity, persona.wardrobe, persona.image]); 
+    }, [isAvatarManual, relationshipScore, intensity, persona.wardrobe, persona.image]); 
 ;
 
     const startNewSession = async () => {
-        setIsDataLoaded(false);
         const newSid = `session_${Date.now()}`;
         const newList = [...allSessions, newSid];
         
@@ -266,7 +300,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     };
 
     const switchSession = async (sid) => {
-        setIsDataLoaded(false);
         await db.setItem('settings', `active_session_${persona.id}`, sid);
         localStorage.setItem(`active_session_fallback_${persona.id}`, sid);
         setSessionId(sid);
@@ -283,7 +316,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
     };
 
     const handleBranchSession = async () => {
-        setIsDataLoaded(false);
         const newSid = `branch_${Date.now()}`;
         const newList = [...allSessions, newSid];
         
@@ -302,7 +334,6 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
         } catch (err) {
             console.error("[ChatLogic] Branch failed", err);
             showToast("Failed to branch timeline.");
-            setIsDataLoaded(true);
         }
     };
 
@@ -674,7 +705,7 @@ export const useChatLogic = (persona, showToast, initialScenario, generateSelfie
 
         const shuffleDirective = {
             role: 'user',
-            content: "[SYSTEM DIRECTIVE: SCENARIO SHIFT. Randomly and creatively transition the story to a completely NEW location and situation. Describe the new environment vividly using sensory details. Stay in character, but take a bold leap into a new phase of our interaction ΓÇö something unexpected and exciting.]"
+            content: "[SYSTEM DIRECTIVE: SCENARIO SHIFT. Randomly and creatively transition the story to a completely NEW location and situation. Describe the new environment vividly using sensory details. Stay in character, but take a bold leap into a new phase of our interaction — something unexpected and exciting.]"
         };
 
         await executeAiRequest(aiMessageId, [...messages, shuffleDirective]);
@@ -1097,6 +1128,7 @@ ${lorePrompt}
         isTyping,
         isSuggesting,
         relationshipScore, setRelationshipScore,
+        traits, setTraits,
         intensity, setIntensity,
         memory, setMemory,
         invitedPersona, setInvitedPersona,

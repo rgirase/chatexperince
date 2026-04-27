@@ -95,21 +95,23 @@ function App() {
         }
       }, 2500);
 
-      // 0. Load Profiles
-      const currentProfiles = await db.getProfiles();
-      setProfiles(currentProfiles);
-      
+      // 1. Warm core caches in parallel and load profiles
+      const [settingsMap] = await Promise.all([
+        db.getAllMapped('settings'),
+        db.getAllMapped('memories'),
+        db.getProfiles().then(p => setProfiles(p))
+      ]);
+
       let loadedPersonas = [...defaultPersonas];
-      
-      // 1. Load Custom Personas (Migration + Fetch)
+
+      // 2. Load Custom Personas (Cached)
       try {
-        let custom = await db.getItem('settings', 'customPersonas');
+        let custom = settingsMap['customPersonas'];
         if (!custom) {
           const stored = localStorage.getItem('customPersonas');
           if (stored) {
             custom = JSON.parse(stored);
             await db.setItem('settings', 'customPersonas', custom);
-            console.log("[Storage] Migrated customPersonas to IndexedDB.");
           }
         }
         if (custom && Array.isArray(custom)) {
@@ -120,11 +122,8 @@ function App() {
         console.error('[App] Failed to load customPersonas', e);
       }
 
-      // 2. Load Image Overrides (Migration + Batch Fetch)
-      const finalPersonas = [];
-      const settingsMap = await db.getAllMapped('settings');
-      
-      for (const p of loadedPersonas) {
+      // 3. Process Image Overrides (Cached)
+      const finalPersonas = loadedPersonas.map(p => {
         const key = `persona_img_${p.id}`;
         let savedImg = settingsMap[key];
         
@@ -132,15 +131,15 @@ function App() {
           const localImg = localStorage.getItem(key);
           if (localImg) {
             savedImg = localImg;
-            await db.setItem('settings', key, savedImg);
+            db.setItem('settings', key, savedImg); // Background
           }
         }
         
         const isValid = savedImg && savedImg.length > 10 &&
           (savedImg.startsWith('data:image/') || savedImg.startsWith('http'));
         
-        finalPersonas.push(isValid ? { ...p, image: savedImg } : p);
-      }
+        return isValid ? { ...p, image: savedImg } : p;
+      });
 
       // 3. Load View State
       const savedView = localStorage.getItem('activeView') || 'home';
