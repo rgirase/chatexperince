@@ -44,7 +44,7 @@ if (window.location.search.includes('reset=true')) {
   safeReset();
 }
 
-// A true React class-based ErrorBoundary — the ONLY way to catch React render errors
+// A true React class-based ErrorBoundary -- the ONLY way to catch React render errors
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -74,7 +74,7 @@ class ErrorBoundary extends React.Component {
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
             <button onClick={() => window.location.reload()} style={{ padding: '0.6rem 1.2rem', background: '#8b5cf6', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>Reload</button>
-            <button onClick={safeReset} style={{ padding: '0.6rem 1.2rem', background: 'rgba(239,68,68,0.2)', border: '1px solid #ef4444', borderRadius: '8px', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>Fix &amp; Reset</button>
+            <button onClick={safeReset} style={{ padding: '0.6rem 1.2rem', background: 'rgba(239,68,68,0.2)', border: '1px solid #ef4444', borderRadius: '8px', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>Fix & Reset</button>
           </div>
         </div>
       );
@@ -90,13 +90,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 )
 window.appIsMounted = true;
 
-/**
- * Service Worker Strategy: Disabled for Development Stability
- * 
- * We no longer register sw.js because it causes "Update on Focus" reload loops
- * in certain browser environments. To fix a blank screen, use the "Fix & Reset" 
- * button in the ErrorBoundary above or add '?reset=true' to the URL.
- */
 // Only provide the tool, don't run it automatically to avoid reload loops
 window.auraSafeReset = safeReset;
-

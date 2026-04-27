@@ -19,12 +19,22 @@ export default defineConfig({
       overlay: false
     },
     proxy: {
+      '/api-ollama': {
+        target: 'http://localhost:11434',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api-ollama/, ''),
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, _req, _res) => {
+            proxyReq.removeHeader('Origin');
+          });
+        }
+      },
       // Generic proxy: any direct LM Studio IP request is proxied through Vite to bypass CORS
       // Mac (default)
-      '/api': {
+      '/api-mac': {
         target: 'http://192.168.1.233:1234',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/v1')
+        rewrite: (path) => path.replace(/^\/api-mac/, '/v1')
       },
       // PC (local network)
       '/api-pc': {

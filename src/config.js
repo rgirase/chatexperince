@@ -1,10 +1,10 @@
 // Central configuration for default values and fallbacks
-export const DEFAULT_LM_STUDIO_URL = `http://${window.location.hostname}:1234/v1`;
+export const DEFAULT_LM_STUDIO_URL = `http://${window.location.hostname}:5173/api-ollama`;
 export const DEFAULT_SD_URL = `http://${window.location.hostname}:8000`;
 export const DEFAULT_NEXUS_URL = `http://${window.location.hostname}:8001`;
 
 export const DEFAULT_IMAGE_ENGINE = 'comfyui';
-export const DEFAULT_LM_STUDIO_MODEL = 'local-model';
+export const DEFAULT_LM_STUDIO_MODEL = 'gemma2:9b';
 
 export const DEFAULT_COMFY_WORKFLOW = {
     "3": { "inputs": { "seed": 42, "steps": 25, "cfg": 7, "sampler_name": "euler_ancestral", "scheduler": "normal", "denoise": 1, "model": ["4", 0], "positive": ["6", 0], "negative": ["7", 0], "latent_image": ["5", 0] }, "class_type": "KSampler" },

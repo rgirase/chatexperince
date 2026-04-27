@@ -568,7 +568,7 @@ ${persona.id === 'sister_grace' ? `\n\n[CRITICAL: You MUST use the DUAL-VOICE fo
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), fetchTimeout);
 
-    const useNexus = localStorage.getItem('useNexus') === 'true' || true; // DEFAULT TO TRUE FOR THIS TASK
+    const useNexus = localStorage.getItem('useNexus') === 'true';
     const url = useNexus ? getNexusUrl() : getLmStudioUrl();
     
     try {

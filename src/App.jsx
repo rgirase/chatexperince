@@ -168,6 +168,7 @@ function App() {
         servers = storedServers ? JSON.parse(storedServers) : [];
         if (!Array.isArray(servers)) servers = [];
         const presets = [
+          { id: 'ollama', name: 'Local Ollama', url: `http://${window.location.hostname}:5173/api-ollama` },
           { id: 'mac', name: 'Mac', url: 'http://192.168.1.233:1234/v1' },
           { id: 'tailscale', name: 'Tailscale PC', url: 'http://100.87.53.100:1234/v1' },
           { id: 'pc', name: 'PC', url: 'http://169.254.83.107:1234/v1' }
