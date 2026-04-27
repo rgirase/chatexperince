@@ -347,6 +347,10 @@ export const cleanLeakage = (text) => {
         .replace(/\{[\s\n]*"[a-z0-9_]+":[\s\S]*$/gi, '')
         // STRIP CONTROL CHARACTERS AND SPECIAL TOKENS
         .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '')
+        // Strip ANSI escape codes and terminal control sequences (ESC [ ... m, etc.)
+        .replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '')
+        // Strip literal escape sequence strings if they leak as text
+        .replace(/\\u001b/g, '')
         .replace(/<SPECIAL_\d+>/gi, '')
         .replace(/<\|.*?\|>/g, '') // Strip tokens like <|eot_id|>
         .replace(/<.*?>/g, (match) => {
@@ -356,6 +360,9 @@ export const cleanLeakage = (text) => {
 
     // === FINAL POST-PROCESSING ===
     cleaned = cleaned
+        // Strip runaway repetitions (e.g. !!!!!!!!!!!!! or abcabcabcabc) often caused by model failure
+        .replace(/(.{3,})\1{4,}/g, '$1') // If 3+ chars repeat 5+ times, keep only 1
+        .replace(/(.)\1{15,}/g, '$1')    // If 1 char repeats 16+ times, keep only 1
         .replace(/[^\S\r\n]{2,}/g, ' ') // Collapse multiple spaces (preserve newlines)
         .replace(/\n\s+\n/g, '\n\n')    // Clean up whitespace-only lines between paragraphs
         .replace(/\s+\n/g, '\n')        // Remove trailing spaces on lines
